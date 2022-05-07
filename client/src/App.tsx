@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import RequireAuth from './components/RequireAuth/RequireAuth'
 import ThothPageWrapper from './components/ThothPage/ThothPageWrapper'
 import HomeScreen from './screens/HomeScreen/HomeScreen'
+import  CalendarApp  from './screens/Calendar/calendar'
 import Thoth from './screens/Thoth/Thoth'
 import { useAuth } from './contexts/AuthProvider'
 
@@ -42,6 +43,7 @@ function App() {
           <Route path="/thoth" element={<Thoth />} />
           <Route path="/thoth/:spellName" element={<Thoth />} />
           <Route path="/home/*" element={<HomeScreen />} />
+          <Route path="/calendar" element={<CalendarApp />} />
           <Route path="/" element={redirect()} />
         </Route>
       </Routes>
