@@ -558,6 +558,30 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
+const getCalendarEvents = async (ctx: Koa.Context) => {
+  try {
+    let calendarEvents = await database.instance.getCalendarEvents()
+    return (ctx.body = calendarEvents)
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+const addCalendarEvent = async (ctx: Koa.Context) => {
+  const name = ctx.request.body.name
+  const date = ctx.request.body.date
+  const time = ctx.request.body.time
+  const type = ctx.request.body.type
+  const moreInfo = ctx.request.body.moreInfo
+  
+  try {
+    return (ctx.body = await database.instance.createCalendarEvent(name, date, time, type, moreInfo))
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -601,6 +625,12 @@ export const entities: Route[] = [
     path: '/events_sorted',
     access: noAuth,
     get: getSortedEventsByDate,
+  },
+  {
+    path: '/calendar_event',
+    access: noAuth,
+    get: getCalendarEvents,
+    post: addCalendarEvent,
   },
   {
     path: '/speech_to_text',
