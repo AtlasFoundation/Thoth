@@ -14,6 +14,8 @@ export type EditClient = {
 export type ClientFilterOptions = {
   per_page: number | string
   page: number | string
+  search?: string
+  field?: string
 }
 
 export type AddConfiguration = {
@@ -30,6 +32,8 @@ export type EditConfiguration = {
 export type ConfigurationFilterOptions = {
   per_page: number | string
   page: number | string
+  search?: string
+  field?: string
 }
 
 export type FullTableSize = {
@@ -61,6 +65,8 @@ export type EditScope = {
 export type ScopeFilterOptions = {
   per_page: number | string
   page: number | string
+  search?: string
+  field?: string
 }
 
 export enum AddScopeOptional {
