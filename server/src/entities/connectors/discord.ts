@@ -713,7 +713,6 @@ export class discord_client {
         info3d: '',
       })
     }
-    console.log(roomInfo)
 
     const response = await this.handleInput(
       message.content,

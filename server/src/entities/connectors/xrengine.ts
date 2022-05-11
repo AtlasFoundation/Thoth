@@ -26,6 +26,7 @@ import {
   startsWithCapital,
 } from './utils'
 import { removeEmojisFromString } from '../../utils/utils'
+import { cacheManager } from '../../cacheManager'
 
 function isUrl(url: string): boolean {
   if (!url || url === undefined || url.length <= 0 || !url.startsWith('http'))
@@ -470,7 +471,7 @@ export class xrengine_client {
   }
 
   async handleXREngineResponse(response, addPing, sender, isVoice) {
-    if (response === undefined || !response) {
+    if (response === undefined || !response || response.length <= 0) {
       return
     }
     console.log('response: ' + response)
@@ -487,16 +488,28 @@ export class xrengine_client {
       if (!(response as string).startsWith('/')) {
         isVoice = true
         response = removeEmojisFromString(response)
-        const fileId = await tts(response as string)
-        const url =
-          (process.env.FILE_SERVER_URL?.endsWith('/')
-            ? process.env.FILE_SERVER_URL
-            : process.env.FILE_SERVER_URL + '/') + fileId
+        const temp = response
+        const cache = await cacheManager.instance.get(
+          this.agent,
+          'voice_' + temp,
+          true
+        )
+        if (cache) {
+          response = cache
+          console.log('got from cache:', cache)
+        } else {
+          const fileId = await tts(response as string)
+          const url =
+            (process.env.FILE_SERVER_URL?.endsWith('/')
+              ? process.env.FILE_SERVER_URL
+              : process.env.FILE_SERVER_URL + '/') + fileId
 
-        console.log('url:', url)
-        response = url
+          console.log('url:', url)
+          response = url
+        }
         await this.xrengineBot.delay(1000)
         await this.xrengineBot.sendMessage('!voiceUrl|' + response)
+        cacheManager.instance.set(this.agent, 'voice_' + temp, response)
       }
       return
     }

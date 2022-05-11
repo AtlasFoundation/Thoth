@@ -44,7 +44,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
           const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
-          console.log("Saving diff", jsonDiff)
+          console.log('Saving diff', jsonDiff)
           if (jsonDiff == [] || !jsonDiff) return
 
           const response = await saveDiff({
@@ -53,7 +53,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           })
           loadSpell({
             spellId: tab.spellId,
-            userId: user?.id as string
+            userId: user?.id as string,
           })
 
           if ('error' in response) {
@@ -112,7 +112,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     if (!tab || !tab.spellId) return
     loadSpell({
       spellId: tab.spellId,
-      userId: user?.id as string
+      userId: user?.id as string,
     })
   }, [tab])
 
