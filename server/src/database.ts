@@ -16,6 +16,7 @@ import {
   EditClient,
   EditConfiguration,
   EditScope,
+  ScopeFilterOptions,
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 
@@ -567,6 +568,45 @@ export class database {
     return { data: [], success: false }
   }
 
+  async getAllClientSettingsUsingFieldAndSearch({
+    page,
+    per_page,
+    field,
+    search,
+  }: ClientFilterOptions): Promise<any> {
+    let offset = Math.abs(
+      (per_page as number) * Math.abs((page as number) - 1)
+    ) as number
+
+    const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
+
+    const rows = await this.client.query(query, [per_page, offset, search])
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return { data: rows.rows, success: true }
+    }
+    return { data: [], success: false }
+  }
+
+  async getAllClientSettingsUsingSearch({
+    page,
+    per_page,
+    search,
+  }: ClientFilterOptions): Promise<any> {
+    let offset = Math.abs(
+      (per_page as number) * Math.abs((page as number) - 1)
+    ) as number
+
+    const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND (name LIKE '%' || $3 || '%' OR client LIKE '%' || $3 || '%' OR default_value LIKE '%' || $3 || '%' OR type LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
+
+    const rows = await this.client.query(query, [per_page, offset, search])
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return { data: rows.rows, success: true }
+    }
+    return { data: [], success: false }
+  }
+
   async addClientSetting(body: AddClient): Promise<any> {
     const { client, defaultValue, name, type } = body
 
@@ -688,6 +728,45 @@ export class database {
     return { data: [], success: false }
   }
 
+  async getAllConfigurationSettingsUsingFieldAndSearch({
+    page,
+    per_page,
+    field,
+    search,
+  }: ConfigurationFilterOptions): Promise<any> {
+    let offset = Math.abs(
+      (per_page as number) * Math.abs((page as number) - 1)
+    ) as number
+
+    const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
+
+    const rows = await this.client.query(query, [per_page, offset, search])
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return { data: rows.rows, success: true }
+    }
+    return { data: [], success: false }
+  }
+
+  async getAllConfigurationSettingsUsingSearch({
+    page,
+    per_page,
+    search,
+  }: ConfigurationFilterOptions): Promise<any> {
+    let offset = Math.abs(
+      (per_page as number) * Math.abs((page as number) - 1)
+    ) as number
+
+    const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND (value LIKE '%' || $3 || '%' OR key LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
+
+    const rows = await this.client.query(query, [per_page, offset, search])
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return { data: rows.rows, success: true }
+    }
+    return { data: [], success: false }
+  }
+
   async getConfigurationSettingsById(id: string | number): Promise<any> {
     const query =
       'SELECT id, key, value FROM configuration_settings WHERE id=$1 AND is_deleted=false'
@@ -801,7 +880,7 @@ export class database {
   async getAllScopeSettings({
     page,
     per_page,
-  }: ConfigurationFilterOptions): Promise<any> {
+  }: ScopeFilterOptions): Promise<any> {
     let offset = Math.abs(
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
@@ -810,6 +889,45 @@ export class database {
       'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return { data: rows.rows, success: true }
+    }
+    return { data: [], success: false }
+  }
+
+  async getAllScopeSettingsUsingFieldAndSearch({
+    page,
+    per_page,
+    field,
+    search,
+  }: ScopeFilterOptions): Promise<any> {
+    let offset = Math.abs(
+      (per_page as number) * Math.abs((page as number) - 1)
+    ) as number
+
+    const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
+
+    const rows = await this.client.query(query, [per_page, offset, search])
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return { data: rows.rows, success: true }
+    }
+    return { data: [], success: false }
+  }
+
+  async getAllScopeSettingsUsingSearch({
+    page,
+    per_page,
+    search,
+  }: ScopeFilterOptions): Promise<any> {
+    let offset = Math.abs(
+      (per_page as number) * Math.abs((page as number) - 1)
+    ) as number
+
+    const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND (full_table_size LIKE '%' || $3 || '%' OR table_size LIKE '%' || $3 || '%' OR tables LIKE '%' || $3 || '%' OR record_count LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
+
+    const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
       return { data: rows.rows, success: true }

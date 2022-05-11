@@ -12,6 +12,7 @@ import {
   EditClient,
   EditConfiguration,
   EditScope,
+  ScopeFilterOptions,
 } from './types'
 import {
   isValidObject,
@@ -122,17 +123,63 @@ const deleteClient = async (ctx: Koa.Context) => {
 
 const getAllClient = async (ctx: Koa.Context) => {
   let { query } = ctx.request as Koa.Request
+  let isWithFieldKey = false,
+    isWithoutFieldKey = false,
+    data = [] as any,
+    success = false
 
-  let { page, per_page } = query as ClientFilterOptions
+  let { page, per_page, search, field } = query as ClientFilterOptions
 
   page = page || (1 as any)
   per_page = per_page || (10 as any)
 
+  let validateFields = ['name', 'type', 'default_value', 'client']
+
   try {
-    const { success, data } = await database.instance.getAllClientSetting({
-      page,
-      per_page,
-    })
+    if (isString(field) && isString(search)) {
+      if (!validateFields.includes(field))
+        return (
+          (ctx.body = makeResponse(
+            'Invalid field! Please send valid field or remove it',
+            {}
+          )),
+          (ctx.status = 400)
+        )
+
+      const { success: clientSuccess, data: clientData } =
+        await database.instance.getAllClientSettingsUsingFieldAndSearch({
+          page,
+          per_page,
+          search,
+          field,
+        } as ClientFilterOptions)
+      isWithFieldKey = true
+      success = clientSuccess
+      data = clientData
+    }
+
+    // search data with given text
+    if (!isWithFieldKey && isString(search) && search.length > 0) {
+      const { success: clientSuccess, data: clientData } =
+        await database.instance.getAllClientSettingsUsingSearch({
+          page,
+          per_page,
+          search,
+        } as ClientFilterOptions)
+      isWithoutFieldKey = true
+      success = clientSuccess
+      data = clientData
+    }
+
+    if (!isWithFieldKey && !isWithoutFieldKey) {
+      const { success: clientSuccess, data: clientData } =
+        await database.instance.getAllClientSetting({
+          page,
+          per_page,
+        } as ClientFilterOptions)
+      success = clientSuccess
+      data = clientData
+    }
 
     if (success) return (ctx.body = makeResponse('Records available', data))
 
@@ -232,18 +279,63 @@ const editConfiguration = async (ctx: Koa.Context) => {
 
 const getAllConfiguration = async (ctx: Koa.Context) => {
   let { query } = ctx.request as Koa.Request
+  let isWithFieldKey = false,
+    isWithoutFieldKey = false,
+    data = [] as any,
+    success = false
 
-  let { page, per_page } = query as ConfigurationFilterOptions
+  let { page, per_page, search, field } = query as ConfigurationFilterOptions
 
   page = page || (1 as any)
   per_page = per_page || (10 as any)
 
+  let validateFields = ['key', 'value']
+
   try {
-    const { success, data } =
-      await database.instance.getAllConfigurationSettings({
-        page,
-        per_page,
-      })
+    if (isString(field) && isString(search)) {
+      if (!validateFields.includes(field))
+        return (
+          (ctx.body = makeResponse(
+            'Invalid field! Please send valid field or remove it',
+            {}
+          )),
+          (ctx.status = 400)
+        )
+
+      const { success: configurationSuccess, data: configurationData } =
+        await database.instance.getAllConfigurationSettingsUsingFieldAndSearch({
+          page,
+          per_page,
+          search,
+          field,
+        } as ConfigurationFilterOptions)
+      isWithFieldKey = true
+      success = configurationSuccess
+      data = configurationData
+    }
+
+    // search data with given text
+    if (!isWithFieldKey && isString(search) && search.length > 0) {
+      const { success: configurationSuccess, data: configurationData } =
+        await database.instance.getAllConfigurationSettingsUsingSearch({
+          page,
+          per_page,
+          search,
+        } as ConfigurationFilterOptions)
+      isWithoutFieldKey = true
+      success = configurationSuccess
+      data = configurationData
+    }
+
+    if (!isWithFieldKey && !isWithoutFieldKey) {
+      const { success: configurationSuccess, data: configurationData } =
+        await database.instance.getAllConfigurationSettings({
+          page,
+          per_page,
+        } as ConfigurationFilterOptions)
+      success = configurationSuccess
+      data = configurationData
+    }
 
     if (success) return (ctx.body = makeResponse('Records available', data))
 
@@ -405,17 +497,64 @@ const editScope = async (ctx: Koa.Context) => {
 
 const getAllScope = async (ctx: Koa.Context) => {
   let { query } = ctx.request as Koa.Request
+  let isWithFieldKey = false,
+    isWithoutFieldKey = false,
+    data = [] as any,
+    success = false
 
-  let { page, per_page } = query as ConfigurationFilterOptions
+  let { page, per_page, search, field } = query as ConfigurationFilterOptions
 
   page = page || (1 as any)
   per_page = per_page || (10 as any)
 
+  let validateFields = ['tables', 'fullTableSize', 'tableSize', 'recordCount']
+
   try {
-    const { success, data } = await database.instance.getAllScopeSettings({
-      page,
-      per_page,
-    })
+    // search data with perticular given field
+    if (isString(field) && isString(search)) {
+      if (!validateFields.includes(field))
+        return (
+          (ctx.body = makeResponse(
+            'Invalid field! Please send valid field or remove it',
+            {}
+          )),
+          (ctx.status = 400)
+        )
+
+      const { success: scopeSuccess, data: scopeData } =
+        await database.instance.getAllScopeSettingsUsingFieldAndSearch({
+          page,
+          per_page,
+          search,
+          field,
+        } as ScopeFilterOptions)
+      isWithFieldKey = true
+      success = scopeSuccess
+      data = scopeData
+    }
+
+    // search data with given text
+    if (!isWithFieldKey && isString(search) && search.length > 0) {
+      const { success: scopeSuccess, data: scopeData } =
+        await database.instance.getAllScopeSettingsUsingSearch({
+          page,
+          per_page,
+          search,
+        } as ScopeFilterOptions)
+      isWithoutFieldKey = true
+      success = scopeSuccess
+      data = scopeData
+    }
+
+    if (!isWithFieldKey && !isWithoutFieldKey) {
+      const { success: scopeSuccess, data: scopeData } =
+        await database.instance.getAllScopeSettings({
+          page,
+          per_page,
+        } as ScopeFilterOptions)
+      success = scopeSuccess
+      data = scopeData
+    }
 
     if (success) return (ctx.body = makeResponse('Records available', data))
 
