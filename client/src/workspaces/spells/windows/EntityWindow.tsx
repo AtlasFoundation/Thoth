@@ -4,7 +4,11 @@ import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { adjectives, colors, uniqueNamesGenerator } from 'unique-names-generator'
+import {
+  adjectives,
+  colors,
+  uniqueNamesGenerator,
+} from 'unique-names-generator'
 
 function isJson(str) {
   try {
@@ -68,6 +72,12 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
 
+  const [telegram_enabled, setTelegramEnabled] = useState('')
+  const [telegram_bot_token, setTelegramBotToken] = useState('')
+  const [telegram_bot_name, setTelegramBotName] = useState('')
+  const [telegram_spell_handler_incoming, setTelegramSpellHandlerIncoming] =
+    useState('')
+
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
   // const [twilio_sid, setTwilioSid] = useState('')
   // const [twilio_auth_token, setTwilioAuthToken] = useState('')
@@ -117,6 +127,13 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwitterAccessTokenSecret(res.data.twitter_access_token_secret)
         setTwitterBotName(res.data.twitter_bot_name)
         setTwitterBotNameRegex(res.data.twitter_bot_name_regex)
+
+        setTelegramEnabled(res.data.telegram_enabled === true)
+        setTelegramBotToken(res.data.telegram_bot_token)
+        setTelegramBotName(res.data.telegram_bot_name)
+        setTelegramSpellHandlerIncoming(
+          res.data.telegram_spell_handler_incoming
+        )
 
         // setTwilioClientEnable(res.data.twilio_client_enable === true)
         // setTwilioSid(res.data.twilio_sid)
@@ -187,6 +204,10 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_access_token_secret,
       twitter_bot_name,
       twitter_bot_name_regex,
+      telegram_enabled,
+      telegram_bot_token,
+      telegram_bot_name,
+      telegram_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
@@ -241,6 +262,13 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
 
+          setTelegramEnabled(responseData.telegram_enabled)
+          setTelegramBotToken(responseData.telegram_bot_token)
+          setTelegramBotName(responseData.telegram_bot_name)
+          setTelegramSpellHandlerIncoming(
+            responseData.telegram_spell_handler_incoming
+          )
+
           // setTwilioClientEnable(responseData.twilio_client_enable)
           // setTwilioSid(responseData.twilio_sid)
           // setTwilioAuthToken(responseData.twilio_auth_token)
@@ -285,11 +313,15 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_access_token_secret,
       twitter_bot_name,
       twitter_bot_name_regex,
+      telegram_enabled,
+      telegram_bot_token,
+      telegram_bot_name,
+      telegram_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
       // twilio_phone_number
-    }    
+    }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
       separator: '-',
@@ -741,6 +773,64 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
             </>
           )}
+
+          <div className="form-item">
+            <span className="form-item-label">Telegram Client Enabled</span>
+            <input
+              type="checkbox"
+              value={telegram_enabled}
+              defaultChecked={telegram_enabled || telegram_enabled === 'true'}
+              onChange={e => {
+                setTelegramEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {telegram_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Bot Token</span>
+                <input
+                  type="text"
+                  defaultValue={telegram_bot_token}
+                  onChange={e => {
+                    setTelegramBotToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={telegram_bot_name}
+                  onChange={e => {
+                    setTelegramBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={telegram_spell_handler_incoming}
+                  onChange={event => {
+                    setTelegramSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
           {/* <div className="form-item">
             <span className="form-item-label">Twilio Client Enabled</span>
             <input
@@ -795,7 +885,9 @@ const EntityWindow = ({ id, updateCallback }) => {
         <button onClick={() => update()} style={{ marginRight: '10px' }}>
           Update
         </button>
-        <button onClick={() => _delete()} style={{ marginRight: '10px' }}>Delete</button>
+        <button onClick={() => _delete()} style={{ marginRight: '10px' }}>
+          Delete
+        </button>
         <button onClick={() => exportEntity()}>Export</button>
       </div>
     </div>

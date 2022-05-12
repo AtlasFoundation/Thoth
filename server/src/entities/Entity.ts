@@ -178,6 +178,33 @@ export class Entity {
     console.log('Stopped twitter client for agent ' + this)
   }
 
+  async startTelegram(
+    telegram_bot_token: string,
+    telegram_bot_name: string,
+    entity: any,
+    spell_handler: string,
+    spell_version: string
+  ) {
+    console.log('initializing telegram:', telegram_bot_token)
+    if (this.telegram)
+      throw new Error(
+        'Telegram already running for this entity on this instance'
+      )
+
+    const spellHandler = await CreateSpellHandler({
+      spell: spell_handler,
+      version: spell_version,
+    })
+
+    this.telegram = new telegram_client()
+    await this.telegram.createTelegramClient(spellHandler, {
+      telegram_bot_token,
+      telegram_bot_name,
+      entity,
+    })
+  }
+  stopTelegram() {}
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -186,6 +213,7 @@ export class Entity {
     if (this.discord) this.stopDiscord()
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
+    if (this.telegram) this.stopTelegram()
   }
 
   constructor(data: any) {
@@ -238,6 +266,16 @@ export class Entity {
         data.twitter_access_token_secret,
         data.twitter_bot_name,
         data.twitter_bot_name_regex
+      )
+    }
+
+    if (data.telegram_enabled) {
+      this.startTelegram(
+        data.telegram_bot_token,
+        data.telegram_bot_name,
+        data,
+        data.telegram_spell_handler_incoming,
+        data.spell_version
       )
     }
   }

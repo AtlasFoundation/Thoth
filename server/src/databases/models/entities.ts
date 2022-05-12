@@ -39,6 +39,10 @@ export interface entitiesAttributes {
   twitter_access_token_secret?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
+  telegram_enabled?: boolean
+  telegram_bot_token?: string
+  telegram_bot_name?: string
+  telegram_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -73,6 +77,10 @@ export type entitiesOptionalAttributes =
   | 'twitter_access_token_secret'
   | 'twitter_bot_name'
   | 'twitter_bot_name_regex'
+  | 'telegram_enabled'
+  | 'telegram_bot_token'
+  | 'telegram_bot_name'
+  | 'telegram_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -82,7 +90,8 @@ export type entitiesCreationAttributes = Optional<
 
 export class entities
   extends Model<entitiesAttributes, entitiesCreationAttributes>
-  implements entitiesAttributes {
+  implements entitiesAttributes
+{
   id?: number
   instanceId?: number
   personality?: string
@@ -119,6 +128,10 @@ export class entities
   twitter_access_token_secret?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
+  telegram_enabled?: boolean
+  telegram_bot_token?: string
+  telegram_bot_name?: string
+  telegram_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -266,6 +279,22 @@ export class entities
           allowNull: true,
         },
         twitter_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        telegram_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        telegram_bot_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        telegram_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        telegram_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
