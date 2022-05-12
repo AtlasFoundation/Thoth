@@ -30,7 +30,7 @@ const addClient = async (ctx: Koa.Context) => {
       if (isAlreadyExists)
         return (
           (ctx.body = makeResponse('Setting already exists!', data)),
-          (ctx.status = 201)
+          (ctx.status = 400)
         )
       if (success)
         return (ctx.body = makeResponse('Setting added successfully', data))
@@ -70,7 +70,7 @@ const editClient = async (ctx: Koa.Context) => {
       if (!isExists)
         return (
           (ctx.body = makeResponse('Setting not available in record!', {})),
-          (ctx.status = 201)
+          (ctx.status = 404)
         )
       if (success)
         return (ctx.body = makeResponse('Setting updated successfully', data))
@@ -107,7 +107,7 @@ const deleteClient = async (ctx: Koa.Context) => {
     if (!isExists)
       return (
         (ctx.body = makeResponse('Setting not available in record!', {})),
-        (ctx.status = 201)
+        (ctx.status = 404)
       )
     if (success)
       return (ctx.body = makeResponse('Setting deleted successfully', data))
@@ -204,7 +204,7 @@ const addConfiguration = async (ctx: Koa.Context) => {
       if (isAlreadyExists)
         return (
           (ctx.body = makeResponse('Configuration already exists!', data)),
-          (ctx.status = 201)
+          (ctx.status = 400)
         )
 
       if (success)
@@ -252,7 +252,7 @@ const editConfiguration = async (ctx: Koa.Context) => {
             'Configuration not available in record!',
             {}
           )),
-          (ctx.status = 201)
+          (ctx.status = 404)
         )
       if (success)
         return (ctx.body = makeResponse(
@@ -363,7 +363,7 @@ const deleteConfiguration = async (ctx: Koa.Context) => {
     if (!isExists)
       return (
         (ctx.body = makeResponse('Setting not available in record!', {})),
-        (ctx.status = 201)
+        (ctx.status = 404)
       )
     if (success)
       return (ctx.body = makeResponse('Setting deleted successfully', data))
@@ -409,7 +409,7 @@ const addScope = async (ctx: Koa.Context) => {
       if (isAlreadyExists)
         return (
           (ctx.body = makeResponse('Scope already exists!', data)),
-          (ctx.status = 201)
+          (ctx.status = 400)
         )
 
       if (success)
@@ -473,7 +473,7 @@ const editScope = async (ctx: Koa.Context) => {
       if (!isExists)
         return (
           (ctx.body = makeResponse('Scope not available in record!', {})),
-          (ctx.status = 201)
+          (ctx.status = 404)
         )
       if (success)
         return (ctx.body = makeResponse('Scope updated successfully', data))
@@ -582,7 +582,7 @@ const deleteScope = async (ctx: Koa.Context) => {
     if (!isExists)
       return (
         (ctx.body = makeResponse('Setting not available in record!', {})),
-        (ctx.status = 201)
+        (ctx.status = 404)
       )
     if (success)
       return (ctx.body = makeResponse('Setting deleted successfully', data))
