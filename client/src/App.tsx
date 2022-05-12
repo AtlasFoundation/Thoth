@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import RequireAuth from './components/RequireAuth/RequireAuth'
 import ThothPageWrapper from './components/ThothPage/ThothPageWrapper'
 import HomeScreen from './screens/HomeScreen/HomeScreen'
-import  CalendarApp  from './screens/Calendar/calendar'
+import { CalendarApp } from './screens/Calendar/Calendar'
 import Thoth from './screens/Thoth/Thoth'
 import { useAuth } from './contexts/AuthProvider'
 
