@@ -44,6 +44,7 @@ import { DocumentGet } from './search/DocumentGet'
 import { DocumentSet } from './search/DocumentSet'
 import { DocumentStoreGet } from './search/DocumentStoreGet'
 import { Search } from './search/Search'
+import { VectorSearch } from './search/VectorSearch'
 import { SpellComponent } from './Spell'
 import { StateRead } from './state/StateRead'
 import { StateWrite } from './state/StateWrite'
@@ -94,6 +95,7 @@ export const components = {
   conversationRecall: () => new EventRecall(),
   request: () => new Request(),
   search: () => new Search(),
+  vectorSearch: () => new VectorSearch(),
   documentGet: () => new DocumentGet(),
   documentEdit: () => new DocumentEdit(),
   documentDelete: () => new DocumentDelete(),
