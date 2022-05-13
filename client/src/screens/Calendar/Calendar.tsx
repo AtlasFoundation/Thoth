@@ -85,10 +85,7 @@ const Navigation = ({ date, setDate, setShowingEventForm }) => {
 
       <div className="monthAndYear">
         {MONTHS[date.getMonth()]} {date.getFullYear()}
-        <a
-          href="javascript:;"
-          onClick={() => setShowingEventForm({ visible: true })}
-        ></a>
+        <a onClick={() => setShowingEventForm({ visible: true })}></a>
       </div>
 
       <div
@@ -171,7 +168,7 @@ const EventForm = ({
 
   return (
     <Modal
-      className=""
+      className="eventheader"
       onClose={() => setShowingEventForm({ visible: false })}
       title={`${withEvent ? 'Edit event' : 'Add a new event'}`}
     >
@@ -187,7 +184,7 @@ const EventForm = ({
         </label>
 
         <label>
-          Date from
+          Start
           <input
             type="datetime-local"
             defaultValue={event.dateFrom || dateToInputFormat(preselectedDate)}
@@ -196,7 +193,7 @@ const EventForm = ({
         </label>
 
         <label>
-          Date to
+          End
           <input
             type="datetime-local"
             defaultValue={event.dateTo}
@@ -231,26 +228,26 @@ const EventForm = ({
             <button onClick={() => editEvent(event)}>Edit event</button>
             <a
               className="close"
-              href="javascript:;"
               onClick={() => {
                 setShowingEventForm({ visible: false })
                 setViewingEvent(event)
               }}
             >
-              Cancel (go back to event view)
+              Cancel
             </a>
           </Fragment>
         ) : (
           <Fragment>
-            <button onClick={() => addEvent(event)}>
-              Add event to calendar
+            <button onClick={() => addEvent(event)} className="Add">
+              Add event
             </button>
-            <a
+
+            <button
               className="close"
               onClick={() => setShowingEventForm({ visible: false })}
             >
-              Cancel (go back to calendar)
-            </a>
+              Cancel
+            </button>
           </Fragment>
         )}
       </div>
@@ -326,7 +323,6 @@ const Grid = ({
             }`}
           >
             <div className="date">
-              {date.date.getDate()}
               <a
                 className="addEventOnDay"
                 onClick={() =>
@@ -336,7 +332,7 @@ const Grid = ({
                   })
                 }
               >
-                +
+                {date.date.getDate()}
               </a>
             </div>
             {date.events.map((event, index) => (
@@ -356,7 +352,10 @@ const Grid = ({
 export const CalendarApp = ({ preloadedEvents = [] }) => {
   const [date, setDate] = useState(new Date())
   const [viewingEvent, setViewingEvent] = useState(false)
-  const [showingEventForm, setShowingEventForm] = useState({ visible: false })
+  const [showingEventForm, setShowingEventForm] = useState({
+    visible: false,
+    withEvent: false,
+  })
   const [isLoading, setIsLoading] = useState(false)
   const [feedback, setFeedback] = useState([] as any)
 
@@ -369,7 +368,7 @@ export const CalendarApp = ({ preloadedEvents = [] }) => {
 
   const addEvent = event => {
     setIsLoading(true)
-    setShowingEventForm({ visible: false })
+    setShowingEventForm({ visible: false, withEvent: false })
     setTimeout(() => {
       const parsedEvents = parseEvents([event])
 
@@ -384,7 +383,7 @@ export const CalendarApp = ({ preloadedEvents = [] }) => {
 
   const editEvent = event => {
     setIsLoading(true)
-    setShowingEventForm({ visible: false })
+    setShowingEventForm({ visible: false, withEvent: false })
 
     setTimeout(() => {
       const parsedEvent = parseEvents([event])
@@ -401,7 +400,8 @@ export const CalendarApp = ({ preloadedEvents = [] }) => {
 
   const deleteEvent = event => {
     setIsLoading(true)
-    setViewingEvent(true)
+    setViewingEvent(false)
+    setShowingEventForm({ visible: false, withEvent: false })
 
     setTimeout(() => {
       const updatedEvents = [...events].filter(

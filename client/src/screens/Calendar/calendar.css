@@ -2,13 +2,13 @@
   display: flex;
   flex-wrap: wrap;
   width: 40%;
-  margin-top: 100px;
+  margin: 50px 500px 90px;
   align-items: center;
   justify-content: center;
   font-family: sans-serif;
-  border: 4px solid #e6e6e6;
   position: relative;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(70, 70, 70, 0.95);
+  color: white;
 }
 
 .calendar a {
@@ -16,10 +16,10 @@
 }
 
 .cell {
-  background: #fffeee;
+  background: #121212;
   width: 14.2857%;
   height: 90px;
-  font-size: 0.7em;
+  font-size: 1.2em;
   box-shadow: 0 0px 1px #393939;
 }
 
@@ -28,7 +28,7 @@
 }
 
 .current {
-  background: #d3edd3;
+  background: #9ea09e;
 }
 
 .current .date {
@@ -36,7 +36,7 @@
 }
 
 .otherMonth {
-  background: #f7f7f7;
+  background: #121212;
 }
 
 .otherMonth .date {
@@ -45,12 +45,12 @@
 
 .addEventOnDay {
   display: inline-block;
-  color: #4f4f4f;
+  color: white;
+  font-size: 0.8em;
   text-decoration: none;
-  margin-left: 4px;
-  background: #e1e1e1;
-  padding: 0 6px;
-  border-radius: 3px;
+  margin-left: 3px;
+  padding: 0 5px;
+  cursor: pointer;
 }
 
 .miniEvent {
@@ -71,18 +71,18 @@
 
 .navigation {
   width: 100%;
-  padding: 10px 8px 14px 8px;
-  border-bottom: 3px solid #b3b3b3;
 }
 
 .navigation div {
   display: inline-block;
   width: 33.33%;
+  font-size: 2em;
 }
 
 .navigation .monthAndYear {
   text-align: center;
   font-weight: bold;
+  color: white;
 }
 
 .navigation .monthAndYear a {
@@ -99,7 +99,7 @@
 .navigation .back,
 .navigation .forward {
   cursor: pointer;
-  font-size: 0.7em;
+  font-size: 0.9em;
   font-weight: 800;
   color: grey;
 }
@@ -117,8 +117,7 @@
   text-align: center;
   height: auto;
   padding: 10px 0;
-  background: #e9e9e9;
-  border-bottom: 3px solid #cacaca;
+  background: rgba(70, 70, 70, 0.95);
 }
 
 .addEvent {
@@ -131,6 +130,7 @@
   border-bottom: 2px solid green;
   color: white;
   padding: 10px;
+  cursor: pointer;
 }
 
 .form input,
@@ -140,7 +140,7 @@
   margin: 6px 0 10px 0;
   border: 3px solid #cacaca;
   border-radius: 4px;
-  background: #f9f9f9;
+  background: #121212;
 }
 
 .form select {
@@ -150,7 +150,7 @@
 .form label {
   font-weight: bold;
   text-align: left;
-  font-size: 0.8em;
+  font-size: 1.1em;
   display: block;
 }
 
@@ -180,7 +180,7 @@ button.red {
 }
 
 .modal {
-  background: white;
+  background: #121212;
   position: absolute;
   width: 50%;
   text-align: center;
@@ -195,7 +195,7 @@ button.red {
 
 .modal h3 {
   margin: 0;
-  background: #e6e6e6;
+  background: rgba(70, 70, 70, 0.95);
   padding: 12px;
   border-radius: 5px;
 }
@@ -205,10 +205,19 @@ button.red {
   line-height: 1.5em;
 }
 
+.Add {
+  margin-top: 22px;
+  font-size: 1em;
+  display: block;
+  cursor: pointer;
+  background: #1290ce;
+}
+
 .modal .close {
   margin-top: 22px;
-  font-size: 0.7em;
+  font-size: 1em;
   display: block;
+  cursor: pointer;
 }
 
 .eventModal p {
@@ -230,15 +239,16 @@ button.red {
   font-size: 0.8em;
   border-radius: 3px;
   margin-bottom: 6px;
+  cursor: pointer;
 }
 
 .eventModal button.red {
   margin-top: 8px;
+  cursor: pointer;
 }
 
 .feedback {
   position: absolute;
-  width: 90%;
   padding: 16px 0;
   left: 5%;
   text-align: center;
@@ -258,7 +268,6 @@ button.red {
   margin-left: -38px;
 }
 
-/* animated loading spinner from https://loading.io/css/ */
 .lds-roller {
   display: inline-block;
   position: relative;
