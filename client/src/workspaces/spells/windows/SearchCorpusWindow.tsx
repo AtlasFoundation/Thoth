@@ -72,8 +72,8 @@ const SearchCorpus = () => {
     })
   }
 
-  useEffect(async () => {
-    await getDocumentsStores()
+  useEffect(() => {
+    (async () => await getDocumentsStores())()
   }, [])
 
   return (
@@ -82,51 +82,56 @@ const SearchCorpus = () => {
         <h1>Loading...</h1>
       ) : (
         <div>
-          <span className="search-corpus">
-            <select
-              name="documents"
-              id="documents"
-              ref={storeRef}
-              onChange={event => {
-                event.preventDefault()
-                getDocuments()
-              }}
-            >
-              {documentsStores &&
-                documentsStores.map((store,i) => {
-                  return (<option value={store.id} key={store.id}>
-                    {store.name}
-                  </option>
-                  )
-                  })}
-            </select>
-          </span>
-          <span className="search-corpus-btns">
-            <VscNewFile
-              size={20}
-              color="#A0A0A0"
-              onClick={() => {
-                console.log('add clicked')
-                openAddEditModal('add')
-              }}
-            />
-            <FaEdit
-              size={20}
-              color="#A0A0A0"
-              onClick={() => {
-                console.log('edit clicked')
-                openAddEditModal('edit')
-              }}
-            />
-            <VscTrash
-              size={20}
-              color="#A0A0A0"
-              onClick={() => {
-                console.log('trash clicked')
-                openDeleteStoreModal()
-              }}
-            />
-          </span>
+          <div className="d-flex align-items-center">
+            <span className='search-corpus' style={{ width: '50%' }}>
+              <select
+                name="documents"
+                id="documents"
+                ref={storeRef}
+                onChange={event => {
+                  event.preventDefault()
+                  getDocuments()
+                }}
+              >
+                {documentsStores &&
+                  documentsStores.map((store,i) => {
+                    return (<option value={store.id} key={store.id}>
+                      {store.name}
+                    </option>
+                    )
+                    })}
+              </select>
+            </span>
+            <span>
+              <VscNewFile
+                size={20}
+                color="#A0A0A0"
+                style={{ margin: '0 0.5rem'}}
+                onClick={() => {
+                  console.log('add clicked')
+                  openAddEditModal('add')
+                }}
+              />
+              <FaEdit
+                size={20}
+                color="#A0A0A0"
+                style={{ margin: '0 0.5rem'}}
+                onClick={() => {
+                  console.log('edit clicked')
+                  openAddEditModal('edit')
+                }}
+              />
+              <VscTrash
+                size={20}
+                color="#A0A0A0"
+                style={{ margin: '0 0.5rem'}}
+                onClick={() => {
+                  console.log('trash clicked')
+                  openDeleteStoreModal()
+                }}
+              />
+            </span>
+          </div>
 
           <div className="d-flex flex-column search-corpus-documents-list">
             {documents &&

@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import Modal from '../Modal/Modal'
-import css from './modalForms.module.css'
+import Modal from '../../Modal/Modal'
+import css from '../modalForms.module.css'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 const DocumentAddModal = ({ closeModal, storeId, documentId, isContentObject, getDocuments, getContentObjects }) => {
   let parentId = isContentObject ? 'documentId' : 'storeId'
@@ -13,6 +14,7 @@ const DocumentAddModal = ({ closeModal, storeId, documentId, isContentObject, ge
   }
   const title = isContentObject ? 'Add Content Object' : 'Add Document'
   const [newDocument, setNewDocument] = useState(doc)
+  const { enqueueSnackbar } = useSnackbar()
 
   const add = async () => {
     const body = { ...newDocument }
@@ -23,7 +25,10 @@ const DocumentAddModal = ({ closeModal, storeId, documentId, isContentObject, ge
     
     await axios.post(url, body)
     await getDocuments()
-    if(isContentObject) await getContentObjects()
+    if(isContentObject) {
+      enqueueSnackbar('Content Object created', { variant: 'success' })
+      await getContentObjects()
+    } else enqueueSnackbar('Document created', { variant: 'success' })
     closeModal()
   }
   const options = [
