@@ -15,16 +15,16 @@ export class Entity {
   name = ''
   //Clients
   discord: discord_client | null
-  telegram: telegram_client
-  zoom: zoom_client
+  telegram: telegram_client | null
+  zoom: zoom_client | null
   twitter: twitter_client | null
-  reddit: reddit_client
-  instagram: instagram_client
-  messenger: messenger_client
-  whatsapp: whatsapp_client
-  twilio: twilio_client
+  reddit: reddit_client | null
+  instagram: instagram_client | null
+  messenger: messenger_client | null
+  whatsapp: whatsapp_client | null
+  twilio: twilio_client | null
   //harmony: any
-  xrengine: xrengine_client
+  xrengine: xrengine_client | null
   id: any
 
   async startDiscord(
@@ -178,6 +178,79 @@ export class Entity {
     console.log('Stopped twitter client for agent ' + this)
   }
 
+  async startTelegram(
+    telegram_bot_token: string,
+    telegram_bot_name: string,
+    entity: any,
+    spell_handler: string,
+    spell_version: string
+  ) {
+    console.log('initializing telegram:', telegram_bot_token)
+    if (this.telegram)
+      throw new Error(
+        'Telegram already running for this entity on this instance'
+      )
+
+    const spellHandler = await CreateSpellHandler({
+      spell: spell_handler,
+      version: spell_version,
+    })
+
+    this.telegram = new telegram_client()
+    await this.telegram.createTelegramClient(spellHandler, {
+      telegram_bot_token,
+      telegram_bot_name,
+      entity,
+    })
+  }
+  stopTelegram() {
+    if (this.telegram) {
+      this.telegram.destroy()
+      this.telegram = null
+    }
+  }
+
+  startReddit(
+    reddit_app_id: string,
+    reddit_app_secret_id: string,
+    reddit_oauth_token: string,
+    reddit_bot_name: string,
+    reddit_bot_name_regex: string,
+    reddit_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    console.log('initializing reddit:', reddit_app_id)
+    if (this.reddit) {
+      throw new Error('Reddit already running for this entity on this instance')
+    }
+
+    const spellHandler = CreateSpellHandler({
+      spell: reddit_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.reddit = new reddit_client()
+    this.reddit.createRedditClient(
+      spellHandler,
+      {
+        reddit_app_id,
+        reddit_app_secret_id,
+        reddit_oauth_token,
+        reddit_bot_name,
+        reddit_bot_name_regex,
+      },
+      entity
+    )
+  }
+
+  stopReddit() {
+    if (this.reddit) {
+      this.reddit.destroy()
+      this.reddit = null
+    }
+  }
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -186,6 +259,8 @@ export class Entity {
     if (this.discord) this.stopDiscord()
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
+    if (this.telegram) this.stopTelegram()
+    if (this.reddit) this.stopReddit()
   }
 
   constructor(data: any) {
@@ -238,6 +313,16 @@ export class Entity {
         data.twitter_access_token_secret,
         data.twitter_bot_name,
         data.twitter_bot_name_regex
+      )
+    }
+
+    if (data.telegram_enabled) {
+      this.startTelegram(
+        data.telegram_bot_token,
+        data.telegram_bot_name,
+        data,
+        data.telegram_spell_handler_incoming,
+        data.spell_version
       )
     }
   }

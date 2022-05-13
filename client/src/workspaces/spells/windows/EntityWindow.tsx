@@ -1,8 +1,14 @@
 //@ts-nocheck
 
+import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  adjectives,
+  colors,
+  uniqueNamesGenerator,
+} from 'unique-names-generator'
 
 function isJson(str) {
   try {
@@ -19,6 +25,7 @@ function capitalizeFirstLetter(word) {
 }
 
 const EntityWindow = ({ id, updateCallback }) => {
+  const { user } = useAuth()
   const [loaded, setLoaded] = useState(false)
 
   const [enabled, setEnabled] = useState(false)
@@ -64,6 +71,21 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
+
+  const [telegram_enabled, setTelegramEnabled] = useState('')
+  const [telegram_bot_token, setTelegramBotToken] = useState('')
+  const [telegram_bot_name, setTelegramBotName] = useState('')
+  const [telegram_spell_handler_incoming, setTelegramSpellHandlerIncoming] =
+    useState('')
+
+  const [reddit_enabled, setRedditEnabled] = useState('')
+  const [reddit_app_id, setRedditAppId] = useState('')
+  const [reddit_app_secret_id, setRedditAppSecretId] = useState('')
+  const [reddit_oauth_token, setRedditOauthToken] = useState('')
+  const [reddit_bot_name, setRedditBotName] = useState('')
+  const [reddit_bot_name_regex, setRedditBotNameRegex] = useState('')
+  const [reddit_spell_handler_incoming, setRedditSpellHandlerIncoming] =
+    useState('')
 
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
   // const [twilio_sid, setTwilioSid] = useState('')
@@ -115,6 +137,21 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwitterBotName(res.data.twitter_bot_name)
         setTwitterBotNameRegex(res.data.twitter_bot_name_regex)
 
+        setTelegramEnabled(res.data.telegram_enabled === true)
+        setTelegramBotToken(res.data.telegram_bot_token)
+        setTelegramBotName(res.data.telegram_bot_name)
+        setTelegramSpellHandlerIncoming(
+          res.data.telegram_spell_handler_incoming
+        )
+
+        setRedditEnabled(res.data.reddit_enabled === true)
+        setRedditAppId(res.data.reddit_app_id)
+        setRedditAppSecretId(res.data.reddit_app_secret_id)
+        setRedditOauthToken(res.data.reddit_oauth_token)
+        setRedditBotName(res.data.reddit_bot_name)
+        setRedditBotNameRegex(res.data.reddit_bot_name_regex)
+        setRedditSpellHandlerIncoming(res.data.reddit_spell_handler_incoming)
+
         // setTwilioClientEnable(res.data.twilio_client_enable === true)
         // setTwilioSid(res.data.twilio_sid)
         // setTwilioAuthToken(res.data.twilio_auth_token)
@@ -128,7 +165,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   useEffect(() => {
     ;(async () => {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_ROOT_URL}/game/spells`
+        `${process.env.REACT_APP_API_ROOT_URL}/game/spells?userId=${user?.id}`
       )
       setSpellList(res.data)
     })()
@@ -184,6 +221,17 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_access_token_secret,
       twitter_bot_name,
       twitter_bot_name_regex,
+      telegram_enabled,
+      telegram_bot_token,
+      telegram_bot_name,
+      telegram_spell_handler_incoming,
+      reddit_enabled,
+      reddit_app_id,
+      reddit_app_secret_id,
+      reddit_oauth_token,
+      reddit_bot_name,
+      reddit_bot_name_regex,
+      reddit_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
@@ -238,6 +286,23 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
 
+          setTelegramEnabled(responseData.telegram_enabled)
+          setTelegramBotToken(responseData.telegram_bot_token)
+          setTelegramBotName(responseData.telegram_bot_name)
+          setTelegramSpellHandlerIncoming(
+            responseData.telegram_spell_handler_incoming
+          )
+
+          setRedditEnabled(responseData.reddit_enabled)
+          setRedditAppId(responseData.reddit_app_id)
+          setRedditAppSecretId(responseData.reddit_app_secret_id)
+          setRedditOauthToken(responseData.reddit_oauth_token)
+          setRedditBotName(responseData.reddit_bot_name)
+          setRedditBotNameRegex(responseData.reddit_bot_name_regex)
+          setRedditSpellHandlerIncoming(
+            responseData.reddit_spell_handler_incoming
+          )
+
           // setTwilioClientEnable(responseData.twilio_client_enable)
           // setTwilioSid(responseData.twilio_sid)
           // setTwilioAuthToken(responseData.twilio_auth_token)
@@ -246,6 +311,76 @@ const EntityWindow = ({ id, updateCallback }) => {
           updateCallback()
         }
       })
+  }
+
+  const exportEntity = () => {
+    const _data = {
+      enabled,
+      discord_enabled,
+      discord_api_key,
+      discord_starting_words,
+      discord_bot_name_regex,
+      discord_bot_name,
+      discord_empty_responses,
+      discord_spell_handler_incoming,
+      discord_spell_handler_update,
+      discord_spell_handler_feed,
+      use_voice,
+      voice_provider,
+      voice_character,
+      voice_language_code,
+      xrengine_enabled,
+      xrengine_url,
+      xrengine_spell_handler_incoming,
+      xrengine_spell_handler_update,
+      xrengine_spell_handler_feed,
+      xrengine_bot_name,
+      xrengine_bot_name_regex,
+      xrengine_starting_words,
+      xrengine_empty_responses,
+      twitter_client_enable,
+      twitter_token,
+      twitter_id,
+      twitter_app_token,
+      twitter_app_token_secret,
+      twitter_access_token,
+      twitter_access_token_secret,
+      twitter_bot_name,
+      twitter_bot_name_regex,
+      telegram_enabled,
+      telegram_bot_token,
+      telegram_bot_name,
+      telegram_spell_handler_incoming,
+      reddit_enabled,
+      reddit_app_id,
+      reddit_app_secret_id,
+      reddit_oauth_token,
+      reddit_bot_name,
+      reddit_bot_name_regex,
+      reddit_spell_handler_incoming,
+      // twilio_client_enable,
+      // twilio_sid,
+      // twilio_auth_token,
+      // twilio_phone_number
+    }
+    const fileName = uniqueNamesGenerator({
+      dictionaries: [adjectives, colors],
+      separator: '-',
+      length: 2,
+    })
+    const json = JSON.stringify(_data)
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = window.URL.createObjectURL(new Blob([blob]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `${fileName}.thoth`)
+    // Append to html link element page
+    document.body.appendChild(link)
+    // Start download
+    link.click()
+    if (!link.parentNode) return
+    // Clean up and remove the link
+    link.parentNode.removeChild(link)
   }
 
   return !loaded ? (
@@ -679,6 +814,151 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
             </>
           )}
+
+          <div className="form-item">
+            <span className="form-item-label">Telegram Client Enabled</span>
+            <input
+              type="checkbox"
+              value={telegram_enabled}
+              defaultChecked={telegram_enabled || telegram_enabled === 'true'}
+              onChange={e => {
+                setTelegramEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {telegram_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Bot Token</span>
+                <input
+                  type="text"
+                  defaultValue={telegram_bot_token}
+                  onChange={e => {
+                    setTelegramBotToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={telegram_bot_name}
+                  onChange={e => {
+                    setTelegramBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={telegram_spell_handler_incoming}
+                  onChange={event => {
+                    setTelegramSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="form-item">
+            <span className="form-item-label">Reddit Client Enabled</span>
+            <input
+              type="checkbox"
+              value={reddit_enabled}
+              defaultChecked={reddit_enabled || reddit_enabled === 'true'}
+              onChange={e => {
+                setRedditEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {reddit_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Bot App Id</span>
+                <input
+                  type="text"
+                  defaultValue={reddit_app_id}
+                  onChange={e => {
+                    setRedditAppId(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot App Secret Id</span>
+                <input
+                  type="text"
+                  defaultValue={reddit_app_secret_id}
+                  onChange={e => {
+                    setRedditAppSecretId(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Oauth Token</span>
+                <input
+                  type="text"
+                  defaultValue={reddit_oauth_token}
+                  onChange={e => {
+                    setRedditOauthToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={reddit_bot_name}
+                  onChange={e => {
+                    setRedditBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name Regex</span>
+                <input
+                  type="text"
+                  defaultValue={reddit_bot_name_regex}
+                  onChange={e => {
+                    setRedditBotNameRegex(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={telegram_spell_handler_incoming}
+                  onChange={event => {
+                    setTelegramSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
           {/* <div className="form-item">
             <span className="form-item-label">Twilio Client Enabled</span>
             <input
@@ -733,7 +1013,10 @@ const EntityWindow = ({ id, updateCallback }) => {
         <button onClick={() => update()} style={{ marginRight: '10px' }}>
           Update
         </button>
-        <button onClick={() => _delete()}>Delete</button>
+        <button onClick={() => _delete()} style={{ marginRight: '10px' }}>
+          Delete
+        </button>
+        <button onClick={() => exportEntity()}>Export</button>
       </div>
     </div>
   )

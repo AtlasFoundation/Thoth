@@ -5,16 +5,8 @@
 /* eslint-disable require-await */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-
-// TODO: This was imported fropm our old codebase
-// We need to break some of this code out so that we have more control of it in the node graph
-// i.e. text classification and such
-
-import roomManager from '../components/agent/roomManager'
-import { classifyText } from '../utils/textClassifier'
-import { database } from './database'
-import { handleInput } from './handleInput'
-import { getRandomEmptyResponse, getSetting, startsWithCapital } from './utils'
+import TelegramBot from 'node-telegram-bot-api'
+import { getRandomEmptyResponse, startsWithCapital } from './utils'
 
 export class telegram_client {
   async handleMessage(chat_id, response, message_id, addPing, args, bot) {
@@ -45,37 +37,8 @@ export class telegram_client {
             `<a href="tg://user?id=${senderId}">${senderName}</a> ${text}`,
             { parse_mode: 'HTML' }
           )
-          .then(function (_resp) {
-            this.onMessageResponseUpdated(
-              _resp.chat.id,
-              message_id,
-              _resp.message_id
-            )
-            this.addMessageToHistory(
-              _resp.chat.id,
-              _resp.message_id,
-              this.agent.name,
-              text
-            )
-          })
           .catch(console.error)
-      else
-        bot
-          .sendMessage(chat_id, text)
-          .then(function (_resp) {
-            this.onMessageResponseUpdated(
-              _resp.chat.id,
-              message_id,
-              _resp.message_id
-            )
-            this.addMessageToHistory(
-              _resp.chat.id,
-              _resp.message_id,
-              this.agent.name,
-              text
-            )
-          })
-          .catch(console.error)
+      else bot.sendMessage(chat_id, text).catch(console.error)
     } else {
       let emptyResponse = getRandomEmptyResponse()
       while (
@@ -91,37 +54,8 @@ export class telegram_client {
             `<a href="tg://user?id=${senderId}">${senderName}</a> ${emptyResponse}`,
             { parse_mode: 'HTML' }
           )
-          .then(function (_resp) {
-            this.onMessageResponseUpdated(
-              _resp.chat.id,
-              message_id,
-              _resp.message_id
-            )
-            this.addMessageToHistory(
-              _resp.chat.id,
-              _resp.message_id,
-              this.agent.name,
-              emptyResponse
-            )
-          })
           .catch(console.error)
-      else
-        bot
-          .sendMessage(chat_id, emptyResponse)
-          .then(function (_resp) {
-            this.onMessageResponseUpdated(
-              _resp.chat.id,
-              message_id,
-              _resp.message_id
-            )
-            this.addMessageToHistory(
-              _resp.chat.id,
-              _resp.message_id,
-              this.agent.name,
-              emptyResponse
-            )
-          })
-          .catch(console.error)
+      else bot.sendMessage(chat_id, emptyResponse).catch(console.error)
     }
   }
 
@@ -156,19 +90,6 @@ export class telegram_client {
           `<a href="tg://user?id=${senderId}">${senderName}</a> ${text}`,
           { parse_mode: 'HTML' }
         )
-        .then(function (_resp) {
-          this.onMessageResponseUpdated(
-            _resp.chat.id,
-            message_id,
-            _resp.message_id
-          )
-          this.addMessageToHistory(
-            _resp.chat.id,
-            _resp.message_id,
-            telegramPacketHandler.instance.botName,
-            text
-          )
-        })
         .catch(console.error)
     } else if (response.length > 2000) {
       const lines = []
@@ -201,19 +122,6 @@ export class telegram_client {
                 `<a href="tg://user?id=${senderId}">${senderName}</a> ${text}`,
                 { parse_mode: 'HTML' }
               )
-              .then(function (_resp) {
-                this.onMessageResponseUpdated(
-                  _resp.chat.id,
-                  message_id,
-                  _resp.message_id
-                )
-                this.addMessageToHistory(
-                  _resp.chat.id,
-                  _resp.message_id,
-                  telegramPacketHandler.instance.botName,
-                  text
-                )
-              })
               .catch(console.error)
           }
         }
@@ -232,26 +140,11 @@ export class telegram_client {
           `<a href="tg://user?id=${senderId}">${senderName}</a> ${emptyResponse}`,
           { parse_mode: 'HTML' }
         )
-        .then(function (_resp) {
-          this.onMessageResponseUpdated(
-            _resp.chat.id,
-            message_id,
-            _resp.message_id
-          )
-          this.addMessageToHistory(
-            _resp.chat.id,
-            _resp.message_id,
-            telegramPacketHandler.instance.botName,
-            emptyResponse
-          )
-        })
         .catch(console.error)
     }
   }
 
   async onMessageEdit(bot, msg, botName) {
-    if (await database.instance.isUserBanned(msg.from.id + '', 'telegram'))
-      return
     log('edited_message: ' + JSON.stringify(msg))
     const date = Date.now() / 1000
     const msgDate = msg.date
@@ -265,17 +158,16 @@ export class telegram_client {
     this.updateMessage(msg.chat.id, msg.message_id, msg.text)
     if (msg.from.is_bot) return
 
-    const oldResponse = this.getResponse(msg.chat.id, msg.message_id)
-    if (oldResponse === undefined) return
-
-    const resp = handleInput(
+    const resp = await this.spellHandler(
       msg.text,
-      msg.from.first_name,
-      'Agent',
+      msg.from.first_name ?? 'User',
+      this.settings.telegram_bot_name ?? 'Agent',
       'telegram',
-      msg.chat.id
+      msg.chat.id,
+      this.entity,
+      []
     )
-    await this.handleEditMessage(
+    this.handleEditMessage(
       msg.chat.id,
       msg.message_id,
       resp,
@@ -299,8 +191,6 @@ export class telegram_client {
     const mins_diff = Math.ceil((diff - hours_diff) / 60)
     if (mins_diff > 12 || (mins_diff <= 12 && hours_diff > 1)) return
 
-    if (await database.instance.isUserBanned(msg.from.id + '', 'telegram'))
-      return
     let content = msg.text
     const _sender =
       msg.from.username === undefined ? msg.from.first_name : msg.from.username
@@ -340,12 +230,12 @@ export class telegram_client {
         msg.entities !== undefined &&
         msg.entities.length === 1 &&
         msg.entities[0].type === 'mention' &&
-        content.includes('@' + getSetting(this.settings, 'telegramBotName'))
+        content.includes('@' + this.settings.telegram_bot_name)
       const otherMention =
         msg.entities !== undefined &&
         msg.entities.length > 0 &&
         msg.entities[0].type === 'mention' &&
-        !content.includes('@' + getSetting(this.settings, 'telegramBotName'))
+        !content.includes('@' + this.settings.telegram_bot_name)
       let startConv = false
       let startConvName = ''
       if (!isMention && !otherMention) {
@@ -402,56 +292,21 @@ export class telegram_client {
       }
 
       if (!otherMention && content.startsWith('!ping')) sentMessage(_sender)
-
-      if (otherMention) {
-        roomManager.instance.userPingedSomeoneElse(_sender, 'telegram')
-      }
     } else {
       content = '!ping ' + content
     }
 
-    if (content === '!ping ' || !content.startsWith('!ping')) {
-      if (roomManager.instance.agentCanResponse(user, 'telegram')) {
-        content = '!ping ' + content
-        this.sentMessage(_sender)
-      } else {
-        const oldChat = database.instance.getEvent(
-          defaultAgent,
-          _sender,
-          'telegram',
-          msg.chat.id,
-          false
-        )
-        if (oldChat !== undefined && oldChat.length > 0) {
-          const context = await classifyText(values)
-          const ncontext = await classifyText(content)
-          log('c1: ' + context + ' c2: ' + ncontext)
-
-          if (context == ncontext) {
-            roomManager.instance.userTalkedSameTopic(_sender, 'telegram')
-            if (roomManager.instance.agentCanResponse(_sender, 'telegram')) {
-              content = '!ping ' + content
-              this.sentMessage(_sender)
-            } else {
-              return
-            }
-          } else {
-            return
-          }
-        }
-      }
-    } else {
-      roomManager.instance.userGotInConversationFromAgent(_sender)
-    }
-
-    const resp = handleInput(
+    const resp = await this.spellHandler(
       msg.text,
-      msg.from.first_name,
-      'Agent',
+      msg.from.first_name ?? 'User',
+      this.settings.telegram_bot_name ?? 'Agent',
       'telegram',
-      msg.chat.id
+      msg.chat.id,
+      this.entity,
+      []
     )
-    await this.handleEditMessage(
+    console.log('GOT RESPONSE:', resp)
+    this.handleEditMessage(
       msg.chat.id,
       msg.message_id,
       resp,
@@ -538,7 +393,6 @@ export class telegram_client {
       this.conversation[user].timeOutFinished = true
       this.conversation[user].isInConversation = false
       delete this.conversation[user]
-      roomManager.instance.removeUser(user, 'discord')
     }
   }
 
@@ -564,53 +418,46 @@ export class telegram_client {
 
   async addMessageToHistory(chatId, messageId, senderName, content) {
     return
-    // await database.instance.addMessageInHistory(
-    //   'telegram',
-    //   chatId,
-    //   messageId,
-    //   senderName,
-    //   content
-    // )
   }
 
-  async updateMessage(chatId, messageId, newContent) {
-    // await database.instance.updateMessage(
-    //   'telegram',
-    //   chatId,
-    //   messageId,
-    //   newContent,
-    //   true
-    // )
-  }
+  async updateMessage(chatId, messageId, newContent) {}
 
-  agent
+  spellHandler
   settings
+  bot
 
-  createTelegramClient = async (agent, settings) => {
-    this.agent = agent
+  createTelegramClient = async (spellHandler, settings) => {
+    this.spellHandler = spellHandler
     this.settings = settings
 
-    const token = getSetting(settings, 'telegramBotToken')
+    const token = settings.telegram_bot_token
 
     if (!token) return console.warn('No API token for Telegram bot, skipping')
-    const username_regex = new RegExp(
-      'botNameRegex',
-      'ig'
-    )
+    const username_regex = new RegExp(settings.telegram_bot_name, 'ig')
     let botName = ''
 
-    const bot = new TelegramBot(token, { polling: true })
-    bot
+    this.bot = new TelegramBot(token, { polling: true })
+    this.bot
       .getMe()
       .then(info => (botName = info.username))
       .catch(console.error)
 
-    bot.on('message', async msg => {
+    this.bot.on('message', async msg => {
       await this.onMessage(bot, msg, botName, username_regex)
     })
-    bot.on('edited_message', async msg => {
+    this.bot.on('edited_message', async msg => {
       await this.onMessageEdit(bot, msg, botName)
     })
     log('telegram client loaded')
   }
+  destroy() {
+    if (this.bot) {
+      this.bot.clearTextListeners()
+      this.bot = null
+    }
+  }
+}
+
+function log(msg) {
+  console.log(msg)
 }

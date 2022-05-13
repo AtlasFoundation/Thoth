@@ -9,6 +9,7 @@ import { tts } from '../../systems/googleTextToSpeech'
 import { getAudioUrl } from '../../routes/getAudioUrl'
 import { addSpeechEvent } from './voiceUtils/addSpeechEvent'
 import { removeEmojisFromString } from '../../utils/utils'
+import { cacheManager } from '../../cacheManager'
 
 //const transcriber = new Transcriber('288916776772018')
 export function initSpeechClient(
@@ -18,7 +19,7 @@ export function initSpeechClient(
   handleInput,
   voiceProvider,
   voiceCharacter,
-  languageCode?
+  languageCode
 ) {
   addSpeechEvent(client)
 
@@ -61,6 +62,9 @@ export function initSpeechClient(
           roomInfo
         )
       )
+      if (response === undefined || !response || response.length <= 0) {
+        return
+      }
 
       console.log('response is', response)
       if (response) {
@@ -71,18 +75,30 @@ export function initSpeechClient(
         // if google, use that
         // otherwise use uberduck
         // 2. set the character name from the request
-        let url
+        let url = await cacheManager.instance.get(
+          voiceCharacter,
+          'voice_' + voiceProvider + '_' + response,
+          true
+        )
 
-        if (voiceProvider === 'uberduck') {
-          url = await getAudioUrl(
-            process.env.UBER_DUCK_KEY as string,
-            process.env.UBER_DUCK_SECRET_KEY as string,
+        if (!url) {
+          if (voiceProvider === 'uberduck') {
+            url = await getAudioUrl(
+              process.env.UBER_DUCK_KEY as string,
+              process.env.UBER_DUCK_SECRET_KEY as string,
+              voiceCharacter,
+              response as string
+            )
+          } else {
+            // google tts
+            url = await tts(response, voiceCharacter, languageCode)
+          }
+
+          cacheManager.instance.set(
             voiceCharacter,
-            response as string
+            'voice_' + voiceProvider + '_' + response,
+            url
           )
-        } else {
-          // google tts
-          url = await tts(response, voiceProvider, voiceCharacter, languageCode)
         }
 
         // const url = await tts(response)
