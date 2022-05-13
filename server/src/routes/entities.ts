@@ -116,7 +116,7 @@ const addEntityHandler = async (ctx: Koa.Context) => {
 
   try {
     console.log('updated agent database with', data)
-    if(Object.keys(data).length <= 0) return (
+    if (Object.keys(data).length <= 0) return (
       ctx.body = await database.instance.createEntity()
     )
     return (ctx.body = await database.instance.updateEntity(instanceId, data))
@@ -147,7 +147,7 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const conversation = await database.instance.getEvents(
+  const event = await database.instance.getEvents(
     type,
     agent,
     speaker,
@@ -157,9 +157,9 @@ const getEvent = async (ctx: Koa.Context) => {
     maxCount
   )
 
-  console.log('conversation, query:', ctx.request.query, 'conv:', conversation)
+  console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = conversation)
+  return (ctx.body = event)
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
@@ -176,7 +176,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
     const sortOrder = ctx.request.query.order as st
-    if(!['asc', 'desc'].includes(sortOrder)) {
+    if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
     }
@@ -192,7 +192,7 @@ const getSortedEventsByDate = async (ctx: Koa.Context) => {
 const deleteEvent = async (ctx: Koa.Context) => {
   try {
     const { id } = ctx.params
-    if(!parseInt(id)) {
+    if (!parseInt(id)) {
       ctx.status = 400
       return (ctx.body = 'invalid url parameter')
     }
@@ -208,7 +208,7 @@ const deleteEvent = async (ctx: Koa.Context) => {
 const updateEvent = async (ctx: Koa.Context) => {
   try {
     const { id } = ctx.params
-    if(!parseInt(id)) {
+    if (!parseInt(id)) {
       ctx.status = 400
       return (ctx.body = 'invalid url parameter')
     }

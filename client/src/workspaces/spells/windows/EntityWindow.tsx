@@ -86,7 +86,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
     if (!loaded) {
-      ;(async () => {
+      ; (async () => {
         const res = await axios.get(
           `${process.env.REACT_APP_API_ROOT_URL}/entity?instanceId=` + id
         )
@@ -146,9 +146,9 @@ const EntityWindow = ({ id, updateCallback }) => {
   }, [loaded])
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_ROOT_URL}/game/spells?userId=${user?.id}`
+        `${process.env.REACT_APP_API_ROOT_URL}/game/spells`
       )
       setSpellList(res.data)
     })()

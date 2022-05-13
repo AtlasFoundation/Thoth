@@ -119,18 +119,22 @@ export class EventStore extends ThothComponent<Promise<void>> {
         ? typeData.toLowerCase().trim()
         : 'none'
 
-    const respUser = await createEvent(
-      type,
-      agent,
-      speaker,
-      primary,
-      client,
-      channel
-    )
+    let respUser
+    let respAgent
 
-    if (!silent) node.display(respUser.data)
-    if (type === 'conversation') {
-      const respAgent = await createEvent(
+    if (primary) {
+      respUser = await createEvent(
+        type,
+        agent,
+        speaker,
+        primary,
+        client,
+        channel
+      )
+    }
+
+    if (secondary) {
+      respAgent = await createEvent(
         type,
         agent,
         agent,
@@ -138,7 +142,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
         client,
         channel
       )
-      if (!silent) node.display(respUser + '|' + respAgent)
     }
+    if (!silent) node.display(respUser?.data + '|' + respAgent?.data)
   }
 }

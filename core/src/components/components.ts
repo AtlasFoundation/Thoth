@@ -21,6 +21,7 @@ import { IsNullOrUndefined } from './logic/IsNullOrUndefined'
 import { IsVariableTrue } from './logic/IsVariableTrue'
 import { LogicalOperator } from './logic/LogicalOperator'
 import { SwitchGate } from './logic/SwitchGate'
+import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
 import { ActionTypeComponent } from './ml/ActionType'
 import { Classifier } from './ml/Classifier'
@@ -137,6 +138,7 @@ export const components = {
   timeDetectorComponent: () => new TimeDetectorComponent(),
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
+  waitForAll: () => new WaitForAll(),
 }
 
 export const getComponents = () => {
