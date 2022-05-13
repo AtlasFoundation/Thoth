@@ -127,7 +127,7 @@ const saveHandler = async (ctx: Koa.Context) => {
 
   if (
     spell &&
-    spell.userId.toString() !== (ctx.state.user?.id ?? 0).toString()
+    spell.userId?.toString() !== (ctx.state.user?.id ?? 0).toString()
   ) {
     throw new CustomError(
       'input-failed',

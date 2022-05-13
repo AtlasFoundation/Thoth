@@ -27,9 +27,10 @@ export async function createEvent(
   channel: string
 ) {
   const response = await axios.post(
-    `${process.env.REACT_APP_API_ROOT_URL ??
-    process.env.API_ROOT_URL ??
-    'https://localhost:8001'
+    `${
+      process.env.REACT_APP_API_ROOT_URL ??
+      process.env.API_ROOT_URL ??
+      'https://localhost:8001'
     }/event`,
     {
       type,
@@ -106,10 +107,14 @@ export class EventStore extends ThothComponent<Promise<void>> {
   ) {
     const speaker = inputs['speaker'][0] as string
     const agent = inputs['agent'][0] as string
-    const primary = (inputs['primary'] && inputs['primary'][0]) as string
-    const secondary = (inputs['secondary'] && inputs['secondary'][0]) as string
-    const client = inputs['client'][0] as string
-    const channel = inputs['channel'][0] as string
+    const primary = ((inputs['primary'] && inputs['primary'][0]) ||
+      inputs['primary']) as string
+    const secondary = ((inputs['secondary'] && inputs['secondary'][0]) ||
+      inputs['secondary']) as string
+    const channel = ((inputs['channel'] && inputs['channel'][0]) ||
+      inputs['channel']) as string
+    const client = ((inputs['client'] && inputs['client'][0]) ||
+      inputs['client']) as string
 
     if (!primary) return console.log('Event null, so skipping')
 

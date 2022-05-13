@@ -45,7 +45,7 @@ export class WaitForAll extends ThothComponent<void> {
   // the worker contains the main business logic of the node.  It will pass those results
   // to the outputs to be consumed by any connected components
   worker(node: NodeData, inputs: ThothWorkerInputs) {
-    const nodeInputs = (inputs as any).filter(
+    const nodeInputs = Object.values(inputs as any).filter(
       (input: any) => !!input
     ) as DataSocketType[]
 

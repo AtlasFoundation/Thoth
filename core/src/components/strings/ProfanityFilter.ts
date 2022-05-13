@@ -48,6 +48,9 @@ export class ProfanityFilter extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
+    console.log('inputs is', inputs)
+    console.log("inputs['string'] is", inputs['string'])
+
     const text = inputs['string'][0] as string
     const isProfane = hasBadWords(text)
     this._task.closed = isProfane ? ['false'] : ['true']
