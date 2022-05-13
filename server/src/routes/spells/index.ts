@@ -302,7 +302,7 @@ const getSpellHandler = async (ctx: Koa.Context) => {
         gameState: {},
         modules: [],
       })
-      userId: ctx.state.user?.id ?? 0, (ctx.body = newSpell)
+      ctx.body = newSpell
     } else {
       // let userId = ctx.state.user?.id
       // if (spell?.userId !== userId) throw new Error('spell not found')
