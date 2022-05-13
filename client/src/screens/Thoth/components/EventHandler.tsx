@@ -36,9 +36,9 @@ const EventHandler = ({ pubSub, tab }) => {
   const [saveSpellMutation] = useSaveSpellMutation()
   const [saveDiff] = useSaveDiffMutation()
   const { user } = useAuth()
-  const { data: spell } = useGetSpellQuery({ 
-    spellId: tab.spellId, 
-    userId: user?.id as string 
+  const { data: spell } = useGetSpellQuery({
+    spellId: tab.spellId,
+    userId: user?.id as string,
   })
 
   // Spell ref because callbacks cant hold values from state without them
@@ -156,7 +156,7 @@ const EventHandler = ({ pubSub, tab }) => {
   const createConsole = () => {
     createOrFocus(windowTypes.CONSOLE, 'Console')
   }
-  
+
   const createEventManager = () => {
     createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
   }

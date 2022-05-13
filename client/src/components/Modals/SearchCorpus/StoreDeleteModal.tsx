@@ -2,8 +2,11 @@
 import Modal from '../../Modal/Modal'
 import css from '../modalForms.module.css'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 const StoreDeleteModal = ({ closeModal, store, getDocumentsStores }) => {
+  const { enqueueSnackbar } = useSnackbar()
+  
   const deleteStore = async () => {
     await axios.delete(
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/document-store`,
@@ -14,6 +17,7 @@ const StoreDeleteModal = ({ closeModal, store, getDocumentsStores }) => {
       }
     )
     await getDocumentsStores()
+    enqueueSnackbar('Document Store removed', { variant: 'success' })
     closeModal()
   }
   

@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import Modal from '../Modal/Modal'
-import css from './modalForms.module.css'
+import Modal from '../../Modal/Modal'
+import css from '../modalForms.module.css'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 const capitalizeFirstLetter = (word: string) => {
   if(!word) return ''
@@ -10,6 +11,7 @@ const capitalizeFirstLetter = (word: string) => {
 
 const DocumentEditModal = ({ closeModal, field, document, getDocuments }) => {
   const [val, setValue] = useState(document[field])
+  const { enqueueSnackbar } = useSnackbar()
 
   const update = async () => {
     console.log('value ::: ', val);
@@ -24,6 +26,7 @@ const DocumentEditModal = ({ closeModal, field, document, getDocuments }) => {
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/update_document`,
       body
     )
+    enqueueSnackbar('Document updated', { variant: 'success' })
     await getDocuments()
     closeModal()
   }
