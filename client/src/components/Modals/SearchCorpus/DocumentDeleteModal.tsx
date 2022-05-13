@@ -1,7 +1,7 @@
-//@ts-nocheck
-import Modal from '../Modal/Modal'
-import css from './modalForms.module.css'
+import Modal from '../../Modal/Modal'
+import css from '../modalForms.module.css'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 const DocumentDeleteModal = ({ closeModal, documentId, objId, isContentObj, getDocuments, getContentObjects }) => {
   let url = isContentObj ? 
@@ -13,11 +13,17 @@ const DocumentDeleteModal = ({ closeModal, documentId, objId, isContentObj, getD
     documentId
   }
   let entityToDelete = isContentObj ? 'content' : 'document'
+  const { enqueueSnackbar } = useSnackbar()
   
   const deleteEntity = async () => {
     await axios.delete(url, { params: params })
-    if(isContentObj) await getContentObjects()
-    else await getDocuments()
+    if(isContentObj) { 
+      enqueueSnackbar('Content object removed', { variant: 'success' })
+      await getContentObjects()
+    } else {
+      enqueueSnackbar('Document removed', { variant: 'success' })
+      await getDocuments()
+    } 
     closeModal()
   }
   
