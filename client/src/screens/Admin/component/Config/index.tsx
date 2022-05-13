@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 import Table from '../../common/Table'
 import Search from '../../common/Search'
 import { styled } from '@mui/material/styles'
@@ -5,6 +7,7 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { columnConfig } from '../../common/Variable/column'
+import { useModal } from '../../../../contexts/ModalProvider'
 
 const Container = styled(Grid)({
   marginBottom: '1.5rem',
@@ -20,6 +23,25 @@ const ButtonCustom = styled(Button)({
 })
 
 const Config = () => {
+  const [data, setData] = useState([])
+  const { openModal } = useModal()
+  // const page = 1
+
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_API_ROOT_URL}/setting/configuration`)
+      .then(res => {
+        setData(res.data.payload)
+      })
+  }, [])
+
+  const handleAdd = () => {
+    openModal({
+      modal: 'addconfig',
+      content: 'This is an example modal',
+    })
+  }
+
   return (
     <div>
       <Typography variant="h3" gutterBottom component="div">
@@ -32,13 +54,18 @@ const Config = () => {
           </Typography>
         </Grid>
         <Grid item xs={2}>
-          <ButtonCustom variant="contained" size="medium" fullWidth>
+          <ButtonCustom
+            variant="contained"
+            size="medium"
+            fullWidth
+            onClick={() => handleAdd()}
+          >
             Add Config
           </ButtonCustom>
         </Grid>
       </Container>
       <Search />
-      <Table column={columnConfig} />
+      <Table column={columnConfig} data={data} />
     </div>
   )
 }

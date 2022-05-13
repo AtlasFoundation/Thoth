@@ -30,19 +30,19 @@ export const columnConfig = [
 
 export const columnScope = [
   {
-    id: 'table',
+    id: 'tables',
     name: 'Tables',
   },
   {
-    id: 'Fullsize',
+    id: 'full_table_size',
     name: 'Full table size',
   },
   {
-    id: 'size',
+    id: 'table_size',
     name: 'Table size',
   },
   {
-    id: 'count',
+    id: 'record_count',
     name: 'Record count	',
   },
 ]

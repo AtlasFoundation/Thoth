@@ -11,7 +11,7 @@ import Checkbox from '@mui/material/Checkbox'
 import Pagination from '@mui/material/Pagination'
 import MoreHoriz from '@mui/icons-material/MoreHoriz'
 import IconButton from '@mui/material/IconButton'
-import data from '../../../data/config/clientSettings'
+// import data from '../../../data/config/clientSettings'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -34,10 +34,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-const rows = data.slice(0, 10)
-
-const TableIndex = ({ column }) => {
+const TableIndex = ({ column, data }) => {
   const [page, setPage] = React.useState(0)
+  const count = Math.ceil(data.length / 10)
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -59,7 +58,7 @@ const TableIndex = ({ column }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map(row => (
+            {data.map(row => (
               <StyledTableRow key={row.name}>
                 <TableCell padding="checkbox">
                   <Checkbox
@@ -97,7 +96,7 @@ const TableIndex = ({ column }) => {
         }}
       >
         <Pagination
-          count={2}
+          count={count}
           variant="outlined"
           shape="rounded"
           page={page}

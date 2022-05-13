@@ -4,23 +4,23 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
-import { PersistGate } from 'redux-persist/integration/react'
+// import { PersistGate } from 'redux-persist/integration/react'
 
 import App from './App'
 import AppProviders from './contexts/AppProviders'
 import reportWebVitals from './reportWebVitals'
-import { persistor, store } from './state/store'
+import { store } from './state/store'
 
 ReactDOM.render(
   <Router>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <AppProviders>
-          <React.StrictMode>
-            <App />
-          </React.StrictMode>
-        </AppProviders>
-      </PersistGate>
+      {/* <PersistGate loading={null} persistor={persistor}> */}
+      <AppProviders>
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      </AppProviders>
+      {/* </PersistGate> */}
     </Provider>
   </Router>,
   document.getElementById('root')
