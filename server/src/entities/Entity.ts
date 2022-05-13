@@ -15,16 +15,16 @@ export class Entity {
   name = ''
   //Clients
   discord: discord_client | null
-  telegram: telegram_client
-  zoom: zoom_client
+  telegram: telegram_client | null
+  zoom: zoom_client | null
   twitter: twitter_client | null
-  reddit: reddit_client
-  instagram: instagram_client
-  messenger: messenger_client
-  whatsapp: whatsapp_client
-  twilio: twilio_client
+  reddit: reddit_client | null
+  instagram: instagram_client | null
+  messenger: messenger_client | null
+  whatsapp: whatsapp_client | null
+  twilio: twilio_client | null
   //harmony: any
-  xrengine: xrengine_client
+  xrengine: xrengine_client | null
   id: any
 
   async startDiscord(
@@ -203,7 +203,53 @@ export class Entity {
       entity,
     })
   }
-  stopTelegram() {}
+  stopTelegram() {
+    if (this.telegram) {
+      this.telegram.destroy()
+      this.telegram = null
+    }
+  }
+
+  startReddit(
+    reddit_app_id: string,
+    reddit_app_secret_id: string,
+    reddit_oauth_token: string,
+    reddit_bot_name: string,
+    reddit_bot_name_regex: string,
+    reddit_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    console.log('initializing reddit:', reddit_app_id)
+    if (this.reddit) {
+      throw new Error('Reddit already running for this entity on this instance')
+    }
+
+    const spellHandler = CreateSpellHandler({
+      spell: reddit_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.reddit = new reddit_client()
+    this.reddit.createRedditClient(
+      spellHandler,
+      {
+        reddit_app_id,
+        reddit_app_secret_id,
+        reddit_oauth_token,
+        reddit_bot_name,
+        reddit_bot_name_regex,
+      },
+      entity
+    )
+  }
+
+  stopReddit() {
+    if (this.reddit) {
+      this.reddit.destroy()
+      this.reddit = null
+    }
+  }
 
   async onDestroy() {
     console.log(
@@ -214,6 +260,7 @@ export class Entity {
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
     if (this.telegram) this.stopTelegram()
+    if (this.reddit) this.stopReddit()
   }
 
   constructor(data: any) {

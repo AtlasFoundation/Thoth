@@ -43,6 +43,13 @@ export interface entitiesAttributes {
   telegram_bot_token?: string
   telegram_bot_name?: string
   telegram_spell_handler_incoming?: string
+  reddit_enabled?: boolean
+  reddit_app_id?: string
+  reddit_app_secret_id?: string
+  reddit_oauth_token?: string
+  reddit_bot_name?: string
+  reddit_bot_name_regex?: string
+  reddit_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -81,6 +88,13 @@ export type entitiesOptionalAttributes =
   | 'telegram_bot_token'
   | 'telegram_bot_name'
   | 'telegram_spell_handler_incoming'
+  | 'reddit_enabled'
+  | 'reddit_app_id'
+  | 'reddit_app_secret_id'
+  | 'reddit_oauth_token'
+  | 'reddit_bot_name'
+  | 'reddit_bot_name_regex'
+  | 'reddit_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -132,6 +146,13 @@ export class entities
   telegram_bot_token?: string
   telegram_bot_name?: string
   telegram_spell_handler_incoming?: string
+  reddit_enabled?: boolean
+  reddit_app_id?: string
+  reddit_app_secret_id?: string
+  reddit_oauth_token?: string
+  reddit_bot_name?: string
+  reddit_bot_name_regex?: string
+  reddit_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -295,6 +316,34 @@ export class entities
           allowNull: true,
         },
         telegram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        reddit_app_id: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_app_secret_id: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_oauth_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
