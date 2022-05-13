@@ -51,6 +51,7 @@ import { StateRead } from './state/StateRead'
 import { StateWrite } from './state/StateWrite'
 import { ComplexStringMatcher } from './strings/ComplexStringMatcher'
 import { JoinListComponent } from './strings/JoinList'
+import { ProfanityFilter } from './strings/ProfanityFilter'
 import { RandomStringFromList } from './strings/RandomStringFromList'
 import { StringAdder } from './strings/StringAdder'
 import { StringCombiner } from './strings/StringCombiner'
@@ -113,6 +114,7 @@ export const components = {
   stringVariable: () => new StringVariable(),
   fewshotVariable: () => new FewshotVariable(),
   stringAdder: () => new StringAdder(),
+  profanityFilter: () => new ProfanityFilter(),
   numberVariable: () => new NumberVariable(),
   booleanVariable: () => new BooleanVariable(),
   arrayVariable: () => new ArrayVariable(),

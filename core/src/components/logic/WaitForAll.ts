@@ -49,9 +49,6 @@ export class WaitForAll extends ThothComponent<void> {
       (input: any) => !!input
     ) as DataSocketType[]
 
-    console.log("inputs", inputs)
-    console.log("nodeInputs", nodeInputs)
-
     // close all outputs
     this._task.closed = [...nodeInputs.map(out => out.name)]
   }

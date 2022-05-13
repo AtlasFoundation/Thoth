@@ -71,7 +71,7 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
     const clientInput = new Rete.Input('client', 'Client', stringSocket)
     const channelInput = new Rete.Input('channel', 'Channel', stringSocket)
-    const out = new Rete.Output('output', 'Conversation', anySocket)
+    const out = new Rete.Output('output', 'Event', anySocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
