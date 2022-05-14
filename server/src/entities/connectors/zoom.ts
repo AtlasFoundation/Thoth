@@ -7,38 +7,42 @@
 // @ts-nocheck
 import { launch } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
-import { detectOsOption, getSetting } from './utils'
+import { detectOsOption } from './utils'
+import { singleton } from '../../utils/speechUtils'
 
 export class zoom_client {
-  async createZoomClient(agent, settings) {
+  async createZoomClient(spellHandler, settings, entity) {
     const xvfb = new Xvfb()
     await xvfb.start(async function (err, xvfbProcess) {
       if (err) {
-        log(err)
+        console.log(err)
         xvfb.stop(function (_err) {
-          if (_err) log(_err)
+          if (_err) console.log(_err)
         })
       }
 
-      log('started virtual window')
-      const zoomObj = new zoom(agent, settings)
+      console.log('started virtual window')
+      const zoomObj = new zoom(spellHandler, settings, entity)
       await zoomObj.init()
     })
   }
+  destroy() {}
 }
 
 export class zoom {
-  agent
+  spellHandler
   settings
+  entity
+
   fakeMediaPath
 
   browser
   page
 
-  constructor(agent, settings, fakeMediaPath = '') {
-    this.agent = agent
+  constructor(spellHandler, settings, entity) {
+    this.spellHandler = spellHandler
     this.settings = settings
-    this.fakeMediaPath = fakeMediaPath
+    this.entity = entity
   }
 
   async init() {
@@ -55,13 +59,14 @@ export class zoom {
         '--autoplay-policy=no-user-gesture-required',
         '--ignoreHTTPSErrors: true',
       ],
+      ignoreDefaultArgs: ['--mute-audio'],
       defaultViewport: {
         width: 1920,
         height: 1080,
       },
       ...detectOsOption(),
     }
-    log(JSON.stringify(options))
+    console.log(JSON.stringify(options))
 
     this.browser = await launch(options)
     this.page = await this.browser.newPage()
@@ -71,9 +76,9 @@ export class zoom {
     await this.page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
     )
-    await this.navigate(getSetting(this.settings, 'zoomInvitationLink'))
+    await this.navigate(this.settings.zoom_invitation_link)
     await this.delay(20000)
-    await this.typeMessage('inputname', agent.name, false)
+    await this.typeMessage('inputname', this.settings.zoom_bot_name, false)
     await this.clickElementById('button', 'joinBtn')
     await this.delay(20000)
     await this.clickElementById('button', 'wc_agree1')
@@ -81,12 +86,12 @@ export class zoom {
     try {
       await this.typeMessage(
         'inputpasscode',
-        getSetting(this.settings, 'zoomPassword'),
+        this.settings.zoom_password,
         false
       )
       await this.clickElementById('button', 'joinBtn')
       await this.delay(20000)
-    } catch (ex) { }
+    } catch (ex) {}
 
     await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
 
@@ -99,7 +104,7 @@ export class zoom {
     if (linkHandlers.length > 0) {
       await linkHandlers[0].click()
     } else {
-      throw new Error('Link not found')
+      console.log('Link not found')
     }
     await this.clickElementById('button', 'videoOptionMenu')
     await this.catchScreenshot()
@@ -109,7 +114,7 @@ export class zoom {
     if (linkHandlers2.length > 0) {
       await linkHandlers2[0].click()
     } else {
-      throw new Error('Link not found')
+      console.log('Link not found')
     }
 
     await this.clickElementById('button', 'audioOptionMenu')
@@ -121,11 +126,14 @@ export class zoom {
     if (linkHandlers3.length > 0) {
       await linkHandlers3[0].click()
     } else {
-      throw new Error('Link not found')
+      console.log('Link not found')
     }
 
     await this.clickElementById('button', 'audioOptionMenu')
     await this.catchScreenshot()
+    await this.page.evaluate(async su => {
+      su.initRecording()
+    }, singleton.getInstance())
     await this.getVideo()
     this.frameCapturerer()
   }
@@ -156,13 +164,13 @@ export class zoom {
       const stream = video.captureStream()
       const recorder = new MediaRecorder(stream)
       recorder.addEventListener('error', error => {
-        log('recorder error: ' + error)
+        console.log('recorder error: ' + error)
       })
       recorder.addEventListener('dataavailable', ({ data }) => {
-        log('data: ' + JSON.stringify(data))
+        console.log('data: ' + JSON.stringify(data))
       })
       recorder.start(5000)
-      log(stream.id)
+      console.log(stream.id)
     })
   }
 
@@ -200,8 +208,23 @@ export class zoom {
     await this.clickSelectorId(elemType, id)
   }
 
+  async playAudio(audioUrl) {
+    await this.page.evaluate(url => {
+      const audio = document.createElement('audio')
+      audio.setAttribute('src', url)
+      audio.setAttribute('crossorigin', 'anonymous')
+      audio.setAttribute('controls', '')
+      audio.onplay = function () {
+        var stream = audio.captureStream()
+        navigator.mediaDevices.getUserMedia = async function () {
+          return stream
+        }
+      }
+    }, audioUrl)
+  }
+
   async clickSelectorId(selector, id) {
-    log(`Clicking for a ${selector} matching ${id}`)
+    console.log(`Clicking for a ${selector} matching ${id}`)
 
     await this.page.evaluate(
       (selector, id) => {
@@ -209,17 +232,17 @@ export class zoom {
         const singleMatch = matches.find(button => button.id === id)
         let result
         if (singleMatch && singleMatch.click) {
-          log('normal click')
+          console.log('normal click')
           result = singleMatch.click()
         }
         if (singleMatch && !singleMatch.click) {
-          log('on click')
+          console.log('on click')
           result = singleMatch.dispatchEvent(
             new MouseEvent('click', { bubbles: true })
           )
         }
         if (!singleMatch) {
-          log('event click', matches.length)
+          console.log('event click', matches.length)
           if (matches.length > 0) {
             const m = matches[0]
             result = m.dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -236,7 +259,7 @@ export class zoom {
   }
 
   async clickSelectorClassRegex(selector, classRegex) {
-    log(`Clicking for a ${selector} matching ${classRegex}`)
+    console.log(`Clicking for a ${selector} matching ${classRegex}`)
 
     await this.page.evaluate(
       (selector, classRegex) => {
@@ -265,12 +288,12 @@ export class zoom {
     }
     const context = this.browser.defaultBrowserContext()
     context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
-    log('navigating to: ' + parsedUrl)
+    console.log('navigating to: ' + parsedUrl)
     await this.page.goto(parsedUrl, { waitUntil: 'domcontentloaded' })
   }
 
   async delay(timeout) {
-    log(`Waiting for ${timeout} ms... `)
+    console.log(`Waiting for ${timeout} ms... `)
     await this.waitForTimeout(timeout)
   }
 
@@ -285,7 +308,7 @@ export class zoom {
   counter = 0
   async catchScreenshot() {
     this.counter++
-    log('screenshot')
+    console.log('screenshot')
     const path = 'screenshot' + this.counter + '.png'
     await this.page.screenshot({ path })
   }

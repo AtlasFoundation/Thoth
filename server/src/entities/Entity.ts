@@ -178,14 +178,117 @@ export class Entity {
     console.log('Stopped twitter client for agent ' + this)
   }
 
-  async onDestroy() {
-    console.log(
-      'CLOSING ALL CLIENTS, discord is defined:,',
-      this.discord === null || this.discord === undefined
+  async startTelegram(
+    telegram_bot_token: string,
+    telegram_bot_name: string,
+    entity: any,
+    spell_handler: string,
+    spell_version: string
+  ) {
+    console.log('initializing telegram:', telegram_bot_token)
+    if (this.telegram)
+      throw new Error(
+        'Telegram already running for this entity on this instance'
+      )
+
+    const spellHandler = await CreateSpellHandler({
+      spell: spell_handler,
+      version: spell_version,
+    })
+
+    this.telegram = new telegram_client()
+    await this.telegram.createTelegramClient(spellHandler, {
+      telegram_bot_token,
+      telegram_bot_name,
+      entity,
+    })
+  }
+  stopTelegram() {
+    if (this.telegram) {
+      this.telegram.destroy()
+      this.telegram = null
+    }
+  }
+
+  startReddit(
+    reddit_app_id: string,
+    reddit_app_secret_id: string,
+    reddit_oauth_token: string,
+    reddit_bot_name: string,
+    reddit_bot_name_regex: string,
+    reddit_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    console.log('initializing reddit:', reddit_app_id)
+    if (this.reddit) {
+      throw new Error('Reddit already running for this entity on this instance')
+    }
+
+    const spellHandler = CreateSpellHandler({
+      spell: reddit_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.reddit = new reddit_client()
+    this.reddit.createRedditClient(
+      spellHandler,
+      {
+        reddit_app_id,
+        reddit_app_secret_id,
+        reddit_oauth_token,
+        reddit_bot_name,
+        reddit_bot_name_regex,
+      },
+      entity
     )
+  }
+  stopReddit() {
+    if (this.reddit) {
+      this.reddit.destroy()
+      this.reddit = null
+    }
+  }
+
+  startZoom(
+    zoom_invitation_link: string,
+    zoom_password: string,
+    zoom_bot_name: string,
+    zoom_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    console.log('initializing zoom:', zoom_invitation_link)
+    if (this.zoom) {
+      throw new Error('Zoom already running for this entity on this instance')
+    }
+
+    const spellHandler = CreateSpellHandler({
+      spell: zoom_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.zoom = new zoom_client()
+    this.zoom.createZoomClient(
+      spellHandler,
+      { zoom_invitation_link, zoom_password, zoom_bot_name },
+      entity
+    )
+  }
+  stopZoom() {
+    if (this.zoom) {
+      this.zoom.destroy()
+      this.zoom = null
+    }
+  }
+
+  async onDestroy() {
     if (this.discord) this.stopDiscord()
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
+    if (this.telegram) this.stopTelegram()
+    if (this.reddit) this.stopReddit()
+    if (this.zoom) this.stopZoom()
   }
 
   constructor(data: any) {
@@ -238,6 +341,27 @@ export class Entity {
         data.twitter_access_token_secret,
         data.twitter_bot_name,
         data.twitter_bot_name_regex
+      )
+    }
+
+    if (data.telegram_enabled) {
+      this.startTelegram(
+        data.telegram_bot_token,
+        data.telegram_bot_name,
+        data,
+        data.telegram_spell_handler_incoming,
+        data.spell_version
+      )
+    }
+
+    if (data.zoom_enabled) {
+      this.startZoom(
+        data.zoom_invitation_link,
+        data.zoom_password,
+        data.zoom_bot_name,
+        data.zoom_spell_handler_incoming,
+        data.spell_version,
+        data
       )
     }
   }
