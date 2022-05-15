@@ -40,7 +40,7 @@ class speechUtils {
       rejectUnauthorized: false,
       secure: true,
     })
-    console.log('init speech client:', this.socket.connected)
+    //console.log('init speech client:', this.socket.connected)
   }
 
   initRecording = () => {

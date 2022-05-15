@@ -15,16 +15,16 @@ export class Entity {
   name = ''
   //Clients
   discord: discord_client | null
-  telegram: telegram_client
-  zoom: zoom_client
+  telegram: telegram_client | null
+  zoom: zoom_client | null
   twitter: twitter_client | null
-  reddit: reddit_client
-  instagram: instagram_client
-  messenger: messenger_client
-  whatsapp: whatsapp_client
-  twilio: twilio_client
+  reddit: reddit_client | null
+  instagram: instagram_client | null
+  messenger: messenger_client | null
+  whatsapp: whatsapp_client | null
+  twilio: twilio_client | null
   //harmony: any
-  xrengine: xrengine_client
+  xrengine: xrengine_client | null
   id: any
 
   async startDiscord(

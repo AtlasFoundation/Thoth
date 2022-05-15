@@ -5,10 +5,13 @@
 /* eslint-disable camelcase */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { launch } from 'puppeteer-stream'
+import { launch, getStream } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
 import { detectOsOption } from './utils'
 import { singleton } from '../../utils/speechUtils'
+import * as fs from 'fs'
+import http from 'http'
+import { BufferEncodingOption } from 'fs'
 
 export class zoom_client {
   async createZoomClient(spellHandler, settings, entity) {
@@ -70,7 +73,16 @@ export class zoom {
 
     this.browser = await launch(options)
     this.page = await this.browser.newPage()
-    this.page.on('console', log => console.log(log._text))
+    this.page.on('console', log => {
+      if (
+        log._text.includes('color:green') ||
+        log._text.includes('clib state')
+      ) {
+        return
+      }
+
+      console.log(log._text)
+    })
 
     this.page.setViewport({ width: 0, height: 0 })
     await this.page.setUserAgent(
@@ -78,9 +90,14 @@ export class zoom {
     )
     await this.navigate(this.settings.zoom_invitation_link)
     await this.delay(20000)
+    await this.catchScreenshot()
+    await this.clickElementById('button', 'onetrust-accept-btn-handler')
+    await this.catchScreenshot()
+    await this.delay(500)
     await this.typeMessage('inputname', this.settings.zoom_bot_name, false)
     await this.clickElementById('button', 'joinBtn')
     await this.delay(20000)
+
     await this.clickElementById('button', 'wc_agree1')
     await this.delay(20000)
     try {
@@ -131,11 +148,27 @@ export class zoom {
 
     await this.clickElementById('button', 'audioOptionMenu')
     await this.catchScreenshot()
-    await this.page.evaluate(async su => {
-      su.initRecording()
-    }, singleton.getInstance())
+    /*await this.page.evaluate(async su => {
+      //su.initRecording()
+    }, singleton.getInstance())*/
+
+    /*
+    const file = fs.createWriteStream('test5.webm')
+    const stream = await getStream(this.page, { audio: true, video: true })
+    stream.on('data', chunk => {
+      console.log('puppeteer stream chunk:', chunk)
+    })
+    stream.on('readable', () => {
+      console.log('readable')
+    })
+    stream.pipe(file)
+    setTimeout(async () => {
+      await stream.destroy()
+      file.close()
+      console.log('finished')
+    }, 30000)*/
     await this.getVideo()
-    this.frameCapturerer()
+    //this.frameCapturerer()
   }
 
   frameCapturerer() {
@@ -159,19 +192,30 @@ export class zoom {
   }
 
   async getVideo() {
+    let nfile = fs.createWriteStream('test.webm')
     await this.page.evaluate(async () => {
       const video = document.getElementById('main-video')
       const stream = video.captureStream()
-      const recorder = new MediaRecorder(stream)
+      const recorder = new MediaRecorder(stream, {
+        mimeType: 'video/webm; codecs=vp9',
+      })
+      recorder.onstart = () => {
+        console.log('recorderer on start')
+      }
+      recorder.ondataavailable = e => {
+        console.log('on data available:', e.data.size)
+        if (e.data.size > 0) {
+        }
+      }
       recorder.addEventListener('error', error => {
         console.log('recorder error: ' + error)
-      })
-      recorder.addEventListener('dataavailable', ({ data }) => {
-        console.log('data: ' + JSON.stringify(data))
       })
       recorder.start(5000)
       console.log(stream.id)
     })
+    /*await this.page.evaluate(async () => {
+      singleton.getInstance().initRecording()
+    }*/
   }
 
   videoCreated = false
@@ -316,6 +360,6 @@ export class zoom {
   async typeMessage(input, message, clean) {
     if (clean)
       await this.page.click(`input[name="${input}"]`, { clickCount: 3 })
-    await this.page.type(`input[name=${input}`, message)
+    await this.page.type(`input[name=${input}]`, message)
   }
 }
