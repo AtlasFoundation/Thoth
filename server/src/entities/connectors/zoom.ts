@@ -12,6 +12,7 @@ import { singleton } from '../../utils/speechUtils'
 import * as fs from 'fs'
 import http from 'http'
 import { BufferEncodingOption } from 'fs'
+import io from 'socket.io-client'
 
 export class zoom_client {
   async createZoomClient(spellHandler, settings, entity) {
@@ -110,7 +111,7 @@ export class zoom {
       await this.delay(20000)
     } catch (ex) {}
 
-    await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
+    //await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
 
     await this.clickElementById('button', 'audioOptionMenu')
     await this.catchScreenshot()
@@ -167,6 +168,7 @@ export class zoom {
       file.close()
       console.log('finished')
     }, 30000)*/
+    await this.connectToVoiceServer()
     await this.getVideo()
     //this.frameCapturerer()
   }
@@ -193,7 +195,7 @@ export class zoom {
 
   async getVideo() {
     let nfile = fs.createWriteStream('test.webm')
-    await this.page.evaluate(async () => {
+    await this.page.evaluate(async url => {
       const video = document.getElementById('main-video')
       const stream = video.captureStream()
       const recorder = new MediaRecorder(stream, {
@@ -202,9 +204,27 @@ export class zoom {
       recorder.onstart = () => {
         console.log('recorderer on start')
       }
-      recorder.ondataavailable = e => {
+      recorder.ondataavailable = async e => {
         console.log('on data available:', e.data.size)
         if (e.data.size > 0) {
+          console.log('sending fetch')
+          console.log('url is:', url)
+          console.log(
+            'sending fetch to:',
+            `${url}/zoom_buffer_chunk`,
+            'post data:',
+            JSON.stringify({ chunk: data })
+          )
+          const resp = await fetch(`${url}/zoom_buffer_chunk`, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ chunk: data }),
+          })
+          console.log('buf resp:', resp.json())
         }
       }
       recorder.addEventListener('error', error => {
@@ -212,10 +232,54 @@ export class zoom {
       })
       recorder.start(5000)
       console.log(stream.id)
+    }, 'http://localhost:8001')
+  }
+
+  async connectToVoiceServer() {
+    const socket = io(`http://localhost:65532`, {
+      rejectUnauthorized: false,
+      secure: true,
     })
-    /*await this.page.evaluate(async () => {
-      singleton.getInstance().initRecording()
-    }*/
+
+    socket.emit('startGoogleCloudStream', '')
+    console.log('socket:', socket.connected)
+
+    socket.on('connect', () => {
+      this.socket.emit('join', 'connected')
+    })
+    socket.on('messages', (data: any) => {
+      console.log('messages:', data)
+    })
+
+    socket.on('speechData', async (data: any) => {
+      const dataFinal = undefined || data.results[0].isFinal
+
+      if (dataFinal === true) {
+        const finalString = data.results[0].alternatives[0].transcript
+        console.log('Speech Recognition:', dataFinal)
+        const resp = this.spellHandler(
+          finalString,
+          'User',
+          this.settings.zoom_bot_name ?? 'Agent',
+          'zoom',
+          this.settings.zoom_invitation_link,
+          this.entity,
+          []
+        )
+        //generate voiud and play it back
+        //this.playAudio(audio);
+
+        socket.emit('endGoogleCloudStream', '')
+        socket.disconnect()
+
+        const socket = io(`http://localhost:65532`, {
+          rejectUnauthorized: false,
+          secure: true,
+        })
+
+        socket.emit('startGoogleCloudStream', '')
+      }
+    })
   }
 
   videoCreated = false

@@ -116,9 +116,8 @@ const addEntityHandler = async (ctx: Koa.Context) => {
 
   try {
     console.log('updated agent database with', data)
-    if(Object.keys(data).length <= 0) return (
-      ctx.body = await database.instance.createEntity()
-    )
+    if (Object.keys(data).length <= 0)
+      return (ctx.body = await database.instance.createEntity())
     return (ctx.body = await database.instance.updateEntity(instanceId, data))
   } catch (e) {
     console.log('addEntityHandler:', e)
@@ -176,7 +175,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
     const sortOrder = ctx.request.query.order as st
-    if(!['asc', 'desc'].includes(sortOrder)) {
+    if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
     }
@@ -192,7 +191,7 @@ const getSortedEventsByDate = async (ctx: Koa.Context) => {
 const deleteEvent = async (ctx: Koa.Context) => {
   try {
     const { id } = ctx.params
-    if(!parseInt(id)) {
+    if (!parseInt(id)) {
       ctx.status = 400
       return (ctx.body = 'invalid url parameter')
     }
@@ -208,7 +207,7 @@ const deleteEvent = async (ctx: Koa.Context) => {
 const updateEvent = async (ctx: Koa.Context) => {
   try {
     const { id } = ctx.params
-    if(!parseInt(id)) {
+    if (!parseInt(id)) {
       ctx.status = 400
       return (ctx.body = 'invalid url parameter')
     }
@@ -221,7 +220,15 @@ const updateEvent = async (ctx: Koa.Context) => {
     const type = ctx.request.body.type
     const date = ctx.request.body.date
 
-    const res = await database.instance.updateEvent(id, { agent, sender, client, channel, text, type, date })
+    const res = await database.instance.updateEvent(id, {
+      agent,
+      sender,
+      client,
+      channel,
+      text,
+      type,
+      date,
+    })
     return (ctx.body = res)
   } catch (e) {
     console.log(e)
@@ -253,7 +260,7 @@ const createEvent = async (ctx: Koa.Context) => {
 const getSpeechToText = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
   const character = ctx.request.query.character ?? 'none'
-  console.log("text and character are", text, character)
+  console.log('text and character are', text, character)
   const cache = await cacheManager.instance.get(
     character as string,
     'speech_' + character + ': ' + text,
@@ -472,8 +479,9 @@ const requestInformationAboutVideo = async (
   question: string
 ): Promise<string> => {
   const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-    }\n${agent}:`
+  const prompt = `Information: ${videoInformation} \n ${sender}: ${
+    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
+  }\n${agent}:`
 
   const modelName = 'davinci'
   const temperature = 0.9
@@ -556,6 +564,12 @@ const handleCustomInput = async (ctx: Koa.Context) => {
       'latest'
     ),
   })
+}
+
+const zoomBufferChunk = async (ctx: Koa.Context) => {
+  const chunk = ctx.request.body.chunk
+  console.log('GOT ZOOM BUFFER CHUNK:', chunk)
+  return (ctx.body = 'ok')
 }
 
 export const entities: Route[] = [
@@ -653,5 +667,10 @@ export const entities: Route[] = [
     path: '/handle_custom_input',
     access: noAuth,
     post: handleCustomInput,
+  },
+  {
+    path: '/zoom_buffer_chunk',
+    access: noAuth,
+    post: zoomBufferChunk,
   },
 ]
