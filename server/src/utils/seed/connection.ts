@@ -1,4 +1,7 @@
 import { Client } from 'pg'
+import { config } from 'dotenv-flow'
+
+config()
 
 let client = new Client({
   user: process.env.PGUSER as any,
