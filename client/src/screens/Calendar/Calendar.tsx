@@ -175,8 +175,7 @@ const EventForm = ({
       <div className="form">
         <label>
           Name
-          <input
-            type="text"
+          <textarea
             placeholder="ie. My Event"
             defaultValue={event.name}
             onChange={e => setEvent({ ...event, name: e.target.value })}
@@ -215,8 +214,7 @@ const EventForm = ({
 
         <label>
           Description
-          <input
-            type="text"
+          <textarea
             placeholder="Describe the event"
             defaultValue={event.meta}
             onChange={e => setEvent({ ...event, meta: e.target.value })}

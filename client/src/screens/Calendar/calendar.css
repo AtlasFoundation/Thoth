@@ -156,6 +156,15 @@
   display: block;
 }
 
+.form textarea {
+  width: calc(100% - 16px);
+  padding: 5px;
+  margin: 6px 0 10px 0;
+  border: 3px solid #cacaca;
+  border-radius: 4px;
+  background: #121212;
+}
+
 button {
   width: 100%;
   background: #3fb73f;
