@@ -13,7 +13,7 @@ export class cacheManager {
     this.cleanTime = cleanTime
   }
 
-  async get(agent: string, key: string, string: boolean) {
+  async get(agent: string, key: string, strict: boolean) {
     if (
       !this.cache[agent] ||
       this.cache[agent] === undefined ||
@@ -34,7 +34,7 @@ export class cacheManager {
       }
     }
 
-    if (string === true) {
+    if (strict === true) {
       return res
     }
 

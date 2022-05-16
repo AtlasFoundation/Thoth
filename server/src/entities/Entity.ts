@@ -243,6 +243,7 @@ export class Entity {
       entity
     )
   }
+
   stopReddit() {
     if (this.reddit) {
       this.reddit.destroy()

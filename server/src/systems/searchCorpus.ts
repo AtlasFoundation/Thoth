@@ -19,6 +19,8 @@ import {
   classifyText,
 } from '@latitudegames/thoth-core/src/utils/textClassifier'
 import keyword_extractor from 'keyword-extractor'
+import * as fs from 'fs'
+import https from 'https'
 
 config({ path: '.env' })
 const searchEngine = 'davinci'
@@ -143,16 +145,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.get('/search', async function (ctx: Koa.Context) {
     const question = ctx.request.query?.question as string
     const cleanQuestion = removePunctuation(question)
-    const resp = await axios.post(`${process.env.PYTHON_SERVER_URL}/search`, {
-      isKeywords: false,
-      query: cleanQuestion,
-    })
-    return (ctx.body =
-      resp.data.status == 'ok' && resp.data.data.length > 0
-        ? resp.data.data
-        : 'No documents where found to search from!')
-
-    /*const words = simplifyWords(cleanQuestion.split(' '))
+    const words = simplifyWords(cleanQuestion.split(' '))
     const topic = await classifyText(question)
     console.log('topic:', topic)
 
@@ -245,7 +238,22 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       } else {
         return (ctx.body = 'No documents where found to search from!')
       }
-    } else return (ctx.body = 'No documents where found to search from!')*/
+    } else return (ctx.body = 'No documents where found to search from!')
+  })
+  router.post('/vector_search', async function (ctx: Koa.Context) {
+    const question = ctx.request.body?.question as string
+    console.log('question:', question)
+    const cleanQuestion = removePunctuation(question)
+
+    const resp = await axios.post(`${process.env.PYTHON_SERVER_URL}/search`, {
+      isKeywords: false,
+      query: cleanQuestion,
+    })
+
+    return (ctx.body =
+      resp.data.status == 'ok' && resp.data.data.length > 0
+        ? resp.data.data
+        : 'No documents where found to search from!')
   })
 
   router.post('/content-object', async function (ctx: Koa.Context) {
@@ -374,10 +382,25 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
 
   const PORT: number = Number(process.env.SEARCH_CORPUS_PORT) || 65531
+  const useSSL = process.env.USESSL === 'true' && 
+    fs.existsSync('certs/') && 
+    fs.existsSync('certs/key.pem') &&
+    fs.existsSync('certs/cert.pem')
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-  })
+  let sslOptions = {
+    key: useSSL ? fs.readFileSync('certs/key.pem') : '',
+    cert: useSSL ? fs.readFileSync('certs/cert.pem') : ''
+  }
+  
+  useSSL ? (
+    https.createServer(sslOptions, app.callback()).listen(PORT, '0.0.0.0', () => {
+      console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+    })
+  ) : (
+    https.createServer(app.callback()).listen(PORT, '0.0.0.0', () => {
+      console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+    })
+  )
 }
 
 export async function extractKeywords(input: string): Promise<string[]> {
