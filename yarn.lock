@@ -14404,6 +14404,23 @@
   "resolved" "https://registry.npmjs.org/node-releases/-/node-releases-2.0.3.tgz"
   "version" "2.0.3"
 
+"node-telegram-bot-api@^0.57.0":
+  "integrity" "sha512-joLDEfPBB9BYi9ClB7X1+YGhlu5m/wB4YtM80jzHsFVtmfJn93bwpJsdh7DcA4lEVaxw7TsnIT0tux3ZLmk3vw=="
+  "resolved" "https://registry.npmjs.org/node-telegram-bot-api/-/node-telegram-bot-api-0.57.0.tgz"
+  "version" "0.57.0"
+  dependencies:
+    "array.prototype.findindex" "^2.0.2"
+    "bl" "^1.2.3"
+    "bluebird" "^3.5.1"
+    "debug" "^3.1.0"
+    "depd" "^1.1.1"
+    "eventemitter3" "^3.0.0"
+    "file-type" "^3.9.0"
+    "mime" "^1.6.0"
+    "pump" "^2.0.0"
+    "request" "^2.83.0"
+    "request-promise" "^4.2.2"
+
 "node-telegram-bot-api@0.56.0":
   "integrity" "sha512-gKUlH/uUXdSJ++6y1Y16qEThZouecfl4twuPKe6V2BPFDDfom9j2QMlxfslPEjZPH2ZXlA1S/uoRCKtIjzuaLw=="
   "resolved" "https://registry.npmjs.org/node-telegram-bot-api/-/node-telegram-bot-api-0.56.0.tgz"

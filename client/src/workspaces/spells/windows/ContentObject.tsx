@@ -4,6 +4,7 @@ import { useModal } from '@/contexts/ModalProvider';
 import { VscWand, VscTrash, VscSave } from 'react-icons/vsc'
 import axios from 'axios'
 import { useModal } from '@/contexts/ModalProvider';
+import { useSnackbar } from 'notistack';
 
 const ContentObject = ({ content, getContentObjects }) => {
   const [contentObj, setContentObj] = useState({
@@ -14,10 +15,12 @@ const ContentObject = ({ content, getContentObjects }) => {
     documentId: content.document_id
   })
   const { openModal } = useModal()
+  const { enqueueSnackbar } = useSnackbar()
 
   const updateObj = async () => {
     const body = { ...contentObj }
     await axios.put(`${process.env.REACT_APP_SEARCH_SERVER_URL}/content-object`, body)
+    enqueueSnackbar('Content Object updated', { variant: 'success' })
     await getContentObjects()
   }
   const deleteObj = () => {
