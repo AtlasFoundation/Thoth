@@ -2,7 +2,7 @@ export type AddClient = {
   client: string
   name: string
   type: string
-  defaultValue: string
+  defaultValue: string | boolean
 }
 
 export type EditClient = {
@@ -48,9 +48,9 @@ export type TableSize = {
 
 export type AddScope = {
   tables: string
-  fullTableSize?: FullTableSize
-  tableSize?: TableSize
-  recordCount?: string
+  fullTableSize?: FullTableSize | string
+  tableSize?: TableSize | string
+  recordCount?: string | number
 }
 
 export type EditScope = {
