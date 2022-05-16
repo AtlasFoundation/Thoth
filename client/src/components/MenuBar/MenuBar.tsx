@@ -126,6 +126,7 @@ const MenuBar = () => {
   const onEventManagerCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_EVENT_MANAGER(activeTabRef.current.id))
+    navigate('/calendar')
   }
 
   //Menu bar hotkeys
