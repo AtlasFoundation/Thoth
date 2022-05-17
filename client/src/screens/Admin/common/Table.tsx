@@ -11,7 +11,8 @@ import Checkbox from '@mui/material/Checkbox'
 import Pagination from '@mui/material/Pagination'
 import MoreHoriz from '@mui/icons-material/MoreHoriz'
 import IconButton from '@mui/material/IconButton'
-// import data from '../../../data/config/clientSettings'
+import ActionModal from '../component/ActionsModal'
+// import { useState } from 'react'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -35,9 +36,19 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }))
 
 const TableIndex = ({ column, data }) => {
+  // const [actionOpen, setOpenAction] = useState(false)
   const [page, setPage] = React.useState(0)
+  const [dataId, setDataId] = React.useState('')
   const count = Math.ceil(data.length / 10)
-
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const handleClick = (event: React.MouseEvent<HTMLElement>, id) => {
+    setDataId(id)
+    setAnchorEl(event.currentTarget)
+  }
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -58,35 +69,48 @@ const TableIndex = ({ column, data }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map(row => (
-              <StyledTableRow key={row.name}>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                    inputProps={{
-                      'aria-label': 'select all desserts',
-                    }}
-                  />
-                </TableCell>
-                {column.map(col => {
-                  const value = row[col.id]
-                  return (
-                    <>
-                      <StyledTableCell align="right">{value}</StyledTableCell>
-                    </>
-                  )
-                })}
+            {data.map((row, i) => {
+              // console.log(row.id)
+              const id = row.id
 
-                <TableCell padding="checkbox" align="center">
-                  <IconButton>
-                    <MoreHoriz />
-                  </IconButton>
-                </TableCell>
-              </StyledTableRow>
-            ))}
+              return (
+                <StyledTableRow key={i}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      color="primary"
+                      inputProps={{
+                        'aria-label': 'select all desserts',
+                      }}
+                    />
+                  </TableCell>
+                  {column.map((col, i) => {
+                    const value = row[col.id]
+                    return (
+                      <>
+                        <StyledTableCell align="right" key={i}>
+                          {value}
+                        </StyledTableCell>
+                      </>
+                    )
+                  })}
+
+                  <TableCell padding="checkbox" align="center">
+                    <IconButton onClick={e => handleClick(e, id)}>
+                      <MoreHoriz />
+                    </IconButton>
+                  </TableCell>
+                </StyledTableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </TableContainer>
+      <ActionModal
+        anchorEl={anchorEl}
+        open={open}
+        handleClose={handleClose}
+        id={dataId}
+      />
       <div
         style={{
           display: 'flex',

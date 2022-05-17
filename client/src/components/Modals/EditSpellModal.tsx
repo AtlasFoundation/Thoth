@@ -17,13 +17,13 @@ const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
     handleSubmit,
     // formState: { errors },
   } = useForm()
-  console.log('tab ::: ', tab);
-  
+  console.log('tab ::: ', tab)
+
   const onSubmit = handleSubmit(async data => {
-    const response: any = await patchSpell({ 
-      spellId: tab.spellId, 
-      userId: user?.id as string, 
-      update: data 
+    const response: any = await patchSpell({
+      spellId: tab.spellId,
+      userId: user?.id as string,
+      update: data,
     })
 
     if (response.error) {

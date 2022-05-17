@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect } from 'react'
 import Table from '../../common/Table'
 import Search from '../../common/Search'
 import { styled } from '@mui/material/styles'
@@ -8,6 +7,9 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { columnConfig } from '../../common/Variable/column'
 import { useModal } from '../../../../contexts/ModalProvider'
+import { useAppDispatch, useAppSelector } from '@/state/hooks'
+import { getConfig } from '../../../../state/admin/Actions/configActions'
+import { Config } from '../../../../state/admin/types/types'
 
 const Container = styled(Grid)({
   marginBottom: '1.5rem',
@@ -23,23 +25,26 @@ const ButtonCustom = styled(Button)({
 })
 
 const Config = () => {
-  const [data, setData] = useState([])
+  const dispatch = useAppDispatch()
+  const configData = useAppSelector(state => state.config)
+  let data: Config[] = []
   const { openModal } = useModal()
   // const page = 1
-
   useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_API_ROOT_URL}/setting/configuration`)
-      .then(res => {
-        setData(res.data.payload)
-      })
+    dispatch(getConfig())
   }, [])
+
+  console.log(configData.config)
 
   const handleAdd = () => {
     openModal({
       modal: 'addconfig',
       content: 'This is an example modal',
     })
+  }
+
+  if (configData.config) {
+    data = configData.config
   }
 
   return (

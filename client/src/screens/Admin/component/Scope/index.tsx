@@ -26,8 +26,6 @@ const Scope = () => {
   const [data, setData] = useState([])
   const { openModal } = useModal()
 
-  console.log('Hello world', data)
-
   useEffect(() => {
     axios
       .get(`${process.env.REACT_APP_API_ROOT_URL}/setting/scope`)
