@@ -135,7 +135,10 @@ export class Entity {
     twitter_access_token: any,
     twitter_access_token_secret: any,
     twitter_bot_name: any,
-    twitter_bot_name_regex: any
+    twitter_bot_name_regex: any,
+    twitter_spell_handler_incoming: any,
+    spell_version: string,
+    entity: any
   ) {
     console.log('initializing Twitter:', twitter_token)
     if (this.twitter)
@@ -143,14 +146,14 @@ export class Entity {
         'Twitter already running for this entity on this instance'
       )
 
-    // const spellHandler = await CreateSpellHandler({
-    //   spell: spell_handler,
-    //   version: spell_version,
-    // })
+    const spellHandler = CreateSpellHandler({
+      spell: twitter_spell_handler_incoming,
+      version: spell_version,
+    })
 
     this.twitter = new twitter_client()
-    console.log('createDiscordClient')
-    await this.twitter.createTwitterClient(this, {
+    console.log('createTwitterClient')
+    await this.twitter.createTwitterClient(spellHandler, {
       twitter_token,
       twitter_id,
       twitter_app_token,
@@ -159,7 +162,8 @@ export class Entity {
       twitter_access_token_secret,
       twitter_bot_name,
       twitter_bot_name_regex,
-    })
+      twitter_spell_handler_incoming
+    }, entity)
     console.log('Started twitter client for agent ' + this)
     // const response = await spellHandler(
     //   'testmessage',
@@ -173,7 +177,7 @@ export class Entity {
   }
 
   stopTwitter() {
-    if (!this.discord) throw new Error("Twitter isn't running, can't stop it")
+    if (!this.twitter) throw new Error("Twitter isn't running, can't stop it")
     this.twitter = null
     console.log('Stopped twitter client for agent ' + this)
   }
@@ -312,7 +316,10 @@ export class Entity {
         data.twitter_access_token,
         data.twitter_access_token_secret,
         data.twitter_bot_name,
-        data.twitter_bot_name_regex
+        data.twitter_bot_name_regex,
+        data.twitter_spell_handler_incoming,
+        data.spell_version,
+        data
       )
     }
 
