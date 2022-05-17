@@ -120,5 +120,63 @@ export class twitter_client {
         }
       }
     }, 25000)
+    /*!twit.data.text.match(regex2)) {
+    /*const rules = await client.v2.streamRules()
+        if (rules.data?.length) {
+            await client.v2.updateStreamRules({
+                delete: { ids: rules.data.map(rule => rule.id) },
+            })
+        }
+        const tweetRules = process.env.TWITTER_TWEET_RULES.split(',')
+        const _rules = []
+        for (let x in tweetRules) {
+            log('rule: ' + tweetRules[x])
+            _rules.push({value: tweetRules[x]})
+        }
+        await client.v2.updateStreamRules({
+            add: _rules
+        })
+        const stream = await client.v2.searchStream({
+            "tweet.fields": ['referenced_tweets', 'author_id'],
+            expansions: ['referenced_tweets.id']
+        })
+        stream.autoReconnect = true
+        stream.on(ETwitterStreamEvent.Data, async twit => {
+            const isARt = twit.data.referenced_tweets?.some(twit => twit.type === 'retweeted') ?? false
+            if (isARt || (localUser !== undefined && twit.data.author_id == localUser.data.id)) {
+                log('isArt found')
+            } else {
+                if (/*!twit.data.text.match(regex) && */
+    /*   log('regex doesnt match')
+                } else {
+                    let authorName = 'unknown'
+                    const author = await twitter.v2.user(twit.data.author_id)
+                    if (author) authorName = author.data.username
+                    let date = new Date();
+                    if (twit.data.created_at) date = new Date(twit.data.created_at)
+                    const utc = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+                    const utcStr = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' ' + utc.getHours() + ':' + utc.getMinutes() + ':' + utc.getSeconds()
+                    var ts = Math.floor(utc.getTime() / 1000);
+                    await database.instance.messageExistsAsyncWitHCallback2('reddit', twit.data.id, twit.data.id, authorName, twit.data.text, ts, () => {
+                        MessageClient.instance.sendMessage(twit.data.text,
+                            twit.data.id,
+                            'twitter',
+                            twit.data.in_reply_to_user_id ? twit.data.in_reply_to_user_id : twit.data.id,
+                            ts + '',
+                            false,
+                            authorName,
+                            'Twit')
+                            log('sending twit: ' + JSON.stringify(twit))
+                        database.instance.addMessageInHistoryWithDate(
+                            'twitter',
+                            twit.data.id,
+                            twit.data.id,
+                            authorName,
+                            twit.data.text,
+                            utcStr)
+                    })
+                }
+            }
+        })*/
   }
 }
