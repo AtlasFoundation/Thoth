@@ -13,7 +13,7 @@ const VideoTranscription = () => {
         console.log(file,'selectedFile')
         // let formData = new FormData();
         // let url = `${process.env.REACT_APP_SEARCH_SERVER_URL}/`
-        let url = 'http://localhost:8001'
+        let url = 'https://localhost:8001'
         let body = file?.name;
 
         await axios.post(url,  {

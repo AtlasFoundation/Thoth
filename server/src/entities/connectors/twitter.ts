@@ -8,6 +8,10 @@ import { TwitterApi } from 'twitter-api-v2'
 
 import { handleInput } from './handleInput'
 
+function log(...s: (string | boolean)[]) {
+  console.log(...s)
+}
+
 const createTwitterClient = (
   bearerKey: string,
   appKey: string,
@@ -45,33 +49,20 @@ export class twitter_client {
         recipient_id: chat_id,
         text: response,
       })
-      database.instance.addMessageInHistory(
-        'twitter',
-        chat_id,
-        dmSent.event.id,
-        this.agent.name,
-        response
-      )
     } else if (args === 'Twit') {
-      await twitterV1.v1.reply(response, chat_id).then(res => {
-        database.instance.addMessageInHistory(
-          'twitter',
-          chat_id,
-          res.id_str,
-          this.agent.name,
-          response
-        )
-      })
+      await twitterV1.v1.reply(response, chat_id)
     }
   }
 
-  agent
+  spellHandler
   settings
+  entity
 
-  createTwitterClient = async (agent, settings) => {
+  createTwitterClient = async (spellHandler, settings, entity) => {
     console.log('TWITTER SETTINGS:', settings)
-    this.agent = agent
+    this.spellHandler = spellHandler
     this.settings = settings
+    this.entity = entity
 
     const bearerToken = settings['twitter_token']
     const twitterUser = settings['twitter_id']
@@ -113,38 +104,23 @@ export class twitter_client {
           let authorName = 'unknown'
           const author = await twitter.v2.user(event.message_create.sender_id)
           if (author) authorName = author.data.username
+          
+          const body = event.message_create.message_data.text
 
-          await database.instance.messageExistsAsyncWitHCallback2(
-            'twitter',
-            event.message_create.target.recipient_id,
-            event.id,
+          const resp = this.spellHandler(
+            body,
             authorName,
-            event.message_create.message_data.text,
-            parseInt(event.created_timestamp),
-            async () => {
-              const resp = await handleInput(
-                event.message_create.message_data.text,
-                authorName,
-                this.agent.name ?? 'Agent',
-                'twitter',
-                event.id
-              )
-              this.handleMessage(resp, event.id, 'DM', twitter, tv1, localUser)
-
-              database.instance.addMessageInHistoryWithDate(
-                'twitter',
-                event.message_create.target.recipient_id,
-                event.id,
-                authorName,
-                event.message_create.message_data.text,
-                event.created_timestamp
-              )
-            }
+            this.settings.twitter_bot_name ?? 'Agent',
+            'twitter',
+            event.id,
+            settings.entity,
+            []
           )
+          await this.handleMessage(resp, event.id, 'DM', twitter, tv1, localUser)
         }
       }
-    }, 25000) /*!twit.data.text.match(regex2)) {
-
+    }, 25000)
+    /*!twit.data.text.match(regex2)) {
     /*const rules = await client.v2.streamRules()
         if (rules.data?.length) {
             await client.v2.updateStreamRules({
@@ -191,8 +167,6 @@ export class twitter_client {
                             authorName,
                             'Twit')
                             log('sending twit: ' + JSON.stringify(twit))
-
-
                         database.instance.addMessageInHistoryWithDate(
                             'twitter',
                             twit.data.id,
