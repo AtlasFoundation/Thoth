@@ -39,6 +39,7 @@ export interface entitiesAttributes {
   twitter_access_token_secret?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
+  twitter_spell_handler_incoming?: string
   telegram_enabled?: boolean
   telegram_bot_token?: string
   telegram_bot_name?: string
@@ -84,6 +85,7 @@ export type entitiesOptionalAttributes =
   | 'twitter_access_token_secret'
   | 'twitter_bot_name'
   | 'twitter_bot_name_regex'
+  | 'twitter_spell_handler_incoming'
   | 'telegram_enabled'
   | 'telegram_bot_token'
   | 'telegram_bot_name'
@@ -142,6 +144,7 @@ export class entities
   twitter_access_token_secret?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
+  twitter_spell_handler_incoming?: string
   telegram_enabled?: boolean
   telegram_bot_token?: string
   telegram_bot_name?: string
@@ -300,6 +303,10 @@ export class entities
           allowNull: true,
         },
         twitter_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
