@@ -4200,6 +4200,11 @@
   "resolved" "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.0.tgz"
   "version" "4.0.0"
 
+"@types/pg-format@^1.0.2":
+  "integrity" "sha512-D3MEO6u3BObw3G4Xewjdx05MF5v/fiog78CedtrXe8BhONM8GvUz2dPfLWtI0BPRBoRd6anPHXe+sbrPReZouQ=="
+  "resolved" "https://registry.npmjs.org/@types/pg-format/-/pg-format-1.0.2.tgz"
+  "version" "1.0.2"
+
 "@types/pg@^7.14.11":
   "integrity" "sha512-EnZkZ1OMw9DvNfQkn2MTJrwKmhJYDEs5ujWrPfvseWNoI95N8B4HzU/Ltrq5ZfYxDX/Zg8mTzwr6UAyTjjFvXA=="
   "resolved" "https://registry.npmjs.org/@types/pg/-/pg-7.14.11.tgz"
@@ -15575,6 +15580,11 @@
   "integrity" "sha512-r5o/V/ORTA6TmUnyWZR9nCj1klXCO2CEKNRlVuJptZe85QuhFayC7WeMic7ndayT5IRIR0S0xFxFi2ousartlQ=="
   "resolved" "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.5.0.tgz"
   "version" "2.5.0"
+
+"pg-format@^1.0.4":
+  "integrity" "sha1-J3NCNsKtP05QZJFaWTNOIAQKgo4="
+  "resolved" "https://registry.npmjs.org/pg-format/-/pg-format-1.0.4.tgz"
+  "version" "1.0.4"
 
 "pg-hstore@2.3.4":
   "integrity" "sha512-N3SGs/Rf+xA1M2/n0JBiXFDVMzdekwLZLAO0g7mpDY9ouX+fDI7jS6kTq3JujmYbtNSJ53TJ0q4G98KVZSM4EA=="

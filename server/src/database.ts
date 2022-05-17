@@ -19,6 +19,7 @@ import {
   ScopeFilterOptions,
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
+import format from 'pg-format'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -293,7 +294,7 @@ export class database {
       data.dirty = 'true'
       let q = ''
       let dataArray = Object.keys(data)
-      dataArray.map((key) => {
+      dataArray.map(key => {
         if (data[key] !== null) {
           q += `${key}='${('' + data[key]).replace("'", "''")}',`
         }
@@ -308,9 +309,10 @@ export class database {
         throw new Error(e)
       }
     } else {
-      let q = '', cols = ''
+      let q = '',
+        cols = ''
       let dataArray = Object.keys(data)
-      dataArray.map((key) => {
+      dataArray.map(key => {
         if (data[key] !== null) {
           cols += `${key},`
           q += `'${('' + data[key]).replace("'", "''")}',`
@@ -544,6 +546,27 @@ export class database {
     return rows && rows.rows && rows.rows.length > 0
   }
 
+  async getCalendarEvents() {
+    const query = 'SELECT * FROM calendar_events'
+    const rows = await this.client.query(query)
+    if(rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+  async createCalendarEvent(
+    name: string,
+    date: string,
+    time: string,
+    type: string,
+    moreInfo: string
+  ) {
+    const query = 'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
+    const values = [name, date, time, type, moreInfo]
+    try {
+      return await this.client.query(query, values)
+    } catch(e) {
+      throw  new Error(e)
+    }
+  }
   /* 
     Section : Settings
     Modules : Client, Configuration, Scope
@@ -580,9 +603,21 @@ export class database {
     const query =
       'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
     const rows = await this.client.query(query, [per_page, offset])
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -624,6 +659,32 @@ export class database {
       return { data: rows.rows, success: true }
     }
     return { data: [], success: false }
+  }
+
+  async seedClientSetting(body: AddClient[]): Promise<any> {
+    let newBody = []
+
+    for (let i = 0; i < body.length; i++) {
+      const client = body[i].client
+      const name = body[i].name
+      const type = body[i].type
+      const default_value = body[i].defaultValue
+
+      newBody.push([client, name, type, default_value])
+    }
+
+    const query = format(
+      'INSERT INTO client_settings (client, name, type, default_value) VALUES %L returning id',
+      newBody
+    )
+
+    try {
+      await this.client.query(query)
+      return { success: true, data: {}, isAlreadyExists: false }
+    } catch (error) {
+      console.log('Error => seedClientSetting => ', error)
+    }
+    return { success: false, data: {}, isAlreadyExists: false }
   }
 
   async addClientSetting(body: AddClient): Promise<any> {

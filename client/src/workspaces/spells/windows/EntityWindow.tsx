@@ -71,6 +71,7 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
+  const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] = useState('')
 
   const [telegram_enabled, setTelegramEnabled] = useState('')
   const [telegram_bot_token, setTelegramBotToken] = useState('')
@@ -136,6 +137,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwitterAccessTokenSecret(res.data.twitter_access_token_secret)
         setTwitterBotName(res.data.twitter_bot_name)
         setTwitterBotNameRegex(res.data.twitter_bot_name_regex)
+        setTwitterSpellHandlerIncoming(res.data.twitter_spell_handler_incoming)
 
         setTelegramEnabled(res.data.telegram_enabled === true)
         setTelegramBotToken(res.data.telegram_bot_token)
@@ -221,6 +223,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_access_token_secret,
       twitter_bot_name,
       twitter_bot_name_regex,
+      twitter_spell_handler_incoming,
       telegram_enabled,
       telegram_bot_token,
       telegram_bot_name,
@@ -285,6 +288,7 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterAccessTokenSecret(responseData.twitter_access_token_secret)
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
+          setTwitterSpellHandlerIncoming(responseData.twitter_spell_handler_incoming)
 
           setTelegramEnabled(responseData.telegram_enabled)
           setTelegramBotToken(responseData.telegram_bot_token)
@@ -347,6 +351,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_access_token_secret,
       twitter_bot_name,
       twitter_bot_name_regex,
+      twitter_spell_handler_incoming,
       telegram_enabled,
       telegram_bot_token,
       telegram_bot_name,
@@ -811,6 +816,26 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setTwitterBotNameRegex(e.target.value)
                   }}
                 />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={twitter_spell_handler_incoming}
+                  onChange={event => {
+                    setTwitterSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
               </div>
             </>
           )}
