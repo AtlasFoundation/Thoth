@@ -30,7 +30,8 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
 
     let stop = Date.now()
     console.log(
-      `Time Taken to execute loaded data from wikipedia = ${(stop - start) / 1000
+      `Time Taken to execute loaded data from wikipedia = ${
+        (stop - start) / 1000
       } seconds`
     )
     start = Date.now()
@@ -117,7 +118,8 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
 
     stop = Date.now()
     console.log(
-      `Time Taken to execute openai request 2 = ${(stop - start) / 1000
+      `Time Taken to execute openai request 2 = ${
+        (stop - start) / 1000
       } seconds`
     )
     start = Date.now()
@@ -145,8 +147,6 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
 }
 
 export const searchWikipedia = async keyword => {
-  console.log('Searching wikipedia for ', keyword)
-
   // if keywords contains more than three words, summarize with GPT-3
   if (keyword.trim().split(' ').length > 3) {
     const data = {
@@ -172,7 +172,7 @@ export const searchWikipedia = async keyword => {
 
   // Search for it, and accept suggestion if there is one
   const searchResults = await wiki.search(keyword)
-  console.log(searchResults)
+
   // If the first result contains the keyword or vice versa, probably just go with it
   if (
     searchResults.results[0] &&
@@ -216,7 +216,6 @@ export const searchWikipedia = async keyword => {
     }
   }
 
-  console.log('Making weaviate request')
   // if it's not immediately located, request from weaviate
   const weaviateResponse = await makeWeaviateRequest(keyword)
 
@@ -224,7 +223,7 @@ export const searchWikipedia = async keyword => {
     const result = await lookUpOnWikipedia(
       weaviateResponse?.Paragraph[0]?.inArticle[0]?.title
     )
-    console.log('result', result)
+
     return {
       result,
       filePath,
@@ -247,7 +246,6 @@ export const makeWeaviateRequest = async keyword => {
     .withFields('title content inArticle { ... on Article {  title } }')
     .withLimit(3)
     .do()
-  //console.log("res is", res.data.Get.Paragraph[0]);
 
   if (res.data.Get !== undefined) {
     return res.data.Get
@@ -267,21 +265,19 @@ export async function lookUpOnWikipedia(subject) {
     const { title, displaytitle, description, extract } = await wiki.summary(
       subject
     )
-    console.log('Got summary', title)
+
     const summary = {
       title,
       displaytitle,
       description,
       extract,
     }
-    console.log('Summary is', summary)
-    // create a directory recursively at data/wikipedia/ if it doesn't exist
 
+    // create a directory recursively at data/wikipedia/ if it doesn't exist
     await database.instance.addWikipediaData(subject, JSON.stringify(summary))
 
     return summary
   } catch (err) {
     console.error(err)
   }
-  console.log('Finished looking up on wikipedia')
 }
