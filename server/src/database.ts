@@ -546,6 +546,27 @@ export class database {
     return rows && rows.rows && rows.rows.length > 0
   }
 
+  async getCalendarEvents() {
+    const query = 'SELECT * FROM calendar_events'
+    const rows = await this.client.query(query)
+    if(rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+  async createCalendarEvent(
+    name: string,
+    date: string,
+    time: string,
+    type: string,
+    moreInfo: string
+  ) {
+    const query = 'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
+    const values = [name, date, time, type, moreInfo]
+    try {
+      return await this.client.query(query, values)
+    } catch(e) {
+      throw  new Error(e)
+    }
+  }
   /* 
     Section : Settings
     Modules : Client, Configuration, Scope

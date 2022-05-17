@@ -45,6 +45,9 @@ import type {
   scopeSettingCreationAttributes,
 } from './scope_settings'
 import { scopeSettings as _scopeSettings } from './scope_settings'
+import type { calendarEventsAttributes, calendarEventsCreationAttributes } from './calendarEvents'
+import { calendarEvents as _calendarEvents } from './calendarEvents'
+
 
 export {
   _entities as entities,
@@ -58,6 +61,7 @@ export {
   _clientSettings as clientSettings,
   _configurationSettings as configurationSettings,
   _scopeSettings as scopeSettings,
+  _calendarEvents as calendarEvents
 }
 
 export type {
@@ -83,6 +87,8 @@ export type {
   configurationSettingCreationAttributes,
   scopeSettingAttributes,
   scopeSettingCreationAttributes,
+  calendarEventsAttributes,
+  calendarEventsCreationAttributes
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -97,6 +103,7 @@ export function initModels(sequelize: Sequelize) {
   const clientSettings = _clientSettings.initModel(sequelize)
   const configurationSettings = _configurationSettings.initModel(sequelize)
   const scopeSettings = _scopeSettings.initModel(sequelize)
+  const calendarEvents = _calendarEvents.initModel(sequelize)
 
   return {
     entities: entities,
@@ -110,5 +117,6 @@ export function initModels(sequelize: Sequelize) {
     clientSettings: clientSettings,
     configurationSettings: configurationSettings,
     scopeSettings: scopeSettings,
+    calendarEvents: calendarEvents
   }
 }
