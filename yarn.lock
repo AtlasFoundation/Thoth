@@ -2132,6 +2132,7 @@
     "openai-api" "^1.2.5"
     "ot-json0" "^1.1.0"
     "pg" "8.7.1"
+    "pg-format" "^1.0.4"
     "pg-hstore" "2.3.4"
     "pm2" "^5.0.0"
     "promise-retry" "^2.0.1"
