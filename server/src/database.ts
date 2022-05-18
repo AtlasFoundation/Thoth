@@ -617,6 +617,7 @@ export class database {
       const data = {
         data: rows.rows,
         pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
       }
       return { data: data, success: true }
     }
@@ -637,8 +638,16 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -656,8 +665,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -803,8 +819,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -823,8 +846,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -842,8 +872,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -971,8 +1008,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -991,8 +1035,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -1010,8 +1061,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
