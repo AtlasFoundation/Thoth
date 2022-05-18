@@ -1,8 +1,8 @@
 import { useState, useEffect, Fragment } from 'react'
-import DayLabels from './DayLabes'
+import DayLabels from './DayLabels'
 import './calendar.css'
-
-const LOADING_TIME = 1000
+import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 const MONTHS = [
   'January',
@@ -39,34 +39,14 @@ const dateToInputFormat = date => {
 
   const month = pad(date.getMonth() + 1)
   const day = pad(date.getDate())
-  const hours = pad(date.getHours())
-  const minutes = pad(date.getMinutes())
+  // const hours = pad(date.getHours())
+  // const minutes = pad(date.getMinutes())
 
-  return `${date.getFullYear()}-${month}-${day}T${hours}:${minutes}`
-}
-
-const parseEvents = events => {
-  return events.map(event => {
-    const from = new Date(event.dateFrom)
-    const to = new Date(event.dateTo)
-
-    return {
-      ...event,
-      from,
-      to,
-    }
-  })
+  return `${date.getFullYear()}-${month}-${day}`
 }
 
 const findEventsForDate = (events, date) => {
-  const dateTime = date.getTime()
-
-  return events.filter(event => {
-    const eventFromTime = toStartOfDay(event.from).getTime()
-    const eventToTime = toStartOfDay(event.to).getTime()
-
-    return dateTime >= eventFromTime && dateTime <= eventToTime
-  })
+  return events.filter(event => date.toDateString() === new Date(event.date).toDateString())
 }
 
 const Navigation = ({ date, setDate, setShowingEventForm }) => {
@@ -127,12 +107,11 @@ const EventModal = ({
       title={`${event.name} (${event.type})`}
       className="eventModal"
     >
-      <p>
-        From <b>{event.dateFrom}</b> to <b>{event.dateTo}</b>
-      </p>
-      <p>{event.meta}</p>
+      <p>Date: <b>{event.date}</b> Time: <b>{event.time}</b></p>
+      <p>{event.moreInfo}</p>
 
       <button
+        className='calendarBtn'
         onClick={() => {
           setViewingEvent(null)
           setShowingEventForm({ visible: true, withEvent: event })
@@ -141,7 +120,7 @@ const EventModal = ({
         Edit event
       </button>
 
-      <button className="red" onClick={() => deleteEvent(event)}>
+      <button className='calendarBtn red' onClick={() => deleteEvent(event)}>
         Delete event
       </button>
 
@@ -160,9 +139,15 @@ const EventForm = ({
   setViewingEvent,
   preselectedDate,
 }) => {
-  const newEvent = withEvent || {}
+  const newEvent = withEvent || {
+    name: '',
+    date: '',
+    time: '',
+    type: 'standard',
+    moreInfo: ''
+  }
   if (!withEvent && !!preselectedDate) {
-    newEvent.dateFrom = dateToInputFormat(preselectedDate)
+    newEvent.date = dateToInputFormat(preselectedDate)
   }
   const [event, setEvent] = useState(newEvent)
 
@@ -183,20 +168,20 @@ const EventForm = ({
         </label>
 
         <label>
-          Start
+          Date
           <input
-            type="datetime-local"
-            defaultValue={event.dateFrom || dateToInputFormat(preselectedDate)}
-            onChange={e => setEvent({ ...event, dateFrom: e.target.value })}
+            type="date"
+            defaultValue={event.date || dateToInputFormat(preselectedDate)}
+            onChange={e => setEvent({ ...event, date: e.target.value })}
           />
         </label>
 
         <label>
-          End
+          Time
           <input
-            type="datetime-local"
-            defaultValue={event.dateTo}
-            onChange={e => setEvent({ ...event, dateTo: e.target.value })}
+            type="time"
+            defaultValue={event.time || dateToInputFormat(preselectedDate)}
+            onChange={e => setEvent({ ...event, time: e.target.value })}
           />
         </label>
 
@@ -216,14 +201,14 @@ const EventForm = ({
           Description
           <textarea
             placeholder="Describe the event"
-            defaultValue={event.meta}
-            onChange={e => setEvent({ ...event, meta: e.target.value })}
+            defaultValue={event.moreInfo}
+            onChange={e => setEvent({ ...event, moreInfo: e.target.value })}
           />
         </label>
 
         {withEvent ? (
           <Fragment>
-            <button onClick={() => editEvent(event)}>Edit event</button>
+            <button className='calendarBtn' onClick={() => editEvent(event)}>Edit event</button>
             <a
               className="close"
               onClick={() => {
@@ -236,12 +221,12 @@ const EventForm = ({
           </Fragment>
         ) : (
           <Fragment>
-            <button onClick={() => addEvent(event)} className="Add">
+            <button className='calendarBtn Add' onClick={() => addEvent(event)}>
               Add event
             </button>
 
             <button
-              className="close"
+              className='calendarBtn close'
               onClick={() => setShowingEventForm({ visible: false })}
             >
               Cancel
@@ -283,10 +268,6 @@ const Loader = () => {
       </div>
     </Fragment>
   )
-}
-
-const Feedback = ({ message, type }) => {
-  return <div className={`feedback ${type}`}>{message}</div>
 }
 
 const Grid = ({
@@ -347,7 +328,7 @@ const Grid = ({
   )
 }
 
-export const CalendarApp = ({ preloadedEvents = [] }) => {
+export const CalendarApp = () => {
   const [date, setDate] = useState(new Date())
   const [viewingEvent, setViewingEvent] = useState(false)
   const [showingEventForm, setShowingEventForm] = useState({
@@ -355,45 +336,54 @@ export const CalendarApp = ({ preloadedEvents = [] }) => {
     withEvent: false,
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [feedback, setFeedback] = useState([] as any)
-
-  const parsedEvents = parseEvents(preloadedEvents)
-  const [events, setEvents] = useState(parsedEvents)
+  const [events, setEvents] = useState([] as any)
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
-    console.log("Events has changed... Let's load some fresh data")
-  }, [date])
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    axios.get(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event`)
+      .then(({ data }) => {
+        console.log(data)
+        setEvents(data)
+      })
+      .catch(err => {
+        console.log(err)
+        enqueueSnackbar('Error fetching events', { variant: 'error' })
+      })
+  }
 
   const addEvent = event => {
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
-    setTimeout(() => {
-      const parsedEvents = parseEvents([event])
-
-      const updatedEvents = [...events]
-      updatedEvents.push(parsedEvents[0])
-
-      setEvents(updatedEvents)
-      setIsLoading(false)
-      showFeedback({ message: 'Event created successfully', type: 'success' })
-    }, LOADING_TIME)
+    axios.post(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event`, event)
+      .then(res => {
+        setIsLoading(false)
+        fetchEvents()
+        enqueueSnackbar('Event created successfully', { variant: 'success' })
+      })
+      .catch(err => {
+        console.log(err)
+        enqueueSnackbar('Event not created', { variant: 'error' })
+      })
   }
 
   const editEvent = event => {
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
-
-    setTimeout(() => {
-      const parsedEvent = parseEvents([event])
-
-      const updatedEvents = [...events].map(updatedEvent => {
-        return updatedEvent.id === event.id ? parsedEvent[0] : updatedEvent
+    let { id, ...eventBody } = event
+    axios.patch(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event/${id}`, eventBody)
+      .then(res => {
+        setIsLoading(false)
+        fetchEvents()
+        enqueueSnackbar('Event updated successfully', { variant: 'success' })
       })
-
-      setEvents(updatedEvents)
-      setIsLoading(false)
-      showFeedback({ message: 'Event edited successfully', type: 'success' })
-    }, LOADING_TIME)
+      .catch(err => {
+        console.log(err)
+        enqueueSnackbar('Event not updated', { variant: 'error' })
+      })
   }
 
   const deleteEvent = event => {
@@ -401,29 +391,21 @@ export const CalendarApp = ({ preloadedEvents = [] }) => {
     setViewingEvent(false)
     setShowingEventForm({ visible: false, withEvent: false })
 
-    setTimeout(() => {
-      const updatedEvents = [...events].filter(
-        finalEvent => finalEvent.id != event.id
-      )
-
-      setEvents(updatedEvents)
-      setIsLoading(false)
-      showFeedback({ message: 'Event deleted successfully', type: 'success' })
-    }, LOADING_TIME)
-  }
-
-  const showFeedback = ({ message, type, timeout = 2500 }) => {
-    setFeedback({ message, type })
-    setTimeout(() => {
-      setFeedback(null)
-    }, timeout)
+    axios.delete(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event/${event.id}`)
+      .then(res => {
+        setIsLoading(false)
+        fetchEvents()
+        enqueueSnackbar('Event deleted successfully', { variant: 'success' })
+      })
+      .catch(err => {
+        console.log(err)
+        enqueueSnackbar('Event not deleted', { variant: 'error' })
+      })
   }
 
   return (
     <div className="calendar-UI">
       {isLoading && <Loader />}
-
-      {feedback && <Feedback message={feedback.message} type={feedback.type} />}
 
       <Navigation
         date={date}

@@ -7,9 +7,12 @@ export interface calendarEventsAttributes {
 	time?: string
 	type?: string
 	moreInfo?: string
+	createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
 }
 
-export type calendarEventsOptionalAttributes = 'name' | 'date' | 'time' | 'type' | 'moreInfo'
+export type calendarEventsOptionalAttributes = 'name' | 'date' | 'time' | 'type' | 'moreInfo' | 'createdAt' | 'updatedAt' | 'deletedAt'
 export type calendarEventsCreationAttributes = Optional<calendarEventsAttributes, calendarEventsOptionalAttributes>
 
 export class calendarEvents extends Model<calendarEventsAttributes, calendarEventsCreationAttributes> implements calendarEventsAttributes {
@@ -18,6 +21,9 @@ export class calendarEvents extends Model<calendarEventsAttributes, calendarEven
 	time?: string
 	type?: string
 	moreInfo?: string
+	createdAt?: Date
+  updatedAt?: Date
+  deletedAt?: Date
 
 	static initModel(sequelize: Sequelize.Sequelize): typeof calendarEvents {
 		return calendarEvents.init({
@@ -40,12 +46,30 @@ export class calendarEvents extends Model<calendarEventsAttributes, calendarEven
 			moreInfo: {
 				type: DataTypes.TEXT,
 				allowNull: true
+			},
+			createdAt: {
+				type: DataTypes.DATE,
+				allowNull: true,
+				defaultValue: Sequelize.Sequelize.fn('now'),
+				field: 'created_at'
+			},
+			updatedAt: {
+				type: DataTypes.DATE,
+				allowNull: true,
+				defaultValue: Sequelize.Sequelize.fn('now'),
+				field: 'updated_at'
+			},
+			deletedAt: {
+				type: DataTypes.DATE,
+				allowNull: true,
+				field: 'deleted_at'
 			}
 		}, {
 			sequelize,
 			tableName: 'calendar_events',
 			schema: 'public',
-			timestamps: false
+			timestamps: true,
+			paranoid: true
 		})
 	}
 }

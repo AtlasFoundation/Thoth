@@ -1,8 +1,7 @@
 .calendar-UI {
   display: flex;
   flex-wrap: wrap;
-  width: 45%;
-  margin: 50px 500px 90px;
+  padding: 3rem;
   align-items: center;
   justify-content: center;
   font-family: sans-serif;
@@ -165,7 +164,7 @@
   background: #121212;
 }
 
-button {
+.calendarBtn {
   width: 100%;
   background: #3fb73f;
   border: 0;
@@ -176,7 +175,7 @@ button {
   border-radius: 5px;
 }
 
-button.red {
+.red {
   background: #c82727;
   border-bottom: 3px solid #a51616;
 }
@@ -212,7 +211,7 @@ button.red {
 }
 
 .modal p {
-  font-size: 0.8em;
+  font-size: 1em;
   line-height: 1.5em;
 }
 
@@ -222,6 +221,7 @@ button.red {
   display: block;
   cursor: pointer;
   background: #1290ce;
+  border-bottom: 3px solid #006a9f;
 }
 
 .modal .close {
