@@ -1,8 +1,15 @@
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
-export default function ActionModal({ anchorEl, open, handleClose, id }) {
+export default function ActionModal({
+  anchorEl,
+  open,
+  handleClose,
+  id,
+  deleteConfig,
+}) {
   const handleDelete = () => {
+    deleteConfig(id)
     handleClose()
   }
 
@@ -28,8 +35,8 @@ export default function ActionModal({ anchorEl, open, handleClose, id }) {
         horizontal: 'left',
       }}
     >
-      <MenuItem onClick={() => handleDelete()}>Edit</MenuItem>
-      <MenuItem onClick={() => handleEdit()}>Delete</MenuItem>
+      <MenuItem onClick={() => handleEdit()}>Edit</MenuItem>
+      <MenuItem onClick={() => handleDelete()}>Delete</MenuItem>
     </Menu>
   )
 }

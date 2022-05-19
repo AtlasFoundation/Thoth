@@ -8,8 +8,11 @@ import Typography from '@mui/material/Typography'
 import { columnConfig } from '../../common/Variable/column'
 import { useModal } from '../../../../contexts/ModalProvider'
 import { useAppDispatch, useAppSelector } from '@/state/hooks'
-import { getConfig } from '../../../../state/admin/Actions/configActions'
-import { Config } from '../../../../state/admin/types/types'
+import {
+  retrieveConfig,
+  ConfigRes,
+  deleteConfig,
+} from '../../../../state/admin/config/configState'
 
 const Container = styled(Grid)({
   marginBottom: '1.5rem',
@@ -26,15 +29,17 @@ const ButtonCustom = styled(Button)({
 
 const Config = () => {
   const dispatch = useAppDispatch()
-  const configData = useAppSelector(state => state.config)
-  let data: Config[] = []
+  const { config, success, deleteSuccess, createSuccess } = useAppSelector(
+    state => state.config
+  )
+  let data: ConfigRes = { message: '', payload: [] }
+
   const { openModal } = useModal()
   // const page = 1
-  useEffect(() => {
-    dispatch(getConfig())
-  }, [])
 
-  console.log(configData.config)
+  useEffect(() => {
+    dispatch(retrieveConfig())
+  }, [dispatch, deleteSuccess, createSuccess])
 
   const handleAdd = () => {
     openModal({
@@ -43,10 +48,13 @@ const Config = () => {
     })
   }
 
-  if (configData.config) {
-    data = configData.config
+  if (success) {
+    data = config
   }
 
+  const handledeleteConfig = id => {
+    dispatch(deleteConfig(id))
+  }
   return (
     <div>
       <Typography variant="h3" gutterBottom component="div">
@@ -70,7 +78,11 @@ const Config = () => {
         </Grid>
       </Container>
       <Search />
-      <Table column={columnConfig} data={data} />
+      <Table
+        column={columnConfig}
+        data={data.payload}
+        deletehandle={handledeleteConfig}
+      />
     </div>
   )
 }

@@ -1,15 +1,14 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { useForm } from 'react-hook-form'
 import Modal from '../Modal/Modal'
 import css from './modalForms.module.css'
 import { Select, MenuItem } from '@material-ui/core'
+import { useAppDispatch } from '@/state/hooks'
+import { createScope } from '../../state/admin/scope/scopeState'
 
 const AddScope = ({ closeModal }) => {
-  const [error, setError] = useState('')
-
+  const dispatch = useAppDispatch()
   const labels = ['Gb', 'Mb', 'Kb', 'Bytes']
-
   const [formData, setFormData] = useState({
     tables: '',
     fullTableSize: {
@@ -29,18 +28,9 @@ const AddScope = ({ closeModal }) => {
   } = useForm()
 
   const onSubmit = handleSubmit(async () => {
-    await axios
-      .post(`${process.env.REACT_APP_API_ROOT_URL}/setting/scope`, formData)
-      .then(function (response) {
-        console.log(response)
-        closeModal()
-      })
-      .catch(function (error) {
-        setError('Unable To Add Scope')
-        console.log(error)
-      })
+    dispatch(createScope(formData))
+    closeModal()
   })
-
   const options = [
     {
       className: `${css['loginButton']} primary`,
@@ -52,7 +42,7 @@ const AddScope = ({ closeModal }) => {
   return (
     <Modal title="Add Scope" options={options} icon="info">
       <div className={css['login-container']}>
-        {error && <span className={css['error-message']}>{error}</span>}
+        {/* {error && <span className={css['error-message']}>{error}</span>} */}
         <form>
           <div className={css['input-container']}>
             <label className={css['label']} htmlFor="">

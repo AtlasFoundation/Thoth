@@ -2,12 +2,16 @@ import { combineReducers } from 'redux'
 
 import { spellApi } from './api/spells'
 import tabReducer from './tabs'
-import { configReducer } from './admin/Reducers/configReducer'
+import configreducer from './admin/config/configState'
+import scopeSlice from './admin/scope/scopeState'
+import clientSlice from './admin/clientS/clientState'
 
 const reducers = combineReducers({
   tabs: tabReducer,
   [spellApi.reducerPath]: spellApi.reducer,
-  config: configReducer,
+  config: configreducer,
+  scope: scopeSlice,
+  client: clientSlice,
 })
 
 export default reducers

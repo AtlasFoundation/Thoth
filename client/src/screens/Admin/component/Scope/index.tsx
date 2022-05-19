@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect } from 'react'
+
 import Table from '../../common/Table'
 import Search from '../../common/Search'
 import { styled } from '@mui/material/styles'
@@ -8,6 +8,12 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { columnScope } from '../../common/Variable/column'
 import { useModal } from '../../../../contexts/ModalProvider'
+import { useAppDispatch, useAppSelector } from '@/state/hooks'
+import {
+  retrieveScope,
+  ScopeRes,
+  deleteScope,
+} from '../../../../state/admin/scope/scopeState'
 
 const Container = styled(Grid)({
   marginBottom: '1.5rem',
@@ -23,16 +29,16 @@ const ButtonCustom = styled(Button)({
 })
 
 const Scope = () => {
-  const [data, setData] = useState([])
+  const dispatch = useAppDispatch()
+  const { scope, success, deleteSuccess, createSuccess } = useAppSelector(
+    state => state.scope
+  )
+  let data: ScopeRes = { message: '', payload: [] }
   const { openModal } = useModal()
 
   useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_API_ROOT_URL}/setting/scope`)
-      .then(res => {
-        setData(res.data.payload)
-      })
-  }, [])
+    dispatch(retrieveScope())
+  }, [dispatch, deleteSuccess, createSuccess])
 
   const handleAddScope = () => {
     openModal({
@@ -40,7 +46,12 @@ const Scope = () => {
       content: 'This is an example modal',
     })
   }
-
+  if (success) {
+    data = scope
+  }
+  const handledeleteScope = id => {
+    dispatch(deleteScope(id))
+  }
   return (
     <div>
       <Typography variant="h3" gutterBottom component="div">
@@ -64,7 +75,11 @@ const Scope = () => {
         </Grid>
       </Container>
       <Search />
-      <Table column={columnScope} data={data} />
+      <Table
+        column={columnScope}
+        data={data.payload}
+        deletehandle={handledeleteScope}
+      />
     </div>
   )
 }

@@ -35,11 +35,10 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-const TableIndex = ({ column, data }) => {
+const TableIndex = ({ column, data, deletehandle }) => {
   // const [actionOpen, setOpenAction] = useState(false)
   const [page, setPage] = React.useState(0)
   const [dataId, setDataId] = React.useState('')
-  const count = Math.ceil(data.length / 10)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const handleClick = (event: React.MouseEvent<HTMLElement>, id) => {
@@ -59,13 +58,13 @@ const TableIndex = ({ column, data }) => {
         <Table sx={{ minWidth: 700 }} aria-label="customized table">
           <TableHead>
             <TableRow>
-              <StyledTableCell align="right">Select</StyledTableCell>
+              <StyledTableCell align="center">Select</StyledTableCell>
               {column.map(el => (
-                <StyledTableCell align="right" key={el.id}>
+                <StyledTableCell align="center" key={el.id}>
                   {el.name}
                 </StyledTableCell>
               ))}
-              <StyledTableCell align="right">Action</StyledTableCell>
+              <StyledTableCell align="center">Action</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -87,7 +86,7 @@ const TableIndex = ({ column, data }) => {
                     const value = row[col.id]
                     return (
                       <>
-                        <StyledTableCell align="right" key={i}>
+                        <StyledTableCell align="center" key={i}>
                           {value}
                         </StyledTableCell>
                       </>
@@ -110,6 +109,7 @@ const TableIndex = ({ column, data }) => {
         open={open}
         handleClose={handleClose}
         id={dataId}
+        deleteConfig={deletehandle}
       />
       <div
         style={{
@@ -120,7 +120,7 @@ const TableIndex = ({ column, data }) => {
         }}
       >
         <Pagination
-          count={count}
+          count={1}
           variant="outlined"
           shape="rounded"
           page={page}

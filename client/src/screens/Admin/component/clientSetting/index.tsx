@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useEffect } from 'react'
 import Table from '../../common/Table'
 import Search from '../../common/Search'
 import { styled } from '@mui/material/styles'
@@ -8,6 +7,12 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import { columnClientSetting } from '../../common/Variable/column'
 import { useModal } from '../../../../contexts/ModalProvider'
+import { useAppDispatch, useAppSelector } from '@/state/hooks'
+import {
+  retrieveClient,
+  ClientRes,
+  deleteClient,
+} from '../../../../state/admin/clientS/clientState'
 
 const Container = styled(Grid)({
   marginBottom: '1.5rem',
@@ -23,22 +28,30 @@ const ButtonCustom = styled(Button)({
 })
 
 const ClientSetting = () => {
-  const [data, setData] = useState([])
+  const dispatch = useAppDispatch()
+  const { client, success, deleteSuccess } = useAppSelector(
+    state => state.client
+  )
+  let data: ClientRes = { message: '', payload: { data: [], pages: '' } }
   const { openModal } = useModal()
 
   useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_API_ROOT_URL}/setting/client`)
-      .then(res => {
-        setData(res.data.payload)
-      })
-  }, [])
+    dispatch(retrieveClient())
+  }, [dispatch, deleteSuccess])
 
   const handleAddSetting = () => {
     openModal({
       modal: 'clientSettings',
       content: 'This is an example modal',
     })
+  }
+
+  if (success) {
+    data = client.payload[0].data
+  }
+
+  const handledeleteClient = id => {
+    dispatch(deleteClient(id))
   }
   return (
     <div>
@@ -63,7 +76,11 @@ const ClientSetting = () => {
         </Grid>
       </Container>
       <Search />
-      <Table column={columnClientSetting} data={data} />
+      <Table
+        column={columnClientSetting}
+        data={data}
+        deletehandle={handledeleteClient}
+      />
     </div>
   )
 }
