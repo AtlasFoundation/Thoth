@@ -630,17 +630,19 @@ export class database {
     const query2 =
       'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
 
-    const rows = await this.client.query(query, [per_page, offset])
-
     const rows2 = await this.client.query(query2)
 
     const total = rows2.rows.length
 
+    const rows = await this.client.query(query, [per_page, offset])
+
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -657,17 +659,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
 
       return { data: data, success: true }
@@ -684,17 +693,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND (name LIKE '%' || $3 || '%' OR client LIKE '%' || $3 || '%' OR default_value LIKE '%' || $3 || '%' OR type LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -852,18 +868,25 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query =
       'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -880,17 +903,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -906,17 +936,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND (value LIKE '%' || $3 || '%' OR key LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1056,18 +1093,25 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query =
       'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1084,17 +1128,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1110,17 +1161,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND (full_table_size LIKE '%' || $3 || '%' OR table_size LIKE '%' || $3 || '%' OR tables LIKE '%' || $3 || '%' OR record_count LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
