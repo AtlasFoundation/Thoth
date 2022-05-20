@@ -50,7 +50,7 @@ function Auth() {
       if (!isAuthentication) return next()
 
       // skip url logic
-      // const { matches, params } = match('/auth/login?*', ctx.request.url)
+      const { matches, params } = match('/auth/login?*', ctx.request.url)
 
       const token = ctx.request.header.authorization
 

@@ -169,3 +169,10 @@ export const makeUpdateQuery = ({ table, wheres, cols }: any): string => {
 }
 
 export const isAuthentication = process.env.AUTHENTICATION === 'true'
+
+export const isValidEndPoint = (endPoint: string): boolean => {
+  try {
+  } catch (error) {}
+
+  return true
+}
