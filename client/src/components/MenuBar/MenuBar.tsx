@@ -36,6 +36,7 @@ const MenuBar = () => {
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
     $CREATE_VIDEO_TRANSCRIPTION,
+    $CREATE_CALENDAR_TAB,
     $SERIALIZE,
     $EXPORT,
     $UNDO,
@@ -132,6 +133,11 @@ const MenuBar = () => {
   const onVideoTrancriptionCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_VIDEO_TRANSCRIPTION(activeTabRef.current.id))
+  }
+
+  const onCalendarTabCreate = () => {
+    if (!activeTabRef.current) return
+    publish($CREATE_CALENDAR_TAB(activeTabRef.current.id))
   }
 
   //Menu bar hotkeys
@@ -241,6 +247,9 @@ const MenuBar = () => {
         },
         video_transcription: {
           onClick: onVideoTrancriptionCreate,
+        },
+        calendar_tab: {
+          onClick: onCalendarTabCreate,
         },
       },
     },

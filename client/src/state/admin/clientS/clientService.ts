@@ -1,6 +1,7 @@
 import axios from 'axios'
 class ClientService {
   getAll() {
+    console.log('....................................')
     return axios.get(`${process.env.REACT_APP_API_ROOT_URL}/setting/client`)
   }
   get(id) {

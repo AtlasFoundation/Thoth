@@ -26,11 +26,6 @@ import type {
 } from './content_objects'
 import { contentObj as _contentObj } from './content_objects'
 import type {
-  wikipediaAttributes,
-  wikipediaCreationAttributes,
-} from './wikipedia'
-import { wikipedia as _wikipedia } from './wikipedia'
-import type {
   clientSettingCreationAttributes,
   clientSettingAttributes,
 } from './client_settings'
@@ -45,9 +40,11 @@ import type {
   scopeSettingCreationAttributes,
 } from './scope_settings'
 import { scopeSettings as _scopeSettings } from './scope_settings'
-import type { calendarEventsAttributes, calendarEventsCreationAttributes } from './calendarEvents'
+import type {
+  calendarEventsAttributes,
+  calendarEventsCreationAttributes,
+} from './calendarEvents'
 import { calendarEvents as _calendarEvents } from './calendarEvents'
-
 
 export {
   _entities as entities,
@@ -57,11 +54,10 @@ export {
   _documents as documents,
   _documentsStore as documentsStore,
   _contentObj as contentObj,
-  _wikipedia as wikipedia,
   _clientSettings as clientSettings,
   _configurationSettings as configurationSettings,
   _scopeSettings as scopeSettings,
-  _calendarEvents as calendarEvents
+  _calendarEvents as calendarEvents,
 }
 
 export type {
@@ -79,8 +75,6 @@ export type {
   documentsStoreCreationAttributes,
   contentObjAttributes,
   contentObjCreationAttributes,
-  wikipediaAttributes,
-  wikipediaCreationAttributes,
   clientSettingCreationAttributes,
   clientSettingAttributes,
   configurationSettingAttributes,
@@ -88,7 +82,7 @@ export type {
   scopeSettingAttributes,
   scopeSettingCreationAttributes,
   calendarEventsAttributes,
-  calendarEventsCreationAttributes
+  calendarEventsCreationAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -99,7 +93,6 @@ export function initModels(sequelize: Sequelize) {
   const documentsStore = _documentsStore.initModel(sequelize)
   const documents = _documents.initModel(sequelize)
   const contentObj = _contentObj.initModel(sequelize)
-  const wikipedia = _wikipedia.initModel(sequelize)
   const clientSettings = _clientSettings.initModel(sequelize)
   const configurationSettings = _configurationSettings.initModel(sequelize)
   const scopeSettings = _scopeSettings.initModel(sequelize)
@@ -113,10 +106,9 @@ export function initModels(sequelize: Sequelize) {
     contentObj: contentObj,
     documents: documents,
     documentsStore: documentsStore,
-    wikipedia: wikipedia,
     clientSettings: clientSettings,
     configurationSettings: configurationSettings,
     scopeSettings: scopeSettings,
-    calendarEvents: calendarEvents
+    calendarEvents: calendarEvents,
   }
 }

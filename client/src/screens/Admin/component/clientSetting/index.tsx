@@ -32,7 +32,10 @@ const ClientSetting = () => {
   const { client, success, deleteSuccess } = useAppSelector(
     state => state.client
   )
-  let data: ClientRes = { message: '', payload: { data: [], pages: '' } }
+  let data: ClientRes = {
+    message: '',
+    payload: { data: [], pages: 0, totalItems: 0 },
+  }
   const { openModal } = useModal()
 
   useEffect(() => {

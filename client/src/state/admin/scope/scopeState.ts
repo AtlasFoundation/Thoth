@@ -14,7 +14,11 @@ export interface Scope {
 }
 export interface ScopeRes {
   message: String
-  payload: Scope[]
+  payload: {
+    data: Scope[]
+    pages: number
+    totalItems: number
+  }
 }
 
 export interface State {
@@ -28,7 +32,7 @@ export interface State {
 }
 
 const initialState: State = {
-  scope: { message: '', payload: [] },
+  scope: { message: '', payload: { data: [], pages: 0, totalItems: 0 } },
   loading: false,
   error: false,
   success: false,

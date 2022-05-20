@@ -8,7 +8,7 @@ export interface Config {
 }
 export interface ConfigRes {
   message: String
-  payload: Config[]
+  payload: { data: Config[]; pages: number; totalItems: number }
 }
 
 export interface State {
@@ -22,7 +22,7 @@ export interface State {
 }
 
 const initialState: State = {
-  config: { message: '', payload: [] },
+  config: { message: '', payload: { data: [], pages: 0, totalItems: 0 } },
   loading: false,
   error: false,
   success: false,

@@ -33,7 +33,10 @@ const Scope = () => {
   const { scope, success, deleteSuccess, createSuccess } = useAppSelector(
     state => state.scope
   )
-  let data: ScopeRes = { message: '', payload: [] }
+  let data: ScopeRes = {
+    message: '',
+    payload: { data: [], pages: 0, totalItems: 0 },
+  }
   const { openModal } = useModal()
 
   useEffect(() => {
@@ -47,7 +50,7 @@ const Scope = () => {
     })
   }
   if (success) {
-    data = scope
+    data = scope.payload[0].data
   }
   const handledeleteScope = id => {
     dispatch(deleteScope(id))
@@ -77,7 +80,7 @@ const Scope = () => {
       <Search />
       <Table
         column={columnScope}
-        data={data.payload}
+        data={data}
         deletehandle={handledeleteScope}
       />
     </div>

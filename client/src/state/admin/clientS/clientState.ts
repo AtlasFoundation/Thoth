@@ -16,7 +16,8 @@ export interface ClientRes {
   message: String
   payload: {
     data: Client[]
-    pages: string
+    pages: number
+    totalItems: number
   }
 }
 
@@ -29,7 +30,7 @@ export interface State {
 }
 
 const initialState: State = {
-  client: { message: '', payload: { data: [], pages: '' } },
+  client: { message: '', payload: { data: [], pages: 0, totalItems: 0 } },
   loading: false,
   error: false,
   success: false,

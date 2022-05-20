@@ -189,13 +189,13 @@ export class database {
   }
 
   async addWikipediaData(agent: any, data: any) {
-    const query = 'INSERT INTO wikipedia(agent, data) VALUES($1, $2)'
+    const query = 'INSERT INTO events(agent, data) VALUES($1, $2)'
     const values = [agent, data]
 
     await this.client.query(query, values)
   }
   async getWikipediaData(agent: any) {
-    const query = 'SELECT * FROM wikipedia WHERE agent=$1'
+    const query = 'SELECT * FROM events WHERE agent=$1'
     const values = [agent]
 
     const rows = await this.client.query(query, values)
@@ -206,7 +206,7 @@ export class database {
     }
   }
   async wikipediaDataExists(agent: any) {
-    const query = 'SELECT * FROM wikipedia WHERE agent=$1'
+    const query = 'SELECT * FROM events WHERE agent=$1'
     const values = [agent]
 
     const rows = await this.client.query(query, values)
@@ -547,9 +547,9 @@ export class database {
   }
 
   async getCalendarEvents() {
-    const query = 'SELECT * FROM calendar_events'
+    const query = 'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
     const rows = await this.client.query(query)
-    if(rows && rows.rows && rows.rows.length > 0) return rows.rows
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
     else return []
   }
   async createCalendarEvent(
@@ -559,13 +559,35 @@ export class database {
     type: string,
     moreInfo: string
   ) {
-    const query = 'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
+    const query =
+      'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
     const values = [name, date, time, type, moreInfo]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async editCalendarEvent(
+    id: string,
+    name: string,
+    date: string,
+    time: string,
+    type: string,
+    moreInfo: string
+  ) {
+    const query = 'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
+    const values = [name, date, time, type, moreInfo, id]
     try {
       return await this.client.query(query, values)
     } catch(e) {
       throw  new Error(e)
     }
+  }
+  async deleteCalendarEvent(id: string) {
+    const query = 'DELETE FROM calendar_events WHERE id = $1'
+    const values = [id]
+    return await this.client.query(query, values)
   }
   /* 
     Section : Settings
@@ -616,6 +638,7 @@ export class database {
       const data = {
         data: rows.rows,
         pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
       }
       return { data: data, success: true }
     }
@@ -636,8 +659,16 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -655,8 +686,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -802,8 +840,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -822,8 +867,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -841,8 +893,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -970,8 +1029,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -990,8 +1056,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -1009,8 +1082,15 @@ export class database {
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
+    const total = rows.rows.length
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        pages: Math.ceil(total / (per_page as any)),
+        totalItems: total,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }

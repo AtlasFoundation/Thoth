@@ -32,7 +32,10 @@ const Config = () => {
   const { config, success, deleteSuccess, createSuccess } = useAppSelector(
     state => state.config
   )
-  let data: ConfigRes = { message: '', payload: [] }
+  let data: ConfigRes = {
+    message: '',
+    payload: { data: [], pages: 0, totalItems: 0 },
+  }
 
   const { openModal } = useModal()
   // const page = 1
@@ -80,7 +83,7 @@ const Config = () => {
       <Search />
       <Table
         column={columnConfig}
-        data={data.payload}
+        data={data.payload[0].data}
         deletehandle={handledeleteConfig}
       />
     </div>
