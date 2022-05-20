@@ -21,6 +21,7 @@ import EntityManagerWindow from './windows/EntityManagerWindow'
 import { diff } from '@/utils/json0'
 import EventManagerWindow from './windows/EventManager'
 import VideoTranscription from './windows/VideoTranscription'
+import { CalendarApp } from '../../screens/Calendar/Calendar'
 import { useAuth } from '@/contexts/AuthProvider'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
@@ -145,6 +146,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <EventManagerWindow />
         case 'videoTranscription':
           return <VideoTranscription />
+        case 'calendarTab':
+          return <CalendarApp />
         default:
           return <p></p>
       }
