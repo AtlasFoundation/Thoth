@@ -167,3 +167,5 @@ export const makeUpdateQuery = ({ table, wheres, cols }: any): string => {
   // Return a complete query string
   return query.join(' ')
 }
+
+export const isAuthentication = process.env.AUTHENTICATION === 'true'

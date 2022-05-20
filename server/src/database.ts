@@ -20,6 +20,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
+import { auth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -1111,4 +1112,116 @@ export class database {
   }
 
   // Scope settings end
+
+  async getAuthuserById(id: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE id=$1 AND is_deleted=false'
+    const values = [id]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async getAuthuserByToken(token: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE token=$1 AND is_deleted=false'
+    const values = [token]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async getAuthuserByUserId(user_id: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE user_id=$1 AND is_deleted=false'
+    const values = [user_id]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async addAuthUser(body: AddAuthUser): Promise<any> {
+    const { token: newToken, user_id } = body
+    let isValidToken = false
+
+    try {
+      const res1 = await this.getAuthuserByUserId(user_id)
+
+      if (isValidObject(res1)) {
+        const { token, user_id } = res1 as any
+
+        const decryptedUserId = auth.verify(token)
+
+        isValidToken = decryptedUserId === user_id
+
+        if (!isValidToken) {
+          const query3 =
+            'UPDATE auth_users SET token=$2 WHERE user_id=$1 AND is_deleted=false'
+          const values3: any = [user_id, newToken]
+
+          const res3 = await this.client.query(query3, values3)
+          const { command, rowCount } = res3
+
+          if (command === 'UPDATE' && rowCount > 0) {
+            const data = await this.getAuthuserByUserId(user_id)
+            return { success: true, data: data, isAlreadyExists: false }
+          }
+        } else {
+          return { success: true, data: res1, isAlreadyExists: true }
+        }
+      }
+
+      const query2 = 'INSERT INTO auth_users(token, user_id) VALUES($1, $2)'
+      const values2: any = [newToken, user_id]
+
+      const res2 = await this.client.query(query2, values2)
+      const { command, rowCount } = res2
+
+      if (command === 'INSERT' && rowCount > 0) {
+        const data = await this.getAuthuserByUserId(user_id)
+        return { success: true, data: data, isAlreadyExists: false }
+      }
+      throw new Error('Something break in insert query')
+    } catch (error) {
+      console.log('Error => addAuthUser => ', error)
+      return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+
+  async getAuthuser(user_id: string) {
+    try {
+      const res1 = await this.getAuthuserByUserId(user_id)
+
+      if (isValidObject(res1)) {
+        const { token, user_id } = res1 as any
+
+        const decryptedUserId = auth.verify(token)
+
+        if (decryptedUserId === user_id) {
+          return { success: true, data: res1, isAlreadyExists: true }
+        }
+
+        // remove token from user
+        const query2 = 'UPDATE auth_users SET token=null WHERE user_id=$1'
+        const values2: any = [user_id]
+
+        const res2 = await this.client.query(query2, values2)
+        const { command, rowCount } = res2
+
+        if (command === 'UPDATE' && rowCount > 0) {
+          const data = await this.getAuthuserByUserId(user_id)
+          return { success: false, data: data, isAlreadyExists: false }
+        }
+      }
+      return { success: false, data: {}, isAlreadyExists: false }
+    } catch (error) {
+      console.log('Error => getAuthuser => ', error)
+      return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+}
+
+type AddAuthUser = {
+  user_id: string
+  token: string
 }
