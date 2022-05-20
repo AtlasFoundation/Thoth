@@ -11,6 +11,7 @@ import {
   isString,
   isUndefined,
 } from 'lodash'
+import { match } from 'node-match-path'
 
 export function removePunctuation(str: string): string {
   return str.replace(punctRE, '').replace(spaceRE, ' ')
@@ -170,9 +171,17 @@ export const makeUpdateQuery = ({ table, wheres, cols }: any): string => {
 
 export const isAuthentication = process.env.AUTHENTICATION === 'true'
 
-export const isValidEndPoint = (endPoint: string): boolean => {
-  try {
-  } catch (error) {}
+export const isValidEndPoint = (urls: string[], endPoint: string): boolean => {
+  let isValid: boolean = false
 
-  return true
+  for (let index = 0; index < urls.length; index++) {
+    const url = urls[index]
+    const { matches } = match(url, endPoint)
+
+    if (matches) {
+      isValid = matches
+      break
+    }
+  }
+  return isValid
 }

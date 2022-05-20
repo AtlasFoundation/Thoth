@@ -1,6 +1,6 @@
 import Koa from 'koa'
 import jwt, { SignOptions } from 'jsonwebtoken'
-import { isAuthentication, makeResponse } from '../utils/utils'
+import { isAuthentication, isValidEndPoint, makeResponse } from '../utils/utils'
 import { match } from 'node-match-path'
 
 // TODO: Handle these
@@ -18,6 +18,12 @@ export const apiKeyWithAccess = (v: any) => {
 }
 
 function Auth() {
+  let unProtectedUrls: string[] = [
+    '/auth/login?*',
+    '/auth/login',
+    '/auth/login.json',
+  ]
+
   this.generate = function (data: string | object, options?: SignOptions) {
     try {
       const val = jwt.sign(
@@ -50,7 +56,9 @@ function Auth() {
       if (!isAuthentication) return next()
 
       // skip url logic
-      const { matches, params } = match('/auth/login?*', ctx.request.url)
+      const isSkip = isValidEndPoint(unProtectedUrls, ctx.url)
+
+      if (isSkip) return next()
 
       const token = ctx.request.header.authorization
 
