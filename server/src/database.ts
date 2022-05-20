@@ -547,7 +547,8 @@ export class database {
   }
 
   async getCalendarEvents() {
-    const query = 'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
+    const query =
+      'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
     const rows = await this.client.query(query)
     if (rows && rows.rows && rows.rows.length > 0) return rows.rows
     else return []
@@ -576,12 +577,13 @@ export class database {
     type: string,
     moreInfo: string
   ) {
-    const query = 'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
+    const query =
+      'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
     const values = [name, date, time, type, moreInfo, id]
     try {
       return await this.client.query(query, values)
-    } catch(e) {
-      throw  new Error(e)
+    } catch (e) {
+      throw new Error(e)
     }
   }
   async deleteCalendarEvent(id: string) {
@@ -814,6 +816,21 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleClient(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Client not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Client settings end
 
   // Configuration settings start
@@ -1003,6 +1020,21 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleConfiguration(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, key, value FROM configuration_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Configuration not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Configuration settings end
 
   // Scope settings start
@@ -1187,6 +1219,21 @@ export class database {
       return { success: false, data: {}, isExists: true }
     }
     return { success: false, data: data, isExists: false }
+  }
+
+  async getSingleScope(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Scope not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
   }
 
   // Scope settings end
