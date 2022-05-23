@@ -1,7 +1,6 @@
 import Koa from 'koa'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import { isAuthentication, isValidEndPoint, makeResponse } from '../utils/utils'
-import { match } from 'node-match-path'
 
 // TODO: Handle these
 
@@ -18,6 +17,7 @@ export const apiKeyWithAccess = (v: any) => {
 }
 
 function Auth() {
+  // TODO: you can add url here to skip authentication
   let unProtectedUrls: string[] = [
     '/auth/login?*',
     '/auth/login',
