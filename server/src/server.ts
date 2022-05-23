@@ -20,6 +20,7 @@ import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
 import { convertToMp4 } from './systems/videoConverter'
+import { auth } from './middleware/auth'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -94,6 +95,9 @@ async function init() {
 
   // Middleware used by every request. For route-specific middleware, add it to you route middleware specification
   app.use(koaBody({ multipart: true }))
+
+  // Middleware used to handle authentication
+  app.use(auth.isValidToken)
 
   const createRoute = (
     method: Method,
