@@ -20,21 +20,13 @@ const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
     handleSubmit,
     // formState: { errors },
   } = useForm()
-  console.log('tab ::: ', tab);
-  
+  console.log('tab ::: ', tab)
+
   const onSubmit = handleSubmit(async data => {
-    // console.log('tab :::: ', tab);
-    // console.log('patchSpell body :::: ', { 
-    //   spellId: tab.spellId, 
-    //   userId: user?.id as string, 
-    //   update: data 
-    // });
-    // return
-    
-    const response: any = await patchSpell({ 
-      spellId: tab.spellId, 
-      userId: user?.id as string, 
-      update: data 
+    const response: any = await patchSpell({
+      spellId: tab.spellId,
+      userId: user?.id as string,
+      update: data,
     })
 
     if (response.error) {

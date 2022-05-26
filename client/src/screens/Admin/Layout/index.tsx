@@ -9,6 +9,8 @@ import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import InboxIcon from '@mui/icons-material/MoveToInbox'
+import ToggleOffIcon from '@mui/icons-material/ToggleOff'
+import SettingsIcon from '@mui/icons-material/Settings'
 import { Outlet } from 'react-router-dom'
 import { styled } from '@mui/material/styles'
 import { NavLink, useLocation } from 'react-router-dom'
@@ -53,7 +55,7 @@ const AdminDashboard = () => {
             <StyledLink to={'config'}>
               <ListItem selected={location.pathname === '/admin/config'} button>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <ToggleOffIcon />
                 </ListItemIcon>
                 <ListItemText primary="Config" />
               </ListItem>
@@ -64,7 +66,7 @@ const AdminDashboard = () => {
                 button
               >
                 <ListItemIcon>
-                  <InboxIcon />
+                  <SettingsIcon />
                 </ListItemIcon>
                 <ListItemText primary="Client Settings" />
               </ListItem>

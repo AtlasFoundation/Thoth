@@ -35,7 +35,7 @@ export type ThothTab = {
 
 // TODO give better typing to the editor
 const Context = createContext({
-  run: () => { },
+  run: () => {},
   getEditor: (): ThothEditor | null => null,
   editor: {} as ThothEditor | null,
   serialize: (): GraphData | undefined => undefined,
@@ -45,16 +45,16 @@ const Context = createContext({
     spell: Spell | undefined,
     tab: ThothTab,
     reteInterface: EditorContext
-  ) => { },
-  setEditor: (editor: any) => { },
-  getNodeMap: () => { },
-  getNodes: () => { },
-  loadGraph: (graph: any) => { },
-  setContainer: () => { },
-  undo: () => { },
-  redo: () => { },
-  del: () => { },
-  centerNode: (nodeId: number): void => { },
+  ) => {},
+  setEditor: (editor: any) => {},
+  getNodeMap: () => {},
+  getNodes: () => {},
+  loadGraph: (graph: any) => {},
+  setContainer: () => {},
+  undo: () => {},
+  redo: () => {},
+  del: () => {},
+  centerNode: (nodeId: number): void => {},
 })
 
 export const useEditor = () => useContext(Context)
@@ -182,10 +182,11 @@ const RawEditor = ({ tab, children }) => {
   useEffect(() => {
     if (!tab) return
 
-    if (tab?.spellId) getSpell({
-      spellId: tab.spellId,
-      userId: user?.id as string
-    })
+    if (tab?.spellId)
+      getSpell({
+        spellId: tab.spellId,
+        userId: user?.id as string,
+      })
   }, [tab])
 
   if (!tab || (tab.type === 'spell' && (isLoading || !spell)))
@@ -205,7 +206,7 @@ const RawEditor = ({ tab, children }) => {
         onDragOver={e => {
           e.preventDefault()
         }}
-        onDrop={e => { }}
+        onDrop={e => {}}
       >
         <div
           ref={el => {
@@ -221,7 +222,7 @@ const RawEditor = ({ tab, children }) => {
   )
 }
 
-export const Editor = React.memo(RawEditor)
+export const Editor: any = React.memo(RawEditor)
 
 Editor.whyDidYouRender = false
 
