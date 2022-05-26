@@ -1,10 +1,10 @@
 import deepEqual from 'deep-equal'
 import Rete, { Input, Output } from 'rete'
 import { v4 as uuidv4 } from 'uuid'
-import { DataSocketType, IRunContextEditor, ThothNode } from '../../../types'
-import { ThothComponent } from '../../thoth-component'
 
+import { DataSocketType, IRunContextEditor, ThothNode } from '../../../types'
 import * as socketMap from '../../sockets'
+import { ThothComponent } from '../../thoth-component'
 import { DataControl } from './DataControl'
 
 type InspectorConstructor = {
@@ -266,7 +266,7 @@ export class Inspector {
     this.node.update()
   }
 
-  get() {}
+  get() { }
 
   // returns all data prepared for the pubsub to send it.
   data(): InspectorData {
@@ -295,5 +295,5 @@ export class Inspector {
     }
   }
 
-  remove() {}
+  remove() { }
 }

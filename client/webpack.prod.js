@@ -1,4 +1,4 @@
-const Dotenv = require('dotenv-webpack')
+const Dotenv = require('dotenv-flow-webpack')
 const CompressionPlugin = require('compression-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const BundleAnalyzerPlugin =
@@ -14,10 +14,7 @@ module.exports = () => {
     mode: 'production',
     plugins: [
       new CompressionPlugin(),
-      new Dotenv({
-        path: './.env',
-        systemvars: true,
-      }),
+      new Dotenv(),
     ],
     optimization: {
       minimize: true,

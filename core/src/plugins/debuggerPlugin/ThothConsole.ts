@@ -1,4 +1,5 @@
 import { NodeView } from 'rete/types/view/node'
+
 import { IRunContextEditor, NodeData } from '../../../types'
 import { ThothComponent } from '../../thoth-component'
 
@@ -50,6 +51,7 @@ export class ThothConsole {
   }
 
   updateNodeView() {
+    if (!this.nodeView) return
     this.nodeView.onStart()
     this.nodeView.node.update()
   }
@@ -99,10 +101,13 @@ export class ThothConsole {
     }
   }
 
-  sendSuccess(result: any) {}
+  sendSuccess(result: any) {
+    console.log('Success', result)
+  }
 
   sendToDebug(message: any) {
-    if (this.editor.thoth.sendToDebug) this.editor.thoth.sendToDebug(message)
+    if (this.editor && this.editor.thoth && this.editor.thoth.sendToDebug)
+      this.editor.thoth.sendToDebug(message)
   }
 
   throwServerError(message: any) {

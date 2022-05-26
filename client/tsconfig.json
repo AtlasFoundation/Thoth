@@ -17,11 +17,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@thoth/*": ["src/features/Thoth/*"]
+      "@components/*": ["src/components/*"]
     }
   },
-  "typeRoots": ["@types/@thoth"],
+  "typeRoots": ["@types/@thoth", "@types"],
   "references": [
     {
       "path": "../core"

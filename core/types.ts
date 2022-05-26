@@ -5,18 +5,17 @@ import { Node } from 'rete/types'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import {
+  Data,
   NodeData as ReteNodeData,
   WorkerInputs,
   WorkerOutputs,
 } from 'rete/types/core/data'
 
+import { ThothConsole } from './src/plugins/debuggerPlugin/ThothConsole'
 import { Inspector } from './src/plugins/inspectorPlugin/Inspector'
 import { TaskOutputTypes } from './src/plugins/taskPlugin/task'
 import { SocketNameType, SocketType } from './src/sockets'
 import { ThothTask } from './src/thoth-component'
-import { ThothConsole } from './src/plugins/debuggerPlugin/ThothConsole'
-import { Data } from 'rete/types/core/data'
-export { ThothComponent } from './src/thoth-component'
 
 export { ThothEditor } from './src/editor'
 
@@ -106,9 +105,9 @@ export type EventsTypes = {
 
 export interface Spell {
   id?: string
-  user?: Record<string, unknown> | null | undefined
+  user?: Record<string, unknown> | string | null | undefined
   name: string
-  chain: ChainData
+  graph: GraphData
   // Spells: Module[]
   gameState: Record<string, unknown>
   createdAt?: number
@@ -144,7 +143,7 @@ export type ThothNode = Node & {
 export type ModuleType = {
   id: string
   name: string
-  data: ChainData
+  data: GraphData
   createdAt: number
   updatedAt: number
 }
@@ -184,7 +183,7 @@ export type OpenAIResponse = {
   finish_reason: string
 }
 
-export type Subspell = { name: string; id: string; data: ChainData }
+export type Subspell = { name: string; id: string; data: GraphData }
 
 export type ModuleComponent = Component & {
   run: Function
@@ -210,7 +209,7 @@ export type NodeOutputs = {
   }
 }
 
-export type ChainData = Data
+export type GraphData = Data
 
 export type NodeData = ReteNodeData & {
   fewshot?: string

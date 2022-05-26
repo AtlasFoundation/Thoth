@@ -19,19 +19,27 @@ import {
 } from '@/state/api/spells'
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { latitudeApiRootUrl } from '@/config'
+import { useAuth } from '@/contexts/AuthProvider'
 
 const DeploymentView = ({ open, setOpen, spellId, close }) => {
   const [loadingVersion, setLoadingVersion] = useState(false)
-  const { loadChain } = useEditor()
+  const { loadGraph } = useEditor()
   const { openModal, closeModal } = useModal()
   const { enqueueSnackbar } = useSnackbar()
 
   const [deploySpell] = useDeploySpellMutation()
   const [saveSpell] = useSaveSpellMutation()
   const [getDeplopyment, { data: deploymentData }] = useLazyGetDeploymentQuery()
-  const { data: spell } = useGetSpellQuery(spellId, {
-    skip: !spellId,
-  })
+  const { user } = useAuth()
+  const { data: spell } = useGetSpellQuery(
+    {
+      spellId: spellId,
+      userId: user?.id as string,
+    },
+    {
+      skip: !spellId,
+    }
+  )
   const name = spell?.name as string
   const { data: deployments, isLoading } = useGetDeploymentsQuery(name, {
     skip: !spell?.name,
@@ -39,13 +47,13 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
 
   const deploy = data => {
     if (!spell) return
-    deploySpell({ spellId: spell.name, ...data })
+    deploySpell({ spellId: spell.name, userId: user?.id, ...data })
     enqueueSnackbar('Spell deployed', { variant: 'success' })
   }
 
   const buildUrl = version => {
     // return encodeURI(`${latitudeApiRootUrl}/games/spells/${spellId}/${version}`)
-    return encodeURI(`${latitudeApiRootUrl}/game/chains/${spellId}/${version}`)
+    return encodeURI(`${latitudeApiRootUrl}/games/graphs/${spellId}/${version}`)
   }
 
   const loadVersion = async version => {
@@ -67,12 +75,12 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
     if (!deploymentData || !loadingVersion) return
     ;(async () => {
       close()
-      await saveSpell({ ...spell, chain: deploymentData.chain })
+      await saveSpell({ ...spell, graph: deploymentData.graph, user: user?.id })
       enqueueSnackbar(`version ${deploymentData.version} loaded!`, {
         variant: 'success',
       })
       setLoadingVersion(false)
-      loadChain(deploymentData.chain)
+      loadGraph(deploymentData.graph)
     })()
   }, [deploymentData, loadingVersion])
 

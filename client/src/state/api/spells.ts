@@ -3,7 +3,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 import { QueryReturnValue } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
 import { rootApi } from './api'
-import { ChainData, Spell } from '@latitudegames/thoth-core/types'
+import { GraphData, Spell } from '@latitudegames/thoth-core/types'
 // function camelize(str) {
 //   return str
 //     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
@@ -22,11 +22,12 @@ export interface DeployedSpellVersion {
   message?: string
   versionName?: string
   url?: string
-  chain?: ChainData
+  graph?: GraphData
 }
 
 export interface DeployArgs {
   spellId: string
+  userId: string
   message: string
 }
 
@@ -37,6 +38,7 @@ export interface GetDeployArgs {
 
 export interface PatchArgs {
   spellId: string
+  userId: string
   update: Partial<Spell>
 }
 
@@ -47,17 +49,26 @@ export interface RunSpell {
   state?: Record<string, any>
 }
 
+export interface UserSpellArgs {
+  spellId: string
+  userId: string
+}
+
 export const spellApi = rootApi.injectEndpoints({
   endpoints: builder => ({
-    getSpells: builder.query<Spell[], void>({
+    getSpells: builder.query<Spell[], string>({
       providesTags: ['Spells'],
-      query: () => 'game/spells',
+      query: userId => ({
+        url: `game/spells`,
+        params: { userId },
+      }),
     }),
-    getSpell: builder.query<Spell, string>({
+    getSpell: builder.query<Spell, UserSpellArgs>({
       providesTags: ['Spell'],
-      query: spellId => {
+      query: ({ spellId, userId }) => {
         return {
           url: `game/spells/${spellId}`,
+          params: { userId },
         }
       },
     }),
@@ -82,10 +93,11 @@ export const spellApi = rootApi.injectEndpoints({
     saveSpell: builder.mutation<Partial<Spell>, Partial<Spell> | Spell>({
       invalidatesTags: ['Spell'],
       // needed to use queryFn as query option didnt seem to allow async functions.
-      async queryFn(spell, { dispatch }, extraOptions, baseQuery) {
+      async queryFn({ user, ...spell }, { dispatch }, extraOptions, baseQuery) {
         const baseQueryOptions = {
           url: 'game/spells/save',
           body: spell,
+          params: { userId: user },
           method: 'POST',
         }
 
@@ -108,29 +120,32 @@ export const spellApi = rootApi.injectEndpoints({
     }),
     patchSpell: builder.mutation<Spell, PatchArgs>({
       invalidatesTags: ['Spell'],
-      query({ spellId, update }) {
+      query({ spellId, userId, update }) {
         return {
           url: `game/spells/${spellId}`,
           body: {
             ...update,
           },
+          params: { userId },
           method: 'PATCH',
         }
       },
     }),
-    deleteSpell: builder.mutation<string[], boolean>({
+    deleteSpell: builder.mutation<string[], UserSpellArgs>({
       invalidatesTags: ['Spells'],
-      query: spellId => ({
+      query: ({ spellId, userId }) => ({
         url: `game/spells/${spellId}`,
+        params: { userId },
         method: 'DELETE',
       }),
     }),
     deploySpell: builder.mutation<DeployedSpellVersion, DeployArgs>({
       invalidatesTags: ['Version'],
-      query({ spellId, ...update }) {
+      query({ spellId, userId, ...update }) {
         return {
           url: `game/spells/${spellId}/deploy`,
           body: update,
+          params: { userId },
           method: 'POST',
         }
       },
@@ -148,7 +163,7 @@ export const spellApi = rootApi.injectEndpoints({
   }),
 })
 
-const selectSpellResults = spellApi.endpoints.getSpells.select()
+const selectSpellResults = spellApi.endpoints.getSpells.select('')
 const emptySpells = []
 
 export const selectAllSpells = createSelector(

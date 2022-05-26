@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { ChainData, Spell } from '@latitudegames/thoth-core/dist/types'
+import { GraphData, Spell } from '@latitudegames/thoth-core/types'
 
 import {
   uniqueNamesGenerator,
@@ -12,12 +12,13 @@ import {
   useGetSpellQuery,
   useSaveDiffMutation,
 } from '../../../state/api/spells'
-import { useEditor } from '../../../workspaces/contexts/EditorProvider'
 import { useLayout } from '../../../workspaces/contexts/LayoutProvider'
+import { useEditor } from '../../../workspaces/contexts/EditorProvider'
 import { diff } from '@/utils/json0'
 import { useSnackbar } from 'notistack'
 import { sharedb } from '@/config'
 import { useSharedb } from '@/contexts/SharedbProvider'
+import { useAuth } from '@/contexts/AuthProvider'
 
 // Config for unique name generator
 const customConfig = {
@@ -34,7 +35,11 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const [saveSpellMutation] = useSaveSpellMutation()
   const [saveDiff] = useSaveDiffMutation()
-  const { data: spell } = useGetSpellQuery(tab.spellId)
+  const { user } = useAuth()
+  const { data: spell } = useGetSpellQuery({
+    spellId: tab.spellId,
+    userId: user?.id as string,
+  })
 
   // Spell ref because callbacks cant hold values from state without them
   const spellRef = useRef<Spell | null>(null)
@@ -55,9 +60,14 @@ const EventHandler = ({ pubSub, tab }) => {
     $SAVE_SPELL,
     $SAVE_SPELL_DIFF,
     $CREATE_STATE_MANAGER,
+    $CREATE_SEARCH_CORPUS,
+    $CREATE_ENT_MANAGER,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
+    $CREATE_EVENT_MANAGER,
+    $CREATE_VIDEO_TRANSCRIPTION,
+    $CREATE_CALENDAR_TAB,
     $CREATE_TEXT_EDITOR,
     $SERIALIZE,
     $EXPORT,
@@ -67,9 +77,9 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const saveSpell = async () => {
     const currentSpell = spellRef.current
-    const chain = serialize() as ChainData
+    const graph = serialize() as GraphData
 
-    await saveSpellMutation({ ...currentSpell, chain })
+    await saveSpellMutation({ ...currentSpell, graph, user: user?.id })
   }
 
   const sharedbDiff = async (event, update) => {
@@ -125,6 +135,14 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.STATE_MANAGER, 'State Manager')
   }
 
+  const createSearchCorpus = () => {
+    createOrFocus(windowTypes.SEARCH_CORPUS, 'Search Corpus')
+  }
+
+  const createEntityManager = () => {
+    createOrFocus(windowTypes.ENT_MANAGER, 'Ent Manager')
+  }
+
   const createPlaytest = () => {
     createOrFocus(windowTypes.PLAYTEST, 'Playtest')
   }
@@ -139,6 +157,18 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const createConsole = () => {
     createOrFocus(windowTypes.CONSOLE, 'Console')
+  }
+
+  const createEventManager = () => {
+    createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
+  }
+
+  const createVideoTranscription = () => {
+    createOrFocus(windowTypes.VIDEO_TRANSCRIPTION, 'Video Transcription')
+  }
+
+  const createCalendarTab = () => {
+    createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
   }
 
   const onSerialize = () => {
@@ -168,7 +198,7 @@ const EventHandler = ({ pubSub, tab }) => {
   const onExport = async () => {
     // refetch spell from local DB to ensure it is the most up to date
     const spell = { ...spellRef.current }
-    spell.chain = serialize() as ChainData
+    spell.graph = serialize() as GraphData
     spell.name = uniqueNamesGenerator(customConfig)
 
     const json = JSON.stringify(spell)
@@ -201,10 +231,15 @@ const EventHandler = ({ pubSub, tab }) => {
   const handlerMap = {
     [$SAVE_SPELL(tab.id)]: saveSpell,
     [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
+    [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
+    [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
     [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
     [$CREATE_INSPECTOR(tab.id)]: createInspector,
     [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
     [$CREATE_CONSOLE(tab.id)]: createConsole,
+    [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
+    [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
+    [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
     [$SERIALIZE(tab.id)]: onSerialize,
     [$EXPORT(tab.id)]: onExport,
     [$CLOSE_EDITOR(tab.id)]: onCloseEditor,

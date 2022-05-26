@@ -2,7 +2,8 @@
 import { Engine, NodeEditor, Component, Socket } from 'rete/types'
 import { NodeData, WorkerInputs, WorkerOutputs } from 'rete/types/core/data'
 
-import { ChainData, ThothNode } from '../../../types'
+import { GraphData, ThothNode } from '../../../types'
+import { Task } from '../taskPlugin'
 import { Module } from './module'
 import { ModuleManager } from './module-manager'
 import { addIO, removeIO } from './utils'
@@ -16,6 +17,7 @@ interface IRunContextEngine extends Engine {
 
 export interface IRunContextEditor extends NodeEditor {
   moduleManager: ModuleManager
+  tasks?: Task[]
 }
 
 type ModuleOptions = {
@@ -134,19 +136,19 @@ function install(
         if (builder) {
           component.updateModuleSockets = (
             node: ThothNode,
-            chainData?: ChainData,
-            useSocketName: boolean = false
+            graphData?: GraphData,
+            useSocketName = false
           ) => {
             const modules = moduleManager.modules
             const currentNodeModule = node.data.module as string
-            if (!modules[currentNodeModule] && !chainData) return
+            if (!modules[currentNodeModule] && !graphData) return
 
             if (!node.data.inputs) node.data.inputs = []
             if (!node.data.outputs) node.data.outputs = []
 
             const data = modules[currentNodeModule]
               ? modules[currentNodeModule].data
-              : chainData
+              : graphData
 
             if (!data) return
             const inputs = moduleManager.getInputs(data)

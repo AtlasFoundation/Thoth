@@ -7,8 +7,6 @@ import DataControls from '../DataControls'
 import WindowMessage from '../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@latitudegames/thoth-core/types'
-import SwitchComponent from '@/components/Switch/Switch'
-import css from '../../../components/Icon/icon.module.css'
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
@@ -58,22 +56,6 @@ const Inspector = props => {
     saveInspector(newData)
   }
 
-  const onLock = () => {
-    if (inspectorData?.data.nodeLocked && inspectorData?.category === 'I/O') {
-      openModal({
-        modal: 'infoModal',
-        content: 'Editing this node could break connection with your app.',
-        title: 'Warning',
-      })
-    }
-
-    const data = {
-      nodeLocked: !inspectorData?.data.nodeLocked,
-    }
-
-    updateData(data)
-  }
-
   const toolbar = (
     <>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
@@ -83,11 +65,6 @@ const Inspector = props => {
         />
         {inspectorData?.name}
       </div>
-      <SwitchComponent
-        label={inspectorData?.data.nodeLocked ? 'Locked' : 'Unlocked'}
-        checked={inspectorData?.data.nodeLocked ? true : false}
-        onChange={onLock}
-      />
       {/* I would like to make an "icon button" for this instead of "Help." Leaving it as help just for the function for now.*/}
       {inspectorData?.info && (
         <button
@@ -115,36 +92,11 @@ const Inspector = props => {
     )
   }
 
-  const LockedOverlay = ({ isLocked }) => {
-    return (
-      <>
-        {isLocked && (
-          <>
-            <div
-              className={`${css['node-lock']} ${css['icon']}`}
-              style={{
-                backgroundColor: 'var(--dark-1)',
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-                zIndex: 1,
-                opacity: '0.7',
-                backgroundPositionY: '18vh',
-                backgroundSize: '50%',
-              }}
-            />
-          </>
-        )}
-      </>
-    )
-  }
-
   if (!inspectorData) return <WindowMessage />
 
   return (
     <Window toolbar={toolbar} darker outline borderless>
       {DeprecationMessage(inspectorData)}
-      <LockedOverlay isLocked={inspectorData?.data.nodeLocked} />
       <DataControls
         inspectorData={inspectorData}
         nodeId={inspectorData.nodeId}
@@ -153,7 +105,6 @@ const Inspector = props => {
         width={width}
         updateData={updateData}
         updateControl={updateControl}
-        tab={props.tab}
       />
     </Window>
   )

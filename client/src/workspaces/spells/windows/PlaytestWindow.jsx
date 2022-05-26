@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -34,6 +34,7 @@ const Input = props => {
 }
 
 const Playtest = ({ tab }) => {
+  const scrollbars = useRef()
   const [history, setHistory] = useState([])
   const [value, setValue] = useState('')
 
@@ -49,7 +50,9 @@ const Playtest = ({ tab }) => {
     },
     [history]
   )
-
+  useEffect(()=>{
+    scrollbars.current.scrollToBottom();
+  }, [history])
   useEffect(() => {
     const unsubscribe = subscribe($PLAYTEST_PRINT(tab.id), printToConsole)
 
@@ -75,18 +78,18 @@ const Playtest = ({ tab }) => {
   }
 
   const toolbar = (
-    <>
+    <React.Fragment>
       <button className="small" onClick={onClear}>
         Clear
       </button>
-    </>
+    </React.Fragment>
   )
 
   return (
     <Window toolbar={toolbar}>
       <div style={{ display: 'flex', height: '100%', flexDirection: 'column' }}>
         <div className={css['playtest-output']}>
-          <Scrollbars>
+          <Scrollbars ref={ref => (scrollbars.current = ref)} >
             <ul>{history.map(printItem)}</ul>
           </Scrollbars>
         </div>

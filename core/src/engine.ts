@@ -1,6 +1,6 @@
 import Rete, { Engine } from 'rete'
 
-import { ChainData, ModuleType, NodeData, ThothWorkerInputs } from '../types'
+import { GraphData, ModuleType, NodeData, ThothWorkerInputs } from '../types'
 import debuggerPlugin from './plugins/debuggerPlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
@@ -68,7 +68,7 @@ export const initSharedEngine = ({
 }
 
 // this parses through all the nodes in the data and finds the nodes associated with the given map
-export const extractNodes = (nodes: ChainData['nodes'], map: Set<unknown>) => {
+export const extractNodes = (nodes: GraphData['nodes'], map: Set<unknown>) => {
   const names = Array.from(map.keys())
 
   return Object.keys(nodes)
@@ -79,7 +79,7 @@ export const extractNodes = (nodes: ChainData['nodes'], map: Set<unknown>) => {
 
 // This will get the node that was triggered given a socketKey associated with that node.
 export const getTriggeredNode = (
-  data: ChainData,
+  data: GraphData,
   socketKey: string,
   map: Set<unknown>
 ) => {

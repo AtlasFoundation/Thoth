@@ -4,20 +4,30 @@ import { usePatchSpellMutation } from '../../state/api/spells'
 import { useForm } from 'react-hook-form'
 import Modal from '../Modal/Modal'
 import css from './modalForms.module.css'
+import { useAuth } from '@/contexts/AuthProvider'
+import { closeTab, openTab } from '@/state/tabs'
+import { useDispatch } from 'react-redux'
 
 const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
   const [error, setError] = useState('')
+  const { user } = useAuth()
   const [patchSpell, { isLoading }] = usePatchSpellMutation()
   const { enqueueSnackbar } = useSnackbar()
+  const dispatch = useDispatch()
 
   const {
     register,
     handleSubmit,
     // formState: { errors },
   } = useForm()
+  console.log('tab ::: ', tab)
 
   const onSubmit = handleSubmit(async data => {
-    const response: any = await patchSpell({ spellId, update: data })
+    const response: any = await patchSpell({
+      spellId: tab.spellId,
+      userId: user?.id as string,
+      update: data,
+    })
 
     if (response.error) {
       setError(response.error.data.error.message)
@@ -29,8 +39,12 @@ const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
 
     enqueueSnackbar('Spell saved', { variant: 'success' })
 
-    if (data.name)
-      await updateTab(tab.id, { name: data.name, spell: data.name })
+    dispatch(closeTab(tab.id))
+    dispatch(openTab({
+      name: data.name,
+      spellId: data.name,
+      type: 'spell'
+    }))
 
     closeModal()
   })
@@ -78,6 +92,3 @@ const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
 }
 
 export default EditSpellModal
-function updateTab(id: any, arg1: { name: any; spell: any }) {
-  throw new Error('Function not implemented.')
-}

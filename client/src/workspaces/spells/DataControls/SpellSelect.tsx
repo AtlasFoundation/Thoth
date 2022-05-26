@@ -9,15 +9,17 @@ import {
   useGetSpellsQuery,
   useNewSpellMutation,
 } from '@/state/api/spells'
-import defaultChain from '@/data/chains/default'
-import { ChainData } from '@latitudegames/thoth-core/types'
+import defaultGraph from '@/data/graphs/default'
+import { GraphData } from '@latitudegames/thoth-core/types'
 import { useEffect } from 'react'
+import { useAuth } from '@/contexts/AuthProvider'
 
-const SpellSelect = ({ control, updateData, initialValue, tab }) => {
+const ModuleSelect = ({ control, updateData, initialValue }) => {
   const dispatch = useAppDispatch()
 
   const [getSpell, { data: spell }] = useLazyGetSpellQuery()
-  const { data: spells } = useGetSpellsQuery()
+  const { user } = useAuth()
+  const { data: spells } = useGetSpellsQuery(user?.id as string)
   const [newSpell] = useNewSpellMutation()
 
   const { enqueueSnackbar } = useSnackbar()
@@ -27,23 +29,16 @@ const SpellSelect = ({ control, updateData, initialValue, tab }) => {
   useEffect(() => {
     if (!spell) return
 
-    // here we send the whole spell so the control can modify the nodes sockets.
-    // However, we only store the name of the spell after processing the full spell.
     update(spell)
     _openTab(spell)
   }, [spell])
 
   const optionArray = () => {
     if (!spells) return
-    return (
-      spells
-        // Make sure we don't allow someone to  select the current spell as a submodule.  No infinite loops.
-        .filter(spell => spell.name !== tab.id)
-        .map((spell, index) => ({
-          value: spell.name,
-          label: spell.name,
-        }))
-    )
+    return spells.map((module, index) => ({
+      value: module.name,
+      label: module.name,
+    }))
   }
 
   const _openTab = async spell => {
@@ -60,7 +55,10 @@ const SpellSelect = ({ control, updateData, initialValue, tab }) => {
 
   // TODO fix on change to handle loading a single spell
   const onChange = async ({ value }) => {
-    getSpell(value)
+    getSpell({
+      spellId: value,
+      userId: user?.id as string
+    })
   }
 
   const update = update => {
@@ -71,10 +69,14 @@ const SpellSelect = ({ control, updateData, initialValue, tab }) => {
     try {
       await newSpell({
         name: value,
-        chain: defaultChain as unknown as ChainData,
+        graph: defaultGraph as unknown as GraphData,
+        user: user?.id
       })
 
-      getSpell(value)
+      getSpell({
+        spellId: value,
+        userId: user?.id as string
+      })
     } catch (err) {
       // eslint-disable-next-line no-console
       console.warn('Error creating module', err)
@@ -85,7 +87,7 @@ const SpellSelect = ({ control, updateData, initialValue, tab }) => {
   }
 
   const noOptionsMessage = inputValue => {
-    return <span>Start typing to find or creat a spell</span>
+    return <span>Start typing to create a module</span>
   }
 
   const isValidNewOption = (inputValue, selectValue, selectOptions) => {
@@ -113,4 +115,4 @@ const SpellSelect = ({ control, updateData, initialValue, tab }) => {
   )
 }
 
-export default SpellSelect
+export default ModuleSelect

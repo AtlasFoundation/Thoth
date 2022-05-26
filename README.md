@@ -2,6 +2,47 @@
 
 Thoth is a multishot system builder. It leverages a visual coding style interface to allows game designers and developers to rapidly create powerful natural language systems and prototype games.
 
+## Quickstart
+
+You will need **yarn or npm** and **Docker** installed, along with **Node.js 16 or higher**. We use Docker to run a local Postgres database. You can skip the docker and install postgres directly, but you are almost always better off just using Docker.
+For **Linux** and **MAC** users, **sleep** and **concurently** commands must be installed in the machine.
+
+First, clone and set up Thoth
+
+```
+git clone https://github.com/TheNexusCity/thoth
+```
+
+Next, install dependencies
+
+```
+yarn install
+OR
+npm i
+```
+
+You will need to make a few environment variable modifications
+To keep values privates, create a new file for each .env, called .env.local (these files are safe from the .gitignore)
+
+In order to run the client and server use
+
+```
+yarn run dev
+
+If on Windows run:
+yarn run dev:windows
+```
+
+### Local Development
+
+We use dotenv-flow for local environment variable management
+
+Go to client folder, and create a new file called .env.local -- copy and .env vars you want to set from .env there
+If you are developing independently and are not a member of Latitude Games team, set **REACT_APP_USE_LATITUDE=false**
+
+Go to server folder, and create a new file called .env.local -- copy and .env vars you want to set from .env there
+If you are developing independently and are not a member of Latitude Games team, set **USE_LATITUDE=false**
+
 ## Client Setup
 
 1. Generate a [Personal Access Token](https://github.com/settings/tokens) on Github which will allow you to install private latitude packages. Make sure you check the `write:packages` option. (`read:packages` will suffice as well if you aren't planning on publishing new versions of @latitudegames/thoth-core)
@@ -9,11 +50,11 @@ Thoth is a multishot system builder. It leverages a visual coding style interfac
 1. Clone the repository
 1. Navigate to the project root by running `cd thoth`
 1. Run `yarn install` to install project dependencies
-1. Run `yarn start` to start the @thoth/client app
+1. Run `yarn start` to start the @latitudegames/thoth-client app
 
 ## Core Local Setup
 
-1. Core the contents of `core/.env.example` to `core/.env`
+1. Core the contents of `core/.env.default` to `core/.env` and modify the secrets as necessary
 1. Step 2 in Monorepo Development Setup
 
 ## Monorepo Development
@@ -47,6 +88,11 @@ for the next prerelease.
 
 In the project directory, you can run:
 
+### `yarn run dev`
+
+Runs both server and client.\
+Open [https://localhost:3001](https://localhost:3001) to view it in the browser.
+
 ### `yarn start`
 
 Runs @thoth/client in the development mode.\
@@ -54,7 +100,7 @@ Open [http://localhost:3003](http://localhost:3003) to view it in the browser.
 
 ### `yarn build`
 
-Builds the @thoth/client app for production to the `client/build` folder.
+Builds the @latitudegames/thoth-client app for production to the `client/build` folder.
 
 ### `yarn build:core`
 

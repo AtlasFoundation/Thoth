@@ -15,10 +15,10 @@ export class Alert extends ThothComponent<void> {
 
     this.task = {
       outputs: {},
-      init: () => {},
-      onRun: () => {},
+      init: () => { },
+      onRun: () => { },
     } as TaskOptions
-    this.category = 'I/O'
+    this.category = 'Utility'
     this.info = info
   }
   // the builder is used to "assemble" the node component.

@@ -2,7 +2,7 @@ import {
   EditorContext,
   Spell,
   ThothWorkerInputs,
-} from '@latitudegames/thoth-core/dist/types'
+} from '@latitudegames/thoth-core/types'
 import { useContext, createContext, useRef, useEffect } from 'react'
 
 import { postEnkiCompletion } from '../../services/game-api/enki'
@@ -11,6 +11,7 @@ import { invokeInference } from '../../utils/huggingfaceHelper'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useFetchFromImageCacheMutation } from '@/state/api/visualGenerationsApi'
 import { useGetSpellQuery, useRunSpellMutation } from '@/state/api/spells'
+import { useAuth } from '@/contexts/AuthProvider'
 
 /*
 Some notes here.  The new rete provider, not to be confused with the old rete provider renamed to the editor provider, is designed to serve as the single source of truth for interfacing with the rete internal system.  This unified interface will also allow us to replicate the same API in the server, where rete expects certain functions to exist but doesn't care what is behind these functions so long as they work.
@@ -25,8 +26,12 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   const { events, publish, subscribe } = usePubSub()
   const spellRef = useRef<Spell | null>(null)
   const [fetchFromImageCache] = useFetchFromImageCacheMutation()
+  const { user } = useAuth()
   const [_runSpell] = useRunSpellMutation()
-  const { data: _spell } = useGetSpellQuery(tab.spellId, {
+  const { data: _spell } = useGetSpellQuery({ 
+    spellId: tab.spellId, 
+    userId: user?.id as string 
+  }, {
     skip: !tab.spellId,
   })
 
@@ -146,7 +151,8 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   const processCode = (code, inputs, data, state) => {
     const flattenedInputs = Object.entries(inputs as ThothWorkerInputs).reduce(
       (acc, [key, value]) => {
-        acc[key as string] = value[0]
+        // @ts-ignore
+        acc[key as string] = value[0] as any
         return acc
       },
       {} as Record<string, any>

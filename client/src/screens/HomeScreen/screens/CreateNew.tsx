@@ -15,8 +15,9 @@ import enkiImg from '../enki.png'
 import langImg from '../lang.png'
 import css from '../homeScreen.module.css'
 import TemplatePanel from '../components/TemplatePanel'
-import defaultChain from '../../../data/chains/default'
-import { ChainData } from '@latitudegames/thoth-core/types'
+import defaultGraph from '../../../data/graphs/default'
+import { GraphData } from '@latitudegames/thoth-core/types'
+import { useAuth } from '@/contexts/AuthProvider'
 
 const customConfig = {
   dictionaries: [adjectives, colors],
@@ -27,13 +28,13 @@ const customConfig = {
 export type Template = {
   label: string
   bg: string
-  chain: ChainData
+  graph: GraphData
 }
 
 export const thothTemplates = [
-  { label: 'Starter', bg: emptyImg, chain: defaultChain },
-  { label: 'Language example', bg: langImg, chain: defaultChain },
-  { label: 'Enki example', bg: enkiImg, chain: defaultChain },
+  { label: 'Starter', bg: emptyImg, graph: defaultGraph },
+  { label: 'Language example', bg: langImg, graph: defaultGraph },
+  { label: 'Enki example', bg: enkiImg, graph: defaultGraph },
 ]
 
 const CreateNew = () => {
@@ -45,7 +46,7 @@ const CreateNew = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [newSpell] = useNewSpellMutation()
-
+  const { user } = useAuth()
   const {
     register,
     handleSubmit,
@@ -57,8 +58,9 @@ const CreateNew = () => {
       const placeholderName = uniqueNamesGenerator(customConfig)
       const name = data.name || placeholderName
       const response = await newSpell({
-        chain: selectedTemplate?.chain,
+        graph: selectedTemplate?.graph,
         name,
+        user: user?.id
       })
 
       if ('error' in response) {

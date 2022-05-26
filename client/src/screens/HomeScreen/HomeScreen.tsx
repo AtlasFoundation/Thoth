@@ -11,8 +11,10 @@ import CreateNew from './screens/CreateNew'
 import OpenProject from './screens/OpenProject'
 import css from './homeScreen.module.css'
 import LoadingScreen from '../../components/LoadingScreen/LoadingScreen'
-import { closeTab, openTab } from '@/state/tabs'
-import { useDispatch } from 'react-redux'
+import { closeTab, openTab, selectAllTabs } from '@/state/tabs'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '@/state/store'
+import { useAuth } from '@/contexts/AuthProvider'
 
 //MAIN
 
@@ -20,24 +22,28 @@ const StartScreen = () => {
   const dispatch = useDispatch()
 
   const navigate = useNavigate()
-
+  const { user } = useAuth()
   const [deleteSpell] = useDeleteSpellMutation()
-  const { data: spells } = useGetSpellsQuery()
+  const { data: spells } = useGetSpellsQuery(user?.id as string)
   const [newSpell] = useNewSpellMutation()
+
+  const tabs = useSelector((state: RootState) => selectAllTabs(state.tabs))
 
   const onReaderLoad = async event => {
     const spellData = JSON.parse(event.target.result)
-    if (spellData.graph) {
-      spellData.chain = spellData.graph
+    /* This part deletes the graph key from the spelldata, which causes the spell to not be imported  */
+    /* if (spellData.graph) {
+      spellData.graph = spellData.graph
       delete spellData.graph
-    }
+    } */
     // TODO check for proper values here and throw errors
 
     // Create new spell
     await newSpell({
-      chain: spellData.chain,
+      graph: spellData.graph,
       name: spellData.name,
       gameState: spellData.gameState,
+      user: user?.id
     })
 
     dispatch(
@@ -59,8 +65,9 @@ const StartScreen = () => {
 
   const onDelete = async spellId => {
     try {
-      await deleteSpell(spellId)
-      dispatch(closeTab(spellId))
+      await deleteSpell({ spellId, userId: user?.id as string })
+      const [tab] = tabs.filter(tab => tab.spellId === spellId)
+      dispatch(closeTab(tab.id))
     } catch (err) {
       console.log('Error deleting spell', err)
     }

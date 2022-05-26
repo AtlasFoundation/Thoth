@@ -2,7 +2,7 @@ import { Engine, Socket, Component } from 'rete'
 import { Socket as SocketType } from 'rete/types'
 
 import {
-  ChainData,
+  GraphData,
   ModuleType,
   ModuleWorkerOutput,
   ThothNode,
@@ -58,7 +58,7 @@ export class ModuleManager {
   }
 
   getSockets(
-    data: ChainData,
+    data: GraphData,
     typeMap: Map<string, Socket>,
     defaultName: string
   ): ModuleSocketType[] {
@@ -74,19 +74,19 @@ export class ModuleManager {
     )
   }
 
-  getInputs(data: ChainData): ModuleSocketType[] {
+  getInputs(data: GraphData): ModuleSocketType[] {
     return this.getSockets(data, this.inputs, 'input')
   }
 
-  getOutputs(data: ChainData): ModuleSocketType[] {
+  getOutputs(data: GraphData): ModuleSocketType[] {
     return this.getSockets(data, this.outputs, 'output')
   }
 
-  getTriggerOuts(data: ChainData): ModuleSocketType[] {
+  getTriggerOuts(data: GraphData): ModuleSocketType[] {
     return this.getSockets(data, this.triggerOuts, 'trigger')
   }
 
-  getTriggerIns(data: ChainData) {
+  getTriggerIns(data: GraphData) {
     return this.getSockets(data, this.triggerIns, 'trigger')
   }
 
@@ -121,7 +121,7 @@ export class ModuleManager {
     this.outputs.set(name, socket)
   }
 
-  getTriggeredNode(data: ChainData, socketKey: string) {
+  getTriggeredNode(data: GraphData, socketKey: string) {
     return extractNodes(data.nodes, this.triggerIns).find(
       node => node.data.socketKey === socketKey
     )
@@ -204,7 +204,7 @@ export class ModuleManager {
   ) {
     if (!module) return
 
-    // module.setOutput(node.data.name, inputs["input"][0]);
+    // module.setOutput(node.data.name as any, inputs['input'][0])
   }
 
   workerTriggerOuts(
@@ -215,6 +215,7 @@ export class ModuleManager {
   ) {
     if (!module) return
     const socketKey = node.data.socketKey as string
+    console.log('setting output', inputs, "inputs['input']", inputs['input'])
     module.setOutput(socketKey, outputs['trigger'])
   }
 

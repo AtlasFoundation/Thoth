@@ -63,7 +63,7 @@
         "children": [
           {
             "type": "tabset",
-            "id": "#13",
+            "id": "#14",
             "weight": 50,
             "children": [
               {
@@ -74,9 +74,39 @@
               },
               {
                 "type": "tab",
+                "id": "#20",
+                "name": "Video Transcription",
+                "component": "videoTranscription"
+              },
+              {
+                "type": "tab",
                 "id": "#10",
                 "name": "State Manager",
                 "component": "stateManager"
+              },
+              {
+                "type": "tab",
+                "id": "#12",
+                "name": "Ent Manager",
+                "component": "entityManager"
+              },
+              {
+                "type": "tab",
+                "id": "#16",
+                "name": "Search Corpus",
+                "component": "searchCorpus"
+              },
+              {
+                "type": "tab",
+                "id": "#19",
+                "name": "Event Manager",
+                "component": "eventManager"
+              },
+              {
+                "type": "tab",
+                "id": "#77",
+                "name": "Calendar Tab",
+                "component": "calendarTab"
               }
             ]
           },

@@ -1,13 +1,13 @@
 import {
   EngineContext,
-  ChainData,
+  GraphData,
   ModuleComponent,
   Spell as SpellType,
 } from '../../types'
 import { getComponents } from '../components/components'
 import { extractNodes, initSharedEngine, ThothEngine } from '../engine'
 import { Module } from '../plugins/modulePlugin/module'
-import { extractModuleInputKeys } from './chainHelpers'
+import { extractModuleInputKeys } from './graphHelpers'
 
 type RunSpellConstructor = {
   thothInterface: EngineContext
@@ -57,11 +57,8 @@ class SpellRunner {
     }
   }
 
-  /**
-   * Getter method to return all of the inputs keys of a given spell from the spells inputs
-   */
-  get inputKeys(): string[] {
-    return extractModuleInputKeys(this.currentSpell.chain)
+  get inputKeys() {
+    return extractModuleInputKeys(this.currentSpell.graph)
   }
 
   /**
@@ -116,7 +113,7 @@ class SpellRunner {
     rawOutputs: Record<string, any>
   ): Record<string, unknown> {
     const outputs = {} as Record<string, unknown>
-    const graph = this.currentSpell.chain
+    const graph = this.currentSpell.graph
 
     Object.values(graph.nodes)
       .filter((node: any) => {
@@ -137,7 +134,7 @@ class SpellRunner {
    */
   private _getFirstNodeTrigger() {
     const extractedNodes = extractNodes(
-      this.currentSpell.chain.nodes,
+      this.currentSpell.graph.nodes,
       this.triggerIns
     )
     return extractedNodes[0]
@@ -157,7 +154,7 @@ class SpellRunner {
   private async _process() {
     await this.engine.abort()
     await this.engine.process(
-      this.currentSpell.chain as ChainData,
+      this.currentSpell.graph as GraphData,
       null,
       this.context
     )
@@ -170,7 +167,7 @@ class SpellRunner {
     this.currentSpell = spell
 
     // We process the graph for the new spell which will set up all the task workers
-    await this._process()
+    await this.engine.process(spell.graph as GraphData, null, this.context)
   }
 
   /**

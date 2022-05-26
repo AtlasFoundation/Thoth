@@ -5,8 +5,8 @@ import { Task } from './plugins/taskPlugin/task'
 export { getComponents } from './components/components'
 export { initEditor } from './editor'
 export { Task } from './plugins/taskPlugin/task'
-export { runChain } from './utils/runChain'
-export * from './utils/chainHelpers'
+export { runGraph } from './utils/runGraph'
+export * from './utils/graphHelpers'
 
 export default {
   getComponents,

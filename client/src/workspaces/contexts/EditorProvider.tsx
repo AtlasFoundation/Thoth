@@ -1,10 +1,10 @@
-import { initEditor, zoomAt } from '@latitudegames/thoth-core'
+import { initEditor } from '@latitudegames/thoth-core/src'
 import {
-  ChainData,
+  GraphData,
   EditorContext,
   Spell,
   ThothEditor,
-} from '@latitudegames/thoth-core/dist/types'
+} from '@latitudegames/thoth-core/types'
 import React, {
   useRef,
   useContext,
@@ -20,6 +20,8 @@ import { MyNode } from '../../components/Node/Node'
 import gridimg from '@/grid.png'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useThothInterface } from './ThothInterfaceProvider'
+import { zoomAt } from '@latitudegames/thoth-core/src/plugins/areaPlugin/zoom-at'
+import { useAuth } from '@/contexts/AuthProvider'
 
 export type ThothTab = {
   layoutJson: string
@@ -36,7 +38,7 @@ const Context = createContext({
   run: () => {},
   getEditor: (): ThothEditor | null => null,
   editor: {} as ThothEditor | null,
-  serialize: (): ChainData | undefined => undefined,
+  serialize: (): GraphData | undefined => undefined,
   buildEditor: (
     el: HTMLDivElement,
     // todo update this to use proper spell type
@@ -47,7 +49,7 @@ const Context = createContext({
   setEditor: (editor: any) => {},
   getNodeMap: () => {},
   getNodes: () => {},
-  loadChain: (chain: any) => {},
+  loadGraph: (graph: any) => {},
   setContainer: () => {},
   undo: () => {},
   redo: () => {},
@@ -90,7 +92,7 @@ const EditorProvider = ({ children }) => {
     if (tab.type === 'spell') {
       // copy spell in case it is read onl
       const spell = JSON.parse(JSON.stringify(_spell))
-      newEditor.loadGraph(spell.chain)
+      newEditor.loadGraph(spell.graph)
     }
 
     if (tab.type === 'module') {
@@ -139,7 +141,7 @@ const EditorProvider = ({ children }) => {
     return editor && Object.fromEntries(editor.components)
   }
 
-  const loadChain = graph => {
+  const loadGraph = graph => {
     if (!editorRef.current) return
     editorRef.current.loadGraph(graph)
   }
@@ -156,7 +158,7 @@ const EditorProvider = ({ children }) => {
     buildEditor,
     getNodeMap,
     getNodes,
-    loadChain,
+    loadGraph,
     setEditor,
     getEditor,
     undo,
@@ -170,6 +172,7 @@ const EditorProvider = ({ children }) => {
 }
 
 const RawEditor = ({ tab, children }) => {
+  const { user } = useAuth()
   const [getSpell, { data: spell, isLoading }] = useLazyGetSpellQuery()
   const [loaded, setLoaded] = useState(false)
   const { buildEditor } = useEditor()
@@ -179,7 +182,11 @@ const RawEditor = ({ tab, children }) => {
   useEffect(() => {
     if (!tab) return
 
-    if (tab?.spellId) getSpell(tab.spellId)
+    if (tab?.spellId)
+      getSpell({
+        spellId: tab.spellId,
+        userId: user?.id as string,
+      })
   }, [tab])
 
   if (!tab || (tab.type === 'spell' && (isLoading || !spell)))
@@ -215,7 +222,7 @@ const RawEditor = ({ tab, children }) => {
   )
 }
 
-export const Editor = React.memo(RawEditor)
+export const Editor: any = React.memo(RawEditor)
 
 Editor.whyDidYouRender = false
 

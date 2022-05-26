@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { activeTabSelector, Tab } from '@/state/tabs'
+import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import thothlogo from './thoth.png'
 
 import { useModal } from '../../contexts/ModalProvider'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import css from './menuBar.module.css'
-import thothlogo from './thoth.png'
-import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { activeTabSelector, Tab } from '@/state/tabs'
 
 const MenuBar = () => {
   const navigate = useNavigate()
@@ -21,16 +21,22 @@ const MenuBar = () => {
   useEffect(() => {
     if (!activeTab) return
     activeTabRef.current = activeTab
+    console.log('changing current to ', activeTabRef.current)
   }, [activeTab])
 
   // grab all events we need
   const {
     $SAVE_SPELL,
     $CREATE_STATE_MANAGER,
+    $CREATE_ENT_MANAGER,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
+    $CREATE_SEARCH_CORPUS,
     $CREATE_TEXT_EDITOR,
     $CREATE_CONSOLE,
+    $CREATE_EVENT_MANAGER,
+    $CREATE_VIDEO_TRANSCRIPTION,
+    $CREATE_CALENDAR_TAB,
     $SERIALIZE,
     $EXPORT,
     $UNDO,
@@ -86,6 +92,14 @@ const MenuBar = () => {
     publish($CREATE_STATE_MANAGER(activeTabRef.current.id))
   }
 
+  const onCreateSearchCorpus = () => {
+    publish($CREATE_SEARCH_CORPUS(activeTabRef.current?.id))
+  }
+
+  const onEntityManagerCreate = () => {
+    publish($CREATE_ENT_MANAGER(activeTabRef.current?.id))
+  }
+
   const onPlaytestCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_PLAYTEST(activeTabRef.current.id))
@@ -111,6 +125,41 @@ const MenuBar = () => {
     publish($CREATE_CONSOLE(activeTabRef.current.id))
   }
 
+  const onEventManagerCreate = () => {
+    if (!activeTabRef.current) return
+    publish($CREATE_EVENT_MANAGER(activeTabRef.current.id))
+  }
+
+  const onVideoTrancriptionCreate = () => {
+    if (!activeTabRef.current) return
+    publish($CREATE_VIDEO_TRANSCRIPTION(activeTabRef.current.id))
+  }
+
+  const onCalendarTabCreate = () => {
+    if (!activeTabRef.current) return
+    publish($CREATE_CALENDAR_TAB(activeTabRef.current.id))
+  }
+
+  //Menu bar hotkeys
+  useHotkeys(
+    'cmd+s, crtl+s',
+    event => {
+      event.preventDefault()
+      onSave()
+    },
+    { enableOnTags: ['INPUT'] },
+    [onSave]
+  )
+
+  useHotkeys(
+    'option+n, crtl+n',
+    event => {
+      event.preventDefault()
+      onNew()
+    },
+    { enableOnTags: ['INPUT'] },
+    [onNew]
+  )
   const onUndo = () => {
     if (!activeTabRef.current) return
     publish($UNDO(activeTabRef.current.id))
@@ -181,11 +230,26 @@ const MenuBar = () => {
         state_manager: {
           onClick: onStateManagerCreate,
         },
+        search_corpus: {
+          onClick: onCreateSearchCorpus,
+        },
+        ent_manager: {
+          onClick: onEntityManagerCreate,
+        },
         playtest: {
           onClick: onPlaytestCreate,
         },
         console: {
           onClick: onConsole,
+        },
+        event_manager: {
+          onClick: onEventManagerCreate,
+        },
+        video_transcription: {
+          onClick: onVideoTrancriptionCreate,
+        },
+        calendar_tab: {
+          onClick: onCalendarTabCreate,
         },
       },
     },
@@ -244,7 +308,7 @@ const MenuBar = () => {
         {hotKeyLabel && <span>{parseStringToUnicode(hotKeyLabel)}</span>}
         {children && <div className={css['folder-arrow']}> ❯ </div>}
         {/* {!topLevel && <br />} */}
-        {children && children}
+        {children}
       </li>
     )
   }
