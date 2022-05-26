@@ -558,6 +558,59 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
+const getCalendarEvents = async (ctx: Koa.Context) => {
+  try {
+    let calendarEvents = await database.instance.getCalendarEvents()
+    return (ctx.body = calendarEvents)
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+const addCalendarEvent = async (ctx: Koa.Context) => {
+  const name = ctx.request.body.name
+  const date = ctx.request.body.date
+  const time = ctx.request.body.time
+  const type = ctx.request.body.type
+  const moreInfo = ctx.request.body.moreInfo
+  
+  try {
+    await database.instance.createCalendarEvent(name, date, time, type, moreInfo)
+    return (ctx.body = 'inserted')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
+const editCalendarEvent = async (ctx: Koa.Context) => {
+  const id = ctx.params.id
+  const name = ctx.request.body.name 
+  const date = ctx.request.body.date
+  const time = ctx.request.body.time
+  const type = ctx.request.body.type
+  const moreInfo = ctx.request.body.moreInfo
+  
+  try {
+    await database.instance.editCalendarEvent(id, name, date, time, type, moreInfo)
+    return (ctx.body = 'edited')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
+const deleteCalendarEvent = async (ctx: Koa.Context) => {
+  const id = ctx.params.id
+  try {
+    await database.instance.deleteCalendarEvent(id)
+    return (ctx.body = 'deleted')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -601,6 +654,18 @@ export const entities: Route[] = [
     path: '/events_sorted',
     access: noAuth,
     get: getSortedEventsByDate,
+  },
+  {
+    path: '/calendar_event',
+    access: noAuth,
+    get: getCalendarEvents,
+    post: addCalendarEvent,
+  },
+  {
+    path: '/calendar_event/:id',
+    access: noAuth,
+    patch: editCalendarEvent,
+    delete: deleteCalendarEvent,
   },
   {
     path: '/speech_to_text',

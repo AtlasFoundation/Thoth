@@ -8,9 +8,6 @@
 
 import SnooStream from 'snoostream'
 import * as snoowrap from 'snoowrap'
-import { database } from './database'
-import { handleInput } from './handleInput'
-import { getSetting } from './utils'
 
 export let reddit
 
@@ -104,93 +101,24 @@ export class reddit_client {
 
   async handleMessage(response, messageId, chat_id, args, reddit) {
     if (args === 'isChat') {
-      this.reddit
-        .getMessage(messageId)
-        .reply(responses[key])
-        .then(async res => {
-          database.instance.addMessageInHistory(
-            'reddit',
-            chat_id,
-            res.id,
-            'bot',
-            response
-          )
-        })
+      this.reddit.getMessage(messageId).reply(responses[key])
     } else if (args === 'isPost') {
-      this.reddit
-        .getSubmission(chat_id)
-        .reply(responses[key])
-        .then(async res => {
-          database.instance.addMessageInHistory(
-            'reddit',
-            chat_id,
-            res.id,
-            'bot',
-            response
-          )
-        })
+      this.reddit.getSubmission(chat_id).reply(responses[key])
     }
   }
 
-  addMessageToHistory(chatId, messageId, senderName, content) {
-    database.instance.addMessageInHistory(
-      'reddit-chat',
-      chatId,
-      messageId,
-      senderName,
-      content
-    )
-  }
-  async addMessageInHistoryWithDate(
-    chatId,
-    messageId,
-    senderName,
-    content,
-    timestamp
-  ) {
-    await database.instance.addMessageInHistoryWithDate(
-      'reddit-chat',
-      chatId,
-      messageId,
-      senderName,
-      content,
-      timestamp
-    )
-  }
-  async deleteMessageFromHistory(chatId, messageId) {
-    return
-    // await database.instance.deleteMessage('reddit-chat', chatId, messageId)
-  }
-  async updateMessage(chatId, messageId, newContent) {
-    // await database.instance.updateMessage(
-    //   'reddit-chat',
-    //   chatId,
-    //   messageId,
-    //   newContent,
-    //   true
-    // )
-  }
-  async wasHandled(chatId, messageId, sender, content, timestamp) {
-    // return await database.instance.messageExistsAsync(
-    //   'reddit-chat',
-    //   chatId,
-    //   messageId,
-    //   sender,
-    //   content,
-    //   timestamp
-    // )
-  }
-
-  agent
+  spellHandler
   settings
+  entity
 
-  createRedditClient = async (agent, settings) => {
-    this.agent = agent
+  createRedditClient = async (spellHandler, settings, entity) => {
+    this.spellHandler = spellHandler
     this.settings = settings
+    this.entity = entity
 
-    const appId = getSetting(settings, 'redditAppID')
-    const appSecredId = getSetting(settings, 'redditAppSecretID')
-    const oauthToken = getSetting(settings, 'redditOathToken')
+    const appId = settings.reddit_app_id
+    const appSecredId = settings.reddit_app_secret_id
+    const oauthToken = setting.reddit_oauth_token
     //https://github.com/not-an-aardvark/reddit-oauth-helper
     if (!appId || !appSecredId)
       return console.warn('No API token for Reddit bot, skipping')
@@ -210,7 +138,7 @@ export class reddit_client {
     const stream = new SnooStream(reddit)
     log('loaded reddit client')
 
-    const regex = new RegExp('((?:carl|sagan)(?: |$))', 'ig')
+    const regex = new RegExp(settings.reddit_bot_name_regex, 'ig')
 
     const commentStream = stream.commentStream('test_db')
     commentStream.on('post', async (post, match) => {
@@ -225,102 +153,38 @@ export class reddit_client {
         log('got new commend') // - ' + JSON.stringify(post))
         const id = post.id
         const chat_id = post.link_url.split('/')[6]
-        const senderId = post.author_fullname
         const author = post.author.name
         const body = post.body
-        const timestamp = post.created_utc
-        const resp = await handleInput(body, author, 'Agent', 'reddit', chat_id)
-        await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
-        const date = new Date(post.created)
-        const utc = new Date(
-          date.getUTCFullYear(),
-          date.getUTCMonth(),
-          date.getUTCDate(),
-          date.getUTCHours(),
-          date.getUTCMinutes(),
-          date.getUTCSeconds()
-        )
-        const utcStr =
-          date.getDate() +
-          '/' +
-          (date.getMonth() + 1) +
-          '/' +
-          date.getFullYear() +
-          ' ' +
-          utc.getHours() +
-          ':' +
-          utc.getMinutes() +
-          ':' +
-          utc.getSeconds()
-
-        database.instance.addMessageInHistoryWithDate(
+        const resp = await this.spellHandler(
+          body,
+          author ?? 'Sender',
+          this.settings.reddit_bot_name ?? 'Agent',
           'reddit',
           chat_id,
-          id,
-          author,
-          body,
-          utcStr
+          this.entity,
+          []
         )
+        await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       } else {
-        await database.instance.messageExistsAsyncWitHCallback2(
+        log('got new commend')
+        const id = post.id
+        const chat_id = post.link_url.split('/')[6]
+        const author = post.author
+        const body = post.body
+        const resp = await this.spellHandler(
+          body,
+          author ?? 'Sender',
+          this.settings.reddit_bot_name ?? 'Agent',
           'reddit',
-          post.link_url.split('/')[6],
-          post.id,
-          post.author.name,
-          post.body,
-          post.timestamp,
-          async () => {
-            log('got new commend') // - ' + JSON.stringify(post))
-            const id = post.id
-            const chat_id = post.link_url.split('/')[6]
-            const senderId = post.author_fullname
-            const author = post.author
-            const body = post.body
-            const timestamp = post.created_utc
-            const resp = await handleInput(
-              body,
-              author,
-              'Agent',
-              'reddit',
-              chat_id
-            )
-            await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
-            const date = new Date(post.created)
-            const utc = new Date(
-              date.getUTCFullYear(),
-              date.getUTCMonth(),
-              date.getUTCDate(),
-              date.getUTCHours(),
-              date.getUTCMinutes(),
-              date.getUTCSeconds()
-            )
-            const utcStr =
-              date.getDate() +
-              '/' +
-              (date.getMonth() + 1) +
-              '/' +
-              date.getFullYear() +
-              ' ' +
-              utc.getHours() +
-              ':' +
-              utc.getMinutes() +
-              ':' +
-              utc.getSeconds()
-
-            database.instance.addMessageInHistoryWithDate(
-              'reddit',
-              chat_id,
-              id,
-              author,
-              body,
-              utcStr
-            )
-          }
+          chat_id,
+          this.entity,
+          []
         )
+        await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       }
     })
     const submissionStream = stream.submissionStream('test_db', {
-      regex: '((?:carl|sagan)(?: |$))',
+      regex: settings.reddit_bot_name_regex,
     })
     submissionStream.on('post', async (post, match) => {
       let _match
@@ -334,162 +198,61 @@ export class reddit_client {
         log('got new post' + JSON.stringify(post))
         const id = post.id
         const chat_id = post.id
-        const senderId = post.author_fullname
         const author = post.author.name
         const body = post.selftext
-        const timestamp = post.created_utc
-        const resp = await handleInput(body, author, 'Agent', 'reddit', chat_id)
-        await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
-        const date = new Date(post.created)
-        const utc = new Date(
-          date.getUTCFullYear(),
-          date.getUTCMonth(),
-          date.getUTCDate(),
-          date.getUTCHours(),
-          date.getUTCMinutes(),
-          date.getUTCSeconds()
-        )
-        const utcStr =
-          date.getDate() +
-          '/' +
-          (date.getMonth() + 1) +
-          '/' +
-          date.getFullYear() +
-          ' ' +
-          utc.getHours() +
-          ':' +
-          utc.getMinutes() +
-          ':' +
-          utc.getSeconds()
-
-        database.instance.addMessageInHistoryWithDate(
+        const resp = await this.spellHandler(
+          body,
+          author ?? 'Sender',
+          this.settings.reddit_bot_name ?? 'Agent',
           'reddit',
           chat_id,
-          id,
-          author,
-          body,
-          utcStr
+          this.entity,
+          []
         )
+        await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       } else {
-        await database.instance.messageExistsAsyncWitHCallback2(
+        log('got new post') // - ' + JSON.stringify(post))
+        const id = post.id
+        const chat_id = post.id
+        const author = post.author
+        const body = post.selftext
+        const resp = await this.spellHandler(
+          body,
+          author ?? 'Sender',
+          this.settings.reddit_bot_name ?? 'Agent',
           'reddit',
-          post.id,
-          post.id,
-          post.author.name,
-          post.body,
-          post.timestamp,
-          async () => {
-            log('got new post') // - ' + JSON.stringify(post))
-            const id = post.id
-            const chat_id = post.id
-            const senderId = post.author_fullname
-            const author = post.author
-            const body = post.selftext
-            const timestamp = post.created_utc
-            const resp = await handleInput(
-              body,
-              author,
-              'Agent',
-              'reddit',
-              chat_id
-            )
-            await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
-            const date = new Date(post.created)
-            const utc = new Date(
-              date.getUTCFullYear(),
-              date.getUTCMonth(),
-              date.getUTCDate(),
-              date.getUTCHours(),
-              date.getUTCMinutes(),
-              date.getUTCSeconds()
-            )
-            const utcStr =
-              date.getDate() +
-              '/' +
-              (date.getMonth() + 1) +
-              '/' +
-              date.getFullYear() +
-              ' ' +
-              utc.getHours() +
-              ':' +
-              utc.getMinutes() +
-              ':' +
-              utc.getSeconds()
-
-            database.instance.addMessageInHistoryWithDate(
-              'reddit',
-              chat_id,
-              id,
-              author,
-              body,
-              utcStr
-            )
-          }
+          chat_id,
+          this.entity,
+          []
         )
+        await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       }
     })
 
     setInterval(async () => {
-      ; (await reddit.getInbox()).forEach(async message => {
+      ;(await reddit.getInbox()).forEach(async message => {
         const id = message.name
-        const senderId = message.id
         const author = message.author.name
         const body = message.body
-        const timestamp = message.created_utc
-        const agentConfig = 'Agent'
         if (!author.includes('reddit')) {
-          //log('current message: ' + body)
-          await database.instance.messageExistsAsyncWitHCallback(
-            'reddit',
-            senderId,
-            id,
-            author,
+          log('got new message: ' + body)
+          const resp = await this.spellHandler(
             body,
-            timestamp,
-            async () => {
-              log('got new message: ' + body)
-              const resp = await handleInput(
-                body,
-                author,
-                agentConfig,
-                'reddit',
-                chat_id
-              )
-              await this.handleMessage(resp, id, chat_id, 'isChat', reddit)
-              const date = new Date(timestamp)
-              const utc = new Date(
-                date.getUTCFullYear(),
-                date.getUTCMonth(),
-                date.getUTCDate(),
-                date.getUTCHours(),
-                date.getUTCMinutes(),
-                date.getUTCSeconds()
-              )
-              const utcStr =
-                date.getDate() +
-                '/' +
-                (date.getMonth() + 1) +
-                '/' +
-                date.getFullYear() +
-                ' ' +
-                utc.getHours() +
-                ':' +
-                utc.getMinutes() +
-                ':' +
-                utc.getSeconds()
-
-              database.instance.addMessageInHistoryWithDate(
-                'reddit',
-                id,
-                id,
-                author,
-                body,
-                utcStr
-              )
-            }
+            author ?? 'Sender',
+            this.settings.reddit_bot_name ?? 'Agent',
+            'reddit',
+            chat_id,
+            this.entity,
+            []
           )
+          await this.handleMessage(resp, id, chat_id, 'isChat', reddit)
         }
       })
     }, 1000)
+  }
+  destroy() {
+    if (this.reddit) {
+      this.reddit = null
+    }
   }
 }

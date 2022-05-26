@@ -101,6 +101,12 @@
                 "id": "#19",
                 "name": "Event Manager",
                 "component": "eventManager"
+              },
+              {
+                "type": "tab",
+                "id": "#77",
+                "name": "Calendar Tab",
+                "component": "calendarTab"
               }
             ]
           },

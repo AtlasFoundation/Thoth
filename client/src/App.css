@@ -384,10 +384,6 @@ input[type='text'] {
   height: var(--c4);
 }
 
-.search-corpus > select {
-  width: 50%;
-}
-
 .search-corpus-btns {
   vertical-align: middle;
   display: inline-flex;

@@ -424,6 +424,7 @@ export class telegram_client {
 
   spellHandler
   settings
+  bot
 
   createTelegramClient = async (spellHandler, settings) => {
     this.spellHandler = spellHandler
@@ -435,19 +436,25 @@ export class telegram_client {
     const username_regex = new RegExp(settings.telegram_bot_name, 'ig')
     let botName = ''
 
-    const bot = new TelegramBot(token, { polling: true })
-    bot
+    this.bot = new TelegramBot(token, { polling: true })
+    this.bot
       .getMe()
       .then(info => (botName = info.username))
       .catch(console.error)
 
-    bot.on('message', async msg => {
+    this.bot.on('message', async msg => {
       await this.onMessage(bot, msg, botName, username_regex)
     })
-    bot.on('edited_message', async msg => {
+    this.bot.on('edited_message', async msg => {
       await this.onMessageEdit(bot, msg, botName)
     })
     log('telegram client loaded')
+  }
+  destroy() {
+    if (this.bot) {
+      this.bot.clearTextListeners()
+      this.bot = null
+    }
   }
 }
 

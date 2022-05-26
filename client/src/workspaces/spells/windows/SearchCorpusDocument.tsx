@@ -3,14 +3,16 @@ import { useEffect, useState } from 'react'
 import { useModal } from '@/contexts/ModalProvider';
 import { VscWand, VscTrash, VscSave } from 'react-icons/vsc'
 import axios from 'axios'
+import { useSnackbar } from 'notistack';
 
 const SearchCorpusDocument = ({ document, getDoc }) => {
   const [isInclude, setIsInclude] = useState(document.is_included)
   const [contentObjects, setContentObjects] = useState(null)
   const { openModal } = useModal()
+  const { enqueueSnackbar } = useSnackbar()
 
-  useEffect(async () => {
-    await getContentObjects()
+  useEffect(() => {
+    (async () => await getContentObjects())()
   }, [])
 
   const getContentObjects = async () => {
@@ -75,6 +77,7 @@ const SearchCorpusDocument = ({ document, getDoc }) => {
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/update_document`,
       body
     )
+    enqueueSnackbar('Document updated', { variant: 'success' })
     await getDoc()
   }
 
