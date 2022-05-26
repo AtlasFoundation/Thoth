@@ -1,6 +1,6 @@
 import {
-  ChainData,
   DataSocketType,
+  GraphData,
   ThothEditor,
   ThothNode,
 } from '../../../types'
@@ -25,7 +25,7 @@ export default class SocketManager {
     if (!this.node.data.outputs) this.node.data.outputs = []
   }
 
-  updateSocketsFromChain(chain: ChainData) {}
+  updateSocketsFromChain(chain: GraphData) {}
 
   regenerateSockets() {}
 }
