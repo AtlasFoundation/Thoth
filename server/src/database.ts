@@ -20,6 +20,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
+import { auth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -547,7 +548,8 @@ export class database {
   }
 
   async getCalendarEvents() {
-    const query = 'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
+    const query =
+      'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
     const rows = await this.client.query(query)
     if (rows && rows.rows && rows.rows.length > 0) return rows.rows
     else return []
@@ -576,12 +578,13 @@ export class database {
     type: string,
     moreInfo: string
   ) {
-    const query = 'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
+    const query =
+      'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
     const values = [name, date, time, type, moreInfo, id]
     try {
       return await this.client.query(query, values)
-    } catch(e) {
-      throw  new Error(e)
+    } catch (e) {
+      throw new Error(e)
     }
   }
   async deleteCalendarEvent(id: string) {
@@ -628,17 +631,19 @@ export class database {
     const query2 =
       'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
 
-    const rows = await this.client.query(query, [per_page, offset])
-
     const rows2 = await this.client.query(query2)
 
     const total = rows2.rows.length
 
+    const rows = await this.client.query(query, [per_page, offset])
+
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -655,17 +660,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
 
       return { data: data, success: true }
@@ -682,17 +694,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND (name LIKE '%' || $3 || '%' OR client LIKE '%' || $3 || '%' OR default_value LIKE '%' || $3 || '%' OR type LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -814,6 +833,21 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleClient(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Client not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Client settings end
 
   // Configuration settings start
@@ -835,18 +869,25 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query =
       'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -863,17 +904,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -889,17 +937,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND (value LIKE '%' || $3 || '%' OR key LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1003,6 +1058,21 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleConfiguration(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, key, value FROM configuration_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Configuration not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Configuration settings end
 
   // Scope settings start
@@ -1024,18 +1094,25 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query =
       'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1052,17 +1129,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1078,17 +1162,24 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND (full_table_size LIKE '%' || $3 || '%' OR table_size LIKE '%' || $3 || '%' OR tables LIKE '%' || $3 || '%' OR record_count LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
-    const total = rows.rows.length
-
     if (rows && rows.rows && rows.rows.length > 0) {
       const data = {
         data: rows.rows,
-        pages: Math.ceil(total / (per_page as any)),
+        currentPage: Number(page),
         totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
       }
       return { data: data, success: true }
     }
@@ -1189,5 +1280,132 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleScope(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Scope not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Scope settings end
+
+  async getAuthuserById(id: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE id=$1 AND is_deleted=false'
+    const values = [id]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async getAuthuserByToken(token: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE token=$1 AND is_deleted=false'
+    const values = [token]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async getAuthuserByUserId(user_id: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE user_id=$1 AND is_deleted=false'
+    const values = [user_id]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async addAuthUser(body: AddAuthUser): Promise<any> {
+    const { token: newToken, user_id } = body
+    let isValidToken = false
+
+    try {
+      const res1 = await this.getAuthuserByUserId(user_id)
+
+      if (isValidObject(res1)) {
+        const { token, user_id } = res1 as any
+
+        const decryptedUserId = auth.verify(token)
+
+        isValidToken = decryptedUserId === user_id
+
+        if (!isValidToken) {
+          const query3 =
+            'UPDATE auth_users SET token=$2 WHERE user_id=$1 AND is_deleted=false'
+          const values3: any = [user_id, newToken]
+
+          const res3 = await this.client.query(query3, values3)
+          const { command, rowCount } = res3
+
+          if (command === 'UPDATE' && rowCount > 0) {
+            const data = await this.getAuthuserByUserId(user_id)
+            return { success: true, data: data, isAlreadyExists: false }
+          }
+        } else {
+          return { success: true, data: res1, isAlreadyExists: true }
+        }
+      }
+
+      const query2 = 'INSERT INTO auth_users(token, user_id) VALUES($1, $2)'
+      const values2: any = [newToken, user_id]
+
+      const res2 = await this.client.query(query2, values2)
+      const { command, rowCount } = res2
+
+      if (command === 'INSERT' && rowCount > 0) {
+        const data = await this.getAuthuserByUserId(user_id)
+        return { success: true, data: data, isAlreadyExists: false }
+      }
+      throw new Error('Something break in insert query')
+    } catch (error) {
+      console.log('Error => addAuthUser => ', error)
+      return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+
+  async getAuthuser(user_id: string) {
+    try {
+      const res1 = await this.getAuthuserByUserId(user_id)
+
+      if (isValidObject(res1)) {
+        const { token, user_id } = res1 as any
+
+        const decryptedUserId = auth.verify(token)
+
+        if (decryptedUserId === user_id) {
+          return { success: true, data: res1, isAlreadyExists: true }
+        }
+
+        // remove token from user
+        const query2 = 'UPDATE auth_users SET token=null WHERE user_id=$1'
+        const values2: any = [user_id]
+
+        const res2 = await this.client.query(query2, values2)
+        const { command, rowCount } = res2
+
+        if (command === 'UPDATE' && rowCount > 0) {
+          const data = await this.getAuthuserByUserId(user_id)
+          return { success: false, data: data, isAlreadyExists: false }
+        }
+      }
+      return { success: false, data: {}, isAlreadyExists: false }
+    } catch (error) {
+      console.log('Error => getAuthuser => ', error)
+      return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+}
+
+type AddAuthUser = {
+  user_id: string
+  token: string
 }
