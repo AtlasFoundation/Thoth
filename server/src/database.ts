@@ -48,8 +48,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-            rejectUnauthorized: false,
-          }
+          rejectUnauthorized: false,
+        }
         : false,
     })
     this.client.connect()
@@ -92,16 +92,26 @@ export class database {
   async getEvents(
     type: string,
     agent: any,
-    sender: any = null,
+    sender: any,
     client: any,
     channel: any,
     asString: boolean = true,
     maxCount: number = 10
   ) {
-    const query =
-      'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
-    const values = [agent, client, channel, type]
-
+    // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
+    let query, values;
+    if (!channel) {
+      query = 'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND type=$4 ORDER BY id desc'
+      values = [agent, client, sender, type]
+    }
+    else if (!sender) {
+      query = 'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
+      values = [agent, client, channel, type]
+    }
+    else {
+      query = 'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+      values = [agent, client, sender, channel, type]
+    }
     const row = await this.client.query(query, values)
     if (!row || !row.rows || row.rows.length === 0) {
       console.log('rows are null, returning')

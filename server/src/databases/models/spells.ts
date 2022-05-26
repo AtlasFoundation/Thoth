@@ -8,7 +8,7 @@ export interface spellsAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  userId: string;
+  userId?: string;
   modules?: object;
   gameState?: object;
 }
@@ -25,7 +25,7 @@ export class spells extends Model<spellsAttributes, spellsCreationAttributes> im
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  userId!: string;
+  userId?: string;
   modules?: object;
   gameState?: object;
 
@@ -66,7 +66,7 @@ export class spells extends Model<spellsAttributes, spellsCreationAttributes> im
       },
       userId: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
         field: 'user_id'
       },
       modules: {
