@@ -16,13 +16,14 @@ import { Spell } from '@latitudegames/thoth-core/types'
 import { usePubSub } from '@/contexts/PubSubProvider'
 import { useSharedb } from '@/contexts/SharedbProvider'
 import { sharedb } from '@/config'
-import SearchCorpus from './windows/SearchCorpusWindow'
-import EntityManagerWindow from './windows/EntityManagerWindow'
-import { diff } from '@/utils/json0'
-import EventManagerWindow from './windows/EventManager'
-import VideoTranscription from './windows/VideoTranscription'
-import { CalendarApp } from '../../screens/Calendar/Calendar'
+import { ThothComponent } from '@latitudegames/thoth-core/src/thoth-component'
 import { useAuth } from '@/contexts/AuthProvider'
+import { CalendarApp } from '@/screens/Calendar/Calendar'
+import { diff } from '@/utils/json0'
+import EntityManagerWindow from './windows/EntityManagerWindow'
+import EventManagerWindow from './windows/EventManager'
+import SearchCorpus from './windows/SearchCorpusWindow'
+import VideoTranscription from './windows/VideoTranscription'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -42,7 +43,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     if (!editor?.on) return
 
     const unsubscribe = editor.on(
-      'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated commentremoved commentcreated addcomment removecomment editcomment connectionpath',
+      // Comment events:  commentremoved commentcreated addcomment removecomment editcomment connectionpath
+      'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
           const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
@@ -74,17 +76,21 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   useEffect(() => {
     if (!editor?.on) return
 
-    const unsubscribe = editor.on('nodecreated noderemoved', () => {
-      if (!spellRef.current) return
-      // TODO we can probably send this update to a spell namespace for this spell.
-      // then spells can subscribe to only their dependency updates.
-      const event = events.$SUBSPELL_UPDATED(spellRef.current.name)
-      const spell = {
-        ...spellRef.current,
-        graph: editor.toJSON(),
+    const unsubscribe = editor.on(
+      'nodecreated noderemoved',
+      (node: ThothComponent<unknown>) => {
+        if (!spellRef.current) return
+        if (node.category !== 'I/O') return
+        // TODO we can probably send this update to a spell namespace for this spell.
+        // then spells can subscribe to only their dependency updates.
+        const event = events.$SUBSPELL_UPDATED(spellRef.current.name)
+        const spell = {
+          ...spellRef.current,
+          chain: editor.toJSON(),
+        }
+        publish(event, spell)
       }
-      publish(event, spell)
-    }) as Function
+    ) as Function
 
     return unsubscribe as () => void
   }, [editor])

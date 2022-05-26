@@ -39,6 +39,7 @@ export type EngineContext = {
     body: ModelCompletionOpts
   ) => Promise<string | OpenAIResultChoice | undefined>
   getCurrentGameState: () => Record<string, unknown>
+  setCurrentGameState: (state: Record<string, unknown>) => void
   updateCurrentGameState: (update: Record<string, unknown>) => void
   enkiCompletion: (
     taskName: string,
@@ -47,7 +48,7 @@ export type EngineContext = {
   huggingface: (
     model: string,
     request: string
-  ) => Promise<{ error?: unknown;[key: string]: unknown }>
+  ) => Promise<{ error?: unknown; [key: string]: unknown }>
   runSpell: (
     flattenedInputs: Record<string, any>,
     spellId: string,
@@ -61,13 +62,15 @@ export type EngineContext = {
   processCode: (
     code: unknown,
     inputs: ThothWorkerInputs,
-    data: Record<string, any>
-  ) => void
+    data: Record<string, any>,
+    state: Record<string, any>
+  ) => any | void
 }
 
 export type EventPayload = Record<string, any>
 
 export interface EditorContext extends EngineContext {
+  onTrigger: (node: ThothNode | string, callback: Function) => Function
   sendToPlaytest: (data: string) => void
   sendToInspector: (data: EventPayload) => void
   sendToDebug: (data: EventPayload) => void
@@ -80,8 +83,9 @@ export interface EditorContext extends EngineContext {
   processCode: (
     code: unknown,
     inputs: ThothWorkerInputs,
-    data: Record<string, any>
-  ) => void
+    data: Record<string, any>,
+    state: Record<string, any>
+  ) => any | void
 }
 
 export type EventsTypes = {
@@ -121,12 +125,13 @@ export type DataSocketType = {
   socketKey: string
   connectionType: 'input' | 'output'
   socketType: SocketType
+  useSocketName: boolean
 }
 
 export type ThothNode = Node & {
   inspector: Inspector
   display: (content: string) => void
-  outputs: { name: string;[key: string]: unknown }[]
+  outputs: { name: string; [key: string]: unknown }[]
   category?: string
   deprecated?: boolean
   displayName?: string
@@ -182,6 +187,7 @@ export type Subspell = { name: string; id: string; data: GraphData }
 
 export type ModuleComponent = Component & {
   run: Function
+  nodeTaskMap: Map<string, any>
 }
 
 export type NodeConnections = {
@@ -260,9 +266,9 @@ export type WorkerReturn =
   | Promise<never[] | { entities: { name: string; type: string }[] }>
   | Promise<{ element: unknown } | undefined>
   | Promise<
-    | { result: { error: unknown;[key: string]: unknown } }
-    | { result?: undefined }
-  >
+      | { result: { error: unknown; [key: string]: unknown } }
+      | { result?: undefined }
+    >
   | Promise<{ text: unknown }>
   | Promise<{ boolean: boolean }>
   | Promise<null | undefined>
@@ -283,11 +289,11 @@ export type ThothWorker = (
 
 export interface PubSubBase
   extends CountSubscriptions,
-  ClearAllSubscriptions,
-  GetSubscriptions,
-  Publish,
-  Subscribe,
-  Unsubscribe {
+    ClearAllSubscriptions,
+    GetSubscriptions,
+    Publish,
+    Subscribe,
+    Unsubscribe {
   name: string
   version: string
 }

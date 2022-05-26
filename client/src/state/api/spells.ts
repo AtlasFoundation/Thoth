@@ -46,6 +46,7 @@ export interface RunSpell {
   spellId: string
   version?: string
   inputs: Record<string, any>
+  state?: Record<string, any>
 }
 
 export interface UserSpellArgs {
@@ -59,7 +60,7 @@ export const spellApi = rootApi.injectEndpoints({
       providesTags: ['Spells'],
       query: userId => ({
         url: `game/spells`,
-        params: { userId }
+        params: { userId },
       }),
     }),
     getSpell: builder.query<Spell, UserSpellArgs>({
@@ -67,18 +68,22 @@ export const spellApi = rootApi.injectEndpoints({
       query: ({ spellId, userId }) => {
         return {
           url: `game/spells/${spellId}`,
-          params: { userId }
+          params: { userId },
         }
       },
     }),
     runSpell: builder.mutation<Record<string, any>, RunSpell>({
-      query: ({ spellId, version = 'latest', inputs }) => ({
-        url: `game/graphs/${spellId}/${version}`,
+      query: ({ spellId, version = 'latest', inputs, state = {} }) => ({
+        url: `game/chains/${spellId}/${version}`,
         method: 'POST',
-        body: inputs,
+        body: {
+          ...inputs,
+          state,
+        },
       }),
     }),
     saveDiff: builder.mutation<void, Diff>({
+      invalidatesTags: ['Spell'],
       query: diffData => ({
         url: 'game/spells/saveDiff',
         method: 'POST',
