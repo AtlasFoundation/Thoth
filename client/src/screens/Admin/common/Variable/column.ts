@@ -12,7 +12,7 @@ export const columnClientSetting = [
     name: 'Type',
   },
   {
-    id: 'defaultValue',
+    id: 'default_value',
     name: 'Deafult Value',
   },
 ]

@@ -1,42 +1,57 @@
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
+import { useModal } from '../../../contexts/ModalProvider'
 
 export default function ActionModal({
   anchorEl,
   open,
   handleClose,
+  handledelete,
   id,
-  deleteConfig,
+  modal,
 }) {
+  const name = 'Edit'
   const handleDelete = () => {
-    deleteConfig(id)
+    openModal({
+      modal: 'deleteModal',
+      content: 'This is an example modal',
+      handledelete,
+      id,
+    })
+
     handleClose()
   }
 
   const handleEdit = () => {
-    console.log(id)
-
+    openModal({
+      modal: `${modal}`,
+      content: 'This is an example modal',
+      name,
+      id,
+    })
     handleClose()
   }
-
+  const { openModal } = useModal()
   return (
-    <Menu
-      id="demo-positioned-menu"
-      aria-labelledby="demo-positioned-button"
-      anchorEl={anchorEl}
-      open={open}
-      onClose={handleClose}
-      anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-      transformOrigin={{
-        vertical: 'top',
-        horizontal: 'left',
-      }}
-    >
-      <MenuItem onClick={() => handleEdit()}>Edit</MenuItem>
-      <MenuItem onClick={() => handleDelete()}>Delete</MenuItem>
-    </Menu>
+    <>
+      <Menu
+        id="demo-positioned-menu"
+        aria-labelledby="demo-positioned-button"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <MenuItem onClick={() => handleEdit()}>Edit</MenuItem>
+        <MenuItem onClick={() => handleDelete()}>Delete</MenuItem>
+      </Menu>
+    </>
   )
 }
