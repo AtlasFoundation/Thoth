@@ -11,7 +11,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@latitudegames/thoth-core": "^0.0.67",
     "@teamwork/websocket-json-stream": "^2.0.0",
     "express": "^4.17.3",
     "regenerator-runtime": "^0.13.9",
