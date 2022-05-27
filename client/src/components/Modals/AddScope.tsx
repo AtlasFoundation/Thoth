@@ -1,13 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import Modal from '../Modal/Modal'
 import css from './modalForms.module.css'
 import { Select, MenuItem } from '@material-ui/core'
-import { useAppDispatch } from '@/state/hooks'
-import { createScope } from '../../state/admin/scope/scopeState'
+import { useAppDispatch, useAppSelector } from '@/state/hooks'
+import {
+  createScope,
+  singleScope,
+  updateScope,
+} from '../../state/admin/scope/scopeState'
 
-const AddScope = ({ closeModal }) => {
+const AddScope = ({ closeModal, name, id }) => {
   const dispatch = useAppDispatch()
+  const [erro, setError] = useState('')
+  const { siscope, loading, error, createSuccess, updateSuccess } =
+    useAppSelector(state => state.scope)
   const labels = ['Gb', 'Mb', 'Kb', 'Bytes']
   const [formData, setFormData] = useState({
     tables: '',
@@ -16,7 +23,7 @@ const AddScope = ({ closeModal }) => {
       value: '',
     },
     tableSize: {
-      label: 'mb',
+      label: '',
       value: '',
     },
     recordCount: '',
@@ -28,21 +35,60 @@ const AddScope = ({ closeModal }) => {
   } = useForm()
 
   const onSubmit = handleSubmit(async () => {
-    dispatch(createScope(formData))
-    closeModal()
+    if (name === 'Edit') {
+      const data = { id, formData }
+      dispatch(updateScope(data))
+    } else {
+      dispatch(createScope(formData))
+    }
   })
   const options = [
     {
       className: `${css['loginButton']} primary`,
-      label: 'save',
+      label: loading ? 'loading....' : 'save',
       onClick: onSubmit,
     },
   ]
 
+  useEffect(() => {
+    if (name === 'Edit') {
+      dispatch(singleScope(id))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (name === 'Edit' && siscope.payload[0]) {
+      setFormData({
+        tables: siscope.payload[0].tables,
+        fullTableSize: {
+          label: siscope.payload[0].full_table_size.split(' ', 2)[1],
+          value: siscope.payload[0].full_table_size.split(' ', 1),
+        },
+        tableSize: {
+          label: siscope.payload[0].table_size.split(' ', 2)[1],
+          value: siscope.payload[0].table_size.split(' ', 1),
+        },
+        recordCount: siscope.payload[0].record_count,
+      })
+    }
+  }, [name, siscope.payload[0]])
+
+  useEffect(() => {
+    if (error) {
+      setError(error)
+    } else {
+      setError('')
+    }
+    if (createSuccess || updateSuccess) {
+      setError('')
+      closeModal()
+    }
+  }, [error, createSuccess, updateSuccess])
+
   return (
-    <Modal title="Add Scope" options={options} icon="info">
+    <Modal title={`${name} Scope`} options={options} icon="info">
       <div className={css['login-container']}>
-        {/* {error && <span className={css['error-message']}>{error}</span>} */}
+        {error && <span className={css['error-message']}>{erro}</span>}
         <form>
           <div className={css['input-container']}>
             <label className={css['label']} htmlFor="">
@@ -62,7 +108,7 @@ const AddScope = ({ closeModal }) => {
               Full Table Size
             </label>
             <input
-              type="text"
+              type="number"
               className={css['input']}
               value={formData.fullTableSize.value}
               onChange={e =>
@@ -95,7 +141,7 @@ const AddScope = ({ closeModal }) => {
             >
               {labels.map((value, index) => {
                 return (
-                  <MenuItem value={value} className={css['select']}>
+                  <MenuItem value={value} className={css['select']} key={index}>
                     {value}
                   </MenuItem>
                 )
@@ -107,7 +153,7 @@ const AddScope = ({ closeModal }) => {
               Table Size
             </label>
             <input
-              type="text"
+              type="number"
               className={css['input']}
               value={formData.tableSize.value}
               onChange={e =>
@@ -137,7 +183,7 @@ const AddScope = ({ closeModal }) => {
             >
               {labels.map((value, index) => {
                 return (
-                  <MenuItem value={value} className={css['select']}>
+                  <MenuItem value={value} className={css['select']} key={index}>
                     {value}
                   </MenuItem>
                 )

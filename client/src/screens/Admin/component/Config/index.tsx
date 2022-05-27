@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Table from '../../common/Table'
 import Search from '../../common/Search'
 import { styled } from '@mui/material/styles'
@@ -12,6 +12,7 @@ import {
   retrieveConfig,
   ConfigRes,
   deleteConfig,
+  searchConfig,
 } from '../../../../state/admin/config/configState'
 
 const Container = styled(Grid)({
@@ -29,25 +30,32 @@ const ButtonCustom = styled(Button)({
 
 const Config = () => {
   const dispatch = useAppDispatch()
-  const { config, success, deleteSuccess, createSuccess } = useAppSelector(
-    state => state.config
-  )
+  const {
+    config,
+    success,
+    deleteSuccess,
+    createSuccess,
+    updateSuccess,
+    loading,
+  } = useAppSelector(state => state.config)
   let data: ConfigRes = {
     message: '',
-    payload: { data: [], pages: 0, totalItems: 0 },
+    payload: { data: [], totalItems: 0 },
   }
 
   const { openModal } = useModal()
   // const page = 1
+  const [page, setPage] = useState(config.payload[0]?.currentPage)
 
   useEffect(() => {
-    dispatch(retrieveConfig())
-  }, [dispatch, deleteSuccess, createSuccess])
+    dispatch(retrieveConfig({ currentPage: 1, page: 10 }))
+  }, [dispatch, deleteSuccess, createSuccess, updateSuccess])
 
   const handleAdd = () => {
     openModal({
-      modal: 'addconfig',
+      modal: 'config',
       content: 'This is an example modal',
+      name: 'Add',
     })
   }
 
@@ -58,6 +66,16 @@ const Config = () => {
   const handledeleteConfig = id => {
     dispatch(deleteConfig(id))
   }
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    dispatch(retrieveConfig({ currentPage: newPage, page: 10 }))
+    setPage(newPage)
+  }
+
+  const handeSearch = search => {
+    dispatch(searchConfig(search))
+  }
+
   return (
     <div>
       <Typography variant="h3" gutterBottom component="div">
@@ -80,11 +98,15 @@ const Config = () => {
           </ButtonCustom>
         </Grid>
       </Container>
-      <Search />
+      <Search text="Key" handleChange={handeSearch} />
       <Table
         column={columnConfig}
-        data={data.payload[0].data}
-        deletehandle={handledeleteConfig}
+        data={data.payload[0]}
+        handledelete={handledeleteConfig}
+        modal="config"
+        page={page}
+        handleChangePage={handleChangePage}
+        loading={loading}
       />
     </div>
   )

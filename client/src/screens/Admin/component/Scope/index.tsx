@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import Table from '../../common/Table'
 import Search from '../../common/Search'
@@ -13,6 +13,7 @@ import {
   retrieveScope,
   ScopeRes,
   deleteScope,
+  searchScope,
 } from '../../../../state/admin/scope/scopeState'
 
 const Container = styled(Grid)({
@@ -30,31 +31,47 @@ const ButtonCustom = styled(Button)({
 
 const Scope = () => {
   const dispatch = useAppDispatch()
-  const { scope, success, deleteSuccess, createSuccess } = useAppSelector(
-    state => state.scope
-  )
+  const {
+    scope,
+    success,
+    loading,
+    deleteSuccess,
+    createSuccess,
+    updateSuccess,
+  } = useAppSelector(state => state.scope)
   let data: ScopeRes = {
     message: '',
     payload: { data: [], pages: 0, totalItems: 0 },
   }
   const { openModal } = useModal()
-
+  const [page, setPage] = useState(scope.payload[0]?.currentPage)
   useEffect(() => {
-    dispatch(retrieveScope())
-  }, [dispatch, deleteSuccess, createSuccess])
+    dispatch(retrieveScope({ currentPage: 1, page: 10 }))
+  }, [dispatch, deleteSuccess, createSuccess, updateSuccess])
 
   const handleAddScope = () => {
     openModal({
       modal: 'scope',
       content: 'This is an example modal',
+      name: 'Add',
     })
   }
   if (success) {
-    data = scope.payload[0].data
+    data = scope.payload[0]
   }
   const handledeleteScope = id => {
     dispatch(deleteScope(id))
   }
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    dispatch(retrieveScope({ currentPage: newPage, page: 10 }))
+    setPage(newPage)
+  }
+
+  const handeSearch = search => {
+    dispatch(searchScope(search))
+  }
+
   return (
     <div>
       <Typography variant="h3" gutterBottom component="div">
@@ -77,11 +94,15 @@ const Scope = () => {
           </ButtonCustom>
         </Grid>
       </Container>
-      <Search />
+      <Search text="Tables" handleChange={handeSearch} />
       <Table
         column={columnScope}
         data={data}
-        deletehandle={handledeleteScope}
+        handledelete={handledeleteScope}
+        modal="scope"
+        page={page}
+        handleChangePage={handleChangePage}
+        loading={loading}
       />
     </div>
   )

@@ -1,12 +1,18 @@
 import axios from 'axios'
 class ClientService {
-  getAll() {
-    console.log('....................................')
-    return axios.get(`${process.env.REACT_APP_API_ROOT_URL}/setting/client`)
+  getAll(currentPage = 1, page = 10) {
+    return axios.get(
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/client?per_page=${page}&page=${currentPage}`
+    )
+  }
+  getOne(search) {
+    return axios.get(
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/client?search=${search}&field=client`
+    )
   }
   get(id) {
     return axios.get(
-      `${process.env.REACT_APP_API_ROOT_URL}/setting/client${id}`
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/client?id=${id}`
     )
   }
   create(data) {
@@ -16,8 +22,8 @@ class ClientService {
     )
   }
   update(id, data) {
-    return axios.put(
-      `${process.env.REACT_APP_API_ROOT_URL}/setting/client${id}`,
+    return axios.patch(
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/client?id=${id}`,
       data
     )
   }

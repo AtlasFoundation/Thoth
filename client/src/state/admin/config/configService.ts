@@ -1,13 +1,18 @@
 import axios from 'axios'
 class ConfigService {
-  getAll() {
+  getAll(currentPage = 1, page = 10) {
     return axios.get(
-      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration`
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration?per_page=${page}&page=${currentPage}`
+    )
+  }
+  getOne(search) {
+    return axios.get(
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration?search=${search}&field=key`
     )
   }
   get(id) {
     return axios.get(
-      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration${id}`
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration?id=${id}`
     )
   }
   create(data) {
@@ -17,8 +22,8 @@ class ConfigService {
     )
   }
   update(id, data) {
-    return axios.put(
-      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration${id}`,
+    return axios.patch(
+      `${process.env.REACT_APP_API_ROOT_URL}/setting/configuration?id=${id}`,
       data
     )
   }

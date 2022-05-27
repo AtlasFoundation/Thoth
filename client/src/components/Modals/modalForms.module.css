@@ -23,3 +23,11 @@
   color: var(--red);
   text-align: center;
 }
+
+.delete-btn {
+  background: rgb(255, 55, 55);
+  color: white;
+}
+.delete-modal {
+  width: 20rem;
+}

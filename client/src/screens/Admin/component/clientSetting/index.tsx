@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Table from '../../common/Table'
 import Search from '../../common/Search'
 import { styled } from '@mui/material/styles'
@@ -12,6 +12,7 @@ import {
   retrieveClient,
   ClientRes,
   deleteClient,
+  searchClient,
 } from '../../../../state/admin/clientS/clientState'
 
 const Container = styled(Grid)({
@@ -29,33 +30,49 @@ const ButtonCustom = styled(Button)({
 
 const ClientSetting = () => {
   const dispatch = useAppDispatch()
-  const { client, success, deleteSuccess } = useAppSelector(
-    state => state.client
-  )
+  const {
+    client,
+    success,
+    loading,
+    deleteSuccess,
+    createSuccess,
+    updateSuccess,
+  } = useAppSelector(state => state.client)
   let data: ClientRes = {
     message: '',
     payload: { data: [], pages: 0, totalItems: 0 },
   }
   const { openModal } = useModal()
-
+  const [page, setPage] = useState(client.payload[0]?.currentPage)
   useEffect(() => {
-    dispatch(retrieveClient())
-  }, [dispatch, deleteSuccess])
+    dispatch(retrieveClient({ currentPage: 1, page: 10 }))
+  }, [dispatch, deleteSuccess, createSuccess, updateSuccess])
 
   const handleAddSetting = () => {
     openModal({
       modal: 'clientSettings',
       content: 'This is an example modal',
+      name: 'Add',
     })
   }
 
   if (success) {
-    data = client.payload[0].data
+    data = client
   }
 
   const handledeleteClient = id => {
     dispatch(deleteClient(id))
   }
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    dispatch(retrieveClient({ currentPage: newPage, page: 10 }))
+    setPage(newPage)
+  }
+
+  const handeSearch = search => {
+    dispatch(searchClient(search))
+  }
+
   return (
     <div>
       <Typography variant="h3" gutterBottom component="div">
@@ -78,11 +95,15 @@ const ClientSetting = () => {
           </ButtonCustom>
         </Grid>
       </Container>
-      <Search />
+      <Search text="client" handleChange={handeSearch} />
       <Table
         column={columnClientSetting}
-        data={data}
-        deletehandle={handledeleteClient}
+        data={data.payload[0]}
+        handledelete={handledeleteClient}
+        modal="clientSettings"
+        page={page}
+        handleChangePage={handleChangePage}
+        loading={loading}
       />
     </div>
   )
