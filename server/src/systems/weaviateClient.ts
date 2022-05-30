@@ -54,7 +54,7 @@ async function train(data: SearchSchema[]) {
         description: documents[i].description,
       }
       const topic = await classifyText(documents[i].description)
-      console.log('TOPIC2:', topic)
+      console.log('TOPIC2:', topic, 'description:', documents[i].description)
       const res = await client.data
         .creator()
         .withClassName(topic)
