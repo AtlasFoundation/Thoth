@@ -77,6 +77,9 @@ const SearchCorpus = () => {
   }
 
   const openDeleteStoreModal = () => {
+    if (!hasDocumentsStores()) {
+      return
+    }
     let store = documentsStores.filter(
       store => store.id === parseInt(storeRef.current.value)
     )[0]
@@ -90,6 +93,56 @@ const SearchCorpus = () => {
   useEffect(() => {
     ;(async () => await getDocumentsStores())()
   }, [])
+
+  const hasDocumentsStores = () => {
+    if (
+      !documentsStores ||
+      documentsStores === undefined ||
+      documentsStores.length <= 0
+    ) {
+      return false
+    } else {
+      return true
+    }
+  }
+
+  const editor = () => {
+    return (
+      <span>
+        <VscNewFile
+          size={20}
+          color="#A0A0A0"
+          style={{ margin: '0 0.5rem' }}
+          onClick={() => {
+            openAddEditModal('add')
+          }}
+        />
+        {hasDocumentsStores() ? (
+          <div>
+            {' '}
+            <FaEdit
+              size={20}
+              color="#A0A0A0"
+              style={{ margin: '0 0.5rem' }}
+              onClick={() => {
+                openAddEditModal('edit')
+              }}
+            />
+            <VscTrash
+              size={20}
+              color="#A0A0A0"
+              style={{ margin: '0 0.5rem' }}
+              onClick={() => {
+                openDeleteStoreModal()
+              }}
+            />
+          </div>
+        ) : (
+          ''
+        )}
+      </span>
+    )
+  }
 
   return (
     <div className="agent-container">
@@ -118,35 +171,7 @@ const SearchCorpus = () => {
                   })}
               </select>
             </span>
-            <span>
-              <VscNewFile
-                size={20}
-                color="#A0A0A0"
-                style={{ margin: '0 0.5rem' }}
-                onClick={() => {
-                  console.log('add clicked')
-                  openAddEditModal('add')
-                }}
-              />
-              <FaEdit
-                size={20}
-                color="#A0A0A0"
-                style={{ margin: '0 0.5rem' }}
-                onClick={() => {
-                  console.log('edit clicked')
-                  openAddEditModal('edit')
-                }}
-              />
-              <VscTrash
-                size={20}
-                color="#A0A0A0"
-                style={{ margin: '0 0.5rem' }}
-                onClick={() => {
-                  console.log('trash clicked')
-                  openDeleteStoreModal()
-                }}
-              />
-            </span>
+            {editor()}
           </div>
 
           <div className="d-flex flex-column search-corpus-documents-list">
