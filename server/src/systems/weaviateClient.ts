@@ -36,6 +36,7 @@ async function train(data: SearchSchema[]) {
       description: data[i].description,
     }
     const topic = await classifyText(data[i].description)
+    console.log('TOPIC1:', topic)
     const res = await client.data
       .creator()
       .withClassName(topic)
@@ -53,6 +54,7 @@ async function train(data: SearchSchema[]) {
         description: documents[i].description,
       }
       const topic = await classifyText(documents[i].description)
+      console.log('TOPIC2:', topic)
       const res = await client.data
         .creator()
         .withClassName(topic)
