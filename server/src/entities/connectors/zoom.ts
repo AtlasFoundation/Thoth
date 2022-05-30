@@ -42,6 +42,7 @@ export class zoom {
 
   browser
   page
+  socket
 
   constructor(spellHandler, settings, entity) {
     this.spellHandler = spellHandler
@@ -194,64 +195,65 @@ export class zoom {
   }
 
   async getVideo() {
-    let nfile = fs.createWriteStream('test.webm')
-    await this.page.evaluate(async url => {
-      const video = document.getElementById('main-video')
-      const stream = video.captureStream()
-      const recorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm; codecs=vp9',
-      })
-      recorder.onstart = () => {
-        console.log('recorderer on start')
+    
+    await this.page.exposeFunction('emitDataToSTT', (audioArray) => {
+      this.socket.emit('binaryData', audioArray)
+    })
+    await this.page.exposeFunction('startStream', () => {
+      this.socket.emit('startGoogleCloudStream', '')
+    })
+    await this.page.evaluate(async () => {
+      const onError = (err) => {
+        console.log('----err in userMedia----', err)
       }
-      recorder.ondataavailable = async e => {
-        console.log('on data available:', e.data.size)
-        if (e.data.size > 0) {
-          console.log('sending fetch')
-          console.log('url is:', url)
-          console.log(
-            'sending fetch to:',
-            `${url}/zoom_buffer_chunk`,
-            'post data:',
-            JSON.stringify({ chunk: data })
-          )
-          const resp = await fetch(`${url}/zoom_buffer_chunk`, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ chunk: data }),
-          })
-          console.log('buf resp:', resp.json())
+      const onSuccess = (stream) => {
+        const recorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm'
+        })
+        recorder.onstart = async () => {
+          await window.startStream()
         }
+        recorder.ondataavailable = async (e) => {
+          console.log('on data available:', e.data.size)
+          if (e.data.size > 0) {
+            let buffer = await e.data.arrayBuffer()
+            let uint8Arr = new Uint8Array(buffer)
+            let int16arr = new Int16Array(uint8Arr)
+            let audioArray = Array.from(int16arr)
+            await window.emitDataToSTT(audioArray)
+          }
+        }
+        recorder.onstop = async (e) => {
+          await window.endStream()
+        }
+        recorder.start(2000)
       }
-      recorder.addEventListener('error', error => {
-        console.log('recorder error: ' + error)
-      })
-      recorder.start(5000)
-      console.log(stream.id)
-    }, 'http://localhost:8001')
+      if(navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(onSuccess, onError)
+      }
+    })  
   }
 
   async connectToVoiceServer() {
-    const socket = io(`http://localhost:65532`, {
+    const socket = io(`https://localhost:65532`, {
       rejectUnauthorized: false,
       secure: true,
     })
+    this.socket = socket
 
-    socket.emit('startGoogleCloudStream', '')
-    console.log('socket:', socket.connected)
+    // socket.emit('startGoogleCloudStream', '')
+    // console.log('socket:', socket.connected)
 
     socket.on('connect', () => {
-      this.socket.emit('join', 'connected')
+      socket.emit('join', 'connected')
     })
     socket.on('messages', (data: any) => {
       console.log('messages:', data)
     })
 
     socket.on('speechData', async (data: any) => {
+      console.log('---speechData event handler---');
+      
       const dataFinal = undefined || data.results[0].isFinal
 
       if (dataFinal === true) {
@@ -272,7 +274,7 @@ export class zoom {
         socket.emit('endGoogleCloudStream', '')
         socket.disconnect()
 
-        const socket = io(`http://localhost:65532`, {
+        const socket = io(`https://localhost:65532`, {
           rejectUnauthorized: false,
           secure: true,
         })
