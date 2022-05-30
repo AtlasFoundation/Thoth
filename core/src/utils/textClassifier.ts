@@ -2,111 +2,39 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-nocheck
 
-import fs from 'fs'
-import natural from 'natural'
-import path from 'path'
+import TopicDetection from 'topic-detection'
 
-let classifier: any
-let profanityClassifier: any
+let detector: TopicDetection
 
-const rootDir = path.resolve(path.dirname(''))
 export async function classifyText(input: any) {
-  if (!classifier || classifier === undefined) {
-    return ''
+  if (!detector || detector === undefined) {
+    await initClassifier()
   }
 
-  return await classifier.classify(input)
-}
-export async function classifyProfanityText(input: any) {
-  if (!profanityClassifier || profanityClassifier === undefined) {
-    return ''
-  }
+  const scores = detector.topics(input)
+  let higher = -1
+  let _prop = ''
 
-  return await profanityClassifier.classify(input)
-}
-
-export function trainClassifier() {
-  const lines = fs
-    .readFileSync(rootDir + '/data/classifier/training_data.txt')
-    .toString()
-    .split('\n')
-  for (let i = 0; i < lines.length; i++) {
-    const data = lines[i].trim().split('|')
-    if (data.length !== 2) {
-      continue
-    }
-
-    classifier.addDocument(data[0].trim(), data[1].trim())
-  }
-
-  classifier.train()
-  classifier.save(
-    rootDir + '/data/classifier/classifier.json',
-    function (err: any) {
-      if (err) {
-        return console.error(err)
+  for (let prop in scores) {
+    if (Object.prototype.hasOwnProperty.call(scores, prop)) {
+      if (scores[prop] > higher) {
+        higher = scores[prop]
+        _prop = prop
       }
     }
-  )
-}
-export function trainProfanityClassifier() {
-  const lines = fs
-    .readFileSync(rootDir + '/data/classifier/profanity_data.txt')
-    .toString()
-    .split('\n')
-  for (let i = 0; i < lines.length; i++) {
-    profanityClassifier.addDocument(lines[i], 'profane')
   }
 
-  profanityClassifier.train()
-  profanityClassifier.save(
-    rootDir + '/data/classifier/profanity_classifier.json',
-    (err: any) => {
-      if (err) {
-        console.error(err)
-        return
-      }
-    }
-  )
+  if (higher > 0 && _prop !== '') {
+    return _prop.charAt(0).toUpperCase() + _prop.slice(1)
+  } else {
+    return ''
+  }
 }
 
 export async function initClassifier() {
-  if (fs.existsSync(rootDir + '/data/classifier/classifier.json')) {
-    await natural.BayesClassifier.load(
-      rootDir + '/data/classifier/classifier.json',
-      null,
-      async function (err: any, _classifier: any) {
-        if (err) {
-          console.error(err)
-          classifier = new natural.BayesClassifier()
-          await trainClassifier()
-          return
-        }
-        classifier = _classifier
-      }
-    )
-  } else {
-    classifier = new natural.BayesClassifier()
-    await trainClassifier()
+  if (detector) {
+    return
   }
-}
-export async function initProfanityClassifier() {
-  if (fs.existsSync(rootDir + '/data/classifier/profanity_classifier.json')) {
-    await natural.BayesClassifier.load(
-      rootDir + '/data/classifier/profanity_classifier.json',
-      null,
-      async function (err: any, _classifier: any) {
-        if (err) {
-          console.error(err)
-          profanityClassifier = new natural.BayesClassifier()
-          await trainProfanityClassifier()
-          return
-        }
-        profanityClassifier = _classifier
-      }
-    )
-  } else {
-    profanityClassifier = new natural.BayesClassifier()
-    await trainProfanityClassifier()
-  }
+
+  detector = new TopicDetection()
 }

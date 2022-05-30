@@ -39,3 +39,8 @@ export type GoFn = [
 
 // Elixir-inspired function return
 export type ExFn = [true, any] | [false, string]
+
+export type SearchSchema = {
+  title: string
+  description: string
+}

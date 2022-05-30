@@ -56,6 +56,13 @@ async function init() {
   // required for some current consumers (i.e Thoth)
   // to-do: standardize an allowed origin list based on env values or another source of truth?
 
+  new database()
+  await database.instance.connect()
+  await creatorToolsDatabase.sequelize.sync({
+    force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
+  })
+  await database.instance.firstInit()
+
   await initFileServer()
   await initClassifier()
   await initTextToSpeech()
@@ -63,7 +70,6 @@ async function init() {
   await initWeaviateClient(
     process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true'
   )
-  await search('Plants', 'small flower')
 
   if (process.env.RUN_PYTHON_SERVER === 'true') {
     spawnPythonServer()
@@ -87,13 +93,6 @@ async function init() {
   app.use(cors(options))
 
   // new cors_server(process.env.CORS_PORT, '0.0.0.0')
-  new database()
-
-  await database.instance.connect()
-  await creatorToolsDatabase.sequelize.sync({
-    force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
-  })
-  await database.instance.firstInit()
 
   process.on('unhandledRejection', (err: Error) => {
     console.error('Unhandled Rejection:' + err + ' - ' + err.stack)

@@ -21,6 +21,12 @@ import {
 import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'
 import https from 'https'
+import {
+  deleteDocument,
+  search,
+  singleTrain,
+  updateDocument,
+} from './weaviateClient'
 
 config({ path: '.env' })
 const searchEngine = 'davinci'
@@ -54,11 +60,20 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
   router.get('/document', async function (ctx: Koa.Context) {
     const storeId = ctx.query.storeId
+    if (!storeId || storeId === undefined) {
+      ctx.response.status = 400
+      return (ctx.body = [])
+    }
+
     const documents: any = await database.instance.getDocumentsOfStore(storeId)
     return (ctx.body = documents)
   })
   router.get('/document/:docId', async function (ctx: Koa.Context) {
     const docId = ctx.params.docId
+    if (!docId || docId === undefined) {
+      ctx.response.status = 400
+      return (ctx.body = {})
+    }
     const doc = await database.instance.getSingleDocument(docId)
     return (ctx.body = doc)
   })
@@ -69,6 +84,13 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const is_included = body?.is_included && true
     const storeId = body?.storeId
 
+    if (!storeId || storeId === undefined) {
+      ctx.response.status = 400
+      return (ctx.body = {
+        error: 'You need to create a Document Store first',
+      })
+    }
+
     let id = -1
     try {
       id = await database.instance.addDocument(
@@ -77,10 +99,12 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
         is_included,
         storeId
       )
+      await singleTrain({ title: 'Document', description: description })
       const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
       if (resp.data.status != 'ok') {
+        ctx.response.status = 400
         return (ctx.body = 'internal error')
       }
     } catch (e) {
@@ -103,6 +127,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
+      await deleteDocument()
       if (resp.data.status != 'ok') {
         return (ctx.body = 'internal error')
       }
@@ -121,6 +146,13 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const is_included = body?.is_included && true
     const storeId = body?.storeId
 
+    if (!storeId || storeId === undefined) {
+      ctx.response.status = 400
+      return (ctx.body = {
+        error: 'You need to create a Document Store first',
+      })
+    }
+
     try {
       await database.instance.updateDocument(
         documentId,
@@ -132,9 +164,11 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
+      await updateDocument()
       if (resp.data.status != 'ok') {
         return (ctx.body = 'internal error')
       }
+      //update document
     } catch (e) {
       console.log(e)
       return (ctx.body = 'internal error')
@@ -144,101 +178,10 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
   router.get('/search', async function (ctx: Koa.Context) {
     const question = ctx.request.query?.question as string
-    const cleanQuestion = removePunctuation(question)
-    const words = simplifyWords(cleanQuestion.split(' '))
-    const topic = await classifyText(question)
-    console.log('topic:', topic)
 
-    let maxMetadata = 0
-    let maxIdMetadata = -1
-    let maxKeywords = 0
-    let maxIdKeywords = -1
+    const searchResult = await search(question)
 
-    const documents = await database.instance.getAllDocumentsForSearch()
-
-    console.log('loaded ' + documents.length + ' documents')
-    for (let i = 0; i < documents.length; i++) {
-      documents[i].description = (documents[i].description as string)
-        .split(',')
-        .map(el => el.trim().toLowerCase())
-      documents[i].keywords = (documents[i].keywords as string)
-        .split(',')
-        .map(el => el.trim().toLowerCase())
-
-      const metadataCount = includeInFields(
-        documents[i].description as string[],
-        words
-      )
-      const keywordsCount = includeInFields(
-        documents[i].keywords as string[],
-        words
-      )
-
-      if (metadataCount > maxMetadata) {
-        maxMetadata = metadataCount
-        maxIdMetadata = i
-      }
-      if (keywordsCount > maxKeywords) {
-        maxKeywords = keywordsCount
-        maxIdKeywords = i
-      }
-    }
-    console.log('maxIdMetadata ::: ', maxIdMetadata)
-    console.log('maxIdKeywords ::: ', maxIdKeywords)
-
-    const testDocs = []
-    if (maxIdKeywords === maxIdMetadata && maxIdKeywords !== -1) {
-      return (ctx.body = documents[maxIdKeywords])
-    } else if (maxIdKeywords !== maxIdMetadata) {
-      if (maxIdKeywords !== -1 && maxIdMetadata !== -1) {
-        testDocs.push(documents[maxIdMetadata])
-        testDocs.push(documents[maxIdKeywords])
-      } else if (maxIdKeywords !== -1) {
-        testDocs.push(documents[maxIdKeywords])
-      } else if (maxIdMetadata !== -1) {
-        testDocs.push(documents[maxIdMetadata])
-      } else {
-        for (let i = 0; i < documents.length; i++) {
-          testDocs.push(documents[i])
-        }
-      }
-    }
-
-    if (testDocs.length !== 0) {
-      testDocs.forEach(doc => {
-        doc.keywords = doc.keywords.join(',')
-        doc.description = doc.description.join(',')
-      })
-      let stringifiedDocuments = testDocs.map(doc => JSON.stringify(doc))
-      const response = await axios.post(
-        `https://api.openai.com/v1/engines/${searchEngine}/search`,
-        { documents: stringifiedDocuments, query: question },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: 'Bearer ' + process.env.OPENAI_API_KEY,
-          },
-        }
-      )
-
-      let highestScore = 0
-      let highestScoreIndex = -1
-      console.log('response ::: ', response.data)
-
-      for (let i = 0; i < response.data.data.length; i++) {
-        if (response.data.data[i].score > highestScore) {
-          highestScore = response.data.data[i].score
-          highestScoreIndex = i
-        }
-      }
-
-      if (highestScoreIndex >= 0) {
-        return (ctx.body =
-          testDocs[response.data.data[highestScoreIndex]['document']])
-      } else {
-        return (ctx.body = 'No documents where found to search from!')
-      }
-    } else return (ctx.body = 'No documents where found to search from!')
+    return (ctx.body = searchResult.description)
   })
   router.post('/vector_search', async function (ctx: Koa.Context) {
     const question = ctx.request.body?.question as string
@@ -382,25 +325,26 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
 
   const PORT: number = Number(process.env.SEARCH_CORPUS_PORT) || 65531
-  const useSSL = process.env.USESSL === 'true' && 
-    fs.existsSync('certs/') && 
+  const useSSL =
+    process.env.USESSL === 'true' &&
+    fs.existsSync('certs/') &&
     fs.existsSync('certs/key.pem') &&
     fs.existsSync('certs/cert.pem')
 
   let sslOptions = {
     key: useSSL ? fs.readFileSync('certs/key.pem') : '',
-    cert: useSSL ? fs.readFileSync('certs/cert.pem') : ''
+    cert: useSSL ? fs.readFileSync('certs/cert.pem') : '',
   }
-  
-  useSSL ? (
-    https.createServer(sslOptions, app.callback()).listen(PORT, '0.0.0.0', () => {
-      console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-    })
-  ) : (
-    https.createServer(app.callback()).listen(PORT, '0.0.0.0', () => {
-      console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-    })
-  )
+
+  useSSL
+    ? https
+        .createServer(sslOptions, app.callback())
+        .listen(PORT, '0.0.0.0', () => {
+          console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+        })
+    : https.createServer(app.callback()).listen(PORT, '0.0.0.0', () => {
+        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+      })
 }
 
 export async function extractKeywords(input: string): Promise<string[]> {

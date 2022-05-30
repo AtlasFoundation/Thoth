@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -26,6 +27,8 @@ function capitalizeFirstLetter(word) {
 
 const EntityWindow = ({ id, updateCallback }) => {
   const { user } = useAuth()
+  const { enqueueSnackbar } = useSnackbar()
+
   const [loaded, setLoaded] = useState(false)
 
   const [enabled, setEnabled] = useState(false)
@@ -71,7 +74,8 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
-  const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] = useState('')
+  const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] =
+    useState('')
 
   const [telegram_enabled, setTelegramEnabled] = useState('')
   const [telegram_bot_token, setTelegramBotToken] = useState('')
@@ -96,7 +100,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
     if (!loaded) {
-      ; (async () => {
+      ;(async () => {
         const res = await axios.get(
           `${process.env.REACT_APP_API_ROOT_URL}/entity?instanceId=` + id
         )
@@ -165,7 +169,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   }, [loaded])
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       const res = await axios.get(
         `${process.env.REACT_APP_API_ROOT_URL}/game/spells?userId=${user?.id}`
       )
@@ -179,12 +183,21 @@ const EntityWindow = ({ id, updateCallback }) => {
       .then(res => {
         console.log('deleted', res)
         if (res.data === 'internal error') {
-          alert('Server Error deleting entity with id: ' + id)
+          enqueueSnackbar('Server Error deleting entity with id: ' + id, {
+            variant: 'error',
+          })
         } else {
-          alert('Entity with id: ' + id + ' deleted successfully')
+          enqueueSnackbar('Entity with id: ' + id + ' deleted successfully', {
+            variant: 'success',
+          })
         }
         setLoaded(false)
         updateCallback()
+      })
+      .catch(e => {
+        enqueueSnackbar('Server Error deleting entity with id: ' + id, {
+          variant: 'error',
+        })
       })
   }
 
@@ -247,9 +260,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       })
       .then(res => {
         if (res.data === 'internal error') {
-          alert('internal error updating entity')
+          enqueueSnackbar('internal error updating entity', {
+            variant: 'error',
+          })
         } else {
-          alert('updated entity')
+          enqueueSnackbar('updated entity', {
+            variant: 'success',
+          })
           console.log('response on update', JSON.parse(res.config.data).data)
           let responseData = res && JSON.parse(res?.config?.data).data
           console.log(responseData, 'responseDataresponseData')
@@ -288,7 +305,9 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterAccessTokenSecret(responseData.twitter_access_token_secret)
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
-          setTwitterSpellHandlerIncoming(responseData.twitter_spell_handler_incoming)
+          setTwitterSpellHandlerIncoming(
+            responseData.twitter_spell_handler_incoming
+          )
 
           setTelegramEnabled(responseData.telegram_enabled)
           setTelegramBotToken(responseData.telegram_bot_token)
@@ -314,6 +333,11 @@ const EntityWindow = ({ id, updateCallback }) => {
 
           updateCallback()
         }
+      })
+      .catch(e => {
+        enqueueSnackbar('internal error updating entity', {
+          variant: 'error',
+        })
       })
   }
 

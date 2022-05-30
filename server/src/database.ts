@@ -48,8 +48,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-          rejectUnauthorized: false,
-        }
+            rejectUnauthorized: false,
+          }
         : false,
     })
     this.client.connect()
@@ -99,17 +99,18 @@ export class database {
     maxCount: number = 10
   ) {
     // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
-    let query, values;
+    let query, values
     if (!channel) {
-      query = 'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND type=$4 ORDER BY id desc'
+      query =
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND type=$4 ORDER BY id desc'
       values = [agent, client, sender, type]
-    }
-    else if (!sender) {
-      query = 'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
+    } else if (!sender) {
+      query =
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
       values = [agent, client, channel, type]
-    }
-    else {
-      query = 'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+    } else {
+      query =
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
       values = [agent, client, sender, channel, type]
     }
     const row = await this.client.query(query, values)
@@ -352,6 +353,8 @@ export class database {
     while (await this.documentIdExists(id)) {
       id = randomInt(0, 100000)
     }
+
+    console.log('document store id:', id)
 
     const query =
       'INSERT INTO documents(id, description, keywords, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
