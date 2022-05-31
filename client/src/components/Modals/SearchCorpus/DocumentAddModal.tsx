@@ -21,9 +21,15 @@ const DocumentAddModal = ({
   }
   const title = isContentObject ? 'Add Content Object' : 'Add Document'
   const [newDocument, setNewDocument] = useState(doc)
+  const [updated, setUpdated] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
 
   const add = async () => {
+    if (newDocument.description?.length === 0) {
+      enqueueSnackbar('Empty document!', { variant: 'error' })
+      return
+    }
+
     const body = { ...newDocument }
     let url = isContentObject
       ? `${process.env.REACT_APP_SEARCH_SERVER_URL}/content-object`
@@ -46,6 +52,21 @@ const DocumentAddModal = ({
     } else enqueueSnackbar('Document created', { variant: 'success' })
     closeModal()
   }
+
+  const showFile = async (e: any) => {
+    e.preventDefault()
+    const reader = new FileReader()
+    reader.onload = async (_e: any) => {
+      const text = _e.target.result
+      if (text && text !== undefined && text.length > 0) {
+        newDocument.description = text
+        setUpdated(!updated)
+      }
+    }
+
+    reader.readAsText(e.target.files[0])
+  }
+
   const options = [
     {
       className: `${css['loginButton']} secondary`,
@@ -92,14 +113,22 @@ const DocumentAddModal = ({
           <input
             type="text"
             className="form-text-area"
+            defaultValue={newDocument.description}
             onChange={e =>
               setNewDocument({
                 ...newDocument,
                 description: e.target.value,
               })
             }
-            defaultValue={newDocument.description}
+            value={newDocument.description}
           ></input>
+        </div>
+        <div className="form-item">
+          <input
+            type="file"
+            accept=".txt, .doc .csv"
+            onChange={e => showFile(e)}
+          />
         </div>
       </form>
     </Modal>

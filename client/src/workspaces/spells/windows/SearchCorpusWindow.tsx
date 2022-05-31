@@ -186,16 +186,20 @@ const SearchCorpus = () => {
             {documents.length === 0 && 'No documents found'}
           </div>
 
-          <button
-            className="button"
-            type="button"
-            onClick={async e => {
-              e.preventDefault()
-              await add()
-            }}
-          >
-            Create New
-          </button>
+          {hasDocumentsStores() ? (
+            <button
+              className="button"
+              type="button"
+              onClick={async e => {
+                e.preventDefault()
+                await add()
+              }}
+            >
+              Create New
+            </button>
+          ) : (
+            ''
+          )}
         </div>
       )}
     </div>

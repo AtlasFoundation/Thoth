@@ -26,6 +26,10 @@ export async function initWeaviateClient(_train: boolean) {
 }
 
 async function train(data: SearchSchema[]) {
+  if (!client) {
+    initWeaviateClient(false)
+  }
+
   if (!data || data === undefined) {
     return
   }
@@ -73,6 +77,10 @@ async function train(data: SearchSchema[]) {
   console.log('trained client')
 }
 export async function singleTrain(data: SearchSchema) {
+  if (!client) {
+    initWeaviateClient(false)
+  }
+
   if (!data || data === undefined) {
     return
   }
@@ -82,7 +90,11 @@ export async function singleTrain(data: SearchSchema) {
     title: data.title,
     description: data.description,
   }
-  const topic = await classifyText(data.description)
+  const topic = await classifyText(object.description)
+  if (!topic || topic === undefined || topic.length <= 0) {
+    return
+  }
+
   const res = await client.data
     .creator()
     .withClassName(topic)

@@ -100,13 +100,13 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
         storeId
       )
       await singleTrain({ title: 'Document', description: description })
-      const resp = await axios.get(
+      /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
       if (resp.data.status != 'ok') {
         ctx.response.status = 400
         return (ctx.body = 'internal error')
-      }
+      }*/
     } catch (e) {
       console.log(e)
       return (ctx.body = 'internal error')
@@ -124,13 +124,13 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
     try {
       await database.instance.removeDocument(documentId)
-      const resp = await axios.get(
+      /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
       await deleteDocument()
       if (resp.data.status != 'ok') {
         return (ctx.body = 'internal error')
-      }
+      }*/
     } catch (e) {
       console.log(e)
       return (ctx.body = 'internal error')
@@ -161,13 +161,13 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
         is_included,
         storeId
       )
-      const resp = await axios.get(
+      /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
       await updateDocument()
       if (resp.data.status != 'ok') {
         return (ctx.body = 'internal error')
-      }
+      }*/
       //update document
     } catch (e) {
       console.log(e)
