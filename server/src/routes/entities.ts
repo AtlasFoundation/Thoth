@@ -14,6 +14,12 @@ import { makeCompletion } from '../utils/MakeCompletionRequest'
 import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
+import {
+  authorize,
+  initCalendar,
+  addCalendarEvent,
+} from '../../src/entities/connectors/calendar'
+import { getRelativeDate } from '../../src/utils/utils'
 
 export const modules: Record<string, unknown> = {}
 
@@ -116,9 +122,8 @@ const addEntityHandler = async (ctx: Koa.Context) => {
 
   try {
     console.log('updated agent database with', data)
-    if(Object.keys(data).length <= 0) return (
-      ctx.body = await database.instance.createEntity()
-    )
+    if (Object.keys(data).length <= 0)
+      return (ctx.body = await database.instance.createEntity())
     return (ctx.body = await database.instance.updateEntity(instanceId, data))
   } catch (e) {
     console.log('addEntityHandler:', e)
@@ -176,7 +181,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
     const sortOrder = ctx.request.query.order as st
-    if(!['asc', 'desc'].includes(sortOrder)) {
+    if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
     }
@@ -192,7 +197,7 @@ const getSortedEventsByDate = async (ctx: Koa.Context) => {
 const deleteEvent = async (ctx: Koa.Context) => {
   try {
     const { id } = ctx.params
-    if(!parseInt(id)) {
+    if (!parseInt(id)) {
       ctx.status = 400
       return (ctx.body = 'invalid url parameter')
     }
@@ -208,7 +213,7 @@ const deleteEvent = async (ctx: Koa.Context) => {
 const updateEvent = async (ctx: Koa.Context) => {
   try {
     const { id } = ctx.params
-    if(!parseInt(id)) {
+    if (!parseInt(id)) {
       ctx.status = 400
       return (ctx.body = 'invalid url parameter')
     }
@@ -221,7 +226,15 @@ const updateEvent = async (ctx: Koa.Context) => {
     const type = ctx.request.body.type
     const date = ctx.request.body.date
 
-    const res = await database.instance.updateEvent(id, { agent, sender, client, channel, text, type, date })
+    const res = await database.instance.updateEvent(id, {
+      agent,
+      sender,
+      client,
+      channel,
+      text,
+      type,
+      date,
+    })
     return (ctx.body = res)
   } catch (e) {
     console.log(e)
@@ -253,7 +266,7 @@ const createEvent = async (ctx: Koa.Context) => {
 const getSpeechToText = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
   const character = ctx.request.query.character ?? 'none'
-  console.log("text and character are", text, character)
+  console.log('text and character are', text, character)
   const cache = await cacheManager.instance.get(
     character as string,
     'speech_' + character + ': ' + text,
@@ -472,8 +485,9 @@ const requestInformationAboutVideo = async (
   question: string
 ): Promise<string> => {
   const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-    }\n${agent}:`
+  const prompt = `Information: ${videoInformation} \n ${sender}: ${
+    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
+  }\n${agent}:`
 
   const modelName = 'davinci'
   const temperature = 0.9
@@ -567,17 +581,89 @@ const getCalendarEvents = async (ctx: Koa.Context) => {
     return (ctx.body = { error: 'internal error' })
   }
 }
-const addCalendarEvent = async (ctx: Koa.Context) => {
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-  
+
+const addCalendarEvents = async (ctx: Koa.Context) => {
+  const { name, date, time, type, moreInfo } = ctx.request.body
+
   try {
-    await database.instance.createCalendarEvent(name, date, time, type, moreInfo)
+    const content = await initCalendar()
+    const auth = await authorize(content)
+
+    const currentTime = new Date().getHours()
+    const givenTime = new Date(time).getHours()
+    const currentDate = new Date().getDate()
+    const givenDate = new Date(date).getDate()
+
+    console.log(currentDate, givenDate)
+    console.log(currentTime, givenTime)
+
+    if (
+      isNaN(currentTime) ||
+      isNaN(givenTime) ||
+      isNaN(currentDate) ||
+      isNaN(givenDate)
+    ) {
+      return (ctx.body = { error: 'invalid date or time' })
+    }
+
+    if (currentDate > givenDate) {
+      return (ctx.body = { error: 'invalid date' })
+    }
+
+    if (currentTime > givenTime) {
+      return (ctx.body = { error: 'invalid time' })
+    }
+
+    const startDateTime = getRelativeDate(
+      givenDate,
+      new Date(givenTime).getHours()
+    )
+
+    const endDateTime = getRelativeDate(
+      givenDate,
+      new Date(givenTime + 3600000).getHours()
+    )
+
+    console.log('startDateTime:', startDateTime.toISOString())
+    console.log('endDateTime:', endDateTime.toISOString())
+
+    // const add = await addCalendarEvent(auth, {
+    //   summary: name,
+    //   start: {
+    //     dateTime: getRelativeDate(),
+    //   },
+    //   end: {
+    //     dateTime: `${date}T${time}`,
+    //   },
+    //   description: moreInfo,
+    //   location: '',
+    //   attendees: [],
+    //   reminders: {
+    //     useDefault: false,
+    //     overrides: [
+    //       {
+    //         method: 'email',
+    //         minutes: 24 * 60,
+    //       },
+    //       {
+    //         method: 'popup',
+    //         minutes: 10,
+    //       },
+    //     ],
+    //   },
+    // })
+
+    // await database.instance.createCalendarEvent(
+    //   name,
+    //   date,
+    //   time,
+    //   type,
+    //   moreInfo
+    // )
     return (ctx.body = 'inserted')
   } catch (e) {
+    console.log('addCalendarEvents:', e)
+
     ctx.status = 500
     return (ctx.body = { error: 'internal error' })
   }
@@ -585,14 +671,21 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
 
 const editCalendarEvent = async (ctx: Koa.Context) => {
   const id = ctx.params.id
-  const name = ctx.request.body.name 
+  const name = ctx.request.body.name
   const date = ctx.request.body.date
   const time = ctx.request.body.time
   const type = ctx.request.body.type
   const moreInfo = ctx.request.body.moreInfo
-  
+
   try {
-    await database.instance.editCalendarEvent(id, name, date, time, type, moreInfo)
+    await database.instance.editCalendarEvent(
+      id,
+      name,
+      date,
+      time,
+      type,
+      moreInfo
+    )
     return (ctx.body = 'edited')
   } catch (e) {
     ctx.status = 500
@@ -659,7 +752,7 @@ export const entities: Route[] = [
     path: '/calendar_event',
     access: noAuth,
     get: getCalendarEvents,
-    post: addCalendarEvent,
+    post: addCalendarEvents,
   },
   {
     path: '/calendar_event/:id',
