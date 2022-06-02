@@ -98,7 +98,6 @@ const DocumentAddModal = ({
           <input
             type="text"
             className="form-text-area"
-            defaultValue={newDocument.description}
             onChange={e =>
               setNewDocument({
                 ...newDocument,
