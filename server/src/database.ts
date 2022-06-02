@@ -424,7 +424,7 @@ export class database {
       return []
     }
   }
-  async getSingleDocument(docId: any): Promise<any[]> {
+  async getSingleDocument(docId: any): Promise<any> {
     const query = 'SELECT * FROM documents WHERE id=$1'
     const values = [docId]
 
@@ -433,7 +433,7 @@ export class database {
     if (rows && rows.rows && rows.rows.length > 0) {
       return rows.rows[0]
     } else {
-      return []
+      return null
     }
   }
   async getDocumentsWithTopic(agent: any, topic: any): Promise<any[]> {
