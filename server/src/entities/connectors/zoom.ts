@@ -195,43 +195,77 @@ export class zoom {
   }
 
   async getVideo() {
-    
-    await this.page.exposeFunction('emitDataToSTT', (audioArray) => {
+    await this.page.exposeFunction('emitDataToSTT', audioArray => {
       this.socket.emit('binaryData', audioArray)
     })
     await this.page.exposeFunction('startStream', () => {
       this.socket.emit('startGoogleCloudStream', '')
     })
     await this.page.evaluate(async () => {
-      const onError = (err) => {
+      const onError = err => {
         console.log('----err in userMedia----', err)
       }
-      const onSuccess = (stream) => {
+      const onSuccess = stream => {
         const recorder = new MediaRecorder(stream, {
-          mimeType: 'audio/webm'
+          mimeType: 'audio/webm',
         })
         recorder.onstart = async () => {
           await window.startStream()
         }
-        recorder.ondataavailable = async (e) => {
+        recorder.ondataavailable = async e => {
           console.log('on data available:', e.data.size)
           if (e.data.size > 0) {
-            let buffer = await e.data.arrayBuffer()
-            let uint8Arr = new Uint8Array(buffer)
-            let int16arr = new Int16Array(uint8Arr)
-            let audioArray = Array.from(int16arr)
-            await window.emitDataToSTT(audioArray)
+            const buffer = await e.data.arrayBuffer()
+            const uint8Arr = new Uint8Array(buffer)
+            const int16arr = new Int16Array(uint8Arr)
+            //const audioArray = Array.from(int16arr)
+            const audioSampler = this.downsampleBuffer(int16arr, 44100, 16000)
+            await window.emitDataToSTT(audioSampler)
           }
         }
-        recorder.onstop = async (e) => {
+        recorder.onstop = async e => {
           await window.endStream()
         }
         recorder.start(2000)
       }
-      if(navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then(onSuccess, onError)
+      if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true, video: false })
+          .then(onSuccess, onError)
       }
-    })  
+    })
+  }
+
+  downsampleBuffer = (buffer: any, sampleRate: any, outSampleRate: any) => {
+    if (outSampleRate == sampleRate) {
+      return buffer
+    }
+    if (outSampleRate > sampleRate) {
+      throw 'downsampling rate should be smaller than original sample rate'
+    }
+    const sampleRateRatio = sampleRate / outSampleRate
+    const newLength = Math.round(buffer.length / sampleRateRatio)
+    let result = new Int16Array(newLength)
+    let offsetResult = 0
+    let offsetBuffer = 0
+    while (offsetResult < result.length) {
+      const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio)
+      let accum = 0,
+        count = 0
+      for (
+        let i = offsetBuffer;
+        i < nextOffsetBuffer && i < buffer.length;
+        i++
+      ) {
+        accum += buffer[i]
+        count++
+      }
+
+      result[offsetResult] = Math.min(1, accum / count) * 0x7fff
+      offsetResult++
+      offsetBuffer = nextOffsetBuffer
+    }
+    return result.buffer
   }
 
   async connectToVoiceServer() {
@@ -252,8 +286,8 @@ export class zoom {
     })
 
     socket.on('speechData', async (data: any) => {
-      console.log('---speechData event handler---');
-      
+      console.log('---speechData event handler---')
+
       const dataFinal = undefined || data.results[0].isFinal
 
       if (dataFinal === true) {
