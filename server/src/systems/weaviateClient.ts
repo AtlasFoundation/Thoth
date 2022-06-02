@@ -5,6 +5,7 @@ import * as fs from 'fs'
 import { classifyText } from '../../../core/src/utils/textClassifier'
 import path from 'path'
 import { database } from '../database'
+import axios from 'axios'
 
 let client: weaviate.client
 export async function initWeaviateClient(_train: boolean) {
@@ -14,15 +15,26 @@ export async function initWeaviateClient(_train: boolean) {
   })
 
   if (_train) {
-    await train(
-      JSON.parse(
-        fs.readFileSync(
-          path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
-          'utf-8'
-        )
+    console.time('test')
+
+    const data = await trainFromUrl(
+      'https://www.toptal.com/developers/feed2json/convert?url=https%3A%2F%2Ffeeds.simplecast.com%2F54nAGcIl'
+    )
+    const data2 = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
+        'utf-8'
       )
     )
+    for (let i = 0; i < data2.length; i++) {
+      data.push(data2[i])
+    }
+
+    await train(data)
+    console.timeEnd('test')
   }
+
+  await getDocumentId('', '')
 }
 
 async function train(data: SearchSchema[]) {
@@ -76,6 +88,38 @@ async function train(data: SearchSchema[]) {
 
   console.log('trained client')
 }
+
+async function trainFromUrl(url: string): Promise<SearchSchema[]> {
+  if (!url || url.length <= 0) {
+    return []
+  }
+
+  const res = await axios.get(url)
+  const data = res.data
+  if (!data || data === undefined) {
+    return []
+  }
+
+  const items = data.items
+  if (!items || items === undefined) {
+    return []
+  }
+
+  const _data: SearchSchema[] = []
+  for (let i = 0; i < items.length; i++) {
+    const object: SearchSchema = {
+      title: items[i].title,
+      description: items[i].content_html
+        .replace('<br>', '\\n')
+        .replace('</p>', '\\n')
+        .replace(/<[^>]*>?/gm, ''),
+    }
+    _data.push(object)
+  }
+
+  return _data
+}
+
 export async function singleTrain(data: SearchSchema) {
   if (!client) {
     initWeaviateClient(false)
@@ -85,7 +129,6 @@ export async function singleTrain(data: SearchSchema) {
     return
   }
 
-  console.log('singleTrain data:', data)
   const object: SearchSchema = {
     title: data.title,
     description: data.description,
@@ -102,26 +145,6 @@ export async function singleTrain(data: SearchSchema) {
     .do()
 
   console.log(res)
-}
-export async function updateDocument() {
-  await train(
-    JSON.parse(
-      fs.readFileSync(
-        path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
-        'utf-8'
-      )
-    )
-  )
-}
-export async function deleteDocument() {
-  await train(
-    JSON.parse(
-      fs.readFileSync(
-        path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
-        'utf-8'
-      )
-    )
-  )
 }
 
 export async function search(query: string): SearchSchema {
@@ -160,5 +183,105 @@ export async function search(query: string): SearchSchema {
     }
   } else {
     return { title: '', description: '' }
+  }
+}
+
+async function getDocumentId(
+  title: string,
+  description: string
+): Promise<string> {
+  if (!client) {
+    await initWeaviateClient(false)
+  }
+
+  const docs = await client.data.getter().do()
+  for (let i = 0; i < docs.objects.length; i++) {
+    if (
+      docs.objects[i].properties.title == title &&
+      docs.objects[i].properties.description == description
+    ) {
+      return docs.objects[i].id
+    }
+  }
+
+  return ''
+}
+
+export async function updateDocument(
+  oldTitle: string,
+  newTitle: string,
+  oldDescription: string,
+  newDescription: string
+) {
+  if (!client) {
+    await initWeaviateClient(false)
+  }
+
+  if (
+    !oldTitle ||
+    oldTitle.length <= 0 ||
+    !newTitle ||
+    newTitle.length <= 0 ||
+    !oldDescription ||
+    oldDescription.length <= 0 ||
+    !newDescription ||
+    newDescription.length <= 0
+  ) {
+    return
+  }
+
+  if (oldTitle === newTitle && oldDescription === newDescription) {
+    return
+  }
+
+  const id = await getDocumentId(oldTitle, oldDescription)
+  if (id && id.length > 0) {
+    client.data
+      .getterById()
+      .withId(id)
+      .do()
+      .then(res => {
+        console.log('RES:', res)
+        const _class = res.class
+        const schema = res.properties
+        schema.title = newTitle
+        schema.description = newDescription
+
+        return client.data
+          .updater()
+          .withId(id)
+          .withClassName(_class)
+          .withProperties(schema)
+          .do()
+      })
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+}
+export async function deleteDocument(title: string, description: string) {
+  if (!client) {
+    await initWeaviateClient(false)
+  }
+
+  if (!title || title.length <= 0 || !description || description.length <= 0) {
+    return
+  }
+
+  const id = await getDocumentId(title, description)
+  if (id && id.length > 0) {
+    client.data
+      .deleter()
+      .withId(id)
+      .do()
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.error(err)
+      })
   }
 }

@@ -14,10 +14,7 @@ import {
   simplifyWords,
 } from '../utils/utils'
 import { database } from '../database'
-import {
-  initClassifier,
-  classifyText,
-} from '@latitudegames/thoth-core/src/utils/textClassifier'
+import { initClassifier } from '@latitudegames/thoth-core/src/utils/textClassifier'
 import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'
 import https from 'https'
@@ -120,10 +117,13 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
   router.delete('/document', async function (ctx: Koa.Context) {
     const documentId = ctx.query.documentId
-    console.log('deleting document: ' + documentId)
+    const doc = await database.instance.getSingleDocument(documentId)
 
     try {
       await database.instance.removeDocument(documentId)
+      if (doc) {
+        await deleteDocument('Document', doc.description)
+      }
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
@@ -145,6 +145,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const keywords = body?.keywords
     const is_included = body?.is_included && true
     const storeId = body?.storeId
+    const doc = await database.instance.getSingleDocument(documentId)
 
     if (!storeId || storeId === undefined) {
       ctx.response.status = 400
@@ -161,6 +162,14 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
         is_included,
         storeId
       )
+      if (doc) {
+        await updateDocument(
+          'Document',
+          'Document',
+          doc.description,
+          description
+        )
+      }
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
