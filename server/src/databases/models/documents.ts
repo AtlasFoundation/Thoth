@@ -4,12 +4,11 @@ import { DataTypes, Model, Optional } from 'sequelize'
 export interface documentsAttributes {
   id: number
   description: string
-  keywords: string
   is_included: boolean
   storeId: number
 }
 
-export type documentsOptionalAttributes = 'description' | 'keywords'
+export type documentsOptionalAttributes = 'description'
 export type documentsCreationAttributes = Optional<
   documentsAttributes,
   documentsOptionalAttributes
@@ -20,7 +19,6 @@ export class documents
   implements documentsAttributes {
   id: number
   description: string
-  keywords: string
   is_included: boolean
   storeId: number
 
@@ -34,10 +32,6 @@ export class documents
           primaryKey: true,
         },
         description: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-        },
-        keywords: {
           type: DataTypes.TEXT,
           allowNull: false,
         },

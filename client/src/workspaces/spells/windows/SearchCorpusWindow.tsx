@@ -118,7 +118,7 @@ const SearchCorpus = () => {
           }}
         />
         {hasDocumentsStores() ? (
-          <div>
+          <>
             {' '}
             <FaEdit
               size={20}
@@ -136,7 +136,7 @@ const SearchCorpus = () => {
                 openDeleteStoreModal()
               }}
             />
-          </div>
+          </>
         ) : (
           ''
         )}

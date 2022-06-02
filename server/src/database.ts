@@ -345,9 +345,8 @@ export class database {
 
   async addDocument(
     description: any,
-    keywords: any,
     is_included: any,
-    storeId: any
+    store_id: any
   ): Promise<number> {
     let id = randomInt(0, 100000)
     while (await this.documentIdExists(id)) {
@@ -357,8 +356,8 @@ export class database {
     console.log('document store id:', id)
 
     const query =
-      'INSERT INTO documents(id, description, keywords, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
-    const values = [id, description, keywords, is_included, storeId]
+      'INSERT INTO documents(id, description, is_included, store_id) VALUES($1, $2, $3, $4)'
+    const values = [id, description, is_included, store_id]
 
     await this.client.query(query, values)
     return id
@@ -370,22 +369,21 @@ export class database {
     await this.client.query(query, values)
   }
   async updateDocument(
-    documentId: any,
+    document_id: any,
     description: any,
-    keywords: any,
     is_included: any,
-    storeId: any
+    store_id: any
   ) {
     const query =
-      'UPDATE documents SET description=$1, keywords=$2, is_included=$3, store_id=$4 WHERE id=$5'
-    const values = [description, keywords, is_included, storeId, documentId]
+      'UPDATE documents SET description=$1, is_included=$2, store_id=$3 WHERE id=$4'
+    const values = [description, is_included, store_id, document_id]
 
     await this.client.query(query, values)
   }
   async getDocumentsOfStore(
     storeId: string | string[] | undefined
   ): Promise<any> {
-    const query = 'SELECT * FROM documents WHERE store_id=$1 ORDER BY id DESC'
+    const query = 'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)
@@ -459,9 +457,8 @@ export class database {
 
   async addContentObj(
     description: any,
-    keywords: any,
     is_included: any,
-    documentId: any
+    document_id: any
   ): Promise<number> {
     let id = randomInt(0, 100000)
     while (await this.contentObjIdExists(id)) {
@@ -469,29 +466,28 @@ export class database {
     }
 
     const query =
-      'INSERT INTO content_objects(id, description, keywords, is_included, document_id) VALUES($1, $2, $3, $4, $5)'
-    const values = [id, description, keywords, is_included, documentId]
+      'INSERT INTO content_objects(id, description, is_included, document_id) VALUES($1, $2, $3, $4)'
+    const values = [id, description, is_included, document_id]
 
     await this.client.query(query, values)
     return id
   }
   async editContentObj(
-    objId: any,
+    obj_id: any,
     description: any,
-    keywords: any,
     is_included: any,
-    documentId: any
+    document_id: any
   ) {
     const query =
-      'UPDATE content_objects SET description = $1, keywords = $2, is_included = $3, document_id = $4 WHERE id = $5'
-    const values = [description, keywords, is_included, documentId, objId]
+      'UPDATE content_objects SET description = $1, is_included = $2, document_id = $3 WHERE id = $4'
+    const values = [description, is_included, document_id, obj_id]
     await this.client.query(query, values)
   }
   async getContentObjOfDocument(
     documentId: string | string[] | undefined
   ): Promise<any> {
     const query =
-      'SELECT * FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
+      'SELECT id, description, is_included AS "isIncluded", document_id AS "documentId" FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
     const values = [documentId]
 
     const rows = await this.client.query(query, values)
