@@ -15,8 +15,7 @@ const DocumentAddModal = ({
   let parentId = isContentObject ? 'documentId' : 'storeId'
   let doc = {
     description: '',
-    keywords: '',
-    is_included: true,
+    isIncluded: true,
     [parentId]: isContentObject ? parseInt(documentId) : parseInt(storeId),
   }
   const title = isContentObject ? 'Add Content Object' : 'Add Document'
@@ -85,35 +84,20 @@ const DocumentAddModal = ({
             onChange={e =>
               setNewDocument({
                 ...newDocument,
-                is_included: !newDocument.is_included,
+                isIncluded: !newDocument.isIncluded,
               })
             }
-            checked={newDocument.is_included}
+            checked={newDocument.isIncluded}
           />
           <span className="form-item-label" style={{ marginBottom: 'unset' }}>
             Include
           </span>
         </div>
         <div className="form-item">
-          <span className="form-item-label">Keywords</span>
-          <input
-            type="text"
-            className="form-text-area"
-            onChange={e =>
-              setNewDocument({
-                ...newDocument,
-                keywords: e.target.value,
-              })
-            }
-            defaultValue={newDocument.keywords}
-          ></input>
-        </div>
-        <div className="form-item">
           <span className="form-item-label">Description</span>
           <input
             type="text"
             className="form-text-area"
-            defaultValue={newDocument.description}
             onChange={e =>
               setNewDocument({
                 ...newDocument,

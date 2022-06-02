@@ -7,12 +7,10 @@ import { useModal } from '@/contexts/ModalProvider';
 import { useSnackbar } from 'notistack';
 
 const ContentObject = ({ content, getContentObjects }) => {
+  const { id: objId, ..._content } = content
   const [contentObj, setContentObj] = useState({
-    objId: content.id,
-    keywords: content.keywords,
-    description: content.description,
-    is_included: content.is_included,
-    documentId: content.document_id
+    objId,
+    ... _content
   })
   const { openModal } = useModal()
   const { enqueueSnackbar } = useSnackbar()
@@ -40,10 +38,10 @@ const ContentObject = ({ content, getContentObjects }) => {
             type="checkbox" 
             name="include" 
             className="custom-checkbox" 
-            checked={contentObj.is_included}
+            checked={contentObj.isIncluded}
             onChange={() => setContentObj({
               ...contentObj,
-              is_included: !contentObj.is_included
+              isIncluded: !contentObj.isIncluded
             })} 
           />
           <span className="form-item-label" style={{ marginBottom: 'unset' }}>Include</span>
@@ -51,20 +49,6 @@ const ContentObject = ({ content, getContentObjects }) => {
         <div className="form-item">
           <VscSave size={20} color='#A0A0A0' onClick={updateObj} style={{ margin: '0 0.5rem'}}/>
           <VscTrash size={20} color='#A0A0A0' onClick={deleteObj}/>
-        </div>
-      </div>
-      <div className="form-item">
-        <span className="form-item-label">Keywords</span>
-        <div className='d-flex justify-content-between align-items-center'>
-          <input
-            type="text"
-            className="form-text-area"
-            value={contentObj.keywords}
-            onChange={e => setContentObj({
-              ...contentObj,
-              keywords: e.target.value
-            })}
-          ></input>
         </div>
       </div>
       <div className="form-item">

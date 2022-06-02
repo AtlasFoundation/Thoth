@@ -77,8 +77,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.post('/document', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const description = body?.description || ''
-    const keywords = body?.keywords
-    const is_included = body?.is_included && true
+    const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
 
     if (!storeId || storeId === undefined) {
@@ -92,8 +91,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       id = await database.instance.addDocument(
         description,
-        keywords,
-        is_included,
+        isIncluded,
         storeId
       )
       await singleTrain({ title: 'Document', description: description })
@@ -142,8 +140,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const { body } = ctx.request
     const documentId = body?.documentId
     const description = body?.description || ''
-    const keywords = body?.keywords
-    const is_included = body?.is_included && true
+    const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
     const doc = await database.instance.getSingleDocument(documentId)
 
@@ -158,8 +155,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       await database.instance.updateDocument(
         documentId,
         description,
-        keywords,
-        is_included,
+        isIncluded,
         storeId
       )
       if (doc) {
@@ -211,16 +207,14 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.post('/content-object', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const description = body?.description || ''
-    const keywords = body?.keywords
-    const is_included = body?.is_included && true
+    const isIncluded = body?.isIncluded && true
     const documentId = body?.documentId
 
     let id = -1
     try {
       id = await database.instance.addContentObj(
         description,
-        keywords,
-        is_included,
+        isIncluded,
         documentId
       )
     } catch (e) {
@@ -238,16 +232,14 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const { body } = ctx.request
     const objId = body.objId
     const description = body?.description || ''
-    const keywords = body?.keywords
-    const is_included = body?.is_included && true
+    const isIncluded = body?.isIncluded && true
     const documentId = body?.documentId
 
     try {
       await database.instance.editContentObj(
         objId,
         description,
-        keywords,
-        is_included,
+        isIncluded,
         documentId
       )
     } catch (e) {
