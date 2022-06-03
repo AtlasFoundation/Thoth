@@ -14,6 +14,8 @@ import { makeCompletion } from '../utils/MakeCompletionRequest'
 import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
+import fs from 'fs'
+import path from 'path'
 
 export const modules: Record<string, unknown> = {}
 
@@ -611,6 +613,23 @@ const deleteCalendarEvent = async (ctx: Koa.Context) => {
   }
 }
 
+const addVideo = async (ctx:Koa.Context) => {
+  try {
+    let { path: videoPath, name, type:mimeType } = ctx.request.files.video
+    const [type, subType] = mimeType.split('/')
+    if (type !== 'video') {
+      ctx.response.status = 400
+      return (ctx.body = 'Only video can be uploaded')
+    }
+    
+    fs.copyFileSync(videoPath, path.join(process.cwd(), `/files/videos/${name}`))
+    return (ctx.body = 'ok')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -718,5 +737,10 @@ export const entities: Route[] = [
     path: '/handle_custom_input',
     access: noAuth,
     post: handleCustomInput,
+  },
+  {
+    path: '/video',
+    access: noAuth,
+    post: addVideo,
   },
 ]
