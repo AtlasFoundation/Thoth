@@ -80,6 +80,7 @@ export async function initSpeechServer(ignoreDotEnv: boolean) {
           recognizeStream !== undefined &&
           recognizeStream.destroyed === false
         ) {
+          console.log('received data:', data)
           recognizeStream.write(data)
         }
       } catch (e) {

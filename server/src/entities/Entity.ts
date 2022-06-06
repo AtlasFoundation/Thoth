@@ -210,7 +210,7 @@ export class Entity {
     }
   }
 
-  startReddit(
+  async startReddit(
     reddit_app_id: string,
     reddit_app_secret_id: string,
     reddit_oauth_token: string,
@@ -225,7 +225,7 @@ export class Entity {
       throw new Error('Reddit already running for this entity on this instance')
     }
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: reddit_spell_handler_incoming,
       version: spell_version,
     })
@@ -251,7 +251,7 @@ export class Entity {
     }
   }
 
-  startZoom(
+  async startZoom(
     zoom_invitation_link: string,
     zoom_password: string,
     zoom_bot_name: string,
@@ -264,11 +264,12 @@ export class Entity {
       throw new Error('Zoom already running for this entity on this instance')
     }
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: zoom_spell_handler_incoming,
       version: spell_version,
     })
 
+    console.log('ZOOM SPELL HANDLER:', spellHandler)
     this.zoom = new zoom_client()
     this.zoom.createZoomClient(
       spellHandler,

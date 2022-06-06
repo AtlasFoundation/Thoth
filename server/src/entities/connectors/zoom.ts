@@ -5,14 +5,13 @@
 /* eslint-disable camelcase */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { launch, getStream } from 'puppeteer-stream'
+import { launch } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
 import { detectOsOption } from './utils'
-import { singleton } from '../../utils/speechUtils'
-import * as fs from 'fs'
-import http from 'http'
-import { BufferEncodingOption } from 'fs'
 import io from 'socket.io-client'
+import { removeEmojisFromString } from '../../utils/utils'
+import { cacheManager } from '../../cacheManager'
+import { tts } from '../../systems/googleTextToSpeech'
 
 export class zoom_client {
   async createZoomClient(spellHandler, settings, entity) {
@@ -62,9 +61,8 @@ export class zoom {
         //`--use-file-for-fake-audio-capture=${this.fakeMediaPath}test_audio.wav`,
         '--disable-web-security',
         '--autoplay-policy=no-user-gesture-required',
-        '--ignoreHTTPSErrors: true',
       ],
-      ignoreDefaultArgs: ['--mute-audio'],
+      //ignoreDefaultArgs: ['--mute-audio'],
       defaultViewport: {
         width: 1920,
         height: 1080,
@@ -147,8 +145,20 @@ export class zoom {
     } else {
       console.log('Link not found')
     }
-
     await this.clickElementById('button', 'audioOptionMenu')
+
+    await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
+    await this.catchScreenshot()
+    const linkHandlers4 = await this.page.$x(
+      "//a[contains(text(), 'Show Subtitle')]"
+    )
+
+    if (linkHandlers4.length > 0) {
+      await linkHandlers4[0].evaluate(b => b.click())
+    } else {
+      console.log('Link not found')
+    }
+    await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
     await this.catchScreenshot()
     /*await this.page.evaluate(async su => {
       //su.initRecording()
@@ -169,14 +179,82 @@ export class zoom {
       file.close()
       console.log('finished')
     }, 30000)*/
+    await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
+    return
+    setInterval(async () => {
+      //live-transcription-subtitle
+      let text = await this.page.evaluate(async () => {
+        const el = document.getElementById('live-transcription-subtitle')
+        return el?.textContent
+      })
+      console.log('TRANSCRIPTION VALUE:', text)
+      if ((text && text !== undefined) || text?.length <= 0) {
+        if (text == this.lastResponse || this.lastMessage === text) {
+          return
+        }
+
+        if (text.includes(this.lastMessage)) {
+          text = text.replace(this.lastMessage, '')
+          if (text.length <= 0) {
+            return
+          }
+        }
+
+        this.lastMessage = text
+        console.log('spellHandler:', this.spellHandler)
+        let response = await this.spellHandler(
+          text,
+          'User',
+          this.settings.zoom_bot_name ?? 'Agent',
+          'zoom',
+          this.settings.zoom_invitation_link,
+          this.entity,
+          []
+        )
+        const tempResp = response
+        console.log('RESP:', response)
+        response = removeEmojisFromString(response)
+        const temp = response
+        if (!cacheManager.instance) {
+          new cacheManager(-1)
+        }
+
+        const cache = await cacheManager.instance.get(
+          this.agent,
+          'voice_' + temp,
+          true
+        )
+        if (cache) {
+          response = cache
+          console.log('got from cache:', cache)
+        } else {
+          const fileId = await tts(response as string)
+          const url =
+            (process.env.FILE_SERVER_URL?.endsWith('/')
+              ? process.env.FILE_SERVER_URL
+              : process.env.FILE_SERVER_URL + '/') + fileId
+
+          console.log('url:', url)
+          response = url
+        }
+        await this.playAudio(
+          'https://file-examples.com/storage/fe6bd2111e629938f9ec769/2017/11/file_example_MP3_1MG.mp3'
+        )
+        cacheManager.instance.set(this.agent, 'voice_' + temp, response)
+        this.lastResponse = tempResp
+      }
+    }, 5000)
     await this.connectToVoiceServer()
     await this.getVideo()
     //this.frameCapturerer()
   }
 
+  lastMessage = ''
+  lastResponse = ''
+
   frameCapturerer() {
     setTimeout(() => {
-      this.getRemoteScreenshot()
+      this.getRemoteScreednshot()
       this.frameCapturerer()
     }, 500)
   }
@@ -220,6 +298,7 @@ export class zoom {
             const int16arr = new Int16Array(uint8Arr)
             //const audioArray = Array.from(int16arr)
             const audioSampler = this.downsampleBuffer(int16arr, 44100, 16000)
+            console.log('sending audioSampler')
             await window.emitDataToSTT(audioSampler)
           }
         }
@@ -320,12 +399,19 @@ export class zoom {
 
   videoCreated = false
   async playVideo(url) {
+    console.log('playVideo:', url)
     await this.page.evaluate(
       async (_url, _videCreated) => {
         let video = undefined
         if (!this.videoCreated)
-          video = await document.createElement('video', {})
-        else video = await document.getElementById('video-mock')
+          video = (await document.createElement(
+            'video',
+            {}
+          )) as HTMLVideoElementWithCaputreStream
+        else
+          video = (await document.getElementById(
+            'video-mock'
+          )) as HTMLVideoElementWithCaputreStream
         video.setAttribute('id', 'video-mock')
         video.setAttribute('src', _url)
         video.setAttribute('crossorigin', 'anonymous')
@@ -353,18 +439,27 @@ export class zoom {
   }
 
   async playAudio(audioUrl) {
+    console.log('playingAudio:', audioUrl)
     await this.page.evaluate(url => {
       const audio = document.createElement('audio')
       audio.setAttribute('src', url)
       audio.setAttribute('crossorigin', 'anonymous')
       audio.setAttribute('controls', '')
+      audio.oncanplay = async () => {
+        audio.play()
+      }
       audio.onplay = function () {
-        var stream = audio.captureStream()
+        console.log('audio on play')
+        const stream = audio.captureStream()
+        navigator.mediaDevices.getUserMedia
         navigator.mediaDevices.getUserMedia = async function () {
+          console.log('get user media')
           return stream
         }
       }
+      document.querySelector('body').appendChild(audio)
     }, audioUrl)
+    this.catchScreenshot()
   }
 
   async clickSelectorId(selector, id) {
