@@ -259,33 +259,49 @@ const createEvent = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
-const getSpeechToText = async (ctx: Koa.Context) => {
+const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
-  const character = ctx.request.query.character ?? 'none'
-  console.log('text and character are', text, character)
+  const voice_provider = ctx.request.query.voice_provider
+  const voice_character = ctx.request.query.voice_character
+  const voice_language_code = ctx.request.query.voice_language_code
+
+  console.log('text and character are', text, voice_character)
   const cache = await cacheManager.instance.get(
-    'speech_' + character + ': ' + text
+    'voice_' + voice_provider + '_' + voice_character + '_' + text
   )
-  if (cache !== undefined && cache !== null) {
+  if (cache !== undefined && cache !== null && cache.length > 0) {
     console.log('got sst from cache, cache:', cache)
     return (ctx.body = cache)
   }
 
-  // const fileId = await tts(text as string)
-  // const url =
-  //   (process.env.FILE_SERVER_URL?.endsWith('/')
-  //     ? process.env.FILE_SERVER_URL
-  //     : process.env.FILE_SERVER_URL + '/') + fileId
+  let url = ''
 
-  const url = await getAudioUrl(
-    process.env.UBER_DUCK_KEY as string,
-    process.env.UBER_DUCK_SECRET_KEY as string,
-    character as string,
-    text as string
-  )
+  if (!cache && cache.length <= 0) {
+    if (voice_provider === 'uberduck') {
+      url = await getAudioUrl(
+        process.env.UBER_DUCK_KEY as string,
+        process.env.UBER_DUCK_SECRET_KEY as string,
+        voice_character as string,
+        text as string
+      )
+    } else {
+      url = await tts(
+        text,
+        voice_provider,
+        voice_character,
+        voice_language_code
+      )
+    }
+  }
+
   console.log('stt url:', url)
 
-  cacheManager.instance.set('speech_' + character + ': ' + text, url)
+  if (url && url.length > 0) {
+    cacheManager.instance.set(
+      'voice_' + voice_provider + '_' + voice_character + '_' + text,
+      url
+    )
+  }
 
   return (ctx.body = url)
 }
@@ -702,9 +718,9 @@ export const entities: Route[] = [
     delete: deleteCalendarEvent,
   },
   {
-    path: '/speech_to_text',
+    path: '/text_to_speech',
     access: noAuth,
-    get: getSpeechToText,
+    get: getTextToSpeech,
   },
   {
     path: '/get_entity_image',

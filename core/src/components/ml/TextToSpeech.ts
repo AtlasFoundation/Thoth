@@ -48,7 +48,18 @@ export class TextToSpeech extends ThothComponent<Promise<WorkerReturn>> {
 
   builder(node: ThothNode) {
     const textInput = new Rete.Input('input', 'Input', anySocket, true)
+    const voiceProviderInp = new Rete.Input(
+      'voiceProvider',
+      'Voice Provider',
+      stringSocket,
+      true
+    )
     const characterInp = new Rete.Input('character', 'Character', stringSocket)
+    const languageCodeInp = new Rete.Input(
+      'languageCode',
+      'Language Code',
+      stringSocket
+    )
     const triggerInput = new Rete.Input(
       'trigger',
       'Trigger',
@@ -61,7 +72,9 @@ export class TextToSpeech extends ThothComponent<Promise<WorkerReturn>> {
     return node
       .addInput(textInput)
       .addInput(triggerInput)
+      .addInput(voiceProviderInp)
       .addInput(characterInp)
+      .addInput(languageCodeInp)
       .addOutput(dataOutput)
       .addOutput(outp)
   }
@@ -74,17 +87,21 @@ export class TextToSpeech extends ThothComponent<Promise<WorkerReturn>> {
   ) {
     console.log('INPUTS:', inputs)
     const action = inputs['input'][0]
+    const voiceProvider = inputs['voiceProvider'][0]
     const character = inputs['character']?.[0] as string
+    const languageCode = inputs['languageCode']?.[0] as string
 
     const isCommand = (action as string).startsWith('/')
 
     let url: any = undefined
 
     if (!isCommand && action) {
-      url = await axios.get(`${API_URL}/speech_to_text`, {
+      url = await axios.get(`${API_URL}/text_to_speech`, {
         params: {
           text: action,
-          character: character,
+          voice_provider: voiceProvider,
+          voice_character: character,
+          voice_language_code: languageCode,
         },
       })
       console.log('url', url.data)

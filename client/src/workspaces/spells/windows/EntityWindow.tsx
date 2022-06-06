@@ -93,10 +93,49 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [reddit_spell_handler_incoming, setRedditSpellHandlerIncoming] =
     useState('')
 
+  const [playingAudio, setPlayingAudio] = useState(false)
+
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
   // const [twilio_sid, setTwilioSid] = useState('')
   // const [twilio_auth_token, setTwilioAuthToken] = useState('')
   // const [twilio_phone_number, setTwilioPhoneNumber] = useState('')
+
+  const testVoice = async () => {
+    if (
+      (voice_provider && voice_character && voice_language_code) ||
+      playingAudio
+    ) {
+      const resp = await axios.get(
+        `${process.env.REACT_APP_API_URL}/text_to_speech`,
+        {
+          params: {
+            text: 'Hello there! How are you?',
+            voice_provider: voice_provider,
+            voice_character: voice_character,
+            voice_language_code: voice_language_code,
+          },
+        }
+      )
+
+      const url = resp.data
+      if (url && url.length > 0) {
+        setPlayingAudio(true)
+        console.log('url:', url)
+        const audio = new Audio(url)
+        audio.onended = function () {
+          setPlayingAudio(false)
+        }
+        audio.play()
+      }
+    } else {
+      enqueueSnackbar(
+        'You need to setup the voice variables to test the voice or already playing another test',
+        {
+          variant: 'error',
+        }
+      )
+    }
+  }
 
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
@@ -489,6 +528,12 @@ const EntityWindow = ({ id, updateCallback }) => {
                 setVoiceDefaultPhrases(e.target.value)
               }}
             />
+          </div>
+
+          <div className="form-item">
+            <button onClick={() => testVoice()} style={{ marginRight: '10px' }}>
+              Test
+            </button>
           </div>
         </React.Fragment>
       )}
