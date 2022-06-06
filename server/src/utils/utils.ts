@@ -185,3 +185,12 @@ export const isValidEndPoint = (urls: string[], endPoint: string): boolean => {
   }
   return isValid
 }
+
+export const stringIsAValidUrl = (s: string | any) => {
+  try {
+    new URL(s)
+    return true
+  } catch (err) {
+    return false
+  }
+}

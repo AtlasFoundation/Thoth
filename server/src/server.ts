@@ -66,7 +66,7 @@ async function init() {
   await initFileServer()
   await initClassifier()
   await initTextToSpeech()
-  new cacheManager(-1)
+  new cacheManager()
   await initWeaviateClient(
     process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true'
   )

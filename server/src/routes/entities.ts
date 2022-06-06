@@ -118,9 +118,8 @@ const addEntityHandler = async (ctx: Koa.Context) => {
 
   try {
     console.log('updated agent database with', data)
-    if (Object.keys(data).length <= 0) return (
-      ctx.body = await database.instance.createEntity()
-    )
+    if (Object.keys(data).length <= 0)
+      return (ctx.body = await database.instance.createEntity())
     return (ctx.body = await database.instance.updateEntity(instanceId, data))
   } catch (e) {
     console.log('addEntityHandler:', e)
@@ -223,7 +222,15 @@ const updateEvent = async (ctx: Koa.Context) => {
     const type = ctx.request.body.type
     const date = ctx.request.body.date
 
-    const res = await database.instance.updateEvent(id, { agent, sender, client, channel, text, type, date })
+    const res = await database.instance.updateEvent(id, {
+      agent,
+      sender,
+      client,
+      channel,
+      text,
+      type,
+      date,
+    })
     return (ctx.body = res)
   } catch (e) {
     console.log(e)
@@ -255,11 +262,9 @@ const createEvent = async (ctx: Koa.Context) => {
 const getSpeechToText = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
   const character = ctx.request.query.character ?? 'none'
-  console.log("text and character are", text, character)
+  console.log('text and character are', text, character)
   const cache = await cacheManager.instance.get(
-    character as string,
-    'speech_' + character + ': ' + text,
-    true
+    'speech_' + character + ': ' + text
   )
   if (cache !== undefined && cache !== null) {
     console.log('got sst from cache, cache:', cache)
@@ -280,7 +285,7 @@ const getSpeechToText = async (ctx: Koa.Context) => {
   )
   console.log('stt url:', url)
 
-  cacheManager.instance.set('global', 'speech_' + character + ': ' + text, url)
+  cacheManager.instance.set('speech_' + character + ': ' + text, url)
 
   return (ctx.body = url)
 }
@@ -331,9 +336,7 @@ const customMessage = async (ctx: Koa.Context) => {
     console.log('generating voice')
     const character = 'kurzgesagt'
     const cache = cacheManager.instance.get(
-      'global',
-      'speech_' + character + ': ' + response,
-      true
+      'speech_' + character + ': ' + response
     )
     if (cache !== undefined && cache !== null) {
       return (ctx.body = cache)
@@ -346,11 +349,7 @@ const customMessage = async (ctx: Koa.Context) => {
       response as string
     )
 
-    cacheManager.instance.set(
-      'global',
-      'speech_' + character + ': ' + response,
-      url
-    )
+    cacheManager.instance.set('speech_' + character + ': ' + response, url)
   }
 
   return (ctx.body = { response: isVoice ? url : message, isVoice: isVoice })
@@ -359,9 +358,8 @@ const customMessage = async (ctx: Koa.Context) => {
 const getFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
-  const strict = ctx.request.query.strict as string
 
-  const value = cacheManager.instance.get(agent, key, strict === 'true')
+  const value = cacheManager.instance.get(key)
   return (ctx.body = { data: value })
 }
 
@@ -369,7 +367,7 @@ const deleteFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
 
-  cacheManager.instance._delete(agent, key)
+  cacheManager.instance._delete(key)
   return (ctx.body = 'ok')
 }
 
@@ -378,7 +376,7 @@ const setInCache = async (ctx: Koa.Context) => {
   const agent = ctx.request.body.agent as string
   const value = ctx.request.body.value
 
-  cacheManager.instance.set(agent, key, value)
+  cacheManager.instance.set(key, value)
   return (ctx.body = 'ok')
 }
 
@@ -474,8 +472,9 @@ const requestInformationAboutVideo = async (
   question: string
 ): Promise<string> => {
   const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-    }\n${agent}:`
+  const prompt = `Information: ${videoInformation} \n ${sender}: ${
+    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
+  }\n${agent}:`
 
   const modelName = 'davinci'
   const temperature = 0.9
@@ -575,9 +574,15 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
   const time = ctx.request.body.time
   const type = ctx.request.body.type
   const moreInfo = ctx.request.body.moreInfo
-  
+
   try {
-    await database.instance.createCalendarEvent(name, date, time, type, moreInfo)
+    await database.instance.createCalendarEvent(
+      name,
+      date,
+      time,
+      type,
+      moreInfo
+    )
     return (ctx.body = 'inserted')
   } catch (e) {
     ctx.status = 500
@@ -587,14 +592,21 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
 
 const editCalendarEvent = async (ctx: Koa.Context) => {
   const id = ctx.params.id
-  const name = ctx.request.body.name 
+  const name = ctx.request.body.name
   const date = ctx.request.body.date
   const time = ctx.request.body.time
   const type = ctx.request.body.type
   const moreInfo = ctx.request.body.moreInfo
-  
+
   try {
-    await database.instance.editCalendarEvent(id, name, date, time, type, moreInfo)
+    await database.instance.editCalendarEvent(
+      id,
+      name,
+      date,
+      time,
+      type,
+      moreInfo
+    )
     return (ctx.body = 'edited')
   } catch (e) {
     ctx.status = 500
@@ -613,16 +625,19 @@ const deleteCalendarEvent = async (ctx: Koa.Context) => {
   }
 }
 
-const addVideo = async (ctx:Koa.Context) => {
+const addVideo = async (ctx: Koa.Context) => {
   try {
-    let { path: videoPath, name, type:mimeType } = ctx.request.files.video
+    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
     const [type, subType] = mimeType.split('/')
     if (type !== 'video') {
       ctx.response.status = 400
       return (ctx.body = 'Only video can be uploaded')
     }
-    
-    fs.copyFileSync(videoPath, path.join(process.cwd(), `/files/videos/${name}`))
+
+    fs.copyFileSync(
+      videoPath,
+      path.join(process.cwd(), `/files/videos/${name}`)
+    )
     return (ctx.body = 'ok')
   } catch (e) {
     ctx.status = 500

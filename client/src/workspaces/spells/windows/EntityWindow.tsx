@@ -39,6 +39,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [voice_provider, setVoiceProvider] = useState(false)
   const [voice_character, setVoiceCharacter] = useState('')
   const [voice_language_code, setVoiceLanguageCode] = useState('')
+  const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
 
   const [discord_starting_words, setDiscordStartingWords] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
@@ -111,6 +112,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceProvider(res.data.voice_provider)
         setVoiceCharacter(res.data.voice_character)
         setVoiceLanguageCode(res.data.voice_language_code)
+        setVoiceDefaultPhrases(res.data.voice_default_phrases)
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
@@ -218,6 +220,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_provider,
       voice_character,
       voice_language_code,
+      voice_default_phrases,
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -473,6 +476,17 @@ const EntityWindow = ({ id, updateCallback }) => {
               defaultValue={voice_language_code}
               onChange={e => {
                 setVoiceLanguageCode(e.target.value)
+              }}
+            />
+          </div>
+
+          <div className="form-item">
+            <span className="form-item-label">Voice Default Phrases</span>
+            <input
+              type="text"
+              defaultValue={voice_default_phrases}
+              onChange={e => {
+                setVoiceDefaultPhrases(e.target.value)
               }}
             />
           </div>

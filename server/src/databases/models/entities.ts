@@ -21,6 +21,7 @@ export interface entitiesAttributes {
   voice_provider?: string
   voice_character?: string
   voice_language_code?: string
+  voice_default_phrases?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
   xrengine_spell_handler_incoming?: string
@@ -69,6 +70,7 @@ export type entitiesOptionalAttributes =
   | 'voice_provider'
   | 'voice_character'
   | 'voice_language_code'
+  | 'voice_default_phrases'
   | 'xrengine_enabled'
   | 'xrengine_url'
   | 'xrengine_spell_handler_incoming'
@@ -126,6 +128,7 @@ export class entities
   voice_provider?: string
   voice_character?: string
   voice_language_code?: string
+  voice_default_phrases?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
   xrengine_spell_handler_incoming?: string
@@ -223,6 +226,10 @@ export class entities
           allowNull: true,
         },
         voice_language_code: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        voice_default_phrases: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
