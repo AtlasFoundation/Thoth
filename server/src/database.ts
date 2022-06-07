@@ -357,7 +357,7 @@ export class database {
     console.log('document store id:', id)
 
     const query =
-      'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4)'
+      'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
     const values = [id, title, description, is_included, store_id]
 
     await this.client.query(query, values)
@@ -385,7 +385,8 @@ export class database {
   async getDocumentsOfStore(
     storeId: string | string[] | undefined
   ): Promise<any> {
-    const query = 'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
+    const query =
+      'SELECT id, title, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)
