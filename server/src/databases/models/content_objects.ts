@@ -4,12 +4,11 @@ import { DataTypes, Model, Optional } from 'sequelize'
 export interface contentObjAttributes {
   id: number
   description: string
-  keywords: string
   is_included: boolean
   documentId: number
 }
 
-export type contentObjOptionalAttributes = 'description' | 'keywords' 
+export type contentObjOptionalAttributes = 'description'
 export type contentObjCreationAttributes = Optional<
   contentObjAttributes,
   contentObjOptionalAttributes
@@ -21,7 +20,6 @@ export class contentObj
 {
   id: number
   description: string
-  keywords: string
   is_included: boolean
   documentId: number
   
@@ -35,10 +33,6 @@ export class contentObj
           primaryKey: true,
         },
         description: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-        },
-        keywords: {
           type: DataTypes.TEXT,
           allowNull: false,
         },

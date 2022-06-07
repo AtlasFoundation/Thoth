@@ -490,9 +490,12 @@ export class xrengine_client {
         response = removeEmojisFromString(response)
         const temp = response
         const cache = await cacheManager.instance.get(
-          this.agent,
-          'voice_' + temp,
-          true
+          'voice_' +
+            this.settings.voice_provider +
+            '_' +
+            this.settings.voice_character +
+            '_' +
+            response
         )
         if (cache) {
           response = cache
@@ -509,7 +512,15 @@ export class xrengine_client {
         }
         await this.xrengineBot.delay(1000)
         await this.xrengineBot.sendMessage('!voiceUrl|' + response)
-        cacheManager.instance.set(this.agent, 'voice_' + temp, response)
+        cacheManager.instance.set(
+          'voice_' +
+            this.settings.voice_provider +
+            '_' +
+            this.settings.voice_character +
+            '_' +
+            temp,
+          response
+        )
       }
       return
     }

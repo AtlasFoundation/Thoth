@@ -10,6 +10,10 @@ import { twilio_client } from './connectors/twilio'
 //import { harmony_client } from '../../../core/src/connectors/harmony'
 import { xrengine_client } from './connectors/xrengine'
 import { CreateSpellHandler } from './CreateSpellHandler'
+import { cacheManager } from '../cacheManager'
+import { getAudioUrl } from '../routes/getAudioUrl'
+import { tts } from '../systems/googleTextToSpeech'
+import { stringIsAValidUrl } from '../utils/utils'
 
 export class Entity {
   name = ''
@@ -153,17 +157,21 @@ export class Entity {
 
     this.twitter = new twitter_client()
     console.log('createTwitterClient')
-    await this.twitter.createTwitterClient(spellHandler, {
-      twitter_token,
-      twitter_id,
-      twitter_app_token,
-      twitter_app_token_secret,
-      twitter_access_token,
-      twitter_access_token_secret,
-      twitter_bot_name,
-      twitter_bot_name_regex,
-      twitter_spell_handler_incoming
-    }, entity)
+    await this.twitter.createTwitterClient(
+      spellHandler,
+      {
+        twitter_token,
+        twitter_id,
+        twitter_app_token,
+        twitter_app_token_secret,
+        twitter_access_token,
+        twitter_access_token_secret,
+        twitter_bot_name,
+        twitter_bot_name_regex,
+        twitter_spell_handler_incoming,
+      },
+      entity
+    )
     console.log('Started twitter client for agent ' + this)
     // const response = await spellHandler(
     //   'testmessage',
@@ -267,12 +275,76 @@ export class Entity {
     if (this.reddit) this.stopReddit()
   }
 
+  async generateVoices(data: any) {
+    if (data.use_voice) {
+      const phrases = data.voice_default_phrases
+      if (phrases && phrases.length > 0) {
+        const pArr = phrases.split('|')
+        for (let i = 0; i < pArr.length; i++) {
+          pArr[i] = pArr[i].trim()
+        }
+        const filtered = pArr.filter(
+          (p: string) => p && p !== undefined && p?.length > 0
+        )
+
+        for (let i = 0; i < filtered.length; i++) {
+          if (
+            await cacheManager.instance.has(
+              'voice_' +
+                data.voice_provider +
+                '_' +
+                data.voice_character +
+                '_' +
+                filtered[i]
+            )
+          ) {
+            continue
+          }
+
+          let url: any = ''
+          if (data.voice_provider === 'uberduck') {
+            url = await getAudioUrl(
+              process.env.UBER_DUCK_KEY as string,
+              process.env.UBER_DUCK_SECRET_KEY as string,
+              data.voice_character,
+              filtered[i]
+            )
+          } else {
+            url = await tts(
+              filtered[i],
+              data.voice_character,
+              data.voice_language_code
+            )
+          }
+
+          if (url && url.length > 0 && stringIsAValidUrl(url)) {
+            await cacheManager.instance.set(
+              'voice_' +
+                data.voice_provider +
+                '_' +
+                data.voice_character +
+                '_' +
+                filtered[i],
+              url
+            )
+          }
+        }
+      }
+    }
+  }
+
   constructor(data: any) {
+    if (!cacheManager.instance) {
+      new cacheManager()
+    }
+
     this.onDestroy()
     this.id = data.id
     console.log('initing agent')
     console.log('agent data is ', data)
     this.name = data.agent ?? data.name ?? 'agent'
+
+    this.generateVoices(data)
 
     if (data.discord_enabled) {
       this.startDiscord(

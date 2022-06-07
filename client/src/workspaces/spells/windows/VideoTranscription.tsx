@@ -3,34 +3,33 @@ import Window from '../../../components/Window/Window'
 
 import '../../../screens/Thoth/thoth.module.css'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 
 const VideoTranscription = () => {
-    const loadFile = selectedFile => {
-        uploadFile(selectedFile)
+  const { enqueueSnackbar } = useSnackbar()
+  const loadFile = selectedFile => {
+    uploadFile(selectedFile)
+  }
+
+  const uploadFile = async(file) => {
+    let formData = new FormData();
+    formData.append('video', file)
+    let url = `${process.env.REACT_APP_API_URL}/video`
+    try {
+      await axios.post(url, formData)
+      enqueueSnackbar('Video uploaded', { variant: 'success' })
+    } catch (err) {
+      console.log(err)
+      enqueueSnackbar('Video not uploaded', { variant: 'error' })
     }
+  }
 
-    const uploadFile = async(file) => {
-        console.log(file,'selectedFile')
-        // let formData = new FormData();
-        // let url = `${process.env.REACT_APP_SEARCH_SERVER_URL}/`
-        let url = 'https://localhost:8001'
-        let body = file?.name;
-
-        await axios.post(url,  {
-            'url': body
-        }).then((response) => {
-            console.log(response,'response')
-        }).catch((error) => {
-            console.log(error,'error');
-        });
-    }
-
-    return (
-        <Window>
-        <p>Upload Video</p>
-        <VideoInput loadFile={loadFile} />
-        </Window>
-    )
+  return (
+    <Window>
+    <p>Upload Video</p>
+    <VideoInput loadFile={loadFile} />
+    </Window>
+  )
 }
 
 export default VideoTranscription

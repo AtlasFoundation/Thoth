@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
+import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -26,6 +27,8 @@ function capitalizeFirstLetter(word) {
 
 const EntityWindow = ({ id, updateCallback }) => {
   const { user } = useAuth()
+  const { enqueueSnackbar } = useSnackbar()
+
   const [loaded, setLoaded] = useState(false)
 
   const [enabled, setEnabled] = useState(false)
@@ -36,6 +39,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [voice_provider, setVoiceProvider] = useState(false)
   const [voice_character, setVoiceCharacter] = useState('')
   const [voice_language_code, setVoiceLanguageCode] = useState('')
+  const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
 
   const [discord_starting_words, setDiscordStartingWords] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
@@ -71,7 +75,8 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
-  const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] = useState('')
+  const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] =
+    useState('')
 
   const [telegram_enabled, setTelegramEnabled] = useState('')
   const [telegram_bot_token, setTelegramBotToken] = useState('')
@@ -88,10 +93,49 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [reddit_spell_handler_incoming, setRedditSpellHandlerIncoming] =
     useState('')
 
+  const [playingAudio, setPlayingAudio] = useState(false)
+
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
   // const [twilio_sid, setTwilioSid] = useState('')
   // const [twilio_auth_token, setTwilioAuthToken] = useState('')
   // const [twilio_phone_number, setTwilioPhoneNumber] = useState('')
+
+  const testVoice = async () => {
+    if (
+      (voice_provider && voice_character && voice_language_code) ||
+      playingAudio
+    ) {
+      const resp = await axios.get(
+        `${process.env.REACT_APP_API_URL}/text_to_speech`,
+        {
+          params: {
+            text: 'Hello there! How are you?',
+            voice_provider: voice_provider,
+            voice_character: voice_character,
+            voice_language_code: voice_language_code,
+          },
+        }
+      )
+
+      const url = resp.data
+      if (url && url.length > 0) {
+        setPlayingAudio(true)
+        console.log('url:', url)
+        const audio = new Audio(url)
+        audio.onended = function () {
+          setPlayingAudio(false)
+        }
+        audio.play()
+      }
+    } else {
+      enqueueSnackbar(
+        'You need to setup the voice variables to test the voice or already playing another test',
+        {
+          variant: 'error',
+        }
+      )
+    }
+  }
 
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
@@ -107,6 +151,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceProvider(res.data.voice_provider)
         setVoiceCharacter(res.data.voice_character)
         setVoiceLanguageCode(res.data.voice_language_code)
+        setVoiceDefaultPhrases(res.data.voice_default_phrases)
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
@@ -179,12 +224,21 @@ const EntityWindow = ({ id, updateCallback }) => {
       .then(res => {
         console.log('deleted', res)
         if (res.data === 'internal error') {
-          alert('Server Error deleting entity with id: ' + id)
+          enqueueSnackbar('Server Error deleting entity with id: ' + id, {
+            variant: 'error',
+          })
         } else {
-          alert('Entity with id: ' + id + ' deleted successfully')
+          enqueueSnackbar('Entity with id: ' + id + ' deleted successfully', {
+            variant: 'success',
+          })
         }
         setLoaded(false)
         updateCallback()
+      })
+      .catch(e => {
+        enqueueSnackbar('Server Error deleting entity with id: ' + id, {
+          variant: 'error',
+        })
       })
   }
 
@@ -205,6 +259,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_provider,
       voice_character,
       voice_language_code,
+      voice_default_phrases,
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -247,9 +302,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       })
       .then(res => {
         if (res.data === 'internal error') {
-          alert('internal error updating entity')
+          enqueueSnackbar('internal error updating entity', {
+            variant: 'error',
+          })
         } else {
-          alert('updated entity')
+          enqueueSnackbar('updated entity', {
+            variant: 'success',
+          })
           console.log('response on update', JSON.parse(res.config.data).data)
           let responseData = res && JSON.parse(res?.config?.data).data
           console.log(responseData, 'responseDataresponseData')
@@ -288,7 +347,9 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterAccessTokenSecret(responseData.twitter_access_token_secret)
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
-          setTwitterSpellHandlerIncoming(responseData.twitter_spell_handler_incoming)
+          setTwitterSpellHandlerIncoming(
+            responseData.twitter_spell_handler_incoming
+          )
 
           setTelegramEnabled(responseData.telegram_enabled)
           setTelegramBotToken(responseData.telegram_bot_token)
@@ -314,6 +375,11 @@ const EntityWindow = ({ id, updateCallback }) => {
 
           updateCallback()
         }
+      })
+      .catch(e => {
+        enqueueSnackbar('internal error updating entity', {
+          variant: 'error',
+        })
       })
   }
 
@@ -433,24 +499,112 @@ const EntityWindow = ({ id, updateCallback }) => {
 
           <div className="form-item">
             <span className="form-item-label">Character</span>
+            {voice_provider === 'google' ? (
+              <select
+                name="voice_provider"
+                id="voice_provider"
+                value={voice_character}
+                onChange={event => {
+                  setVoiceCharacter(event.target.value)
+                }}
+              >
+                <option value={'en-US-Standard-A'}>en-US-Standard-A</option>
+                <option value={'en-US-Standard-B'}>en-US-Standard-B</option>
+                <option value={'en-US-Standard-C'}>en-US-Standard-C</option>
+                <option value={'en-US-Standard-D'}>en-US-Standard-D</option>
+                <option value={'en-US-Standard-E'}>en-US-Standard-E</option>
+                <option value={'en-US-Standard-F'}>en-US-Standard-F</option>
+                <option value={'en-US-Standard-G'}>en-US-Standard-G</option>
+                <option value={'en-US-Standard-H'}>en-US-Standard-H</option>
+                <option value={'en-US-Standard-I'}>en-US-Standard-I</option>
+                <option value={'en-US-Standard-J'}>en-US-Standard-J</option>
+                <option value={'en-US-Wavenet-A'}>en-US-Wavenet-A</option>
+                <option value={'en-US-Wavenet-B'}>en-US-Wavenet-B</option>
+                <option value={'en-US-Wavenet-C'}>en-US-Wavenet-C</option>
+                <option value={'en-US-Wavenet-D'}>en-US-Wavenet-D</option>
+                <option value={'en-US-Wavenet-E'}>en-US-Wavenet-E</option>
+                <option value={'en-US-Wavenet-F'}>en-US-Wavenet-F</option>
+                <option value={'en-US-Wavenet-G'}>en-US-Wavenet-G</option>
+                <option value={'en-US-Wavenet-H'}>en-US-Wavenet-H</option>
+                <option value={'en-US-Wavenet-I'}>en-US-Wavenet-I</option>
+                <option value={'en-US-Wavenet-J'}>en-US-Wavenet-J</option>
+              </select>
+            ) : (
+              <select
+                name="voice_provider"
+                id="voice_provider"
+                value={voice_character}
+                onChange={event => {
+                  setVoiceCharacter(event.target.value)
+                }}
+              >
+                <option value={'101-dalmatians-lucky'}>
+                  101-dalmatians-lucky
+                </option>
+                <option value={'101-dalmatians-roll'}>
+                  101-dalmatians-roll
+                </option>
+                <option value={'11-45-g'}>11-45-g</option>
+                <option value={'11th-doctor'}>11th-doctor</option>
+                <option value={'12th-doctor'}>12th-doctor</option>
+                <option value={'13-amp'}>13-amp</option>
+                <option value={'13-zt'}>13-zt</option>
+                <option value={'21-savage'}>21-savage</option>
+                <option value={'2pac'}>2pac</option>
+                <option value={'2pac-arpa'}>2pac-arpa</option>
+                <option value={'2pac-speaking'}>2pac-speaking</option>
+                <option value={'3kliksphilip'}>3kliksphilip</option>
+                <option value={'church'}>church</option>
+                <option value={'antman'}>antman</option>
+                <option value={'applejack'}>applejack</option>
+                <option value={'juice-wrld-rapping'}>juice-wrld-rapping</option>
+                <option value={'juice-wrld-singing'}>juice-wrld-singing</option>
+                <option value={'juicewrld'}>juicewrld</option>
+                <option value={'kanye-west-rap'}>kanye-west-rap</option>
+                <option value={'karen-20'}>karen-20</option>
+                <option value={'killjoy'}>killjoy</option>
+                <option value={'king-julien-sbc'}>king-julien-sbc</option>
+                <option value={'kratos'}>kratos</option>
+                <option value={'lemon-demon'}>lemon-demon</option>
+                <option value={'lil-jon'}>lil-jon</option>
+                <option value={'lil-peep'}>lil-peep</option>
+                <option value={'luigi'}>luigi</option>
+                <option value={'yoda'}>yoda</option>
+                <option value={'zoog-disney'}>zoog-disney</option>
+                <option value={'zro'}>zro</option>
+              </select>
+            )}
+          </div>
+
+          <div className="form-item">
+            <span className="form-item-label">Language Code</span>
+            <select
+              name="voice_provider"
+              id="voice_provider"
+              value={voice_language_code}
+              onChange={event => {
+                setVoiceLanguageCode(event.target.value)
+              }}
+            >
+              <option value={'en-US'}>en-US</option>
+            </select>
+          </div>
+
+          <div className="form-item">
+            <span className="form-item-label">Voice Default Phrases</span>
             <input
               type="text"
-              defaultValue={voice_character}
+              defaultValue={voice_default_phrases}
               onChange={e => {
-                setVoiceCharacter(e.target.value)
+                setVoiceDefaultPhrases(e.target.value)
               }}
             />
           </div>
 
           <div className="form-item">
-            <span className="form-item-label">Language Code</span>
-            <input
-              type="text"
-              defaultValue={voice_language_code}
-              onChange={e => {
-                setVoiceLanguageCode(e.target.value)
-              }}
-            />
+            <button onClick={() => testVoice()} style={{ marginRight: '10px' }}>
+              Test
+            </button>
           </div>
         </React.Fragment>
       )}

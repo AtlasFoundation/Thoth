@@ -8,9 +8,9 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { DropdownControl } from '../../dataControls/DropdownControl'
 import { FewshotControl } from '../../dataControls/FewshotControl'
 import { InputControl } from '../../dataControls/InputControl'
+import { ModelControl } from '../../dataControls/ModelControl'
 import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
@@ -38,6 +38,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     }
     this.category = 'AI/ML'
     this.info = info
+    this.display = true
   }
 
   builder(node: ThothNode) {
@@ -57,11 +58,10 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       name: 'Component Name',
     })
 
-    const modelControl = new DropdownControl({
+    const modelControl = new ModelControl({
       dataKey: 'model',
       name: 'Model',
-      defaultValue: (node.data?.model as string) || 'vanilla-davinci',
-      values: ['vanilla-davinci', 'aid-jumbo', 'vanilla-jumbo'],
+      defaultValue: (node.data?.model as string) || 'vanilla-jumbo',
     })
 
     const inputGenerator = new SocketGeneratorControl({
@@ -102,9 +102,9 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     })
 
     node.inspector
+      .add(nameControl)
       .add(modelControl)
       .add(inputGenerator)
-      .add(nameControl)
       .add(fewshotControl)
       .add(stopControl)
       .add(temperatureControl)
@@ -118,7 +118,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     node: NodeData,
     rawInputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,
-    { thoth }: { silent: boolean; thoth: EngineContext }
+    { thoth, silent }: { silent: boolean; thoth: EngineContext }
   ) {
     const { completion } = thoth
     const inputs = Object.entries(rawInputs).reduce((acc, [key, value]) => {
@@ -126,7 +126,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       return acc
     }, {} as Record<string, unknown>)
 
-    const model = (node.data.model as string) || 'vanilla-davinci'
+    const model = (node.data.model as string) || 'vanilla-jumbo'
     // const model = node.data.model || 'davinci'
 
     // Replace carriage returns with newlines because that's what the language models expect
@@ -138,9 +138,9 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
 
     const stop = node?.data?.stop
       ? stopSequence.split(',').map(i => {
-        if (i.includes('\n')) return i
-        return i.trim()
-      })
+          if (i.includes('\n')) return i
+          return i.trim()
+        })
       : ''
 
     const tempData = node.data.temp as string
@@ -164,14 +164,17 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     }
     try {
       const raw = (await completion(body)) as string
-      const result = raw?.trim()
+      const result = raw
       const composed = `${prompt} ${result}`
+
+      if (!silent) node.display(result)
 
       return {
         result,
         composed,
       }
     } catch (err) {
+      console.log({ err })
       // Typescript reporting wrong about number of arguments for error constructor
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore:next-line

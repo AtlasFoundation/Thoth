@@ -10,7 +10,6 @@ import { ThothNode } from './../types'
 import { getComponents } from './components/components'
 import { initSharedEngine } from './engine'
 import AreaPlugin from './plugins/areaPlugin'
-import CommentPlugin from './plugins/commentPlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
 import HistoryPlugin from './plugins/historyPlugin'
@@ -19,7 +18,6 @@ import KeyCodePlugin from './plugins/keyCodePlugin'
 import LifecyclePlugin from './plugins/lifecyclePlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import { ModuleManager } from './plugins/modulePlugin/module-manager'
-import SelectionPlugin from './plugins/selectionPlugin'
 import SocketGenerator from './plugins/socketGenerator'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
 import { PubSubContext, ThothComponent } from './thoth-component'
@@ -120,6 +118,7 @@ export const initEditor = function ({
   })
 
   // This should only be needed on client, not server
+  editor.use(DebuggerPlugin)
   editor.use(SocketGenerator)
   editor.use(DisplayPlugin)
   editor.use(InspectorPlugin)
@@ -142,16 +141,15 @@ export const initEditor = function ({
   }
 
   // WARNING: ModulePlugin needs to be initialized before TaskPlugin during engine setup
-  editor.use(DebuggerPlugin)
   editor.use(ModulePlugin, { engine, modules: {} } as unknown as void)
   editor.use(TaskPlugin)
   editor.use(KeyCodePlugin)
 
-  editor.use(SelectionPlugin, { enabled: true })
+  // editor.use(SelectionPlugin, { enabled: true })
 
-  editor.use(CommentPlugin, {
-    margin: 20, // indent for new frame comments by default 30 (px)
-  })
+  // editor.use(CommentPlugin, {
+  //   margin: 20, // indent for new frame comments by default 30 (px)
+  // })
 
   // WARNING all the plugins from the editor get installed onto the component and modify it.  This effects the components registered in the engine, which already have plugins installed.
   components.forEach((c: any) => {

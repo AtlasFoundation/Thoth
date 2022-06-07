@@ -71,7 +71,7 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
     const clientInput = new Rete.Input('client', 'Client', stringSocket)
     const channelInput = new Rete.Input('channel', 'Channel', stringSocket)
-    const out = new Rete.Output('output', 'Conversation', anySocket)
+    const out = new Rete.Output('output', 'Event', anySocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
@@ -110,11 +110,10 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    
-    const speaker = inputs['speaker'][0] as string
-    const agent = inputs['agent'][0] as string
-    const client = inputs['client'][0] as string
-    const channel = inputs['channel'][0] as string
+    const speaker = inputs['speaker'] && (inputs['speaker'][0] as string)
+    const agent = inputs['agent'] && (inputs['agent'][0] as string)
+    const client = inputs['client'] && (inputs['client'][0] as string)
+    const channel = inputs['channel'] && (inputs['channel'][0] as string)
     const typeData = node?.data?.type as string
     const type =
       typeData !== undefined && typeData.length > 0

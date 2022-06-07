@@ -2,6 +2,10 @@
   flex: 1;
   width: 100%;
   margin-top: var(--c1);
+  color: white;
+}
+.select {
+  color: white;
 }
 
 .input-container {
@@ -18,4 +22,12 @@
   margin-top: var(--c1);
   color: var(--red);
   text-align: center;
+}
+
+.delete-btn {
+  background: rgb(255, 55, 55);
+  color: white;
+}
+.delete-modal {
+  width: 20rem;
 }

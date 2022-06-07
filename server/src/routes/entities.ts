@@ -25,6 +25,8 @@ import {
   isValidArray,
   isValidObject,
 } from '../../src/utils/utils'
+import fs from 'fs'
+import path from 'path'
 
 export const modules: Record<string, unknown> = {}
 
@@ -157,7 +159,7 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const conversation = await database.instance.getEvents(
+  const event = await database.instance.getEvents(
     type,
     agent,
     speaker,
@@ -167,9 +169,9 @@ const getEvent = async (ctx: Koa.Context) => {
     maxCount
   )
 
-  console.log('conversation, query:', ctx.request.query, 'conv:', conversation)
+  console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = conversation)
+  return (ctx.body = event)
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
@@ -268,35 +270,49 @@ const createEvent = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
-const getSpeechToText = async (ctx: Koa.Context) => {
+const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
-  const character = ctx.request.query.character ?? 'none'
-  console.log('text and character are', text, character)
+  const voice_provider = ctx.request.query.voice_provider
+  const voice_character = ctx.request.query.voice_character
+  const voice_language_code = ctx.request.query.voice_language_code
+
+  console.log('text and character are', text, voice_character)
   const cache = await cacheManager.instance.get(
-    character as string,
-    'speech_' + character + ': ' + text,
-    true
+    'voice_' + voice_provider + '_' + voice_character + '_' + text
   )
-  if (cache !== undefined && cache !== null) {
+  if (cache !== undefined && cache !== null && cache.length > 0) {
     console.log('got sst from cache, cache:', cache)
     return (ctx.body = cache)
   }
 
-  // const fileId = await tts(text as string)
-  // const url =
-  //   (process.env.FILE_SERVER_URL?.endsWith('/')
-  //     ? process.env.FILE_SERVER_URL
-  //     : process.env.FILE_SERVER_URL + '/') + fileId
+  let url = ''
 
-  const url = await getAudioUrl(
-    process.env.UBER_DUCK_KEY as string,
-    process.env.UBER_DUCK_SECRET_KEY as string,
-    character as string,
-    text as string
-  )
+  if (!cache && cache.length <= 0) {
+    if (voice_provider === 'uberduck') {
+      url = await getAudioUrl(
+        process.env.UBER_DUCK_KEY as string,
+        process.env.UBER_DUCK_SECRET_KEY as string,
+        voice_character as string,
+        text as string
+      )
+    } else {
+      url = await tts(
+        text,
+        voice_provider,
+        voice_character,
+        voice_language_code
+      )
+    }
+  }
+
   console.log('stt url:', url)
 
-  cacheManager.instance.set('global', 'speech_' + character + ': ' + text, url)
+  if (url && url.length > 0) {
+    cacheManager.instance.set(
+      'voice_' + voice_provider + '_' + voice_character + '_' + text,
+      url
+    )
+  }
 
   return (ctx.body = url)
 }
@@ -347,9 +363,7 @@ const customMessage = async (ctx: Koa.Context) => {
     console.log('generating voice')
     const character = 'kurzgesagt'
     const cache = cacheManager.instance.get(
-      'global',
-      'speech_' + character + ': ' + response,
-      true
+      'speech_' + character + ': ' + response
     )
     if (cache !== undefined && cache !== null) {
       return (ctx.body = cache)
@@ -362,11 +376,7 @@ const customMessage = async (ctx: Koa.Context) => {
       response as string
     )
 
-    cacheManager.instance.set(
-      'global',
-      'speech_' + character + ': ' + response,
-      url
-    )
+    cacheManager.instance.set('speech_' + character + ': ' + response, url)
   }
 
   return (ctx.body = { response: isVoice ? url : message, isVoice: isVoice })
@@ -375,9 +385,8 @@ const customMessage = async (ctx: Koa.Context) => {
 const getFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
-  const strict = ctx.request.query.strict as string
 
-  const value = cacheManager.instance.get(agent, key, strict === 'true')
+  const value = cacheManager.instance.get(key)
   return (ctx.body = { data: value })
 }
 
@@ -385,7 +394,7 @@ const deleteFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
 
-  cacheManager.instance._delete(agent, key)
+  cacheManager.instance._delete(key)
   return (ctx.body = 'ok')
 }
 
@@ -394,7 +403,7 @@ const setInCache = async (ctx: Koa.Context) => {
   const agent = ctx.request.body.agent as string
   const value = ctx.request.body.value
 
-  cacheManager.instance.set(agent, key, value)
+  cacheManager.instance.set(key, value)
   return (ctx.body = 'ok')
 }
 
@@ -586,21 +595,22 @@ const getCalendarEvents = async (ctx: Koa.Context) => {
     return (ctx.body = { error: 'internal error' })
   }
 }
+const addCalendarEvent = async (ctx: Koa.Context) => {
+  const name = ctx.request.body.name
+  const date = ctx.request.body.date
+  const time = ctx.request.body.time
+  const type = ctx.request.body.type
+  const moreInfo = ctx.request.body.moreInfo
 
-const getCalendarEventById = async (ctx: Koa.Context) => {
   try {
-    let calendarEvent = await database.instance.getCalendarEventById(
-      ctx.request.params.id as string
+    await database.instance.createCalendarEvent(
+      name,
+      date,
+      time,
+      type,
+      moreInfo
     )
-
-    if (isValidArray(calendarEvent)) {
-      return (ctx.body = {
-        payload: calendarEvent,
-        message: 'Records are available!',
-      })
-    }
-
-    return (ctx.body = { payload: [], message: 'Records not available!' })
+    return (ctx.body = 'inserted')
   } catch (e) {
     ctx.status = 500
     return (ctx.body = { payload: [], message: 'internal error' })
@@ -774,6 +784,26 @@ const deleteCalendarEvents = async (ctx: Koa.Context) => {
   }
 }
 
+const addVideo = async (ctx: Koa.Context) => {
+  try {
+    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
+    const [type, subType] = mimeType.split('/')
+    if (type !== 'video') {
+      ctx.response.status = 400
+      return (ctx.body = 'Only video can be uploaded')
+    }
+
+    fs.copyFileSync(
+      videoPath,
+      path.join(process.cwd(), `/files/videos/${name}`)
+    )
+    return (ctx.body = 'ok')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -832,9 +862,9 @@ export const entities: Route[] = [
     delete: deleteCalendarEvents,
   },
   {
-    path: '/speech_to_text',
+    path: '/text_to_speech',
     access: noAuth,
-    get: getSpeechToText,
+    get: getTextToSpeech,
   },
   {
     path: '/get_entity_image',
@@ -882,5 +912,10 @@ export const entities: Route[] = [
     path: '/handle_custom_input',
     access: noAuth,
     post: handleCustomInput,
+  },
+  {
+    path: '/video',
+    access: noAuth,
+    post: addVideo,
   },
 ]

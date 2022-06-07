@@ -201,3 +201,12 @@ export const getRelativeDate = ({
   date.setMilliseconds(0)
   return date
 }
+
+export const stringIsAValidUrl = (s: string | any) => {
+  try {
+    new URL(s)
+    return true
+  } catch (err) {
+    return false
+  }
+}

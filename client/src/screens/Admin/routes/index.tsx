@@ -1,8 +1,8 @@
 import { Routes, Route } from 'react-router-dom'
 import AdminLayout from '../Layout'
-import Scope from '../Scope'
-import ClientSetting from '../Tables'
-import Config from '../configTable'
+import Scope from '../component/Scope'
+import ClientSetting from '../component/clientSetting'
+import Config from '../component/Config'
 
 export default function AdminRoute() {
   return (

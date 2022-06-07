@@ -10,6 +10,7 @@ module.exports = () => {
     mode: 'development',
     devtool: 'source-map',
     devServer: {
+      allowedHosts: ['thoth.n3xus.city'],
       https: {
         key: fs.readFileSync('certs/key.pem'),
         cert: fs.readFileSync('certs/cert.pem'),
@@ -18,7 +19,7 @@ module.exports = () => {
         directory: 'public',
       },
       compress: true,
-      port: process.env.PORT || 3001,
+      port: process.env.PORT || 3003,
       historyApiFallback: true,
     },
     module: {
@@ -31,9 +32,7 @@ module.exports = () => {
         },
       ],
     },
-    plugins: [
-      new Dotenv(),
-    ],
+    plugins: [new Dotenv()],
   }
 
   return merge(commonConfig, devConfig)
