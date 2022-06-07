@@ -547,6 +547,24 @@ export class database {
     return rows && rows.rows && rows.rows.length > 0
   }
 
+  async getCalendarEventById(id: string) {
+    const query =
+      'SELECT id, calendar_id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE id=$1'
+    const rows = await this.client.query(query, [id])
+
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+
+  async getCalendarEventByCalId(id: string) {
+    const query =
+      'SELECT id, calendar_id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE calendar_id=$1'
+    const rows = await this.client.query(query, [id])
+
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+
   async getCalendarEvents() {
     const query =
       'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
@@ -556,14 +574,15 @@ export class database {
   }
   async createCalendarEvent(
     name: string,
+    calendar_id: string,
     date: string,
     time: string,
     type: string,
     moreInfo: string
   ) {
     const query =
-      'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
-    const values = [name, date, time, type, moreInfo]
+      'INSERT INTO calendar_events(name, calendar_id, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5, $6)'
+    const values = [name, calendar_id, date, time, type, moreInfo]
     try {
       return await this.client.query(query, values)
     } catch (e) {
@@ -588,10 +607,27 @@ export class database {
     }
   }
   async deleteCalendarEvent(id: string) {
-    const query = 'DELETE FROM calendar_events WHERE id = $1'
+    const query1 =
+      'SELECT id, name, calendar_id, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE id = $1'
+    const rows = await this.client.query(query1, [id])
+
+    let body: object[] = []
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      body = rows.rows
+    }
+
+    const query2 = 'DELETE FROM calendar_events WHERE id = $1'
     const values = [id]
-    return await this.client.query(query, values)
+    const res = await this.client.query(query2, values)
+
+    const { command, rowCount } = res
+    if (command === 'DELETE' && rowCount > 0) {
+      return body
+    }
+    return {}
   }
+
   /* 
     Section : Settings
     Modules : Client, Configuration, Scope

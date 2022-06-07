@@ -5,8 +5,13 @@ import fs from 'fs'
 
 import google from 'googleapis'
 import path from 'path'
+import DiscordClient from './discord'
 
 import { getRelativeDate, isValidArray } from '../../utils/utils'
+
+const discord_client = new DiscordClient()
+
+const { sendMessageToChannel } = discord_client
 
 export const testData = {
   summary: 'Google I/O 2015',
@@ -79,40 +84,56 @@ export const authorize = async (credentials: object, callback?: function) => {
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  * @param {object} eventDetails An authorized OAuth2 client.
  */
-export const addCalendarEvent = (auth: google.auth.OAuth2, eventDetails) => {
-  if (!auth) return console.log('Missing Token')
-  let event: any = []
+export const addCalendarEvent = async (
+  auth: google.auth.OAuth2,
+  eventDetails: object
+) => {
+  return await new Promise(async (resolve, reject) => {
+    if (!auth) return console.log('Missing Token')
 
-  const { summary, description, start, end, calendarId } = eventDetails
+    const { summary, description, start, end, calendarId } = eventDetails
 
-  const calendar = google.calendar({ version: 'v3', auth })
-  calendar.events.insert(
-    {
-      calendarId: 'primary',
-      resource: {
-        summary: summary,
-        description: description,
-        start: {
-          dateTime: start,
+    const calendar = google.calendar({ version: 'v3', auth })
+    return await calendar.events.insert(
+      {
+        calendarId: 'primary',
+        resource: {
+          summary: summary,
+          description: description,
+          start: {
+            dateTime: start,
+          },
+          end: {
+            dateTime: end,
+          },
+          ...eventDetails,
         },
-        end: {
-          dateTime: end,
-        },
-        ...eventDetails,
       },
-    },
-    (err, res) => {
-      if (err)
-        return console.log(
-          'There was an error contacting the Calendar service:',
-          err
-        )
+      callable
+    )
 
-      console.log('Event created', res)
-      event = res
+    async function callable(err, res) {
+      if (err) {
+        console.log('There was an error contacting the Calendar service:', err)
+        return resolve(null)
+      }
+
+      try {
+        const config: any = await database.instance.getConfig()
+        const channle_name: string = config['discord_calendar_channel']
+
+        sendMessageToChannel(
+          channle_name,
+          res.summary + ' has been added to your calendar'
+        )
+      } catch (error) {
+        console.log(error)
+        resolve(null)
+      }
+
+      resolve(res)
     }
-  )
-  return event
+  })
 }
 
 /**
@@ -184,19 +205,37 @@ export const getCalendarEvents = async (auth: google.auth.OAuth2) => {
  * @param {google.auth.OAuth2, eventId} auth  An authorized OAuth2 client.
  */
 
-export const deleteCalendarEvent = (auth: google.auth.OAuth2, eventId) => {
-  if (!auth) return console.log('Missing Token')
+export const deleteCalendarEvent = async (
+  auth: google.auth.OAuth2,
+  eventId: string
+) => {
+  return await new Promise(async (resolve, reject) => {
+    if (!auth) return console.log('Missing Token')
 
-  const calendar = google.calendar({ version: 'v3', auth })
+    const calendar = google.calendar({ version: 'v3', auth })
 
-  calendar.events.delete(
-    {
-      calendarId: 'primary',
-      eventId: eventId,
-    },
-    (err, res) => {
-      if (err) return console.log('The API returned an error: ' + err)
-      console.log('Event deleted: %s', res.data.htmlLink)
-    }
-  )
+    return await calendar.events.delete(
+      {
+        calendarId: 'primary',
+        eventId: eventId,
+      },
+      async (err, res) => {
+        if (err) {
+          console.log('The API returned an error: ' + err)
+          resolve(null)
+        }
+
+        try {
+          const config: any = await database.instance.getConfig()
+          const channle_name: string = config['discord_calendar_channel']
+          sendMessageToChannel(channle_name, 'Event deleted')
+        } catch (error) {
+          console.log(error)
+          resolve(null)
+        }
+
+        resolve(true)
+      }
+    )
+  })
 }

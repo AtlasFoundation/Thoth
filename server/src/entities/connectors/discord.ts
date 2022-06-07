@@ -1822,7 +1822,7 @@ export class discord_client {
 
   discussionChannels = {}
 
-  async sendMessageToChannel(channelId: any, msg: any) {
+  async sendMessageToChannel(channelId: any, msg: string) {
     const channel = await this.client.channels.fetch(channelId)
     if (channel && channel !== undefined) {
       channel.send(msg)

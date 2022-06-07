@@ -651,17 +651,6 @@ const deleteScope = async (ctx: Koa.Context) => {
   }
 }
 
-const callCalendar = async (ctx: Koa.Context) => {
-  // const content = await initCalendar()
-  // const auth = await authorize(content)
-
-  // const get = await getCalendarEvents(auth)
-
-  // const add = await addCalendarEvent(auth, {})
-
-  ctx.body = makeResponse('Calendar initialized!', {})
-}
-
 export const settings: Route[] = [
   {
     path: '/setting/client',
@@ -686,10 +675,5 @@ export const settings: Route[] = [
     post: addScope,
     patch: editScope,
     delete: deleteScope,
-  },
-  {
-    path: '/calendar',
-    access: noAuth,
-    get: callCalendar,
   },
 ]
