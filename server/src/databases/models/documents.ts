@@ -3,6 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize'
 
 export interface documentsAttributes {
   id: number
+  title: string
   description: string
   is_included: boolean
   storeId: number
@@ -18,6 +19,7 @@ export class documents
   extends Model<documentsAttributes, documentsCreationAttributes>
   implements documentsAttributes {
   id: number
+  title: string
   description: string
   is_included: boolean
   storeId: number
@@ -30,6 +32,10 @@ export class documents
           allowNull: false,
           autoIncrement: false,
           primaryKey: true,
+        },
+        title: {
+          type: DataTypes.TEXT,
+          allowNull: false,
         },
         description: {
           type: DataTypes.TEXT,
