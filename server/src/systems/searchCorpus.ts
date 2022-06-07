@@ -167,8 +167,8 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       )
       if (doc) {
         await updateDocument(
-          title.length > 0 ? title : 'Document',
-          'Document',
+          doc.title ?? 'Document',
+          title ?? 'Document',
           doc.description,
           description
         )
