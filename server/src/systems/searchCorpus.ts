@@ -310,6 +310,16 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.delete('/document-store', async function (ctx: Koa.Context) {
     const storeId = ctx.query.storeId
     try {
+      const documents = await database.instance.getDocumentsOfStore(storeId)
+      if (documents && documents.length > 0) {
+        for (let i = 0; i < documents.length; i++) {
+          await deleteDocument(
+            documents[i].title ?? 'Document',
+            documents[i].description
+          )
+        }
+      }
+
       await database.instance.removeDocumentStore(storeId)
     } catch (e) {
       console.log(e)
