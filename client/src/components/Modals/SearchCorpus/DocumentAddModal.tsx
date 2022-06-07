@@ -15,6 +15,7 @@ const DocumentAddModal = ({
   let parentId = isContentObject ? 'documentId' : 'storeId'
   let doc = {
     description: '',
+    title: '',
     isIncluded: true,
     [parentId]: isContentObject ? parseInt(documentId) : parseInt(storeId),
   }
@@ -28,7 +29,10 @@ const DocumentAddModal = ({
       enqueueSnackbar('Empty document!', { variant: 'error' })
       return
     }
-
+    if (newDocument.title?.length === 0) {
+      enqueueSnackbar('Empty document title!', { variant: 'error' })
+      return
+    }
     const body = { ...newDocument }
     let url = isContentObject
       ? `${process.env.REACT_APP_SEARCH_SERVER_URL}/content-object`
@@ -93,6 +97,21 @@ const DocumentAddModal = ({
             Include
           </span>
         </div>
+        <div className="form-item">
+          <span className="form-item-label">Title</span>
+          <input
+            type="text"
+            className="form-text-area"
+            onChange={e =>
+              setNewDocument({
+                ...newDocument,
+                title: e.target.value,
+              })
+            }
+            value={newDocument.title}
+          ></input>
+        </div>
+
         <div className="form-item">
           <span className="form-item-label">Description</span>
           <input

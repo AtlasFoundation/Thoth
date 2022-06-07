@@ -77,6 +77,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.post('/document', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const description = body?.description || ''
+    const title = body?.title || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
 
@@ -90,6 +91,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     let id = -1
     try {
       id = await database.instance.addDocument(
+        title,
         description,
         isIncluded,
         storeId
@@ -140,6 +142,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const { body } = ctx.request
     const documentId = body?.documentId
     const description = body?.description || ''
+    const title = body?.title || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
     const doc = await database.instance.getSingleDocument(documentId)
@@ -154,13 +157,14 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.updateDocument(
         documentId,
+        title,
         description,
         isIncluded,
         storeId
       )
       if (doc) {
         await updateDocument(
-          'Document',
+          title.length > 0 ? title : 'Document',
           'Document',
           doc.description,
           description
