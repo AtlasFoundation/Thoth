@@ -77,6 +77,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.post('/document', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const description = body?.description || ''
+    const title = body?.title || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
 
@@ -90,11 +91,15 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     let id = -1
     try {
       id = await database.instance.addDocument(
+        title,
         description,
         isIncluded,
         storeId
       )
-      await singleTrain({ title: 'Document', description: description })
+      await singleTrain({
+        title: title ?? 'Document',
+        description: description,
+      })
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
@@ -120,7 +125,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.removeDocument(documentId)
       if (doc) {
-        await deleteDocument('Document', doc.description)
+        await deleteDocument(doc.title ?? 'Document', doc.description)
       }
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
@@ -140,6 +145,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const { body } = ctx.request
     const documentId = body?.documentId
     const description = body?.description || ''
+    const title = body?.title || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
     const doc = await database.instance.getSingleDocument(documentId)
@@ -154,13 +160,14 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.updateDocument(
         documentId,
+        title,
         description,
         isIncluded,
         storeId
       )
       if (doc) {
         await updateDocument(
-          'Document',
+          title.length > 0 ? title : 'Document',
           'Document',
           doc.description,
           description

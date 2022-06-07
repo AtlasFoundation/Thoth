@@ -344,6 +344,7 @@ export class database {
   }
 
   async addDocument(
+    title: any,
     description: any,
     is_included: any,
     store_id: any
@@ -356,8 +357,8 @@ export class database {
     console.log('document store id:', id)
 
     const query =
-      'INSERT INTO documents(id, description, is_included, store_id) VALUES($1, $2, $3, $4)'
-    const values = [id, description, is_included, store_id]
+      'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
+    const values = [id, title, description, is_included, store_id]
 
     await this.client.query(query, values)
     return id
@@ -370,20 +371,22 @@ export class database {
   }
   async updateDocument(
     document_id: any,
+    title: any,
     description: any,
     is_included: any,
     store_id: any
   ) {
     const query =
-      'UPDATE documents SET description=$1, is_included=$2, store_id=$3 WHERE id=$4'
-    const values = [description, is_included, store_id, document_id]
+      'UPDATE documents SET title=$5, description=$1, is_included=$2, store_id=$3 WHERE id=$4'
+    const values = [description, is_included, store_id, document_id, title]
 
     await this.client.query(query, values)
   }
   async getDocumentsOfStore(
     storeId: string | string[] | undefined
   ): Promise<any> {
-    const query = 'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
+    const query =
+      'SELECT id, title, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)
@@ -601,7 +604,7 @@ export class database {
     const values = [id]
     return await this.client.query(query, values)
   }
-  /* 
+  /*
     Section : Settings
     Modules : Client, Configuration, Scope
   */
