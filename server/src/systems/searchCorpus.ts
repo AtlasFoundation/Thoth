@@ -96,7 +96,10 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
         isIncluded,
         storeId
       )
-      await singleTrain({ title: 'Document', description: description })
+      await singleTrain({
+        title: title ?? 'Document',
+        description: description,
+      })
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
@@ -122,7 +125,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.removeDocument(documentId)
       if (doc) {
-        await deleteDocument('Document', doc.description)
+        await deleteDocument(doc.title ?? 'Document', doc.description)
       }
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
