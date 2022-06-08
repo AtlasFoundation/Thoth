@@ -287,7 +287,6 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
     } else {
       url = await tts(
         text,
-        voice_provider,
         voice_character,
         voice_language_code
       )
