@@ -101,6 +101,16 @@ const EntityWindow = ({ id, updateCallback }) => {
   // const [twilio_phone_number, setTwilioPhoneNumber] = useState('')
 
   const testVoice = async () => {
+    console.log(
+      'voice_provider:',
+      voice_provider,
+      'voice_character:',
+      voice_character,
+      'voice_language_code:',
+      voice_language_code,
+      'playingAudio:',
+      playingAudio
+    )
     if (
       (voice_provider && voice_character && voice_language_code) ||
       playingAudio
@@ -587,6 +597,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               }}
             >
               <option value={'en-US'}>en-US</option>
+              <option value={'en-US'}>en-GB</option>
             </select>
           </div>
 
