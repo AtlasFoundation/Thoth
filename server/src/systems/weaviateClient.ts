@@ -6,20 +6,25 @@ import { classifyText } from '../../../core/src/utils/textClassifier'
 import path from 'path'
 import { database } from '../database'
 import axios from 'axios'
+import { ClassifierSchema } from '../types'
 
 let client: weaviate.client
-export async function initWeaviateClient(_train: boolean) {
+export async function initWeaviateClient(
+  _train: boolean,
+  _trainClassifier: boolean
+) {
   client = weaviate.client({
     scheme: process.env.WEAVIATE_CLIENT_SCHEME,
     host: process.env.WEAVIATE_CLIENT_HOST,
   })
 
+  _train = true
   if (_train) {
-    console.time('test')
+    console.time('train')
 
-    const data = await trainFromUrl(
+    const data = [] /*await trainFromUrl(
       'https://www.toptal.com/developers/feed2json/convert?url=https%3A%2F%2Ffeeds.simplecast.com%2F54nAGcIl'
-    )
+    )*/
     const data2 = JSON.parse(
       fs.readFileSync(
         path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
@@ -31,10 +36,49 @@ export async function initWeaviateClient(_train: boolean) {
     }
 
     await train(data)
-    console.timeEnd('test')
+    console.timeEnd('train')
+  }
+  if (_trainClassifier) {
+    await trainClassifier(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(__dirname, '..', '..', '/classifier/data.json'),
+          'utf-8'
+        )
+      )
+    )
+  }
+}
+
+async function trainClassifier(data: ClassifierSchema[]) {
+  if (!client) {
+    initWeaviateClient(false)
   }
 
-  await getDocumentId('', '')
+  if (!data || data === undefined) {
+    return
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    if (Array.isArray(data[i].examples)) {
+      data[i].examples = (data[i].examples as string[]).join(', ')
+    }
+
+    const object = {
+      title: data[i].type,
+      description: data[i].examples,
+    }
+
+    console.log(typeof data[i].examples, data[i].examples)
+
+    const res = await client.data
+      .creator()
+      .withClassName('emotion')
+      .withProperties(object)
+      .do()
+
+    console.log(res)
+  }
 }
 
 async function train(data: SearchSchema[]) {
