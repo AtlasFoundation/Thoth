@@ -126,9 +126,22 @@ export class Task {
                 propagate: false,
                 fromNode: this.node,
               })
-              const outputData = con.task.outputData as Record<string, unknown>
+              console.log('con.task.outputdata:', con.task.outputData)
+              if (con.task.outputData && con.task.outputData !== undefined) {
+                const outputData = con.task.outputData as Record<
+                  string,
+                  unknown
+                >
 
-              return outputData[con.key]
+                try {
+                  return outputData[con.key]
+                } catch (e) {
+                  console.log(e)
+                  return ''
+                }
+              } else {
+                return ''
+              }
             })
 
           const thothWorkerinputs = await Promise.all(inputPromises)
