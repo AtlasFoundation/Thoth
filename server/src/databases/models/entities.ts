@@ -52,6 +52,12 @@ export interface entitiesAttributes {
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  instagram_enabled?: boolean
+  instagram_username?: string
+  instagram_password?: string
+  instagram_bot_name?: string
+  instagram_bot_name_regex?: string
+  instagram_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -99,6 +105,12 @@ export type entitiesOptionalAttributes =
   | 'reddit_bot_name'
   | 'reddit_bot_name_regex'
   | 'reddit_spell_handler_incoming'
+  | 'instagram_enabled'
+  | 'instagram_username'
+  | 'instagram_password'
+  | 'instagram_bot_name'
+  | 'instagram_bot_name_regex'
+  | 'instagram_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -159,6 +171,12 @@ export class entities
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  instagram_enabled?: boolean
+  instagram_username?: string
+  instagram_password?: string
+  instagram_bot_name?: string
+  instagram_bot_name_regex?: string
+  instagram_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -358,6 +376,30 @@ export class entities
           allowNull: true,
         },
         reddit_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        instagram_username: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
