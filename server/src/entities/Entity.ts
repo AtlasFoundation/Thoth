@@ -263,6 +263,43 @@ export class Entity {
     }
   }
 
+  async startInstagram(
+    instagram_username: string,
+    instagram_password: string,
+    instagram_bot_name: string,
+    instagram_bot_name_regex: string,
+    instagram_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if(this.instagram) {
+      throw new Error('Instagram already running for this client on this instance')
+    }
+    
+    const spellHandler = await CreateSpellHandler({
+      spell: instagram_spell_handler_incoming,
+      version: spell_version
+    })
+    
+    this.instagram = new instagram_client()
+    this.instagram.createInstagramClient(
+      spellHandler,
+      {
+        instagram_username,
+        instagram_password,
+        instagram_bot_name,
+        instagram_bot_name_regex,
+        instagram_spell_handler_incoming
+      },
+      entity
+    )
+  }
+
+  stopInstagram() {
+    if (!this.instagram) throw new Error("Instagram isn't running, can't stop it")
+    this.instagram = null
+  }
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -273,6 +310,7 @@ export class Entity {
     if (this.twitter) this.stopTwitter()
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
+    if (this.instagram) this.stopInstagram()
   }
 
   async generateVoices(data: any) {
@@ -402,6 +440,18 @@ export class Entity {
         data,
         data.telegram_spell_handler_incoming,
         data.spell_version
+      )
+    }
+
+    if(data.instagram_enabled) {
+      this.startInstagram(
+        data.instagram_username, 
+        data.instagram_password, 
+        data.instagram_bot_name,
+        data.instagram_bot_name_regex,
+        data.instagram_spell_handler_incoming,
+        data.spell_version,
+        data
       )
     }
   }
