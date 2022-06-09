@@ -110,43 +110,6 @@ export class zoom {
       await this.delay(20000)
     } catch (ex) {}
 
-    //await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
-
-    await this.clickElementById('button', 'audioOptionMenu')
-    await this.catchScreenshot()
-    const linkHandlers = await this.page.$x(
-      "//a[contains(text(), 'Fake Audio Input 1')]"
-    )
-
-    if (linkHandlers.length > 0) {
-      await linkHandlers[0].click()
-    } else {
-      console.log('Link not found')
-    }
-    await this.clickElementById('button', 'videoOptionMenu')
-    await this.catchScreenshot()
-    const linkHandlers2 = await this.page.$x(
-      "//a[contains(text(), 'fake_device_0')]"
-    )
-    if (linkHandlers2.length > 0) {
-      await linkHandlers2[0].click()
-    } else {
-      console.log('Link not found')
-    }
-
-    await this.clickElementById('button', 'audioOptionMenu')
-    await this.catchScreenshot()
-    const linkHandlers3 = await this.page.$x(
-      "//a[contains(text(), 'Fake Audio Output 1')]"
-    )
-
-    if (linkHandlers3.length > 0) {
-      await linkHandlers3[0].click()
-    } else {
-      console.log('Link not found')
-    }
-    await this.clickElementById('button', 'audioOptionMenu')
-
     await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
     await this.catchScreenshot()
     const linkHandlers4 = await this.page.$x(
@@ -179,8 +142,6 @@ export class zoom {
       file.close()
       console.log('finished')
     }, 30000)*/
-    await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
-    return
     setInterval(async () => {
       //live-transcription-subtitle
       let text = await this.page.evaluate(async () => {
@@ -188,6 +149,7 @@ export class zoom {
         return el?.textContent
       })
       console.log('TRANSCRIPTION VALUE:', text)
+      text = text?.toLowerCase()?.trim()
       if ((text && text !== undefined) || text?.length <= 0) {
         if (text == this.lastResponse || this.lastMessage === text) {
           return
@@ -237,9 +199,7 @@ export class zoom {
           console.log('url:', url)
           response = url
         }
-        await this.playAudio(
-          'https://file-examples.com/storage/fe6bd2111e629938f9ec769/2017/11/file_example_MP3_1MG.mp3'
-        )
+        await this.playAudio(response)
         cacheManager.instance.set(this.agent, 'voice_' + temp, response)
         this.lastResponse = tempResp
       }
@@ -399,6 +359,7 @@ export class zoom {
 
   videoCreated = false
   async playVideo(url) {
+    console.log('playing video:', url)
     await this.page.evaluate(
       async (_url, _videCreated) => {
         let video = undefined
@@ -415,6 +376,7 @@ export class zoom {
         }
 
         video.onplay = async () => {
+          console.log('on vidoe play:', _url)
           const stream = video.captureStream()
 
           navigator.mediaDevices.getUserMedia = () => Promise.resolve(stream)
@@ -433,7 +395,7 @@ export class zoom {
 
   async playAudio(audioUrl) {
     console.log('playingAudio:', audioUrl)
-    await this.page.evaluate(url => {
+    await this.page.evaluate(async url => {
       const audio = document.createElement('audio')
       audio.setAttribute('src', url)
       audio.setAttribute('crossorigin', 'anonymous')
@@ -452,6 +414,42 @@ export class zoom {
       }
       document.querySelector('body').appendChild(audio)
     }, audioUrl)
+    try {
+      await this.clickElementById('button', 'audioOptionMenu')
+      await this.catchScreenshot()
+      const linkHandlers = await this.page.$x(
+        "//a[contains(text(), 'Fake Audio Input 1')]"
+      )
+
+      if (linkHandlers.length > 0) {
+        await linkHandlers[0].click()
+      } else {
+        console.log('Link not found')
+      }
+      await this.clickElementById('button', 'videoOptionMenu')
+      await this.catchScreenshot()
+      const linkHandlers2 = await this.page.$x(
+        "//a[contains(text(), 'fake_device_0')]"
+      )
+      if (linkHandlers2.length > 0) {
+        await linkHandlers2[0].click()
+      } else {
+        console.log('Link not found')
+      }
+
+      await this.clickElementById('button', 'audioOptionMenu')
+      await this.catchScreenshot()
+      const linkHandlers3 = await this.page.$x(
+        "//a[contains(text(), 'Fake Audio Output 1')]"
+      )
+
+      if (linkHandlers3.length > 0) {
+        await linkHandlers3[0].click()
+      } else {
+        console.log('Link not found')
+      }
+      await this.clickElementById('button', 'audioOptionMenu')
+    } catch (e) {}
     this.catchScreenshot()
   }
 
