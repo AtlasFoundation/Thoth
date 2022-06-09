@@ -61,8 +61,8 @@ export class zoom {
         //`--use-file-for-fake-audio-capture=${this.fakeMediaPath}test_audio.wav`,
         '--disable-web-security',
         '--autoplay-policy=no-user-gesture-required',
+        '--ignoreHTTPSErrors: true',
       ],
-      //ignoreDefaultArgs: ['--mute-audio'],
       defaultViewport: {
         width: 1920,
         height: 1080,
@@ -399,19 +399,12 @@ export class zoom {
 
   videoCreated = false
   async playVideo(url) {
-    console.log('playVideo:', url)
     await this.page.evaluate(
       async (_url, _videCreated) => {
         let video = undefined
         if (!this.videoCreated)
-          video = (await document.createElement(
-            'video',
-            {}
-          )) as HTMLVideoElementWithCaputreStream
-        else
-          video = (await document.getElementById(
-            'video-mock'
-          )) as HTMLVideoElementWithCaputreStream
+          video = await document.createElement('video', {})
+        else video = await document.getElementById('video-mock')
         video.setAttribute('id', 'video-mock')
         video.setAttribute('src', _url)
         video.setAttribute('crossorigin', 'anonymous')
