@@ -44,3 +44,8 @@ export type SearchSchema = {
   title: string
   description: string
 }
+
+export type ClassifierSchema = {
+  type: string
+  examples: string[] | string
+}
