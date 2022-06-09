@@ -852,7 +852,6 @@ export const entities: Route[] = [
   {
     path: '/calendar_event/:id',
     access: noAuth,
-    get: getCalendarEventById,
     patch: editCalendarEvent,
     delete: deleteCalendarEvents,
   },
