@@ -32,9 +32,10 @@ export class instagram_client {
     setInterval(async () => {
       const inboxItems = await ig.feed.directInbox().items()
       for (const item of inboxItems) {
-        const { inviter, last_permanent_item, thread_v2_id } = item
+        const { inviter, last_permanent_item, thread_v2_id, users } = item
         if (last_permanent_item.item_type === 'text' && !last_permanent_item.is_sent_by_viewer) {
           const { text } = last_permanent_item
+          const userIds = users.map(user => user.pk)
           const resp = await this.spellHandler(
             text,
             inviter.username,
@@ -45,7 +46,7 @@ export class instagram_client {
             []
           )
           console.log('resp of spellHandler ::: ', resp)
-          const thread = ig.entity.directThread(thread_v2_id)
+          const thread = ig.entity.directThread(userIds)
           await thread.broadcastText(resp)
         }
       }
