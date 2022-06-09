@@ -18,13 +18,12 @@ export async function initWeaviateClient(
     host: process.env.WEAVIATE_CLIENT_HOST,
   })
 
-  _train = true
   if (_train) {
     console.time('train')
 
-    const data = [] /*await trainFromUrl(
+    const data = await trainFromUrl(
       'https://www.toptal.com/developers/feed2json/convert?url=https%3A%2F%2Ffeeds.simplecast.com%2F54nAGcIl'
-    )*/
+    )
     const data2 = JSON.parse(
       fs.readFileSync(
         path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
@@ -38,11 +37,12 @@ export async function initWeaviateClient(
     await train(data)
     console.timeEnd('train')
   }
+
   if (_trainClassifier) {
     await trainClassifier(
       JSON.parse(
         fs.readFileSync(
-          path.join(__dirname, '..', '..', '/classifier/data.json'),
+          path.join(__dirname, '..', '..', '/weaviate/classifier_data.json'),
           'utf-8'
         )
       )
@@ -64,17 +64,12 @@ async function trainClassifier(data: ClassifierSchema[]) {
       data[i].examples = (data[i].examples as string[]).join(', ')
     }
 
-    const object = {
-      title: data[i].type,
-      description: data[i].examples,
-    }
-
     console.log(typeof data[i].examples, data[i].examples)
 
     const res = await client.data
       .creator()
-      .withClassName('emotion')
-      .withProperties(object)
+      .withClassName('Emotion')
+      .withProperties(data[i])
       .do()
 
     console.log(res)
@@ -227,6 +222,39 @@ export async function search(query: string): SearchSchema {
     }
   } else {
     return { title: '', description: '' }
+  }
+}
+export async function classify(query: string): Promise<string> {
+  if (!client || client === undefined) {
+    return ''
+  }
+
+  const info = await client.graphql
+    .get()
+    .withClassName('Emotion')
+    .withFields(['type', 'examples'])
+    .withNearText({
+      concepts: [query],
+      certainty: 0.7,
+    })
+    .do()
+
+  if (info.errors) {
+    console.log(info.errors)
+    return ''
+  }
+
+  if (
+    info['data'] &&
+    info['data']['Get'] &&
+    info['data']['Get']['Emotion'] &&
+    info['data']['Get']['Emotion'].length > 0
+  ) {
+    const data = info['data']['Get']['Emotion'][0]
+
+    return data.type
+  } else {
+    return ''
   }
 }
 

@@ -20,8 +20,7 @@ import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
 import { auth } from './middleware/auth'
-import { initWeaviateClient } from './systems/weaviateClient'
-import { initWeaviateClassifier } from './systems/classifier'
+import { classify, initWeaviateClient } from './systems/weaviateClient'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
