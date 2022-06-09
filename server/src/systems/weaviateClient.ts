@@ -6,16 +6,20 @@ import { classifyText } from '../../../core/src/utils/textClassifier'
 import path from 'path'
 import { database } from '../database'
 import axios from 'axios'
+import { ClassifierSchema } from '../types'
 
 let client: weaviate.client
-export async function initWeaviateClient(_train: boolean) {
+export async function initWeaviateClient(
+  _train: boolean,
+  _trainClassifier: boolean
+) {
   client = weaviate.client({
     scheme: process.env.WEAVIATE_CLIENT_SCHEME,
     host: process.env.WEAVIATE_CLIENT_HOST,
   })
 
   if (_train) {
-    console.time('test')
+    console.time('train')
 
     const data = await trainFromUrl(
       'https://www.toptal.com/developers/feed2json/convert?url=https%3A%2F%2Ffeeds.simplecast.com%2F54nAGcIl'
@@ -31,10 +35,45 @@ export async function initWeaviateClient(_train: boolean) {
     }
 
     await train(data)
-    console.timeEnd('test')
+    console.timeEnd('train')
   }
 
-  await getDocumentId('', '')
+  if (_trainClassifier) {
+    await trainClassifier(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(__dirname, '..', '..', '/weaviate/classifier_data.json'),
+          'utf-8'
+        )
+      )
+    )
+  }
+}
+
+async function trainClassifier(data: ClassifierSchema[]) {
+  if (!client) {
+    initWeaviateClient(false)
+  }
+
+  if (!data || data === undefined) {
+    return
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    if (Array.isArray(data[i].examples)) {
+      data[i].examples = (data[i].examples as string[]).join(', ')
+    }
+
+    console.log(typeof data[i].examples, data[i].examples)
+
+    const res = await client.data
+      .creator()
+      .withClassName('Emotion')
+      .withProperties(data[i])
+      .do()
+
+    console.log(res)
+  }
 }
 
 async function train(data: SearchSchema[]) {
@@ -183,6 +222,39 @@ export async function search(query: string): SearchSchema {
     }
   } else {
     return { title: '', description: '' }
+  }
+}
+export async function classify(query: string): Promise<string> {
+  if (!client || client === undefined) {
+    return ''
+  }
+
+  const info = await client.graphql
+    .get()
+    .withClassName('Emotion')
+    .withFields(['type', 'examples'])
+    .withNearText({
+      concepts: [query],
+      certainty: 0.7,
+    })
+    .do()
+
+  if (info.errors) {
+    console.log(info.errors)
+    return ''
+  }
+
+  if (
+    info['data'] &&
+    info['data']['Get'] &&
+    info['data']['Get']['Emotion'] &&
+    info['data']['Get']['Emotion'].length > 0
+  ) {
+    const data = info['data']['Get']['Emotion'][0]
+
+    return data.type
+  } else {
+    return ''
   }
 }
 
