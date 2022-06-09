@@ -5584,6 +5584,13 @@
   "resolved" "https://registry.npmjs.org/async/-/async-3.2.3.tgz"
   "version" "3.2.3"
 
+"async@~2.3.0":
+  "integrity" "sha512-uDDBwBVKsWWe4uMmvVmFiW07K5BmdyZvSFzxlujNBtSJ/qzAlGM6UHOFZsQd5jsdmWatrCMWwYyVAc8cuJrepQ=="
+  "resolved" "https://registry.npmjs.org/async/-/async-2.3.0.tgz"
+  "version" "2.3.0"
+  dependencies:
+    "lodash" "^4.14.0"
+
 "async@~2.6.1":
   "integrity" "sha512-mzo5dfJYwAn29PeiJ0zvwTo04zj8HDJj0Mn8TD7sno7q12prdbnasKJHhkm2c1LgrhlJ0teaea8860oxi51mGA=="
   "resolved" "https://registry.npmjs.org/async/-/async-2.6.4.tgz"
@@ -10432,6 +10439,16 @@
     "jws" "^4.0.0"
     "lru-cache" "^6.0.0"
 
+"google-auth-library@~0.10.0":
+  "integrity" "sha512-KM54Y9GhdAzfXUHmWEoYmaOykSLuMG7W4HvVLYqyogxOyE6px8oSS8W13ngqW0oDGZ915GFW3V6OM6+qcdvPOA=="
+  "resolved" "https://registry.npmjs.org/google-auth-library/-/google-auth-library-0.10.0.tgz"
+  "version" "0.10.0"
+  dependencies:
+    "gtoken" "^1.2.1"
+    "jws" "^3.1.4"
+    "lodash.noop" "^3.0.1"
+    "request" "^2.74.0"
+
 "google-gax@^2.24.1", "google-gax@^2.30.1":
   "version" "2.30.2"
   dependencies:
@@ -10448,6 +10465,13 @@
     "proto3-json-serializer" "^0.1.8"
     "protobufjs" "6.11.2"
     "retry-request" "^4.0.0"
+
+"google-p12-pem@^0.1.0":
+  "integrity" "sha512-puhMlJ2+E/rgvxWaqgN/nC7x623OAE8MR9vBUqxF0inCE7HoVfCHvTeQ9+BR+rj9KM0fIg6XV6tmbt7XHHssoQ=="
+  "resolved" "https://registry.npmjs.org/google-p12-pem/-/google-p12-pem-0.1.2.tgz"
+  "version" "0.1.2"
+  dependencies:
+    "node-forge" "^0.7.1"
 
 "google-p12-pem@^1.0.0":
   "integrity" "sha512-50rTrqYPTPPwlu9TNl/HkJbBENEpbRzTOVLFJ4YWM86njZgXHFy+FP+tLRSd9m132Li9Dqi27Z3KIWDEv5y+EA=="
@@ -10475,6 +10499,15 @@
     "qs" "^6.5.2"
     "url-template" "^2.0.8"
     "uuid" "^3.2.1"
+
+"googleapis@^22.2.0":
+  "integrity" "sha512-EO0NEzNFx8N3GDUAToyDve4QCMLMiJA14Xm8775M/IR8SAS/ohr18RZew3I+xtVIOSGwipsblOCSE6xXoOCGWw=="
+  "resolved" "https://registry.npmjs.org/googleapis/-/googleapis-22.2.0.tgz"
+  "version" "22.2.0"
+  dependencies:
+    "async" "~2.3.0"
+    "google-auth-library" "~0.10.0"
+    "string-template" "~1.0.0"
 
 "googleapis@^39.2.0":
   "integrity" "sha512-66X8TG1B33zAt177sG1CoKoYHPP/B66tEpnnSANGCqotMuY5gqSQO8G/0gqHZR2jRgc5CHSSNOJCnpI0SuDxMQ=="
@@ -10522,6 +10555,16 @@
   "version" "2.0.1"
   dependencies:
     "isomorphic-fetch" "^2.2.1"
+
+"gtoken@^1.2.1":
+  "integrity" "sha512-wQAJflfoqSgMWrSBk9Fg86q+sd6s7y6uJhIvvIPz++RElGlMtEqsdAR2oWwZ/WTEtp7P9xFbJRrT976oRgzJ/w=="
+  "resolved" "https://registry.npmjs.org/gtoken/-/gtoken-1.2.3.tgz"
+  "version" "1.2.3"
+  dependencies:
+    "google-p12-pem" "^0.1.0"
+    "jws" "^3.0.0"
+    "mime" "^1.4.1"
+    "request" "^2.72.0"
 
 "gtoken@^2.3.2":
   "integrity" "sha512-EaB49bu/TCoNeQjhCYKI/CurooBKkGxIqFHsWABW0b25fobBYVTMe84A8EBVVZhl8emiUdNypil9huMOTmyAnw=="
@@ -12701,6 +12744,14 @@
     "limiter" "^1.1.5"
     "lru-memoizer" "^2.1.4"
 
+"jws@^3.0.0", "jws@^3.1.4":
+  "integrity" "sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA=="
+  "resolved" "https://registry.npmjs.org/jws/-/jws-3.2.2.tgz"
+  "version" "3.2.2"
+  dependencies:
+    "jwa" "^1.4.1"
+    "safe-buffer" "^5.0.1"
+
 "jws@^3.1.5":
   "integrity" "sha512-YHlZCB6lMTllWDtSPHz/ZXTsi8S00usEV6v1tjq8tOUZzw7DpSDWVXjXDre6ed1w/pd495ODpHZYSdkRTsa0HA=="
   "resolved" "https://registry.npmjs.org/jws/-/jws-3.2.2.tgz"
@@ -13178,6 +13229,11 @@
   "resolved" "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"
   "version" "4.6.2"
 
+"lodash.noop@^3.0.1":
+  "integrity" "sha512-TmYdmu/pebrdTIBDK/FDx9Bmfzs9x0sZG6QIJuMDTqEPfeciLcN13ij+cOd0i9vwJfBtbG9UQ+C7MkXgYxrIJg=="
+  "resolved" "https://registry.npmjs.org/lodash.noop/-/lodash.noop-3.0.1.tgz"
+  "version" "3.0.1"
+
 "lodash.once@^4.0.0":
   "integrity" "sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg=="
   "resolved" "https://registry.npmjs.org/lodash.once/-/lodash.once-4.1.1.tgz"
@@ -13211,7 +13267,7 @@
   "resolved" "https://registry.npmjs.org/lodash.unescape/-/lodash.unescape-4.0.1.tgz"
   "version" "4.0.1"
 
-"lodash@^4", "lodash@^4.17.11", "lodash@^4.17.12", "lodash@^4.17.13", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.19", "lodash@^4.17.20", "lodash@^4.17.21", "lodash@^4.17.4", "lodash@^4.7.0", "lodash@4.x":
+"lodash@^4", "lodash@^4.14.0", "lodash@^4.17.11", "lodash@^4.17.12", "lodash@^4.17.13", "lodash@^4.17.14", "lodash@^4.17.15", "lodash@^4.17.19", "lodash@^4.17.20", "lodash@^4.17.21", "lodash@^4.17.4", "lodash@^4.7.0", "lodash@4.x":
   "integrity" "sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg=="
   "resolved" "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   "version" "4.17.21"
@@ -13705,7 +13761,7 @@
   dependencies:
     "mime-db" "1.52.0"
 
-"mime@^1.3.4", "mime@^1.6.0", "mime@1.6.0":
+"mime@^1.3.4", "mime@^1.4.1", "mime@^1.6.0", "mime@1.6.0":
   "integrity" "sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg=="
   "resolved" "https://registry.npmjs.org/mime/-/mime-1.6.0.tgz"
   "version" "1.6.0"
@@ -14202,6 +14258,11 @@
   "integrity" "sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA=="
   "resolved" "https://registry.npmjs.org/node-forge/-/node-forge-0.10.0.tgz"
   "version" "0.10.0"
+
+"node-forge@^0.7.1":
+  "integrity" "sha512-sol30LUpz1jQFBjOKwbjxijiE3b6pjd74YwfD0fJOKPjF+fONKb2Yg8rYgS6+bK6VDl+/wfr4IYpC7jDzLUIfw=="
+  "resolved" "https://registry.npmjs.org/node-forge/-/node-forge-0.7.6.tgz"
+  "version" "0.7.6"
 
 "node-forge@^1", "node-forge@^1.3.1":
   "integrity" "sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA=="
@@ -17177,7 +17238,7 @@
     "stealthy-require" "^1.1.1"
     "tough-cookie" "^2.3.3"
 
-"request@^2.68.0", "request@^2.83.0", "request@^2.88.0", "request@^2.88.2":
+"request@^2.68.0", "request@^2.72.0", "request@^2.74.0", "request@^2.83.0", "request@^2.88.0", "request@^2.88.2":
   "integrity" "sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw=="
   "resolved" "https://registry.npmjs.org/request/-/request-2.88.2.tgz"
   "version" "2.88.2"
@@ -18666,6 +18727,11 @@
   dependencies:
     "char-regex" "^1.0.2"
     "strip-ansi" "^6.0.0"
+
+"string-template@~1.0.0":
+  "integrity" "sha512-SLqR3GBUXuoPP5MmYtD7ompvXiG87QjT6lzOszyXjTM86Uu7At7vNnt2xgyTLq5o9T4IxTYFyGxcULqpsmsfdg=="
+  "resolved" "https://registry.npmjs.org/string-template/-/string-template-1.0.0.tgz"
+  "version" "1.0.0"
 
 "string-width@^1.0.1":
   "integrity" "sha1-EYvfW4zcUaKn5w0hHgfisLmxB9M="
