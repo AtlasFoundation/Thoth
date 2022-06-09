@@ -95,6 +95,13 @@ const EntityWindow = ({ id, updateCallback }) => {
 
   const [playingAudio, setPlayingAudio] = useState(false)
 
+  const [instagram_enabled, setInstagramEnabled] = useState('')
+  const [instagram_username, setInstagramUsername] = useState('')
+  const [instagram_password, setInstagramPassword] = useState('')
+  const [instagram_bot_name, setInstagramBotName] = useState('')
+  const [instagram_bot_name_regex, setInstagramBotNameRegex] = useState('')
+  const [instagram_spell_handler_incoming, setInstagramSpellHandlerIncoming] =
+    useState('')
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
   // const [twilio_sid, setTwilioSid] = useState('')
   // const [twilio_auth_token, setTwilioAuthToken] = useState('')
@@ -212,6 +219,13 @@ const EntityWindow = ({ id, updateCallback }) => {
         setRedditBotNameRegex(res.data.reddit_bot_name_regex)
         setRedditSpellHandlerIncoming(res.data.reddit_spell_handler_incoming)
 
+        setInstagramEnabled(res.data.instagram_enabled)
+        setInstagramUsername(res.data.instagram_username)
+        setInstagramPassword(res.data.instagram_password)
+        setInstagramBotName(res.data.instagram_bot_name)
+        setInstagramBotNameRegex(res.data.instagram_bot_name_regex)
+        setInstagramSpellHandlerIncoming(res.data.instagram_spell_handler_incoming)
+
         // setTwilioClientEnable(res.data.twilio_client_enable === true)
         // setTwilioSid(res.data.twilio_sid)
         // setTwilioAuthToken(res.data.twilio_auth_token)
@@ -303,6 +317,12 @@ const EntityWindow = ({ id, updateCallback }) => {
       reddit_bot_name,
       reddit_bot_name_regex,
       reddit_spell_handler_incoming,
+      instagram_enabled,
+      instagram_username,
+      instagram_password,
+      instagram_bot_name,
+      instagram_bot_name_regex,
+      instagram_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
@@ -381,6 +401,12 @@ const EntityWindow = ({ id, updateCallback }) => {
             responseData.reddit_spell_handler_incoming
           )
 
+          setInstagramEnabled(responseData.instagram_enabled)
+          setInstagramUsername(responseData.instagram_username)
+          setInstagramPassword(responseData.instagram_password)
+          setInstagramBotName(responseData.instagram_bot_name)
+          setInstagramBotNameRegex(responseData.instagram_bot_name_regex)
+          setInstagramSpellHandlerIncoming(responseData.instagram_spell_handler_incoming)
           // setTwilioClientEnable(responseData.twilio_client_enable)
           // setTwilioSid(responseData.twilio_sid)
           // setTwilioAuthToken(responseData.twilio_auth_token)
@@ -442,6 +468,12 @@ const EntityWindow = ({ id, updateCallback }) => {
       reddit_bot_name,
       reddit_bot_name_regex,
       reddit_spell_handler_incoming,
+      instagram_enabled,
+      instagram_username,
+      instagram_password,
+      instagram_bot_name,
+      instagram_bot_name_regex,
+      instagram_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
@@ -1136,9 +1168,86 @@ const EntityWindow = ({ id, updateCallback }) => {
                 <select
                   name="spellHandlerIncoming"
                   id="spellHandlerIncoming"
-                  value={telegram_spell_handler_incoming}
+                  value={reddit_spell_handler_incoming}
                   onChange={event => {
-                    setTelegramSpellHandlerIncoming(event.target.value)
+                    setRedditSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="form-item">
+            <span className="form-item-label">Instagram Client Enabled</span>
+            <input
+              type="checkbox"
+              value={instagram_enabled}
+              defaultChecked={instagram_enabled || instagram_enabled === 'true'}
+              onChange={e => {
+                setInstagramEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {instagram_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Username</span>
+                <input
+                  type="text"
+                  defaultValue={instagram_username}
+                  onChange={e => {
+                    setInstagramUsername(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Password</span>
+                <input
+                  type="text"
+                  defaultValue={instagram_password}
+                  onChange={e => {
+                    setInstagramPassword(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={instagram_bot_name}
+                  onChange={e => {
+                    setInstagramBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name Regex</span>
+                <input
+                  type="text"
+                  defaultValue={instagram_bot_name_regex}
+                  onChange={e => {
+                    setInstagramBotNameRegex(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={instagram_spell_handler_incoming}
+                  onChange={event => {
+                    setInstagramSpellHandlerIncoming(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&
