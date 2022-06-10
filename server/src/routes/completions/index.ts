@@ -1,6 +1,6 @@
-import { noAuth } from './../../middleware/auth';
+import { noAuth } from '../middleware/auth'
 import Koa from 'koa'
-import { Route } from 'src/types';
+import { Route } from 'src/types'
 
 const defaultOptions = {
   model: 'davinci-cached',
@@ -52,7 +52,7 @@ export const completions: Route[] = [
     path: '/completions',
     access: noAuth,
     post: completionsHandler,
-  }
+  },
 ]
 
 enum ModelSources {

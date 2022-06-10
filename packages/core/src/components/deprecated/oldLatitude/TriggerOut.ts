@@ -4,11 +4,11 @@ import Rete from 'rete'
 //@ts-ignore
 import { v4 as uuidv4 } from 'uuid'
 
-import { ThothNode } from '../../../types'
-import { InputControl } from '../../dataControls/InputControl'
-import { TaskOptions } from '../../plugins/taskPlugin/task'
-import { triggerSocket } from '../../sockets'
-import { ThothComponent } from '../../thoth-component'
+import { ThothNode } from '../../../../types'
+import { InputControl } from '../../../dataControls/InputControl'
+import { TaskOptions } from '../../../plugins/taskPlugin/task'
+import { triggerSocket } from '../../../sockets'
+import { ThothComponent } from '../../../thoth-component'
 const info = `The trigger out component is mainly used to add an output to a spell when it is being run as a module, ie inside a component of another spell.  It will pass the trigger signal out of the spell to the higher level spell.`
 
 type WorkerReturn = {

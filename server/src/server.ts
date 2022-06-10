@@ -20,7 +20,7 @@ import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
 import { convertToMp4 } from './systems/videoConverter'
-import { auth } from './middleware/auth'
+import { auth } from './routes/middleware/auth'
 import { initWeaviateClient, search } from './systems/weaviateClient'
 
 const app: Koa = new Koa()

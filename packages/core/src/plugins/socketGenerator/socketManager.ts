@@ -1,14 +1,5 @@
-<<<<<<< HEAD:core/src/plugins/socketGenerator/socketManager.ts
-import {
-  DataSocketType,
-  GraphData,
-  ThothEditor,
-  ThothNode,
-} from '../../../types'
-=======
-import { ChainData, DataSocketType, ThothNode } from '../../../types'
+import { GraphData, DataSocketType, ThothNode } from '../../../types'
 import { ThothEditor } from '../../editor'
->>>>>>> latitude/0.0.68:packages/core/src/plugins/socketGenerator/socketManager.ts
 import { ModuleSocketType } from '../modulePlugin/module-manager'
 
 export default class SocketManager {

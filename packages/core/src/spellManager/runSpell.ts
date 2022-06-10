@@ -1,7 +1,6 @@
-import {
-  getComponents,
-  initSharedEngine,
-} from '@latitudegames/thoth-core/server'
+import { getComponents } from '../components/components'
+
+import { initSharedEngine } from '../engine'
 
 import { EngineContext, GraphData, ModuleComponent, Spell } from '../../types'
 import { extractNodes, ThothEngine } from '../engine'

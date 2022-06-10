@@ -18,14 +18,11 @@ import { diff } from '@/utils/json0'
 import { useSnackbar } from 'notistack'
 import { sharedb } from '@/config'
 import { useSharedb } from '@/contexts/SharedbProvider'
-<<<<<<< HEAD:client/src/screens/Thoth/components/EventHandler.tsx
 import { useAuth } from '@/contexts/AuthProvider'
-=======
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
->>>>>>> latitude/0.0.68:packages/client/src/screens/Thoth/components/EventHandler.tsx
 
 // Config for unique name generator
 const customConfig = {
@@ -42,16 +39,14 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const [saveSpellMutation] = useSaveSpellMutation()
   const [saveDiff] = useSaveDiffMutation()
-<<<<<<< HEAD:client/src/screens/Thoth/components/EventHandler.tsx
   const { user } = useAuth()
   const { data: spell } = useGetSpellQuery({
     spellId: tab.spellId,
     userId: user?.id as string,
   })
-=======
-  const { data: spell } = useGetSpellQuery(tab.spellId)
-  const preferences = useSelector((state: RootState) => state.preferences)
->>>>>>> latitude/0.0.68:packages/client/src/screens/Thoth/components/EventHandler.tsx
+  const preferences = useSelector(
+    (state: RootState) => state.preferences
+  ) as any
 
   // Spell ref because callbacks cant hold values from state without them
   const spellRef = useRef<Spell | null>(null)
@@ -74,12 +69,9 @@ const EventHandler = ({ pubSub, tab }) => {
     $SAVE_SPELL,
     $SAVE_SPELL_DIFF,
     $CREATE_STATE_MANAGER,
-<<<<<<< HEAD:client/src/screens/Thoth/components/EventHandler.tsx
     $CREATE_SEARCH_CORPUS,
     $CREATE_ENT_MANAGER,
-=======
     $CREATE_SETTINGS_WINDOW,
->>>>>>> latitude/0.0.68:packages/client/src/screens/Thoth/components/EventHandler.tsx
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
@@ -97,10 +89,11 @@ const EventHandler = ({ pubSub, tab }) => {
     const currentSpell = spellRef.current
     const graph = serialize() as GraphData
 
-<<<<<<< HEAD:client/src/screens/Thoth/components/EventHandler.tsx
-    await saveSpellMutation({ ...currentSpell, graph, user: user?.id })
-=======
-    const response = await saveSpellMutation({ ...currentSpell, chain })
+    const response = await saveSpellMutation({
+      ...currentSpell,
+      graph,
+      user: user?.id,
+    })
 
     if ('error' in response) {
       enqueueSnackbar('Error saving spell', {
@@ -112,7 +105,6 @@ const EventHandler = ({ pubSub, tab }) => {
     enqueueSnackbar('Spell saved', {
       variant: 'success',
     })
->>>>>>> latitude/0.0.68:packages/client/src/screens/Thoth/components/EventHandler.tsx
   }
 
   const sharedbDiff = async (event, update) => {
@@ -210,7 +202,6 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.CONSOLE, 'Console')
   }
 
-<<<<<<< HEAD:client/src/screens/Thoth/components/EventHandler.tsx
   const createEventManager = () => {
     createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
   }
@@ -221,109 +212,108 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const createCalendarTab = () => {
     createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
-=======
-  const createSettingsWindow = () => {
-    createOrFocus(windowTypes.SETTINGS, 'Settings')
->>>>>>> latitude/0.0.68:packages/client/src/screens/Thoth/components/EventHandler.tsx
-  }
 
-  const onSerialize = () => {
-    // eslint-disable-next-line no-console
-    console.log(serialize())
-  }
-
-  const onProcess = () => {
-    const editor = getEditor()
-    if (!editor) return
-
-    editor.runProcess()
-  }
-
-  const onUndo = () => {
-    undo()
-  }
-
-  const onRedo = () => {
-    redo()
-  }
-
-  const onDelete = () => {
-    del()
-  }
-
-  const onExport = async () => {
-    // refetch spell from local DB to ensure it is the most up to date
-    const spell = { ...spellRef.current }
-    spell.graph = serialize() as GraphData
-    spell.name = uniqueNamesGenerator(customConfig)
-
-    const json = JSON.stringify(spell)
-
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = window.URL.createObjectURL(new Blob([blob]))
-    const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', `${spell.name}.thoth`)
-
-    // Append to html link element page
-    document.body.appendChild(link)
-
-    // Start download
-    link.click()
-
-    if (!link.parentNode) return
-
-    // Clean up and remove the link
-    link.parentNode.removeChild(link)
-  }
-
-  // clean up anything inside the editor which we need to shut down.
-  // mainly subscriptions, etc.
-  const onCloseEditor = () => {
-    const editor = getEditor() as Record<string, any>
-    if (editor.moduleSubscription) editor.moduleSubscription.unsubscribe()
-  }
-
-  const handlerMap = {
-    [$SAVE_SPELL(tab.id)]: saveSpell,
-    [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
-<<<<<<< HEAD:client/src/screens/Thoth/components/EventHandler.tsx
-    [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
-    [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
-=======
-    [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
->>>>>>> latitude/0.0.68:packages/client/src/screens/Thoth/components/EventHandler.tsx
-    [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
-    [$CREATE_INSPECTOR(tab.id)]: createInspector,
-    [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
-    [$CREATE_CONSOLE(tab.id)]: createConsole,
-    [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
-    [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
-    [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
-    [$SERIALIZE(tab.id)]: onSerialize,
-    [$EXPORT(tab.id)]: onExport,
-    [$CLOSE_EDITOR(tab.id)]: onCloseEditor,
-    [$UNDO(tab.id)]: onUndo,
-    [$REDO(tab.id)]: onRedo,
-    [$DELETE(tab.id)]: onDelete,
-    [$PROCESS(tab.id)]: onProcess,
-    [$SAVE_SPELL_DIFF(tab.id)]: sharedb ? sharedbDiff : onSaveDiff,
-  }
-
-  useEffect(() => {
-    if (!tab && !spell && !client) return
-
-    const subscriptions = Object.entries(handlerMap).map(([event, handler]) => {
-      return subscribe(event, handler)
-    })
-
-    // unsubscribe from all subscriptions on unmount
-    return () => {
-      subscriptions.forEach(unsubscribe => {
-        unsubscribe()
-      })
+    const createSettingsWindow = () => {
+      createOrFocus(windowTypes.SETTINGS, 'Settings')
     }
-  }, [tab, client])
+
+    const onSerialize = () => {
+      // eslint-disable-next-line no-console
+      console.log(serialize())
+    }
+
+    const onProcess = () => {
+      const editor = getEditor()
+      if (!editor) return
+
+      editor.runProcess()
+    }
+
+    const onUndo = () => {
+      undo()
+    }
+
+    const onRedo = () => {
+      redo()
+    }
+
+    const onDelete = () => {
+      del()
+    }
+
+    const onExport = async () => {
+      // refetch spell from local DB to ensure it is the most up to date
+      const spell = { ...spellRef.current }
+      spell.graph = serialize() as GraphData
+      spell.name = uniqueNamesGenerator(customConfig)
+
+      const json = JSON.stringify(spell)
+
+      const blob = new Blob([json], { type: 'application/json' })
+      const url = window.URL.createObjectURL(new Blob([blob]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `${spell.name}.thoth`)
+
+      // Append to html link element page
+      document.body.appendChild(link)
+
+      // Start download
+      link.click()
+
+      if (!link.parentNode) return
+
+      // Clean up and remove the link
+      link.parentNode.removeChild(link)
+    }
+
+    // clean up anything inside the editor which we need to shut down.
+    // mainly subscriptions, etc.
+    const onCloseEditor = () => {
+      const editor = getEditor() as Record<string, any>
+      if (editor.moduleSubscription) editor.moduleSubscription.unsubscribe()
+    }
+
+    const handlerMap = {
+      [$SAVE_SPELL(tab.id)]: saveSpell,
+      [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
+      [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
+      [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
+      [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
+      [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
+      [$CREATE_INSPECTOR(tab.id)]: createInspector,
+      [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
+      [$CREATE_CONSOLE(tab.id)]: createConsole,
+      [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
+      [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
+      [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
+      [$SERIALIZE(tab.id)]: onSerialize,
+      [$EXPORT(tab.id)]: onExport,
+      [$CLOSE_EDITOR(tab.id)]: onCloseEditor,
+      [$UNDO(tab.id)]: onUndo,
+      [$REDO(tab.id)]: onRedo,
+      [$DELETE(tab.id)]: onDelete,
+      [$PROCESS(tab.id)]: onProcess,
+      [$SAVE_SPELL_DIFF(tab.id)]: sharedb ? sharedbDiff : onSaveDiff,
+    }
+
+    useEffect(() => {
+      if (!tab && !spell && !client) return
+
+      const subscriptions = Object.entries(handlerMap).map(
+        ([event, handler]) => {
+          return subscribe(event, handler)
+        }
+      )
+
+      // unsubscribe from all subscriptions on unmount
+      return () => {
+        subscriptions.forEach(unsubscribe => {
+          unsubscribe()
+        })
+      }
+    }, [tab, client])
+  }
 
   return null
 }

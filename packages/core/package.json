@@ -73,7 +73,6 @@
     "rete-context-menu-plugin": "^0.6.0-rc.1",
     "rete-module-plugin": "^0.4.1",
     "rete-react-render-plugin": "^0.2.1",
-<<<<<<< HEAD:core/package.json
     "similarity": "^1.2.1",
     "snoostream": "1.0.1",
     "snoowrap": "1.23.0",
@@ -82,14 +81,11 @@
     "twit": "2.2.11",
     "twitter-api-v2": "1.8.0",
     "twitter-autohook": "1.7.2",
-    "uuid": "^8.3.2",
     "weaviate-client": "^2.3.0",
     "wikipedia": "^1.1.6",
-    "xvfb": "0.4.0"
-=======
+    "xvfb": "0.4.0",
     "socket.io": "^4.5.0",
     "uuid": "^8.3.2"
->>>>>>> latitude/0.0.68:packages/core/package.json
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.18.2",

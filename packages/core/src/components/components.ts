@@ -1,4 +1,4 @@
-<<<<<<< HEAD:core/src/components/components.ts
+import { ThothComponent } from '../../types'
 import { AddAgent } from './entities/AddAgent'
 import { AgentTextCompletion } from './entities/AgentTextCompletion'
 import { CacheManagerDelete } from './entities/CacheManagerDelete'
@@ -47,7 +47,7 @@ import { DocumentSet } from './search/DocumentSet'
 import { DocumentStoreGet } from './search/DocumentStoreGet'
 import { Search } from './search/Search'
 import { VectorSearch } from './search/VectorSearch'
-import { SpellComponent } from './Spell'
+import { SpellComponent } from './services/Spell'
 import { StateRead } from './state/StateRead'
 import { StateWrite } from './state/StateWrite'
 import { ComplexStringMatcher } from './strings/ComplexStringMatcher'
@@ -59,42 +59,8 @@ import { StringCombiner } from './strings/StringCombiner'
 import { StringEvaluator } from './strings/StringEvaluator'
 import { StringProcessor } from './strings/StringProcessor'
 import { Alert } from './utility/AlertMessage'
-=======
-import { ActionTypeComponent } from './deprecated/ActionType'
-import { Alert } from './utility/AlertMessage'
-import { BooleanGate } from './BooleanGate'
-import { InRange } from './InRange'
-import { Code } from './Code'
-import { InputFieldComponent } from './deprecated/InputField'
-import { ModuleInput } from './deprecated/ModuleInput'
-import { ModuleOutput } from './deprecated/ModuleOutput'
-import { PlaytestInput } from './deprecated/PlaytestInput'
-import { PlaytestPrint } from './deprecated/PlaytestPrint'
-import { RunInputComponent } from './deprecated/RunInput'
-import { DifficultyDetectorComponent } from './DifficultyDetector'
-import { EnkiTask } from './EnkiTask'
-import { EntityDetector } from './deprecated/EntityDetector'
-import { ForEach } from './ForEach'
-import { Generator } from './Generator'
-import { HuggingfaceComponent } from './Huggingface'
-import { InputComponent } from './Input'
-import { ItemTypeComponent } from './deprecated/ItemDetector'
-import { JoinListComponent } from './JoinList'
-import { Output } from './Output'
-import { ProseToScript } from './deprecated/ProseToScript'
-import { SafetyVerifier } from './deprecated/SafetyVerifier'
-import { SpellComponent } from './Spell'
-import { StateRead } from './StateRead'
-import { StateWrite } from './StateWrite'
-import { StringProcessor } from './StringProcessor'
-import { SwitchGate } from './SwitchGate'
-import { TenseTransformer } from './deprecated/TenseTransformer'
-import { TimeDetectorComponent } from './deprecated/TimeDetector'
-import { TriggerIn } from './TriggerIn'
-import { TriggerOut } from './TriggerOut'
-import { VisualGeneration } from './VisualGeneration'
->>>>>>> latitude/0.0.68:packages/core/src/components/components.ts
 import { Echo } from './utility/Echo'
+import { InRange } from './utility/InRange'
 import { InputsToJSON } from './utility/InputsToJSON'
 import { ArrayVariable } from './variable/ArrayVariable'
 import { BooleanVariable } from './variable/BooleanVariable'
@@ -112,11 +78,8 @@ export const components = {
   actionTypeComponent: () => new ActionTypeComponent(),
   alert: () => new Alert(),
   booleanGate: () => new BooleanGate(),
-<<<<<<< HEAD:core/src/components/components.ts
   coallesce: () => new Coallesce(),
-=======
   inRange: () => new InRange(),
->>>>>>> latitude/0.0.68:packages/core/src/components/components.ts
   code: () => new Code(),
   sentenceMatcher: () => new SentenceMatcher(),
   difficultyDetectorComponent: () => new DifficultyDetectorComponent(),
@@ -183,6 +146,25 @@ export const components = {
   waitForAll: () => new WaitForAll(),
 }
 
+function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {
+  if ((a.displayName || a.name) < (b.displayName || b.name)) {
+    return -1
+  }
+  if ((a.displayName || a.name) > (b.displayName || b.name)) {
+    return 1
+  }
+  return 0
+}
+
 export const getComponents = () => {
-  return Object.values(components).map(component => component())
+  const sortedComponents = Object.keys(components)
+    .sort()
+    .reduce(function (acc, key: keyof typeof components) {
+      acc[key] = components[key]
+      return acc
+    }, {} as Record<string, any>)
+
+  return Object.values(sortedComponents)
+    .map(component => component())
+    .sort(compare)
 }

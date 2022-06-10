@@ -10,12 +10,7 @@ import { useSelector } from 'react-redux'
 import { selectAllTabs } from '@/state/tabs'
 import { RootState } from '@/state/store'
 
-<<<<<<< HEAD:client/src/screens/HomeScreen/screens/OpenProject.tsx
 const getThothVersion = () => '1'
-=======
-//TODO: this should be dynamic
-const getThothVersion = () => '0.0.67'
->>>>>>> latitude/0.0.68:packages/client/src/screens/HomeScreen/screens/OpenProject.tsx
 
 const OpenProject = ({
   spells,

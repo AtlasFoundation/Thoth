@@ -8,10 +8,10 @@ import {
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-} from '../../../../types'
-import { FewshotControl } from '../../../dataControls/FewshotControl'
-import { stringSocket, triggerSocket } from '../../../sockets'
-import { ThothComponent } from '../../../thoth-component'
+} from '../../../types'
+import { FewshotControl } from '../../dataControls/FewshotControl'
+import { stringSocket, triggerSocket } from '../../sockets'
+import { ThothComponent } from '../../thoth-component'
 // For simplicity quests should be ONE thing not complete X and Y
 const fewshot = `Given an action, predict how long it would take to complete out of the following categories: seconds, minutes, hours, days, weeks, years.
 Action, Time: pick up the bucket, seconds

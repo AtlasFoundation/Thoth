@@ -7,15 +7,15 @@ import {
   Spell,
   ThothNode,
   ThothWorkerInputs,
-} from '../../types'
-import { SpellControl } from '../dataControls/SpellControl'
-import { ThothEditor } from '../editor'
-import { Task } from '../plugins/taskPlugin/task'
-import { ThothComponent } from '../thoth-component'
+} from '../../../types'
+import { SpellControl } from '../../dataControls/SpellControl'
+import { ThothEditor } from '../../editor'
+import { Task } from '../../plugins/taskPlugin/task'
+import { ThothComponent } from '../../thoth-component'
 import {
   inputNameFromSocketKey,
   socketKeyFromOutputName,
-} from '../utils/nodeHelpers'
+} from '../../utils/nodeHelpers'
 
 const info = `The Module component allows you to add modules into your graph.  A module is a bundled self contained graph that defines inputs, outputs, and triggers using components.`
 

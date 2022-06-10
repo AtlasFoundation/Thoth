@@ -23,9 +23,14 @@ type RunOptions = {
   garbage?: Task[]
   fromSocket?: string
   fromNode?: NodeData
+  fromTask?: Task
 }
 
 export type TaskOutputTypes = 'option' | 'output'
+
+const hasTrigger = (task: Task) => {
+  return Object.values(task.component.task.outputs).includes('option')
+}
 
 export class Task {
   node: NodeData
@@ -89,6 +94,7 @@ export class Task {
       propagate = true,
       fromSocket,
       fromNode,
+      fromTask,
     } = options
 
     // garbage means that the nodes output value will be reset after it is all done.
@@ -105,7 +111,7 @@ export class Task {
       /*
         This is where we are populating all the input values to be passed into the worker. We are getting all the input connections that are connected as outputs (ie have values)
         We filter out all connections which did not come from the previou node.  This is to hgelp support multiple inputs properly, otherwise we actually back propagate along every input and run it, whichI think is unwanted behaviour.
-
+        
         After we have filtered these out, we need to run the task, which triggers that nodes worker.  After the worker runs, the task has populated output data, which we take and we associate with the tasks input values, which are subsequently
         passed to the nodes worker for processing.
 
@@ -116,12 +122,9 @@ export class Task {
           const inputPromises = this.inputs[key]
             .filter((con: ThothReteInput) => {
               // only filter inputs to remove ones that are not the origin if a task option is true
-              console.log({ component: this.component, fromNode, con })
+              console.log('HAS TRIGGER', fromTask && hasTrigger(fromTask))
               if (!this.component.task.runOneInput || !fromNode) return true
-
-              // return true if the input is from a triggerless component
-              if (!con.task.node.outputs.trigger) return true
-
+              // if (fromTask.)
               return con.task.node.id === fromNode.id
             })
             .map(async (con: ThothReteInput) => {
@@ -155,7 +158,7 @@ export class Task {
       if (this.component.task.onRun)
         this.component.task.onRun(this.node, this, data, socketInfo)
 
-      // this is what propagates the the run command to the next nodes in the graph
+      // this is what propagates the the run command to the next nodes in the chain
       // this makes use of the 'next' nodes.  It also will filter out any connectios which the task has closed.
       // it is this functionality that lets us control which direction the run signal flows.
       if (propagate)
@@ -169,6 +172,7 @@ export class Task {
                 garbage,
                 fromSocket: con.key,
                 fromNode: this.node,
+                fromTask: this,
               })
             })
         )

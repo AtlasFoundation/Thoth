@@ -21,11 +21,7 @@
     "install:canary": "yarn add @latitudegames/thoth-core@canary"
   },
   "resolutions": {
-<<<<<<< HEAD:client/package.json
     "@types/react": "18.0.0"
-=======
-    "@types/react": "17.0.24"
->>>>>>> latitude/0.0.68:packages/client/package.json
   },
   "dependencies": {
     "@callstack/async-storage": "^2.0.3",
@@ -33,12 +29,9 @@
     "@material-ui/icons": "^4.11.2",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
-<<<<<<< HEAD:client/package.json
-=======
     "@feathersjs/client": "^4.5.14",
     "@feathersjs/feathers": "^4.5.12",
     "@latitudegames/thoth-core": "^0.0.68",
->>>>>>> latitude/0.0.68:packages/client/package.json
     "@monaco-editor/react": "^4.2.1",
     "@mui/icons-material": "^5.5.1",
     "@mui/material": "^5.5.3",
@@ -110,12 +103,8 @@
     "@testing-library/user-event": "^12.1.10",
     "@types/jest": "^26.0.24",
     "@types/node": "^16.4.3",
-<<<<<<< HEAD:client/package.json
-    "@types/react": "^17.0.15",
     "@types/react-csv": "^1.1.2",
-=======
     "@types/react": "^17.0.24",
->>>>>>> latitude/0.0.68:packages/client/package.json
     "@types/react-dom": "^17.0.9",
     "@types/react-redux": "^7.1.18",
     "@types/react-table": "7.7.9",

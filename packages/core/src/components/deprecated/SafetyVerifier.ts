@@ -8,10 +8,6 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { FewshotControl } from '../../dataControls/FewshotControl'
-<<<<<<< HEAD:packages/core/src/components/deprecated/ml/SafetyVerifier.ts
-=======
-import { EngineContext } from '../../../types'
->>>>>>> latitude/0.0.68:packages/core/src/components/deprecated/SafetyVerifier.ts
 import { stringSocket, triggerSocket, booleanSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
@@ -108,7 +104,7 @@ export class SafetyVerifier extends ThothComponent<Promise<WorkerReturn>> {
   }
 
   builder(node: ThothNode) {
-    if(!node.data.fewshot) node.data.fewshot = fewshot
+    if (!node.data.fewshot) node.data.fewshot = fewshot
 
     const inp = new Rete.Input('string', 'Text', stringSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)

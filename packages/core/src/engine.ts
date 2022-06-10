@@ -1,12 +1,8 @@
 import io from 'socket.io'
 import Rete, { Engine } from 'rete'
 
-<<<<<<< HEAD:core/src/engine.ts
 import { GraphData, ModuleType, NodeData, ThothWorkerInputs } from '../types'
-=======
-import { ChainData, ModuleType, NodeData, ThothWorkerInputs } from '../types'
 import SocketPlugin from './plugins/socketPlugin'
->>>>>>> latitude/0.0.68:packages/core/src/engine.ts
 import debuggerPlugin from './plugins/debuggerPlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'

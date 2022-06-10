@@ -16,16 +16,11 @@ import { Inspector } from './src/plugins/inspectorPlugin/Inspector'
 import { TaskOutputTypes } from './src/plugins/taskPlugin/task'
 import { SocketNameType, SocketType } from './src/sockets'
 import { ThothTask } from './src/thoth-component'
-<<<<<<< HEAD:core/types.ts
 
 export { ThothEditor } from './src/editor'
-=======
-import { ThothConsole } from './src/plugins/debuggerPlugin/ThothConsole'
-import { Data } from 'rete/types/core/data'
 export { ThothComponent } from './src/thoth-component'
 //@seang this was causing test enviroment issues to have it shared client/server
 // export { ThothEditor } from './src/editor'
->>>>>>> latitude/0.0.68:packages/core/types.ts
 
 export type { InspectorData } from './src/plugins/inspectorPlugin/Inspector'
 

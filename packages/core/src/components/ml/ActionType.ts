@@ -8,10 +8,10 @@ import {
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-} from '../../../../types'
-import { FewshotControl } from '../../../dataControls/FewshotControl'
-import { stringSocket, triggerSocket } from '../../../sockets'
-import { ThothComponent } from '../../../thoth-component'
+} from '../../../types'
+import { FewshotControl } from '../../dataControls/FewshotControl'
+import { stringSocket, triggerSocket } from '../../sockets'
+import { ThothComponent } from '../../thoth-component'
 
 const fewshot = `Given an action classify the type of action it is
 

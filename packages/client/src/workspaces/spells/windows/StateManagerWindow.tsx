@@ -7,27 +7,24 @@ import Window from '../../../components/Window/Window'
 import '../../../screens/Thoth/thoth.module.css'
 import WindowMessage from '../components/WindowMessage'
 import { usePubSub } from '@/contexts/PubSubProvider'
-<<<<<<< HEAD:client/src/workspaces/spells/windows/StateManagerWindow.tsx
+
+import { RootState } from '@/state/store'
+import { useSelector } from 'react-redux'
 import { useAuth } from '@/contexts/AuthProvider'
 
 const StateManager = ({ tab, ...props }) => {
   const { publish, events } = usePubSub()
   const { user } = useAuth()
-  const { data: spell } = useGetSpellQuery({ 
-    spellId: tab.spellId, 
-    userId: user?.id as string 
-  }, {
-=======
-import { RootState } from '@/state/store'
-import { useSelector } from 'react-redux'
-
-const StateManager = ({ tab, ...props }) => {
-  const { publish, events } = usePubSub()
   const preferences = useSelector((state: RootState) => state.preferences)
-  const { data: spell } = useGetSpellQuery(tab.spellId, {
->>>>>>> latitude/0.0.68:packages/client/src/workspaces/spells/windows/StateManagerWindow.tsx
-    skip: !tab.spellId,
-  })
+  const { data: spell } = useGetSpellQuery(
+    {
+      spellId: tab.spellId,
+      userId: user?.id as string,
+    },
+    {
+      skip: !tab.spellId,
+    }
+  )
 
   const [typing, setTyping] = useState<boolean>(false)
   const [code, setCode] = useState('{}')

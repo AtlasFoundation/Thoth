@@ -6,10 +6,10 @@ import {
   NodeData,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-} from '../../../types'
-import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
-import { triggerSocket } from '../../sockets'
-import { ThothComponent } from '../../thoth-component'
+} from '../../../../types'
+import { SocketGeneratorControl } from '../../../dataControls/SocketGenerator'
+import { triggerSocket } from '../../../sockets'
+import { ThothComponent } from '../../../thoth-component'
 
 const info = `The State Write component allows you to define any number of inputs, and to write values to the state manager which correspond to the names of those inputs.  If the value does not exist in the state, it will be written.
 

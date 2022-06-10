@@ -7,7 +7,7 @@ import {
 } from '../../types'
 import { ThothEngine } from '../engine'
 import { Module } from '../plugins/modulePlugin/module'
-import { extractNodes } from './graphHelpers'
+import { extractNodes } from './chainHelpers'
 
 type RunGraphArguments = {
   graph: GraphData

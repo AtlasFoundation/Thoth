@@ -1,5 +1,4 @@
-import { ThothComponent } from '@latitudegames/thoth-core/src/thoth-component'
-import { IRunContextEditor, NodeData } from '../../../types'
+import { IRunContextEditor, NodeData, ThothComponent } from '../../../types'
 import { ThothConsole } from '../debuggerPlugin/ThothConsole'
 
 function install(

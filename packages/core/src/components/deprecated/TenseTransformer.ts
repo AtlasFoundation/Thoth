@@ -13,12 +13,6 @@ import {
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-<<<<<<< HEAD:packages/core/src/components/deprecated/ml/TenseTransformer.ts
-} from '../../types'
-// @seang todo: convert data controls to typescript to remove this
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-=======
 } from '../../../types'
 import { FewshotControl } from '../../dataControls/FewshotControl'
 import { EngineContext } from '../../../types'
@@ -27,7 +21,6 @@ import { stringSocket, triggerSocket } from '../../sockets'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import { ThothComponent } from '../../thoth-component'
->>>>>>> latitude/0.0.68:packages/core/src/components/deprecated/TenseTransformer.ts
 const fewshot = `Change each statement to be in the third person present tense and correct all grammar.
 Matt: am sleepy.
 Third Person: Matt is sleepy.
@@ -116,7 +109,7 @@ export class TenseTransformer extends ThothComponent<Promise<WorkerReturn>> {
   // to generate the appropriate inputs and ouputs for the fewshot at build time
   builder(node: ThothNode) {
     // Set fewshot into nodes data
-    if(!node.data.fewshot) node.data.fewshot = fewshot
+    if (!node.data.fewshot) node.data.fewshot = fewshot
     // create inputs here. First argument is the name, second is the type (matched to other components sockets), and third is the socket the i/o will use
     const textInput = new Rete.Input('text', 'Text', stringSocket)
     const nameInput = new Rete.Input('name', 'Name', stringSocket)

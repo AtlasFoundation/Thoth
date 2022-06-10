@@ -31,16 +31,10 @@ export interface UserInfoType {
 const initialState = {
   session: {} as SessionInfoType | null,
   user: {} as UserInfoType | null,
-<<<<<<< HEAD:client/src/contexts/AuthProvider.tsx
-  logoutAndRedirect: () => { },
-  loginRedirect: (force?: boolean, returnToPath?: string) => { },
-  refreshSession: (origin: string) => { },
-=======
   logoutAndRedirect: () => {},
   loginRedirect: (force?: boolean, returnToPath?: string) => {},
   refreshSession: (origin: string) => {},
   done: false,
->>>>>>> latitude/0.0.68:packages/client/src/contexts/AuthProvider.tsx
 }
 
 const AuthContext = createContext(initialState)
@@ -75,8 +69,8 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
     if (search) {
       let queryDictionary = JSON.parse(
         '{"' +
-        search.substring(1).replace(/&/g, '","').replace(/=/g, '":"') +
-        '"}',
+          search.substring(1).replace(/&/g, '","').replace(/=/g, '":"') +
+          '"}',
         function (key, value) {
           return key === '' ? value : decodeURIComponent(value)
         }
@@ -146,7 +140,7 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
   }
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       try {
         // Check if User has an existing sessionId in local storage
         const sessionId = await getSessionId()
@@ -213,7 +207,7 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
       } else {
         // Setting static user data
         let userId = localStorage.getItem('userId')
-        if(!userId) {
+        if (!userId) {
           userId = uuidv4()
           localStorage.setItem('userId', userId)
         }
@@ -221,7 +215,7 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
           id: userId,
           email: '',
           groups: [],
-          username: ''
+          username: '',
         })
         setDone(true)
       }

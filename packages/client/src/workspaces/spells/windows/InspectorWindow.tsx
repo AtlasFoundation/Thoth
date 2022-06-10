@@ -7,16 +7,11 @@ import DataControls from '../DataControls'
 import WindowMessage from '../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@latitudegames/thoth-core/types'
-<<<<<<< HEAD:client/src/workspaces/spells/windows/InspectorWindow.tsx
-=======
-import SwitchComponent from '@/components/Switch/Switch'
-import css from '../../../components/Icon/icon.module.css'
 import { RootState } from '@/state/store'
 import { debounce } from '@/utils/debounce'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
->>>>>>> latitude/0.0.68:packages/client/src/workspaces/spells/windows/InspectorWindow.tsx
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
@@ -71,8 +66,6 @@ const Inspector = props => {
     }, 2000)
   }
 
-<<<<<<< HEAD:client/src/workspaces/spells/windows/InspectorWindow.tsx
-=======
   const onLock = () => {
     if (
       !preferences.doNotShowUnlockWarning &&
@@ -97,7 +90,6 @@ const Inspector = props => {
     updateData(data)
   }
 
->>>>>>> latitude/0.0.68:packages/client/src/workspaces/spells/windows/InspectorWindow.tsx
   const toolbar = (
     <>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>

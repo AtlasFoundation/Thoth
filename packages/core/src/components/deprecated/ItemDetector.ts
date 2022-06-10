@@ -10,10 +10,6 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { FewshotControl } from '../../dataControls/FewshotControl'
-<<<<<<< HEAD:packages/core/src/components/deprecated/ml/ItemDetector.ts
-=======
-import { EngineContext } from '../../../types'
->>>>>>> latitude/0.0.68:packages/core/src/components/deprecated/ItemDetector.ts
 import { stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 // For simplicity quests should be ONE thing not complete X and Y
@@ -49,7 +45,7 @@ export class ItemTypeComponent extends ThothComponent<Promise<WorkerReturn>> {
   }
 
   builder(node: ThothNode) {
-    if(!node.data.fewshot) node.data.fewshot = fewshot
+    if (!node.data.fewshot) node.data.fewshot = fewshot
     const inp = new Rete.Input('string', 'Text', stringSocket)
     const out = new Rete.Output('detectedItem', 'Item Detected', stringSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
@@ -77,9 +73,10 @@ export class ItemTypeComponent extends ThothComponent<Promise<WorkerReturn>> {
     const prompt = fewshot + action + ','
 
     const resp = await axios.post(
-      `${process.env.REACT_APP_API_URL ??
-      process.env.API_URL ??
-      'https://localhost:8001'
+      `${
+        process.env.REACT_APP_API_URL ??
+        process.env.API_URL ??
+        'https://localhost:8001'
       }/text_completion`,
       {
         params: {

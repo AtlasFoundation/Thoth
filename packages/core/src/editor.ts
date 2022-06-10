@@ -7,12 +7,8 @@ import { Data } from 'rete/types/core/data'
 import { EventsTypes, EditorContext } from '../types'
 import { ThothNode } from './../types'
 import { getComponents } from './components/components'
-<<<<<<< HEAD:core/src/editor.ts
-import { initSharedEngine } from './engine'
-=======
 import { initSharedEngine, ThothEngine } from './engine'
 // import CommentPlugin from './plugins/commentPlugin'
->>>>>>> latitude/0.0.68:packages/core/src/editor.ts
 import AreaPlugin from './plugins/areaPlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
@@ -26,11 +22,6 @@ import SocketGenerator from './plugins/socketGenerator'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
 import { PubSubContext, ThothComponent } from './thoth-component'
-<<<<<<< HEAD:core/src/editor.ts
-=======
-import DebuggerPlugin from './plugins/debuggerPlugin'
-import KeyCodePlugin from './plugins/keyCodePlugin'
-import ModulePlugin from './plugins/modulePlugin'
 import SocketPlugin from './plugins/socketPlugin'
 // import SelectionPlugin from './plugins/selectionPlugin'
 import errorPlugin from './plugins/errorPlugin'
@@ -38,7 +29,6 @@ import errorPlugin from './plugins/errorPlugin'
 interface ThothEngineClient extends ThothEngine {
   thoth: EditorContext
 }
->>>>>>> latitude/0.0.68:packages/core/src/editor.ts
 export class ThothEditor extends NodeEditor<EventsTypes> {
   tasks: Task[]
   pubSub: PubSubContext

@@ -16,10 +16,6 @@
     "target": "ES2021",
     "sourceMap": true
   },
-<<<<<<< HEAD:core/tsconfig.json
-  "exclude": ["./node_modules/", "./dist/"]
-=======
   "include": ["./"],
   "exclude": ["./node_modules/", "./dist/", "./test", "./data"]
->>>>>>> latitude/0.0.68:packages/core/tsconfig.json
 }

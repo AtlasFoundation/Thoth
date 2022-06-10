@@ -11,10 +11,6 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-<<<<<<< HEAD:packages/core/src/components/deprecated/ml/ProseToScript.ts
-=======
-import { EngineContext } from '../../../types'
->>>>>>> latitude/0.0.68:packages/core/src/components/deprecated/ProseToScript.ts
 import { stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 const fewshot = (prose: string) => {
@@ -73,7 +69,7 @@ export class ProseToScript extends ThothComponent<Promise<WorkerReturn>> {
 
     this.task = {
       outputs: { detectedItem: 'output', trigger: 'option' },
-      init: () => { },
+      init: () => {},
     }
 
     this.category = 'AI/ML'
@@ -112,9 +108,10 @@ export class ProseToScript extends ThothComponent<Promise<WorkerReturn>> {
     const prompt = fewshot(prose)
 
     const resp = await axios.post(
-      `${process.env.REACT_APP_API_URL ??
-      process.env.API_URL ??
-      'https://localhost:8001'
+      `${
+        process.env.REACT_APP_API_URL ??
+        process.env.API_URL ??
+        'https://localhost:8001'
       }/text_completion`,
       {
         params: {

@@ -3,10 +3,10 @@ import {
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-  EngineContext
-} from '../../../types'
-import { EnkiThroughputControl } from '../../dataControls/EnkiThroughputControl'
-import { ThothComponent } from '../../thoth-component'
+  EngineContext,
+} from '../../../../types'
+import { EnkiThroughputControl } from '../../../dataControls/EnkiThroughputControl'
+import { ThothComponent } from '../../../thoth-component'
 const info = `Enki is a tool for building both fewshots, as well as entire data sets.  The enki component allows you to select an enki which you or someone else has made in the Enki tool and utilize it in your spells.
 
 Due to current limitations in data structure, the enki inputs and outputs are unnamed, so you will have to know the order of them and what to use them for by referencing their usage in Enki.`

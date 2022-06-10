@@ -2,7 +2,7 @@ import axios from 'axios'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
 import { creatorToolsDatabase } from '../../databases/creatorTools'
-import { noAuth } from '../../middleware/auth'
+import { noAuth } from '../middleware/auth'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 import {
@@ -127,7 +127,8 @@ const saveHandler = async (ctx: Koa.Context) => {
 
   if (
     spell &&
-    spell.userId?.toString() !== (ctx.state.user?.id ?? ctx.query.userId).toString()
+    spell.userId?.toString() !==
+      (ctx.state.user?.id ?? ctx.query.userId).toString()
   ) {
     throw new CustomError(
       'input-failed',
@@ -211,9 +212,9 @@ const newHandler = async (ctx: Koa.Context) => {
   const spell = await creatorToolsDatabase.spells.findOne({
     where: {
       name: body.name,
-      deletedAt: { [Op.ne]: null }
+      deletedAt: { [Op.ne]: null },
     },
-    paranoid: false
+    paranoid: false,
   })
 
   if (spell) await spell.destroy({ force: true })
@@ -268,9 +269,10 @@ const getSpellsHandler = async (ctx: Koa.Context) => {
     return (ctx.body = response.data)
   }
   let queryBody: any = {}
-  if(ctx.query.userId) queryBody['where'] = {
-    userId: ctx.query.userId
-  }
+  if (ctx.query.userId)
+    queryBody['where'] = {
+      userId: ctx.query.userId,
+    }
   const spells = await creatorToolsDatabase.spells.findAll({
     ...queryBody,
     attributes: {

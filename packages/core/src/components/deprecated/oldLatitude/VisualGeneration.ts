@@ -7,10 +7,10 @@ import {
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-} from '../../../types'
-import { InputControl } from '../../dataControls/InputControl'
-import { triggerSocket, stringSocket, arraySocket } from '../../sockets'
-import { ThothComponent } from '../../thoth-component'
+} from '../../../../types'
+import { InputControl } from '../../../dataControls/InputControl'
+import { triggerSocket, stringSocket, arraySocket } from '../../../sockets'
+import { ThothComponent } from '../../../thoth-component'
 
 const info = `The VisualGeneration component is used to access the image cache. You pass it a caption and an optional topK value and it returns an array of images that are related to your caption. 
 

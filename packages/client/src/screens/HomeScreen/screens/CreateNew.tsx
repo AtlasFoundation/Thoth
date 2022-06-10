@@ -32,15 +32,9 @@ export type Template = {
 }
 
 export const thothTemplates = [
-<<<<<<< HEAD:client/src/screens/HomeScreen/screens/CreateNew.tsx
-  { label: 'Starter', bg: emptyImg, graph: defaultGraph },
-  { label: 'Language example', bg: langImg, graph: defaultGraph },
-  { label: 'Enki example', bg: enkiImg, graph: defaultGraph },
-=======
-  { label: 'Starter', bg: emptyImg, chain: defaultChain },
+  { label: 'Starter', bg: emptyImg, chain: defaultGraph },
   // { label: 'Language example', bg: langImg, chain: defaultChain },
   // { label: 'Enki example', bg: enkiImg, chain: defaultChain },
->>>>>>> latitude/0.0.68:packages/client/src/screens/HomeScreen/screens/CreateNew.tsx
 ]
 
 const CreateNew = () => {
@@ -66,7 +60,7 @@ const CreateNew = () => {
       const response = await newSpell({
         graph: selectedTemplate?.graph,
         name,
-        user: user?.id
+        user: user?.id,
       })
 
       if ('error' in response) {

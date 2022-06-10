@@ -20,7 +20,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth } from './middleware/auth'
+import { auth } from './routes/middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -383,7 +383,8 @@ export class database {
   async getDocumentsOfStore(
     storeId: string | string[] | undefined
   ): Promise<any> {
-    const query = 'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
+    const query =
+      'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)

@@ -5,11 +5,11 @@ import {
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
-  EngineContext
-} from '../../../types'
-import { FewshotControl } from '../../dataControls/FewshotControl'
-import { stringSocket, triggerSocket } from '../../sockets'
-import { ThothComponent } from '../../thoth-component'
+  EngineContext,
+} from '../../../../types'
+import { FewshotControl } from '../../../dataControls/FewshotControl'
+import { stringSocket, triggerSocket } from '../../../sockets'
+import { ThothComponent } from '../../../thoth-component'
 // For simplicity quests should be ONE thing not complete X and Y
 const fewshot = `Given an action, predict how hard it would be for a normal human in a fantasy world and what type of stat it uses.
 
@@ -71,7 +71,7 @@ export class DifficultyDetectorComponent extends ThothComponent<
   displayControl = {}
 
   builder(node: ThothNode) {
-    if(!node.data.fewshot) node.data.fewshot = fewshot
+    if (!node.data.fewshot) node.data.fewshot = fewshot
     const inp = new Rete.Input('action', 'Action', stringSocket)
     const difficultyOut = new Rete.Output(
       'difficulty',

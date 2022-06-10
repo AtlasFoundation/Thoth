@@ -1,22 +1,15 @@
 import { activeTabSelector, Tab } from '@/state/tabs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import thothlogo from './thoth.png'
 
 import { useModal } from '../../contexts/ModalProvider'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import css from './menuBar.module.css'
-<<<<<<< HEAD:client/src/components/MenuBar/MenuBar.tsx
-=======
-import thothlogo from './thoth.png'
-import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { activeTabSelector, Tab } from '@/state/tabs'
 import { toggleAutoSave } from '@/state/preferences'
 import { RootState } from '@/state/store'
->>>>>>> latitude/0.0.68:packages/client/src/components/MenuBar/MenuBar.tsx
 
 const MenuBar = () => {
   const navigate = useNavigate()
@@ -24,7 +17,9 @@ const MenuBar = () => {
   const dispatch = useDispatch()
   const activeTab = useSelector(activeTabSelector)
 
-  const preferences = useSelector((state: RootState) => state.preferences)
+  const preferences = useSelector(
+    (state: RootState) => state.preferences
+  ) as any
 
   const { openModal } = useModal()
 
@@ -46,13 +41,10 @@ const MenuBar = () => {
     $CREATE_SEARCH_CORPUS,
     $CREATE_TEXT_EDITOR,
     $CREATE_CONSOLE,
-<<<<<<< HEAD:client/src/components/MenuBar/MenuBar.tsx
     $CREATE_EVENT_MANAGER,
     $CREATE_VIDEO_TRANSCRIPTION,
     $CREATE_CALENDAR_TAB,
-=======
     $CREATE_SETTINGS_WINDOW,
->>>>>>> latitude/0.0.68:packages/client/src/components/MenuBar/MenuBar.tsx
     $SERIALIZE,
     $EXPORT,
     $UNDO,
@@ -266,7 +258,6 @@ const MenuBar = () => {
         console: {
           onClick: onConsole,
         },
-<<<<<<< HEAD:client/src/components/MenuBar/MenuBar.tsx
         event_manager: {
           onClick: onEventManagerCreate,
         },
@@ -275,19 +266,18 @@ const MenuBar = () => {
         },
         calendar_tab: {
           onClick: onCalendarTabCreate,
-=======
-        settings: {
-          onClick: onSettingsCreate,
+          settings: {
+            onClick: onSettingsCreate,
+          },
         },
       },
-    },
-    settings: {
-      items: {
-        'Auto Save': {
-          onClick: toggleSave,
-          hotKey: 'option+shift+a',
-          isActive: preferences.autoSave,
->>>>>>> latitude/0.0.68:packages/client/src/components/MenuBar/MenuBar.tsx
+      settings: {
+        items: {
+          'Auto Save': {
+            onClick: toggleSave,
+            hotKey: 'option+shift+a',
+            isActive: preferences.autoSave,
+          },
         },
       },
     },

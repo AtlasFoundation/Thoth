@@ -33,16 +33,13 @@ const DebugConsole = ({ tab }) => {
   }
 
   const formatErrorMessage = message =>
-<<<<<<< HEAD:client/src/workspaces/spells/windows/DebugConsole/index.tsx
-    `> Node ${message.nodeId}: Error in ${message.from} component ${message.name ?? 'unnamed'
-=======
     `> Node ${message.nodeId}: Error in ${message.from} component${
       message.name ? ' ' + message.name : ''
->>>>>>> latitude/0.0.68:packages/client/src/workspaces/spells/windows/DebugConsole/index.tsx
     }.`
 
   const formatLogMessage = message =>
-    `> Node ${message.nodeId}: Message from ${message.from} component ${message.name ?? 'unnamed'
+    `> Node ${message.nodeId}: Message from ${message.from} component ${
+      message.name ?? 'unnamed'
     }.`
 
   const Message = (message, type) => (

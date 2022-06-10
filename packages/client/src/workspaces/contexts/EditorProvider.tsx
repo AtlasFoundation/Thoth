@@ -3,13 +3,8 @@ import {
   GraphData,
   EditorContext,
   Spell,
-<<<<<<< HEAD:client/src/workspaces/contexts/EditorProvider.tsx
-  ThothEditor,
-} from '@latitudegames/thoth-core/types'
-=======
 } from '@latitudegames/thoth-core/dist/types'
 import { ThothEditor } from '@latitudegames/thoth-core/dist/src/editor'
->>>>>>> latitude/0.0.68:packages/client/src/workspaces/contexts/EditorProvider.tsx
 import React, {
   useRef,
   useContext,
@@ -25,13 +20,11 @@ import { MyNode } from '../../components/Node/Node'
 import gridimg from '@/grid.png'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useThothInterface } from './ThothInterfaceProvider'
-<<<<<<< HEAD:client/src/workspaces/contexts/EditorProvider.tsx
+// TODO fix this path import
 import { zoomAt } from '@latitudegames/thoth-core/src/plugins/areaPlugin/zoom-at'
 import { useAuth } from '@/contexts/AuthProvider'
-=======
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers } from '@/config'
->>>>>>> latitude/0.0.68:packages/client/src/workspaces/contexts/EditorProvider.tsx
 
 export type ThothTab = {
   layoutJson: string
