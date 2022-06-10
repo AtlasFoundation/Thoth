@@ -1,23 +1,25 @@
 //@ts-nocheck
 import { useEffect, useState } from 'react'
-import { useModal } from '@/contexts/ModalProvider';
+import { useModal } from '@/contexts/ModalProvider'
 import { VscWand, VscTrash, VscSave } from 'react-icons/vsc'
 import axios from 'axios'
-import { useModal } from '@/contexts/ModalProvider';
-import { useSnackbar } from 'notistack';
+import { useSnackbar } from 'notistack'
 
 const ContentObject = ({ content, getContentObjects }) => {
   const { id: objId, ..._content } = content
   const [contentObj, setContentObj] = useState({
     objId,
-    ... _content
+    ..._content,
   })
   const { openModal } = useModal()
   const { enqueueSnackbar } = useSnackbar()
 
   const updateObj = async () => {
     const body = { ...contentObj }
-    await axios.put(`${process.env.REACT_APP_SEARCH_SERVER_URL}/content-object`, body)
+    await axios.put(
+      `${process.env.REACT_APP_SEARCH_SERVER_URL}/content-object`,
+      body
+    )
     enqueueSnackbar('Content Object updated', { variant: 'success' })
     await getContentObjects()
   }
@@ -26,7 +28,7 @@ const ContentObject = ({ content, getContentObjects }) => {
       modal: 'documentDeleteModal',
       isContentObj: true,
       objId: content.id,
-      getContentObjects
+      getContentObjects,
     })
   }
 
@@ -34,21 +36,30 @@ const ContentObject = ({ content, getContentObjects }) => {
     <div className="search-corpus-document">
       <div className="d-flex align-items-center justify-content-between">
         <div className="form-item">
-          <input 
-            type="checkbox" 
-            name="include" 
-            className="custom-checkbox" 
+          <input
+            type="checkbox"
+            name="include"
+            className="custom-checkbox"
             checked={contentObj.isIncluded}
-            onChange={() => setContentObj({
-              ...contentObj,
-              isIncluded: !contentObj.isIncluded
-            })} 
+            onChange={() =>
+              setContentObj({
+                ...contentObj,
+                isIncluded: !contentObj.isIncluded,
+              })
+            }
           />
-          <span className="form-item-label" style={{ marginBottom: 'unset' }}>Include</span>
+          <span className="form-item-label" style={{ marginBottom: 'unset' }}>
+            Include
+          </span>
         </div>
         <div className="form-item">
-          <VscSave size={20} color='#A0A0A0' onClick={updateObj} style={{ margin: '0 0.5rem'}}/>
-          <VscTrash size={20} color='#A0A0A0' onClick={deleteObj}/>
+          <VscSave
+            size={20}
+            color="#A0A0A0"
+            onClick={updateObj}
+            style={{ margin: '0 0.5rem' }}
+          />
+          <VscTrash size={20} color="#A0A0A0" onClick={deleteObj} />
         </div>
       </div>
       <div className="form-item">
@@ -58,24 +69,23 @@ const ContentObject = ({ content, getContentObjects }) => {
             type="text"
             className="form-text-area"
             value={contentObj.description}
-            onChange={e => setContentObj({
-              ...contentObj,
-              description: e.target.value
-            })}
+            onChange={e =>
+              setContentObj({
+                ...contentObj,
+                description: e.target.value,
+              })
+            }
           ></input>
         </div>
       </div>
       <div className="form-item search-corpus">
         <span className="form-item-label">Type</span>
-        <select
-          name="documents"
-          id="documents"
-        >
+        <select name="documents" id="documents">
           <option value="document">Document</option>
         </select>
       </div>
     </div>
-  );
+  )
 }
 
-export default ContentObject;
+export default ContentObject
