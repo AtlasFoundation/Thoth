@@ -71,7 +71,14 @@ export class twitter_client {
     const twitterAccessToken = settings['twitter_access_token']
     const twitterAccessTokenSecret = settings['twitter_access_token_secret']
 
-    if ((!bearerToken && !twitterAppToken && !twitterAppTokenSecret && !twitterAccessToken && !twitterAccessTokenSecret) || !twitterUser)
+    if (
+      (!bearerToken &&
+        !twitterAppToken &&
+        !twitterAppTokenSecret &&
+        !twitterAccessToken &&
+        !twitterAccessTokenSecret) ||
+      !twitterUser
+    )
       return console.warn('No API token for Whatsapp bot, skipping')
 
     let twitter = createTwitterClient(
@@ -81,8 +88,11 @@ export class twitter_client {
       twitterAccessToken,
       twitterAccessTokenSecret
     )
+    console.log('created twitter client')
     const client = twitter.readWrite
+    console.log('getting username')
     const localUser = await twitter.v2.userByUsername(twitterUser)
+    console.log('created twitter local user')
 
     setInterval(async () => {
       const tv1 = createTwitterClient(
@@ -104,7 +114,7 @@ export class twitter_client {
           let authorName = 'unknown'
           const author = await twitter.v2.user(event.message_create.sender_id)
           if (author) authorName = author.data.username
-          
+
           const body = event.message_create.message_data.text
 
           const resp = this.spellHandler(
@@ -116,7 +126,14 @@ export class twitter_client {
             settings.entity,
             []
           )
-          await this.handleMessage(resp, event.id, 'DM', twitter, tv1, localUser)
+          await this.handleMessage(
+            resp,
+            event.id,
+            'DM',
+            twitter,
+            tv1,
+            localUser
+          )
         }
       }
     }, 25000)
