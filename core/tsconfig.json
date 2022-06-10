@@ -2,9 +2,9 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
-    "module": "commonjs",
+    "module": "esnext",
     "jsx": "react-jsx",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "strict": false,
