@@ -27,6 +27,7 @@ import {
 } from '../../src/utils/utils'
 import fs from 'fs'
 import path from 'path'
+import { messenger_client } from '../entities/connectors/messenger'
 
 export const modules: Record<string, unknown> = {}
 
@@ -805,6 +806,48 @@ const post_pipedream = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
+const verifyMessengerWebhookToken = async (ctx: Koa.Context) => {
+  let cache = new cacheManager()
+  let verify = await cache.get('messenger_verify_token')
+  
+  const VERIFY_TOKEN = verify
+  const mode = ctx.request.query['hub.mode']
+  const token = ctx.request.query['hub.verify_token']
+  const challenge = ctx.request.query['hub.challenge']
+
+  if (mode && token) {
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      console.log('WEBHOOK_VERIFIED')
+      return (ctx.body = challenge)
+    } else {
+      console.log('WEBHOOK_FORBIDDEN')
+      ctx.status = 403
+      return
+    }
+  }
+}
+
+const handleMessengerWebhookEvent = async (ctx: Koa.Context) => {
+  const body = ctx.request.body
+  const messengerClient = new messenger_client()
+
+  if (body.object === 'page') {
+    await body.entry.forEach(async function (entry) {
+      const webhookEvent = entry.messaging[0]
+      const senderPsid = webhookEvent.sender.id
+
+      if (webhookEvent.message) {
+        await messengerClient.handleMessage(senderPsid, webhookEvent.message)
+      }
+    })
+
+    return (ctx.body = 'EVENT_RECEIVED')
+  } else {
+    ctx.status = 404
+    return
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -923,4 +966,10 @@ export const entities: Route[] = [
     access: noAuth,
     post: post_pipedream,
   },
+  {
+    path: '/webhook',
+    access: noAuth,
+    get: verifyMessengerWebhookToken,
+    post: handleMessengerWebhookEvent,
+  }
 ]

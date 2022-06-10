@@ -102,6 +102,14 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [instagram_bot_name_regex, setInstagramBotNameRegex] = useState('')
   const [instagram_spell_handler_incoming, setInstagramSpellHandlerIncoming] =
     useState('')
+  
+  const [messenger_enabled, setMessengerEnabled] = useState('')
+  const [messenger_page_access_token, setMessengerPageAccessToken] = useState('')
+  const [messenger_verify_token, setMessengerVerifyToken] = useState('')
+  const [messenger_bot_name, setMessengerBotName] = useState('')
+  const [messenger_bot_name_regex, setMessengerBotNameRegex] = useState('')
+  const [messenger_spell_handler_incoming, setMessengerSpellHandlerIncoming] =
+    useState('')
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
   // const [twilio_sid, setTwilioSid] = useState('')
   // const [twilio_auth_token, setTwilioAuthToken] = useState('')
@@ -225,6 +233,13 @@ const EntityWindow = ({ id, updateCallback }) => {
         setInstagramBotName(res.data.instagram_bot_name)
         setInstagramBotNameRegex(res.data.instagram_bot_name_regex)
         setInstagramSpellHandlerIncoming(res.data.instagram_spell_handler_incoming)
+        
+        setMessengerEnabled(res.data.messenger_enabled)
+        setMessengerPageAccessToken(res.data.messenger_page_access_token)
+        setMessengerVerifyToken(res.data.messenger_verify_token)
+        setMessengerBotName(res.data.messenger_bot_name)
+        setMessengerBotNameRegex(res.data.messenger_bot_name_regex)
+        setMessengerSpellHandlerIncoming(res.data.messenger_spell_handler_incoming)
 
         // setTwilioClientEnable(res.data.twilio_client_enable === true)
         // setTwilioSid(res.data.twilio_sid)
@@ -323,6 +338,12 @@ const EntityWindow = ({ id, updateCallback }) => {
       instagram_bot_name,
       instagram_bot_name_regex,
       instagram_spell_handler_incoming,
+      messenger_enabled,
+      messenger_page_access_token,
+      messenger_verify_token,
+      messenger_bot_name,
+      messenger_bot_name_regex,
+      messenger_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
@@ -407,6 +428,13 @@ const EntityWindow = ({ id, updateCallback }) => {
           setInstagramBotName(responseData.instagram_bot_name)
           setInstagramBotNameRegex(responseData.instagram_bot_name_regex)
           setInstagramSpellHandlerIncoming(responseData.instagram_spell_handler_incoming)
+
+          setMessengerEnabled(responseData.messenger_enabled)
+          setMessengerPageAccessToken(responseData.messenger_page_access_token)
+          setMessengerVerifyToken(responseData.messenger_verify_token)
+          setMessengerBotName(responseData.messenger_bot_name)
+          setMessengerBotNameRegex(responseData.messenger_bot_name_regex)
+          setMessengerSpellHandlerIncoming(responseData.messenger_spell_handler_incoming)
           // setTwilioClientEnable(responseData.twilio_client_enable)
           // setTwilioSid(responseData.twilio_sid)
           // setTwilioAuthToken(responseData.twilio_auth_token)
@@ -474,6 +502,12 @@ const EntityWindow = ({ id, updateCallback }) => {
       instagram_bot_name,
       instagram_bot_name_regex,
       instagram_spell_handler_incoming,
+      messenger_enabled,
+      messenger_page_access_token,
+      messenger_verify_token,
+      messenger_bot_name,
+      messenger_bot_name_regex,
+      messenger_spell_handler_incoming,
       // twilio_client_enable,
       // twilio_sid,
       // twilio_auth_token,
@@ -1248,6 +1282,83 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={instagram_spell_handler_incoming}
                   onChange={event => {
                     setInstagramSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+          
+          <div className="form-item">
+            <span className="form-item-label">Messenger Client Enabled</span>
+            <input
+              type="checkbox"
+              value={messenger_enabled}
+              defaultChecked={messenger_enabled || messenger_enabled === 'true'}
+              onChange={e => {
+                setMessengerEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {messenger_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Page Access Token</span>
+                <input
+                  type="text"
+                  defaultValue={messenger_page_access_token}
+                  onChange={e => {
+                    setMessengerPageAccessToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Verify Token</span>
+                <input
+                  type="text"
+                  defaultValue={messenger_verify_token}
+                  onChange={e => {
+                    setMessengerVerifyToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={messenger_bot_name}
+                  onChange={e => {
+                    setMessengerBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name Regex</span>
+                <input
+                  type="text"
+                  defaultValue={messenger_bot_name_regex}
+                  onChange={e => {
+                    setMessengerBotNameRegex(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={messenger_spell_handler_incoming}
+                  onChange={event => {
+                    setMessengerSpellHandlerIncoming(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&
