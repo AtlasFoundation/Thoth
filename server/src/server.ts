@@ -190,11 +190,11 @@ async function init() {
   })
 
   const PORT: number = Number(process.env.PORT) || 8001
-  const useSSL =
-    process.env.USESSL === 'true' &&
+  const useSSL = false
+  /*process.env.USESSL === 'true' &&
     fs.existsSync('certs/') &&
     fs.existsSync('certs/key.pem') &&
-    fs.existsSync('certs/cert.pem')
+    fs.existsSync('certs/cert.pem')*/
 
   var optionSsl = {
     key: useSSL ? fs.readFileSync('certs/key.pem') : '',
