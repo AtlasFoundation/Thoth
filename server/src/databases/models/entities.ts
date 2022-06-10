@@ -58,6 +58,13 @@ export interface entitiesAttributes {
   instagram_bot_name?: string
   instagram_bot_name_regex?: string
   instagram_spell_handler_incoming?: string
+  twilio_enabled?: boolean
+  twilio_account_sid?: string
+  twilio_auth_token?: string
+  twilio_phone_number?: string
+  twilio_bot_name?: string
+  twilio_empty_responses?: string
+  twilio_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -111,6 +118,12 @@ export type entitiesOptionalAttributes =
   | 'instagram_bot_name'
   | 'instagram_bot_name_regex'
   | 'instagram_spell_handler_incoming'
+  | 'twilio_enabled'
+  | 'twilio_account_sid'
+  | 'twilio_auth_token'
+  | 'twilio_phone_number'
+  | 'twilio_bot_name'
+  | 'twilio_empty_responses'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -177,6 +190,13 @@ export class entities
   instagram_bot_name?: string
   instagram_bot_name_regex?: string
   instagram_spell_handler_incoming?: string
+  twilio_enabled?: boolean
+  twilio_account_sid?: string
+  twilio_auth_token?: string
+  twilio_phone_number?: string
+  twilio_bot_name?: string
+  twilio_empty_responses?: string
+  twilio_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -400,6 +420,34 @@ export class entities
           allowNull: true,
         },
         instagram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        twilio_account_sid: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_auth_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_phone_number: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_empty_responses: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

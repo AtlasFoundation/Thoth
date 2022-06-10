@@ -14,6 +14,8 @@ import { cacheManager } from '../cacheManager'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
+import { urlencoded, json } from 'express'
+import express from 'express'
 
 export class Entity {
   name = ''
@@ -30,6 +32,9 @@ export class Entity {
   //harmony: any
   xrengine: xrengine_client | null
   id: any
+
+  router: any
+  app: any
 
   async startDiscord(
     discord_api_token: string,
@@ -272,15 +277,17 @@ export class Entity {
     spell_version: string,
     entity: any
   ) {
-    if(this.instagram) {
-      throw new Error('Instagram already running for this client on this instance')
+    if (this.instagram) {
+      throw new Error(
+        'Instagram already running for this client on this instance'
+      )
     }
-    
+
     const spellHandler = await CreateSpellHandler({
       spell: instagram_spell_handler_incoming,
-      version: spell_version
+      version: spell_version,
     })
-    
+
     this.instagram = new instagram_client()
     this.instagram.createInstagramClient(
       spellHandler,
@@ -289,16 +296,54 @@ export class Entity {
         instagram_password,
         instagram_bot_name,
         instagram_bot_name_regex,
-        instagram_spell_handler_incoming
+        instagram_spell_handler_incoming,
       },
       entity
     )
   }
 
   stopInstagram() {
-    if (!this.instagram) throw new Error("Instagram isn't running, can't stop it")
+    if (!this.instagram)
+      throw new Error("Instagram isn't running, can't stop it")
     this.instagram = null
   }
+
+  async startTwilio(
+    twilio_account_sid: any,
+    twilio_auth_token: any,
+    twilio_phone_number: any,
+    twilio_bot_name: any,
+    twilio_empty_responses: any,
+    twilio_spell_handler_incoming: any,
+    spell_version: any
+  ) {
+    if (this.twilio) {
+      throw new Error('Twlio already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: twilio_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.twilio = new twilio_client()
+    this.twilio.createTwilioClient(
+      this.app,
+      this.router,
+      {
+        twilio_account_sid,
+        twilio_auth_token,
+        twilio_phone_number,
+        twilio_bot_name,
+        twilio_empty_responses,
+        twilio_spell_handler_incoming,
+        entity: this,
+      },
+      spellHandler
+    )
+  }
+
+  async stopTwlio() {}
 
   async onDestroy() {
     console.log(
@@ -311,6 +356,7 @@ export class Entity {
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
     if (this.instagram) this.stopInstagram()
+    if (this.twilio) this.stopTwlio()
   }
 
   async generateVoices(data: any) {
@@ -371,7 +417,17 @@ export class Entity {
     }
   }
 
-  constructor(data: any) {
+  constructor(data: any, port: number) {
+    if (!this.router && !this.app) {
+      this.router = express.Router()
+      this.router.use(urlencoded({ extended: false }))
+      this.app = express()
+      this.app.use(json())
+    }
+    this.app.listen(port, () => {
+      console.log(`Entity Web Server listening on http://localhost:${port}`)
+    })
+
     if (!cacheManager.instance) {
       new cacheManager()
     }
@@ -443,15 +499,27 @@ export class Entity {
       )
     }
 
-    if(data.instagram_enabled) {
+    if (data.instagram_enabled) {
       this.startInstagram(
-        data.instagram_username, 
-        data.instagram_password, 
+        data.instagram_username,
+        data.instagram_password,
         data.instagram_bot_name,
         data.instagram_bot_name_regex,
         data.instagram_spell_handler_incoming,
         data.spell_version,
         data
+      )
+    }
+
+    if (data.twilio_enabled) {
+      this.startTwilio(
+        data.twilio_account_sid,
+        data.twilio_auth_token,
+        data.twilio_phone_number,
+        data.twilio_bot_name,
+        data.twilio_empty_responses,
+        data.twilio_spell_handler_incoming,
+        data.spell_version
       )
     }
   }

@@ -78,13 +78,13 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] =
     useState('')
 
-  const [telegram_enabled, setTelegramEnabled] = useState('')
+  const [telegram_enabled, setTelegramEnabled] = useState(false)
   const [telegram_bot_token, setTelegramBotToken] = useState('')
   const [telegram_bot_name, setTelegramBotName] = useState('')
   const [telegram_spell_handler_incoming, setTelegramSpellHandlerIncoming] =
     useState('')
 
-  const [reddit_enabled, setRedditEnabled] = useState('')
+  const [reddit_enabled, setRedditEnabled] = useState(false)
   const [reddit_app_id, setRedditAppId] = useState('')
   const [reddit_app_secret_id, setRedditAppSecretId] = useState('')
   const [reddit_oauth_token, setRedditOauthToken] = useState('')
@@ -95,17 +95,22 @@ const EntityWindow = ({ id, updateCallback }) => {
 
   const [playingAudio, setPlayingAudio] = useState(false)
 
-  const [instagram_enabled, setInstagramEnabled] = useState('')
+  const [instagram_enabled, setInstagramEnabled] = useState(false)
   const [instagram_username, setInstagramUsername] = useState('')
   const [instagram_password, setInstagramPassword] = useState('')
   const [instagram_bot_name, setInstagramBotName] = useState('')
   const [instagram_bot_name_regex, setInstagramBotNameRegex] = useState('')
   const [instagram_spell_handler_incoming, setInstagramSpellHandlerIncoming] =
     useState('')
-  // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
-  // const [twilio_sid, setTwilioSid] = useState('')
-  // const [twilio_auth_token, setTwilioAuthToken] = useState('')
-  // const [twilio_phone_number, setTwilioPhoneNumber] = useState('')
+
+  const [twilio_enabled, setTwilioEnabled] = useState(false)
+  const [twilio_account_sid, setTwilioAccoundSID] = useState('')
+  const [twilio_auth_token, setTwilioAuthToken] = useState('')
+  const [twilio_phone_number, setTwilioPhoneNumber] = useState('')
+  const [twilio_bot_name, setTwilioBotName] = useState('')
+  const [twilio_empty_responses, setTwilioEmptyResponses] = useState('')
+  const [twilio_spell_handler_incoming, setTwilioSpellHandlerIncoming] =
+    useState('')
 
   const testVoice = async () => {
     console.log(
@@ -224,12 +229,17 @@ const EntityWindow = ({ id, updateCallback }) => {
         setInstagramPassword(res.data.instagram_password)
         setInstagramBotName(res.data.instagram_bot_name)
         setInstagramBotNameRegex(res.data.instagram_bot_name_regex)
-        setInstagramSpellHandlerIncoming(res.data.instagram_spell_handler_incoming)
+        setInstagramSpellHandlerIncoming(
+          res.data.instagram_spell_handler_incoming
+        )
 
-        // setTwilioClientEnable(res.data.twilio_client_enable === true)
-        // setTwilioSid(res.data.twilio_sid)
-        // setTwilioAuthToken(res.data.twilio_auth_token)
-        // setTwilioPhoneNumber(res.data.twilio_phone_number)
+        setTwilioEnabled(res.data.twilio_enabled === true)
+        setTwilioAccoundSID(res.data.twilio_account_sid)
+        setTwilioAuthToken(res.data.twilio_auth_token)
+        setTwilioPhoneNumber(res.data.twilio_phone_number)
+        setTwilioBotName(res.data.twilio_bot_name)
+        setTwilioEmptyResponses(res.data.twilio_empty_responses)
+        setTwilioSpellHandlerIncoming(res.data.twilio_spell_handler_incoming)
 
         setLoaded(true)
       })()
@@ -323,10 +333,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       instagram_bot_name,
       instagram_bot_name_regex,
       instagram_spell_handler_incoming,
-      // twilio_client_enable,
-      // twilio_sid,
-      // twilio_auth_token,
-      // twilio_phone_number
+      twilio_enabled,
+      twilio_account_sid,
+      twilio_auth_token,
+      twilio_phone_number,
+      twilio_bot_name,
+      twilio_empty_responses,
+      twilio_spell_handler_incoming,
     }
     axios
       .post(`${process.env.REACT_APP_API_ROOT_URL}/entity`, {
@@ -406,11 +419,19 @@ const EntityWindow = ({ id, updateCallback }) => {
           setInstagramPassword(responseData.instagram_password)
           setInstagramBotName(responseData.instagram_bot_name)
           setInstagramBotNameRegex(responseData.instagram_bot_name_regex)
-          setInstagramSpellHandlerIncoming(responseData.instagram_spell_handler_incoming)
-          // setTwilioClientEnable(responseData.twilio_client_enable)
-          // setTwilioSid(responseData.twilio_sid)
-          // setTwilioAuthToken(responseData.twilio_auth_token)
-          // setTwilioPhoneNumber(responseData.twilio_phone_number)
+          setInstagramSpellHandlerIncoming(
+            responseData.instagram_spell_handler_incoming
+          )
+
+          setTwilioEnabled(responseData.twilio_enabled)
+          setTwilioAccountSID(responseData.twilio_account_sid)
+          setTwilioAuthToken(responseData.twilio_auth_token)
+          setTwilioPhoneNumber(responseData.twilio_phone_number)
+          setTwilioBotName(responseData.twilio_bot_name)
+          setTwilioEmptyResponses(responseData.twilio_empty_responses)
+          setTwilioSpellHandlerIncoming(
+            responseData.twilio_spell_handler_incoming
+          )
 
           updateCallback()
         }
@@ -474,10 +495,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       instagram_bot_name,
       instagram_bot_name_regex,
       instagram_spell_handler_incoming,
-      // twilio_client_enable,
-      // twilio_sid,
-      // twilio_auth_token,
-      // twilio_phone_number
+      twilio_enabled,
+      twilio_account_sid,
+      twilio_auth_token,
+      twilio_phone_number,
+      twilio_bot_name,
+      twilio_empty_responses,
+      twilio_spell_handler_incoming,
     }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
@@ -1261,54 +1285,92 @@ const EntityWindow = ({ id, updateCallback }) => {
             </>
           )}
 
-          {/* <div className="form-item">
+          <div className="form-item">
             <span className="form-item-label">Twilio Client Enabled</span>
             <input
               type="checkbox"
-              value={twilio_client_enable}
-              defaultChecked={twilio_client_enable || twilio_client_enable === 'true'}
+              value={twilio_enabled}
+              defaultChecked={twilio_enabled || twilio_enabled === 'true'}
               onChange={e => {
-                setTwilioClientEnable(e.target.checked)
+                setTwilioEnabled(e.target.checked)
               }}
             />
-          </div> */}
+          </div>
 
-          {/* {twilio_client_enable &&
-            (
-              <>
-                <div className="form-item">
-                  <span className="form-item-label">Twilio Account SID</span>
-                  <input
-                    type="text"
-                    defaultValue={twilio_sid}
-                    onChange={e => {
-                      setTwilioSid(e.target.value)
-                    }}
-                  />
-                </div>
-                <div className="form-item">
-                  <span className="form-item-label">Twilio Auth Token</span>
-                  <input
-                    type="text"
-                    defaultValue={twilio_auth_token}
-                    onChange={e => {
-                      setTwilioAuthToken(e.target.value)
-                    }}
-                  />
-                </div>
-                <div className="form-item">
-                  <span className="form-item-label">Twilio Phone Number</span>
-                  <input
-                    type="text"
-                    defaultValue={twilio_phone_number}
-                    onChange={e => {
-                      setTwilioPhoneNumber(e.target.value)
-                    }}
-                  />
-                </div>
-              </>
-            )
-          } */}
+          {twilio_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Account SID</span>
+                <input
+                  type="text"
+                  defaultValue={twilio_account_sid}
+                  onChange={e => {
+                    setTwilioAccoundSID(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Auth Token</span>
+                <input
+                  type="text"
+                  defaultValue={twilio_auth_token}
+                  onChange={e => {
+                    setTwilioAuthToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Phone Number</span>
+                <input
+                  type="text"
+                  defaultValue={twilio_phone_number}
+                  onChange={e => {
+                    setTwilioBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={twilio_bot_name}
+                  onChange={e => {
+                    setTwilioBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Empty Responses</span>
+                <input
+                  type="text"
+                  defaultValue={twilio_empty_responses}
+                  onChange={e => {
+                    setTwilioEmptyResponses(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={twilio_spell_handler_incoming}
+                  onChange={event => {
+                    setTwilioSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
         </>
       )}
       <div className="form-item entBtns">
