@@ -20,6 +20,12 @@ import {
   makeResponse,
 } from '../../utils/utils'
 import { isString } from 'lodash'
+import {
+  addCalendarEvent,
+  authorize,
+  getCalendarEvents,
+  initCalendar,
+} from '../../../src/entities/connectors/calendar'
 
 const addClient = async (ctx: Koa.Context) => {
   const { body } = ctx.request

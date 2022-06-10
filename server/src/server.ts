@@ -19,9 +19,8 @@ import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
-import { convertToMp4 } from './systems/videoConverter'
 import { auth } from './middleware/auth'
-import { initWeaviateClient, search } from './systems/weaviateClient'
+import { classify, initWeaviateClient } from './systems/weaviateClient'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -68,7 +67,8 @@ async function init() {
   await initTextToSpeech()
   new cacheManager()
   await initWeaviateClient(
-    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true'
+    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true',
+    process.env.CLASSIFIER_IMPORT_DATA?.toLowerCase().trim() === 'true'
   )
 
   if (process.env.RUN_PYTHON_SERVER === 'true') {

@@ -134,7 +134,10 @@ const EntityWindow = ({ id, updateCallback }) => {
         }
       )
 
-      const url = resp.data
+      const url =
+        voice_provider === 'google'
+          ? process.env.REACT_APP_SEARCH_FILE_URL + '/' + resp.data
+          : resp.data
       if (url && url.length > 0) {
         setPlayingAudio(true)
         console.log('url:', url)
