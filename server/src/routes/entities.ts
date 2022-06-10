@@ -20,14 +20,9 @@ import {
   addCalendarEvent,
   deleteCalendarEvent,
 } from '../../src/entities/connectors/calendar'
-import {
-  getRelativeDate,
-  isValidArray,
-  isValidObject,
-} from '../../src/utils/utils'
+import { isValidArray, isValidObject } from '../../src/utils/utils'
 import fs from 'fs'
 import path from 'path'
-import { messenger_client } from '../entities/connectors/messenger'
 
 export const modules: Record<string, unknown> = {}
 
@@ -809,7 +804,7 @@ const post_pipedream = async (ctx: Koa.Context) => {
 const verifyMessengerWebhookToken = async (ctx: Koa.Context) => {
   let cache = new cacheManager()
   let verify = await cache.get('messenger_verify_token')
-  
+
   const VERIFY_TOKEN = verify
   const mode = ctx.request.query['hub.mode']
   const token = ctx.request.query['hub.verify_token']
@@ -966,10 +961,4 @@ export const entities: Route[] = [
     access: noAuth,
     post: post_pipedream,
   },
-  {
-    path: '/webhook',
-    access: noAuth,
-    get: verifyMessengerWebhookToken,
-    post: handleMessengerWebhookEvent,
-  }
 ]

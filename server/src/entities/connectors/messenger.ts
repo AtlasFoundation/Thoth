@@ -5,35 +5,19 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import request from 'request'
-import { cacheManager } from '../../cacheManager'
 import { CreateSpellHandler } from '../CreateSpellHandler'
 
 export class messenger_client {
+  spellHandler
   settings
   entity
-  cache: cacheManager
-
-  constructor() {
-    this.cache = new cacheManager()
-  }
 
   handleMessage = async (senderPsid, receivedMessage) => {
     const text = receivedMessage.text
     console.log('receivedMessage: ' + text + ' from: ' + senderPsid)
 
     if (receivedMessage.text) {
-      const [ spellVersion, _spellHandler ] = await this.cache.client
-        .multi()
-        .get('messenger_spell_version')
-        .get('messenger_spell_handler')
-        .exec()
-
-      const spellHandler = await CreateSpellHandler({
-        spell: _spellHandler,
-        version: spellVersion
-      })
-
-      const resp = await spellHandler(
+      const resp = await this.spellHandler(
         text,
         senderPsid,
         'MessengerBot',
@@ -46,65 +30,9 @@ export class messenger_client {
     }
   }
 
-  async handlePacketSend(senderPsid, response) {
-    // log('response: ' + response)
-    // if (
-    //   response !== undefined &&
-    //   response.length <= 2000 &&
-    //   response.length > 0
-    // ) {
-    //   let text = response
-    //   while (
-    //     text === undefined ||
-    //     text === '' ||
-    //     text.replace(/\s/g, '').length === 0
-    //   )
-    //     text = getRandomEmptyResponse()
-    //   this.callSendAPI(senderPsid, { text: text }, text)
-    // } else if (response.length > 20000) {
-    //   const lines = []
-    //   let line = ''
-    //   for (let i = 0; i < response.length; i++) {
-    //     line += response
-    //     if (i >= 1980 && (line[i] === ' ' || line[i] === '')) {
-    //       lines.push(line)
-    //       line = ''
-    //     }
-    //   }
-
-    //   for (let i = 0; i < lines.length; i++) {
-    //     if (
-    //       lines[i] !== undefined &&
-    //       lines[i] !== '' &&
-    //       lines[i].replace(/\s/g, '').length !== 0
-    //     ) {
-    //       if (i === 0) {
-    //         let text = lines[1]
-    //         while (
-    //           text === undefined ||
-    //           text === '' ||
-    //           text.replace(/\s/g, '').length === 0
-    //         )
-    //           text = getRandomEmptyResponse()
-    //         this.callSendAPI(senderPsid, { text: text }, text)
-    //       }
-    //     }
-    //   }
-    // } else {
-    //   let emptyResponse = getRandomEmptyResponse()
-    //   while (
-    //     emptyResponse === undefined ||
-    //     emptyResponse === '' ||
-    //     emptyResponse.replace(/\s/g, '').length === 0
-    //   )
-    //     emptyResponse = getRandomEmptyResponse()
-    //   this.callSendAPI(senderPsid, { text: emptyResponse }, emptyResponse)
-    // }
-  }
-
   async callSendAPI(senderPsid, response, text) {
     // The page access token we have generated in your app settings
-    const PAGE_ACCESS_TOKEN = await this.cache.get('messenger_page_access_token')
+    const PAGE_ACCESS_TOKEN = await this.settings.messenger_page_access_token
 
     // Construct the message body
     const requestBody = {
@@ -132,26 +60,58 @@ export class messenger_client {
     )
   }
 
-  createMessengerClient = async ( settings, entity) => {
+  createMessengerClient = async (
+    app,
+    router,
+    spellHandler,
+    settings,
+    entity
+  ) => {
+    this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
-    const { 
-      messenger_page_access_token, 
-      messenger_verify_token,
-      messenger_spell_handler_incoming,
-      spell_version
-    } = this.settings
+    const { messenger_page_access_token, messenger_verify_token } =
+      this.settings
 
-    if (!messenger_page_access_token || !messenger_verify_token)
+    if (!messenger_page_access_token || !messenger_verify_token) {
       return console.warn('No API tokens for Messenger bot, skipping')
-    
+    }
 
-    await this.cache.client
-      .multi()
-      .set('messenger_page_access_token', messenger_page_access_token)
-      .set('messenger_verify_token', messenger_verify_token)
-      .set('messenger_spell_handler', messenger_spell_handler_incoming)
-      .set('messenger_spell_version', spell_version ?? '')
-      .exec()
+    app.get('/webhook', async function (req, res) {
+      const VERIFY_TOKEN = verify_token
+
+      const mode = req.query['hub.mode']
+      const token = req.query['hub.verify_token']
+      const challenge = req.query['hub.challenge']
+
+      if (mode && token) {
+        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+          log('WEBHOOK_VERIFIED')
+          res.status(200).send(challenge)
+        } else {
+          log('WEBHOOK_FORBIDDEN')
+          res.sendStatus(403)
+        }
+      }
+    })
+    app.post('/webhook', async function (req, res) {
+      const body = req.body
+
+      if (body.object === 'page') {
+        await body.entry.forEach(async function (entry) {
+          const webhookEvent = entry.messaging[0]
+          const senderPsid = webhookEvent.sender.id
+
+          if (webhookEvent.message) {
+            await this.handleMessage(senderPsid, webhookEvent.message)
+          }
+        })
+
+        res.status(200).send('EVENT_RECEIVED')
+      } else {
+        res.sendStatus(404)
+      }
+    })
+    log('facebook client created')
   }
 }
