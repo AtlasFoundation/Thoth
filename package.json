@@ -11,10 +11,7 @@
   ],
   "workspaces": {
     "packages": [
-      "client",
-      "core",
-      "server",
-      "sharedb"
+      "packages/*"
     ]
   },
   "scripts": {
@@ -26,13 +23,16 @@
     "db:seed": "npx sequelize-cli db:seed:all --url 'postgres://thoth:thoth_default_pw@localhost:5432/thoth'",
     "start:client": "lerna exec --scope @latitudegames/thoth-client -- yarn start",
     "start:sharedb": "lerna exec --scope @latitudegames/thoth-sharedb -- yarn start",
+    "stop:client": "lerna exec --scope @thoth/client -- yarn stop",
+    "start:runner": "lerna exec --scope @thoth/runner -- yarn start",
     "start": "run-p start:core start:client",
     "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix --parallel",
     "build": "copyfiles LICENSE.txt client && lerna exec --scope @latitudegames/thoth-client -- yarn build",
     "build:core": "copyfiles LICENSE.txt core && lerna exec --scope @latitudegames/thoth-core -- yarn build",
     "publish:canary": "lerna exec --scope @latitudegames/thoth-core -- yarn canary",
-    "install:canary": "lerna exec --scope @latitudegames/thoth-client -- yarn install:canary"
+    "install:canary": "lerna exec --scope @latitudegames/thoth-client -- yarn install:canary",
+    "nukefromorbit": "rimraf ./packages/**/node_modules && rimraf ./node_modules"
   },
   "engines": {
     "node": ">=14.17.6",
@@ -48,7 +48,8 @@
     "craco": "^0.0.3",
     "cross-env": "^7.0.3",
     "lerna": "^4.0.0",
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "@discordjs/opus": "^0.7.0",
