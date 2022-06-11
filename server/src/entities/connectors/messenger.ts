@@ -4,10 +4,11 @@
 /* eslint-disable no-invalid-this */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { log } from 'console'
 import request from 'request'
-import { CreateSpellHandler } from '../CreateSpellHandler'
 
 export class messenger_client {
+  static instance: messenger_client
   spellHandler
   settings
   entity
@@ -32,7 +33,7 @@ export class messenger_client {
 
   async callSendAPI(senderPsid, response, text) {
     // The page access token we have generated in your app settings
-    const PAGE_ACCESS_TOKEN = await this.settings.messenger_page_access_token
+    const PAGE_ACCESS_TOKEN = this.settings.messenger_page_access_token
 
     // Construct the message body
     const requestBody = {
@@ -67,6 +68,7 @@ export class messenger_client {
     settings,
     entity
   ) => {
+    messenger_client.instance = this
     this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
@@ -78,7 +80,7 @@ export class messenger_client {
     }
 
     app.get('/webhook', async function (req, res) {
-      const VERIFY_TOKEN = verify_token
+      const VERIFY_TOKEN = messenger_verify_token
 
       const mode = req.query['hub.mode']
       const token = req.query['hub.verify_token']
@@ -103,7 +105,7 @@ export class messenger_client {
           const senderPsid = webhookEvent.sender.id
 
           if (webhookEvent.message) {
-            await this.handleMessage(senderPsid, webhookEvent.message)
+            await messenger_client.instance.handleMessage(senderPsid, webhookEvent.message)
           }
         })
 

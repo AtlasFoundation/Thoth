@@ -338,8 +338,6 @@ export class Entity {
         messenger_verify_token,
         messenger_bot_name,
         messenger_bot_name_regex,
-        messenger_spell_handler_incoming,
-        spell_version,
       },
       entity
     )
@@ -563,7 +561,7 @@ export class Entity {
         data.messenger_bot_name_regex,
         data.messenger_spell_handler_incoming,
         data.spell_version,
-        data.spell_version
+        data
       )
     }
 
