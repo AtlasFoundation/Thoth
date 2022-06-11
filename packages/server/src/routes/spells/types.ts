@@ -1,4 +1,4 @@
-import { ThothComponent } from '@latitudegames/thoth-core/src/thoth-component'
+import { ThothComponent } from '@latitudegames/thoth-core/types'
 
 export type ModuleComponent = ThothComponent<unknown> & {
   run: Function

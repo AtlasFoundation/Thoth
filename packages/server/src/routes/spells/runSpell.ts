@@ -1,4 +1,4 @@
-import thothCore from '@latitudegames/thoth-core/server'
+import thothCore from '@latitudegames/thoth-core/dist/server'
 import Koa from 'koa'
 import { CompletionRequest, completionsParser } from '../completions'
 import { Module } from './module'
@@ -80,8 +80,7 @@ export const runSpell = async (
   thoth: Record<string, unknown>,
   modules?: ModuleType[]
 ) => {
-
-  console.log("************ RUN SPELL")
+  console.log('************ RUN SPELL')
   console.log(inputs)
   // The module is an interface that the module system uses to write data to
   // used internally by the module plugin, and we make use of it here too.

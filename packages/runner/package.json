@@ -20,7 +20,7 @@
     "config": "config/"
   },
   "engines": {
-    "node": "^14.0.0",
+    "node": "^16.9.0",
     "yarn": ">= 0.18.0"
   },
   "scripts": {

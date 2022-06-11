@@ -5,13 +5,12 @@ import {
 } from '../routes/spells/runSpell'
 import { creatorToolsDatabase } from '../databases/creatorTools'
 import { CustomError } from '../utils/CustomError'
-import { getComponents } from '@latitudegames/thoth-core/src/components/components'
+import { getComponents } from '@latitudegames/thoth-core'
 import { Graph, ModuleComponent } from '../routes/spells/types'
-import { initSharedEngine } from '@latitudegames/thoth-core/src/engine'
+import { initSharedEngine } from '@latitudegames/thoth-core/dist/server'
 import { Module } from '../routes/spells/module'
 import { ModuleType } from '@latitudegames/thoth-core/types'
-import { Task } from '@latitudegames/thoth-core/src/plugins/taskPlugin'
-import { StringDataType } from 'sequelize/types'
+import { Task } from '@latitudegames/thoth-core/src/plugins/taskPlugin/task'
 
 export const CreateSpellHandler = async (props: {
   spell: any

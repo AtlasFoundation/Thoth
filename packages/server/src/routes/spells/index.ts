@@ -209,7 +209,10 @@ const newHandler = async (ctx: Koa.Context) => {
     throw new CustomError('input-failed', message)
   }
 
+  // TODO fix these typescript errors
+  //@ts-ignore
   const spell = await creatorToolsDatabase.spells.findOne({
+    //@ts-ignore
     where: {
       name: body.name,
       deletedAt: { [Op.ne]: null },

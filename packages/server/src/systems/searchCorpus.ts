@@ -89,11 +89,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
     let id = -1
     try {
-      id = await database.instance.addDocument(
-        description,
-        isIncluded,
-        storeId
-      )
+      id = await database.instance.addDocument(description, isIncluded, storeId)
       await singleTrain({ title: 'Document', description: description })
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
