@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 
 let transporter: any
-export async function createEmailer() {
+async function createEmailer() {
   transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port:
