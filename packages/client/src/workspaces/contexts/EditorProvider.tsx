@@ -3,8 +3,8 @@ import {
   GraphData,
   EditorContext,
   Spell,
-} from '@latitudegames/thoth-core/dist/types'
-import { ThothEditor } from '@latitudegames/thoth-core/dist/src/editor'
+} from '@latitudegames/thoth-core/types'
+import { ThothEditor } from '@latitudegames/thoth-core/types'
 import React, {
   useRef,
   useContext,

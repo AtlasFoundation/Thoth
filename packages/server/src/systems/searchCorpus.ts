@@ -14,6 +14,7 @@ import {
   simplifyWords,
 } from '../utils/utils'
 import { database } from '../database'
+// todo fix this import
 import { initClassifier } from '@latitudegames/thoth-core/src/utils/textClassifier'
 import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'

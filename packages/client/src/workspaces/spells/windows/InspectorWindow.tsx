@@ -10,15 +10,15 @@ import { InspectorData } from '@latitudegames/thoth-core/types'
 import { RootState } from '@/state/store'
 import { debounce } from '@/utils/debounce'
 
-import { useSelector, useDispatch } from 'react-redux'
-import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
+import { useSelector } from 'react-redux'
+// import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
   const [width, setWidth] = useState()
   const { openModal } = useModal()
   const preferences = useSelector((state: RootState) => state.preferences)
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
 
   useEffect(() => {
     if (props?.node?._rect?.width) {
@@ -66,29 +66,29 @@ const Inspector = props => {
     }, 2000)
   }
 
-  const onLock = () => {
-    if (
-      !preferences.doNotShowUnlockWarning &&
-      inspectorData?.data.nodeLocked &&
-      inspectorData?.category === 'I/O'
-    ) {
-      openModal({
-        modal: 'infoModal',
-        content: 'Editing this node could break connection with your app.',
-        title: 'Warning',
-        checkbox: {
-          onClick: () => dispatch(toggleDoNotShowUnlockWarning()),
-          label: 'Do not show this again',
-        },
-      })
-    }
+  // const onLock = () => {
+  //   if (
+  //     !preferences.doNotShowUnlockWarning &&
+  //     inspectorData?.data.nodeLocked &&
+  //     inspectorData?.category === 'I/O'
+  //   ) {
+  //     openModal({
+  //       modal: 'infoModal',
+  //       content: 'Editing this node could break connection with your app.',
+  //       title: 'Warning',
+  //       checkbox: {
+  //         onClick: () => dispatch(toggleDoNotShowUnlockWarning()),
+  //         label: 'Do not show this again',
+  //       },
+  //     })
+  //   }
 
-    const data = {
-      nodeLocked: !inspectorData?.data.nodeLocked,
-    }
+  //   const data = {
+  //     nodeLocked: !inspectorData?.data.nodeLocked,
+  //   }
 
-    updateData(data)
-  }
+  //   updateData(data)
+  // }
 
   const toolbar = (
     <>

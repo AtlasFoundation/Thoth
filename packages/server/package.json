@@ -36,6 +36,7 @@
     "@google-cloud/speech": "^4.10.0",
     "@koa/cors": "3.1.0",
     "@koa/router": "^10.0.0",
+    "@latitudegames/thoth-core": "^0.0.68",
     "@types/dotenv-flow": "^3.2.0",
     "aws-sdk": "^2.1027.0",
     "axios": "0.24.0",
