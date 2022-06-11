@@ -58,6 +58,12 @@ export interface entitiesAttributes {
   instagram_bot_name?: string
   instagram_bot_name_regex?: string
   instagram_spell_handler_incoming?: string
+  messenger_enabled?: boolean
+  messenger_page_access_token?: string
+  messenger_verify_token?: string
+  messenger_bot_name?: string
+  messenger_bot_name_regex?: string
+  messenger_spell_handler_incoming?: string
   twilio_enabled?: boolean
   twilio_account_sid?: string
   twilio_auth_token?: string
@@ -118,6 +124,12 @@ export type entitiesOptionalAttributes =
   | 'instagram_bot_name'
   | 'instagram_bot_name_regex'
   | 'instagram_spell_handler_incoming'
+  | 'messenger_enabled'
+  | 'messenger_page_access_token'
+  | 'messenger_verify_token'
+  | 'messenger_bot_name'
+  | 'messenger_bot_name_regex'
+  | 'messenger_spell_handler_incoming'
   | 'twilio_enabled'
   | 'twilio_account_sid'
   | 'twilio_auth_token'
@@ -190,6 +202,12 @@ export class entities
   instagram_bot_name?: string
   instagram_bot_name_regex?: string
   instagram_spell_handler_incoming?: string
+  messenger_enabled?: boolean
+  messenger_page_access_token?: string
+  messenger_verify_token?: string
+  messenger_bot_name?: string
+  messenger_bot_name_regex?: string
+  messenger_spell_handler_incoming?: string
   twilio_enabled?: boolean
   twilio_account_sid?: string
   twilio_auth_token?: string
@@ -420,6 +438,30 @@ export class entities
           allowNull: true,
         },
         instagram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        messenger_page_access_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_verify_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

@@ -20,11 +20,7 @@ import {
   addCalendarEvent,
   deleteCalendarEvent,
 } from '../../src/entities/connectors/calendar'
-import {
-  getRelativeDate,
-  isValidArray,
-  isValidObject,
-} from '../../src/utils/utils'
+import { isValidArray, isValidObject } from '../../src/utils/utils'
 import fs from 'fs'
 import path from 'path'
 

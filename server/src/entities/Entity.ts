@@ -308,6 +308,47 @@ export class Entity {
     this.instagram = null
   }
 
+  async startMessenger(
+    messenger_page_access_token: string,
+    messenger_verify_token: string,
+    messenger_bot_name: string,
+    messenger_bot_name_regex: string,
+    messenger_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if (this.messenger) {
+      throw new Error(
+        'Messenger already running for this client on this instance'
+      )
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: messenger_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.messenger = new messenger_client()
+    this.messenger.createMessengerClient(
+      this.app,
+      this.router,
+      spellHandler,
+      {
+        messenger_page_access_token,
+        messenger_verify_token,
+        messenger_bot_name,
+        messenger_bot_name_regex,
+      },
+      entity
+    )
+  }
+
+  stopMessenger() {
+    if (!this.messenger)
+      throw new Error("Messenger isn't running, can't stop it")
+    this.messenger = null
+  }
+
   async startTwilio(
     twilio_account_sid: any,
     twilio_auth_token: any,
@@ -356,6 +397,7 @@ export class Entity {
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
     if (this.instagram) this.stopInstagram()
+    if (this.messenger) this.stopMessenger()
     if (this.twilio) this.stopTwlio()
   }
 
@@ -506,6 +548,18 @@ export class Entity {
         data.instagram_bot_name,
         data.instagram_bot_name_regex,
         data.instagram_spell_handler_incoming,
+        data.spell_version,
+        data
+      )
+    }
+
+    if (data.messenger_enabled) {
+      this.startMessenger(
+        data.messenger_page_access_token,
+        data.messenger_verify_token,
+        data.messenger_bot_name,
+        data.messenger_bot_name_regex,
+        data.messenger_spell_handler_incoming,
         data.spell_version,
         data
       )
