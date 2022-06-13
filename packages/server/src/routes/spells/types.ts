@@ -1,4 +1,4 @@
-import { ThothComponent } from '@thoth/thoth-core/types'
+import { ThothComponent } from '@thoth/thoth-core/dist/types'
 
 export type ModuleComponent = ThothComponent<unknown> & {
   run: Function

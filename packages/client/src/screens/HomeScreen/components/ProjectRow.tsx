@@ -1,4 +1,4 @@
-import { Spell } from '@thoth/thoth-core/types'
+import { Spell } from '@thoth/thoth-core/dist/types'
 import { CSSProperties } from 'react'
 import Icon from '../../../components/Icon/Icon'
 import css from '../homeScreen.module.css'

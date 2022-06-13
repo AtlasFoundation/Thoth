@@ -1,5 +1,5 @@
 import { usePubSub } from '@/contexts/PubSubProvider'
-import { InspectorData } from '@thoth/thoth-core/types'
+import { InspectorData } from '@thoth/thoth-core/dist/types'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 export type TextEditorData = {
