@@ -20,11 +20,7 @@ import {
   addCalendarEvent,
   deleteCalendarEvent,
 } from '../../src/entities/connectors/calendar'
-import {
-  getRelativeDate,
-  isValidArray,
-  isValidObject,
-} from '../../src/utils/utils'
+import { isValidArray, isValidObject } from '../../src/utils/utils'
 import fs from 'fs'
 import path from 'path'
 
@@ -561,6 +557,7 @@ const getEntitiesInfo = async (ctx: Koa.Context) => {
 }
 
 const handleCustomInput = async (ctx: Koa.Context) => {
+  console.log('received handle custom input')
   const message = ctx.request.body.message as string
   const speaker = ctx.request.body.sender as string
   const agent = ctx.request.body.agent as string
@@ -799,6 +796,11 @@ const addVideo = async (ctx: Koa.Context) => {
   }
 }
 
+const post_pipedream = async (ctx: Koa.Context) => {
+  console.log('testPipeDream:', ctx.request)
+  return (ctx.body = 'ok')
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -911,5 +913,10 @@ export const entities: Route[] = [
     path: '/video',
     access: noAuth,
     post: addVideo,
+  },
+  {
+    path: '/pipedream',
+    access: noAuth,
+    post: post_pipedream,
   },
 ]

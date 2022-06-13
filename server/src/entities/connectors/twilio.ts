@@ -5,33 +5,24 @@
 /* eslint-disable camelcase */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 
-import Router from '@koa/router'
-import Koa from 'koa'
+import express from 'express'
+import { MessagingRequest } from 'src/types'
 import Twilio from 'twilio'
 
-import { handleInput } from './handleInput'
 import { getRandomEmptyResponse, getSetting } from './utils'
 
 export class twilio_client {
-  async message(
-    ctx: Koa.ParameterizedContext<
-      Koa.DefaultState,
-      Koa.DefaultContext &
-        Router.RouterParamContext<Koa.DefaultState, Koa.DefaultContext>,
-      any
-    >
-  ) {
-    const resp = await handleInput(
-      ctx.body.Body,
-      ctx.body.From,
-      this.settings['Agent_Name'] ?? 'Agent',
+  async message(req: MessagingRequest, res: any) {
+    const resp = this.spellHandler(
+      req.body.Body,
+      req.body.From,
+      this.settings.twilio_bot_name ?? 'Agent',
       'twilio',
-      ctx.body.From,
-      this.settings['entity'],
-      this.settings['twilio_spell_handler'],
-      this.settings['twilio_spell_version']
+      req.body.From,
+      this.settings.entity,
+      []
     )
-    await this.handleTwilioMsg(ctx.body.From, resp)
+    await this.handleTwilioMsg(req.body.From, resp)
   }
 
   async handleTwilioMsg(chat_id: string, response: string) {
@@ -47,7 +38,7 @@ export class twilio_client {
         text === '' ||
         text.replace(/\s/g, '').length === 0
       )
-        text = getRandomEmptyResponse(this.settings['twilio_empty_responses'])
+        text = getRandomEmptyResponse(this.settings.twilio_empty_responses)
       this.sendMessage(chat_id, text)
     } else if (response.length > 160) {
       const lines = []
@@ -74,7 +65,7 @@ export class twilio_client {
               text.replace(/\s/g, '').length === 0
             )
               text = getRandomEmptyResponse(
-                this.settings['twilio_empty_responses']
+                this.settings.twilio_empty_responses
               )
             this.sendMessage(chat_id, text)
           }
@@ -82,7 +73,7 @@ export class twilio_client {
       }
     } else {
       let emptyResponse = getRandomEmptyResponse(
-        this.settings['twilio_empty_responses']
+        this.settings.twilio_empty_responses
       )
       while (
         emptyResponse === undefined ||
@@ -90,7 +81,7 @@ export class twilio_client {
         emptyResponse.replace(/\s/g, '').length === 0
       )
         emptyResponse = getRandomEmptyResponse(
-          this.settings['twilio_empty_responses']
+          this.settings.twilio_empty_responses
         )
       this.sendMessage(chat_id, emptyResponse)
     }
@@ -98,13 +89,20 @@ export class twilio_client {
 
   client: any
   settings: any
+  spellHandler: any
 
-  createTwilioClient = async (app: Koa, router: Router, settings: any) => {
+  createTwilioClient = async (
+    app: any,
+    router: express.Router,
+    settings: any,
+    spellHandler: any
+  ) => {
     this.settings = settings
+    this.spellHandler = spellHandler
 
-    const accountSid = settings['twilioAccountSID']
-    const authToken = settings['twilioAuthToken']
-    const twilioNumber = settings['twilioPhoneNumber']
+    const accountSid = settings.twlio_account_sid
+    const authToken = settings.twlio_auth_token
+    const twilioNumber = settings.twlio_phone_number
 
     if (!accountSid || !authToken || !twilioNumber)
       return console.warn('No API token for Twilio bot, skipping')
@@ -114,16 +112,19 @@ export class twilio_client {
 
     this.client = Twilio(accountSid, authToken)
 
-    router.post('/sms', async (ctx, next) => {
-      await this.message(ctx)
-    })
+    app.use(
+      '/sms',
+      router.post('/', async (req: MessagingRequest, res: any) => {
+        await this.message(req, res)
+      })
+    )
   }
 
   sendMessage(toNumber: string, body: string) {
     console.log('sending sms: ' + body)
     this.client.messages
       .create({
-        from: getSetting(this.settings, 'twilioPhoneNumber'),
+        from: this.settings.twlio_phone_number,
         to: toNumber,
         body: body,
       })
