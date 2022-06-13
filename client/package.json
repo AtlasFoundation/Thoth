@@ -11,7 +11,7 @@
   "private": true,
   "scripts": {
     "start": "NODE_ENV=development vite",
-    "clean": "rimraf ./build",
+    "clean": "rimraf ./dist",
     "lint": "eslint . --ignore-path ../.eslintignore --ext ts --ext tsx --ext js --ext jsx",
     "lint:fix": "eslint . --ignore-path ../.eslintignore --ext ts --ext tsx --ext js --ext jsx --fix",
     "build": "yarn clean && vite build ",
@@ -23,6 +23,12 @@
     "@types/react": "18.0.0"
   },
   "dependencies": {
+    "@dfinity/agent": "0.10.0",
+    "@dfinity/auth-client": "0.10.0",
+    "@dfinity/authentication": "0.10.0",
+    "@dfinity/candid": "0.10.0",
+    "@dfinity/identity": "0.10.0",
+    "@dfinity/principal": "0.10.0",
     "@callstack/async-storage": "^2.0.3",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",

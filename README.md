@@ -100,7 +100,7 @@ Open [http://localhost:3003](http://localhost:3003) to view it in the browser.
 
 ### `yarn build`
 
-Builds the @latitudegames/thoth-client app for production to the `client/build` folder.
+Builds the @latitudegames/thoth-client app for production to the `client/dist` folder.
 
 ### `yarn build:core`
 
