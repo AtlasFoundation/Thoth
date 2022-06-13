@@ -3,7 +3,7 @@ import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 import { QueryReturnValue } from '@reduxjs/toolkit/dist/query/baseQueryTypes'
 import { rootApi } from './api'
-import { GraphData, Spell } from '@latitudegames/thoth-core/types'
+import { GraphData, Spell } from '@thoth/thoth-core/types'
 // function camelize(str) {
 //   return str
 //     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {

@@ -1,5 +1,5 @@
 import 'regenerator-runtime'
-import { SpellRunner } from '@latitudegames/thoth-core/dist/server'
+import { SpellRunner } from '@thoth/thoth-core/dist/server'
 import express from 'express'
 import http from 'http'
 import WebSocket from 'ws'

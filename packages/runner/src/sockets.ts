@@ -1,6 +1,6 @@
 // import io from 'socket.io'
 import axios from 'axios'
-import { SpellManager } from '@latitudegames/thoth-core/dist/server'
+import { SpellManager } from '@thoth/thoth-core/dist/server'
 import { buildThothInterface } from './thothInterface'
 
 // interface FeathersSocket extends io.Socket {

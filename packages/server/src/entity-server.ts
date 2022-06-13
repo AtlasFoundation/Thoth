@@ -3,7 +3,7 @@ import { config } from 'dotenv-flow'
 config()
 
 // todo fix this import
-import { roomManager } from '@latitudegames/thoth-core/src/components/entities/roomManager'
+import { roomManager } from '@thoth/thoth-core/src/components/entities/roomManager'
 import { database } from './database'
 import { World } from './entities/World'
 

@@ -1,10 +1,6 @@
-import { initEditor } from '@latitudegames/thoth-core/src'
-import {
-  GraphData,
-  EditorContext,
-  Spell,
-} from '@latitudegames/thoth-core/types'
-import { ThothEditor } from '@latitudegames/thoth-core/types'
+import { initEditor } from '@thoth/thoth-core/src'
+import { GraphData, EditorContext, Spell } from '@thoth/thoth-core/types'
+import { ThothEditor } from '@thoth/thoth-core/types'
 import React, {
   useRef,
   useContext,
@@ -21,7 +17,7 @@ import gridimg from '@/grid.png'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useThothInterface } from './ThothInterfaceProvider'
 // TODO fix this path import
-import { zoomAt } from '@latitudegames/thoth-core/src/plugins/areaPlugin/zoom-at'
+import { zoomAt } from '@thoth/thoth-core/src/plugins/areaPlugin/zoom-at'
 import { useAuth } from '@/contexts/AuthProvider'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers } from '@/config'

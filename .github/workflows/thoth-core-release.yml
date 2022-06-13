@@ -42,7 +42,7 @@ jobs:
         working-directory: packages/core
         run: |
           cd ../client
-          yarn add @latitudegames/thoth-core
+          yarn add @thoth/thoth-core
           git add package.json
           cd ..
           git add yarn.lock

@@ -5,7 +5,7 @@
     ".eslintrc.json",
     ".prettierrc",
     "src/",
-    "node_modules/@latitudegames/"
+    "node_modules/@thoth/"
   ],
   "execMap": {
     "ts": "node -r ts-node/register"

@@ -1,5 +1,5 @@
 {
-  "name": "@latitudegames/thoth-client",
+  "name": "@thoth/thoth-client",
   "version": "0.1.0",
   "license": "Apache-2.0",
   "author": "Michael Sharpe <m.sharpe@project89.org> (https://www.project89.org)",
@@ -18,7 +18,7 @@
     "build": "yarn clean && webpack build --config webpack.prod.js",
     "build:analyze": "BUNDLE_ANALYZE=true yarn build",
     "test": "echo test",
-    "install:canary": "yarn add @latitudegames/thoth-core@canary"
+    "install:canary": "yarn add @thoth/thoth-core@canary"
   },
   "resolutions": {
     "@types/react": "18.0.0"
@@ -31,7 +31,7 @@
     "@emotion/styled": "^11.8.1",
     "@feathersjs/client": "^4.5.14",
     "@feathersjs/feathers": "^4.5.12",
-    "@latitudegames/thoth-core": "^0.0.68",
+    "@thoth/thoth-core": "^0.0.68",
     "@monaco-editor/react": "^4.2.1",
     "@mui/icons-material": "^5.5.1",
     "@mui/material": "^5.5.3",

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { GraphData, Spell } from '@latitudegames/thoth-core/types'
+import { GraphData, Spell } from '@thoth/thoth-core/types'
 
 import {
   uniqueNamesGenerator,

@@ -27,7 +27,7 @@ module.exports = () => {
         {
           test: /\.js$/,
           enforce: 'pre',
-          // include: [path.resolve(__dirname, 'node_modules/@latitudegames')],
+          // include: [path.resolve(__dirname, 'node_modules/@thoth')],
           use: ['source-map-loader'],
         },
       ],

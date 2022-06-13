@@ -19,7 +19,7 @@
     "types": ["node", "jest"],
     "baseUrl": ".",
     "paths": {
-      "@latitudegames/thoth-core": ["@types/thoth-core.d.ts"],
+      "@thoth/thoth-core": ["@types/thoth-core.d.ts"],
       "@teamwork/websocket-json-stream": [
         "@types/@teamwork/websocket-json-stream"
       ]

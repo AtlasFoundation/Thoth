@@ -1,4 +1,4 @@
-import { ImageCacheResponse } from '@latitudegames/thoth-core/types'
+import { ImageCacheResponse } from '@thoth/thoth-core/types'
 import { rootApi } from './api'
 
 export const visualGenerationsApi = rootApi.injectEndpoints({

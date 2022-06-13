@@ -1,4 +1,4 @@
-import thothCore from '@latitudegames/thoth-core/dist/server'
+import thothCore from '@thoth/thoth-core/dist/server'
 
 const {
   components: { moduleInput, moduleOutput, tenseTransformer },

@@ -1,4 +1,4 @@
-import { EngineContext } from '@latitudegames/thoth-core/dist/types'
+import { EngineContext } from '@thoth/thoth-core/dist/types'
 
 export const buildThothInterface = (): EngineContext => {
   return {
