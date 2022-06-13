@@ -27,3 +27,25 @@ Implementation notes
 - When the spell runner is done running the spell, it sends up a 'completed' event. When the client receives this event, it will trigger off the graph to "run" as normal. However, in doing so, each worker will only return the cached output data that was received during the server run phase.
 - the worker returns this value, passing to the next node as normal.
 - not sure quite how this will interact with having components which connect to full streams of data. In this case we actually just "play" and "pause" spells, and when playing they are streaming their events up to the client.
+
+TO DO
+
+- create new default thoth interface using generic APIs (OpenAI, AI21, etc)\
+- build thoth interface directly off feathers services
+  - or just inject the whole feathers app service interface into the engine context when running
+- USER AUTH
+- fix docker setup to all run at once and document it
+
+SERVICES
+
+- user service
+- cache service
+- agent service
+- weaviate service
+- huggingface service
+- completion service (or ML service?)
+- event service
+- search service
+- speed service
+- entity service
+- document service
