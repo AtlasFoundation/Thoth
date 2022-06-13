@@ -31,7 +31,7 @@
     "@emotion/styled": "^11.8.1",
     "@feathersjs/client": "^4.5.14",
     "@feathersjs/feathers": "^4.5.12",
-    "@thoth/thoth-core": "^0.0.68",
+    "@thoth/thoth-core": "^0.0.69",
     "@monaco-editor/react": "^4.2.1",
     "@mui/icons-material": "^5.5.1",
     "@mui/material": "^5.5.3",
