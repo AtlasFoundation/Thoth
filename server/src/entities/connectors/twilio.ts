@@ -13,6 +13,30 @@ import { getRandomEmptyResponse, getSetting } from './utils'
 
 export class twilio_client {
   async message(req: MessagingRequest, res: any) {
+    if (this.haveCustomCommands) {
+      for (let i = 0; i < this.custom_commands[i].length; i++) {
+        if (req.body.Body.startsWith(this.custom_commands[i].command_name)) {
+          const _content = req.body.Body.replace(
+            this.custom_commands[i].command_name,
+            ''
+          )
+
+          const response = await this.custom_commands[i].spell_handler(
+            _content,
+            req.body.From,
+            this.settings.twilio_bot_name ?? 'Agent',
+            'twilio',
+            req.body.From,
+            this.settings.entity,
+            []
+          )
+
+          await this.handleTwilioMsg(req.body.From, response)
+          return
+        }
+      }
+    }
+
     const resp = this.spellHandler(
       req.body.Body,
       req.body.From,
@@ -90,6 +114,8 @@ export class twilio_client {
   client: any
   settings: any
   spellHandler: any
+  haveCustomCommands: any
+  custom_commands: any
 
   createTwilioClient = async (
     app: any,
@@ -99,6 +125,8 @@ export class twilio_client {
   ) => {
     this.settings = settings
     this.spellHandler = spellHandler
+    this.haveCustomCommands = settings.haveCustomCommands
+    this.custom_commands = settings.custom_commands
 
     const accountSid = settings.twlio_account_sid
     const authToken = settings.twlio_auth_token

@@ -52,11 +52,11 @@ const EntityManagerWindow = () => {
       <React.Fragment>
         <div>
           {data &&
-            (data as any).map(value => {
+            (data as any).map((value, idx) => {
               return (
                 <EntityWindow
-                  id={value.id}
-                  key={value.id}
+                  id={value.id ?? 0}
+                  key={value.id ?? idx}
                   updateCallback={async () => {
                     resetData()
                   }}
