@@ -75,7 +75,7 @@ export const tabSlice = createSlice({
         })
 
       // Check if the tab is already open.
-      const existingTab = selectTabBySpellId(state, activeTab.id)
+      const existingTab = selectTabBySpellId(state, action.payload.spellId)
 
       if (existingTab && !switchActive) return
 
