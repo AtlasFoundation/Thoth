@@ -1,5 +1,5 @@
 import { Application as ExpressFeathers } from '@feathersjs/express'
-import { SpellManager } from '@thoth/thoth-core/dist/server'
+import { SpellManager } from '@thothai/thoth-core/dist/server'
 
 // A mapping of service names to types. Will be extended in service files.
 export interface ServiceTypes {}

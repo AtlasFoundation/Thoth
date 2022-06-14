@@ -42,7 +42,7 @@ jobs:
         working-directory: packages/core
         run: |
           cd ../client
-          yarn add @thoth/thoth-core
+          yarn add @thothai/thoth-core
           git add package.json
           cd ..
           git add yarn.lock

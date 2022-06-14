@@ -1,4 +1,4 @@
-import thothCore from '@thoth/thoth-core/dist/server'
+import thothCore from '@thothai/thoth-core/dist/server'
 
 const {
   components: { moduleInput, moduleOutput, tenseTransformer },

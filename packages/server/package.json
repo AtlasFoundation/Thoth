@@ -1,5 +1,5 @@
 {
-  "name": "@thoth/thoth-server",
+  "name": "@thothai/thoth-server",
   "version": "0.1.0",
   "private": true,
   "description": "Backend server for the for AI storytelling toolset, Thoth.",
@@ -36,7 +36,7 @@
     "@google-cloud/speech": "^4.10.0",
     "@koa/cors": "3.1.0",
     "@koa/router": "^10.0.0",
-    "@thoth/thoth-core": "0.0.69",
+    "@thothai/thoth-core": "0.0.69",
     "@types/dotenv-flow": "^3.2.0",
     "aws-sdk": "^2.1027.0",
     "axios": "0.24.0",

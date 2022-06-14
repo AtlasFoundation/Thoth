@@ -1,4 +1,4 @@
 {
-  "host": "@thoth/runner-app.feathersjs.com",
+  "host": "@thothai/runner-app.feathersjs.com",
   "port": "PORT"
 }

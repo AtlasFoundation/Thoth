@@ -6,10 +6,13 @@ import {
 import { creatorToolsDatabase } from '../databases/creatorTools'
 import { CustomError } from '../utils/CustomError'
 import { Graph, ModuleComponent } from '../routes/spells/types'
-import { initSharedEngine, getComponents } from '@thoth/thoth-core/dist/server'
+import {
+  initSharedEngine,
+  getComponents,
+} from '@thothai/thoth-core/dist/server'
 import { Module } from '../routes/spells/module'
-import { ModuleType } from '@thoth/thoth-core/dist/types'
-import { Task } from '@thoth/thoth-core/src/plugins/taskPlugin/task'
+import { ModuleType } from '@thothai/thoth-core/dist/types'
+import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
 
 export const CreateSpellHandler = async (props: {
   spell: any

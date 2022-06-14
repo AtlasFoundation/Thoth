@@ -1,5 +1,5 @@
 {
-  "name": "@thoth/thoth-core",
+  "name": "@thothai/thoth-core",
   "version": "0.0.69",
   "license": "Apache-2.0",
   "author": "Michael Sharpe <m.sharpe@project89.org> (https://www.project89.org)",
@@ -8,7 +8,7 @@
     "Jakob Grant <j.grant@project89.org>",
     "Preston Gull <gull.preston@gmail.com>"
   ],
-  "private": true,
+  "private": false,
   "description": "core shared code for thoth",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -113,7 +113,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/latitudegames/thoth.git"
+    "url": "git+https://github.com/AtlasFoundation/Thoth.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

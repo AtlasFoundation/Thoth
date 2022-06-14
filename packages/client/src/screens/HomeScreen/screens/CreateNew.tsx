@@ -16,7 +16,7 @@ import emptyImg from '../empty.png'
 import css from '../homeScreen.module.css'
 import TemplatePanel from '../components/TemplatePanel'
 import defaultGraph from '../../../data/graphs/default'
-import { GraphData } from '@thoth/thoth-core/dist/types'
+import { GraphData } from '@thothai/thoth-core/dist/types'
 import { useAuth } from '@/contexts/AuthProvider'
 
 const customConfig = {

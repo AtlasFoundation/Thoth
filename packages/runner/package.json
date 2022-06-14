@@ -1,5 +1,5 @@
 {
-  "name": "@thoth/runner",
+  "name": "@thothai/runner",
   "description": "Realtime spell running server",
   "version": "0.0.0",
   "homepage": "",
@@ -48,7 +48,7 @@
     "@feathersjs/feathers": "^4.5.11",
     "@feathersjs/socketio": "^4.5.11",
     "@feathersjs/transport-commons": "^4.5.14",
-    "@thoth/thoth-core": "^0.0.69",
+    "@thothai/thoth-core": "^0.0.69",
     "@typescript-eslint/eslint-plugin": "^5.22.0",
     "@typescript-eslint/parser": "^5.22.0",
     "axios": "^0.27.2",

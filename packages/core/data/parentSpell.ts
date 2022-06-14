@@ -1,4 +1,4 @@
-import { Spell } from '@thoth/thoth-core/dist/types'
+import { Spell } from '@thothai/thoth-core/dist/types'
 export default {
   id: '801b7a36-9468-402a-8ecd-aed4038dfcd5',
   name: 'whole amethyst',

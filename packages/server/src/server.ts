@@ -4,7 +4,7 @@ config()
 import cors from '@koa/cors'
 import Router from '@koa/router'
 // todo fix this import
-import { initClassifier } from '@thoth/thoth-core/src/utils/textClassifier'
+import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
 import HttpStatus from 'http-status-codes'
 import Koa from 'koa'
 import koaBody from 'koa-body'
