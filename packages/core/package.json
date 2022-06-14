@@ -115,12 +115,10 @@
     "type": "git",
     "url": "git+https://github.com/AtlasFoundation/Thoth.git"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "auto": {
     "plugins": [
       "npm"
     ]
-  }
+  },
+  "gitHead": "964e67951af5e6b6a638c8e140dfa459cc2c27cb"
 }
