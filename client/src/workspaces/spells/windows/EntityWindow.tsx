@@ -41,6 +41,11 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [voice_language_code, setVoiceLanguageCode] = useState('')
   const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
 
+  const [use_custom_commands, setUseCustomCommands] = useState(false)
+  const [custom_command_starter, setCustomCommandStarter] = useState('')
+  const [custom_commands, setCustomCommands] = useState([])
+  const [cusotm_commands_updated, setCustomCommandsUpdated] = useState(false)
+
   const [discord_starting_words, setDiscordStartingWords] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
@@ -171,6 +176,17 @@ const EntityWindow = ({ id, updateCallback }) => {
     }
   }
 
+  const getNextCustomCommandId = () => {
+    let index = 0
+    for (let i = 0; i < custom_commands.length; i++) {
+      if (custom_commands[i].id === index) {
+        index++
+      }
+    }
+
+    return index
+  }
+
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
     if (!loaded) {
@@ -186,6 +202,13 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceCharacter(res.data.voice_character)
         setVoiceLanguageCode(res.data.voice_language_code)
         setVoiceDefaultPhrases(res.data.voice_default_phrases)
+
+        setUseCustomCommands(res.data.use_custom_commands === true)
+        setCustomCommandStarter(res.data.custom_command_starter)
+        setCustomCommands(
+          res.data.custom_commands ? JSON.parse(res.data.custom_commands) : []
+        )
+
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
@@ -315,6 +338,9 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_character,
       voice_language_code,
       voice_default_phrases,
+      use_custom_commands,
+      custom_command_starter,
+      custom_commands: JSON.stringify(custom_commands),
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -357,10 +383,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       messenger_bot_name,
       messenger_bot_name_regex,
       messenger_spell_handler_incoming,
-      // twilio_client_enable,
-      // twilio_sid,
-      // twilio_auth_token,
-      // twilio_phone_number
       twilio_enabled,
       twilio_account_sid,
       twilio_auth_token,
@@ -386,6 +408,14 @@ const EntityWindow = ({ id, updateCallback }) => {
           console.log('response on update', JSON.parse(res.config.data).data)
           let responseData = res && JSON.parse(res?.config?.data).data
           console.log(responseData, 'responseDataresponseData')
+          setUseCustomCommands(responseData.use_custom_commands)
+          setCustomCommandStarter(responseData.custom_command_starter)
+          setCustomCommands(
+            responseData.custom_commands
+              ? JSON.parse(responseData.custom_commands)
+              : []
+          )
+
           setEnabled(responseData.enabled)
           setDiscordEnabled(responseData.discord_enabled)
           setDiscordApiKey(responseData.discord_api_key)
@@ -496,6 +526,9 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_provider,
       voice_character,
       voice_language_code,
+      use_custom_commands,
+      custom_command_starter,
+      custom_commands,
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -718,6 +751,114 @@ const EntityWindow = ({ id, updateCallback }) => {
             <button onClick={() => testVoice()} style={{ marginRight: '10px' }}>
               Test
             </button>
+          </div>
+        </React.Fragment>
+      )}
+
+      <div className="form-item">
+        <span className="form-item-label">Custom Commands Enabled</span>
+        <input
+          type="checkbox"
+          value={use_voice}
+          defaultChecked={use_custom_commands || use_custom_commands === 'true'}
+          onChange={e => {
+            setUseCustomCommands(e.target.checked)
+          }}
+        />
+      </div>
+      {use_custom_commands && (
+        <React.Fragment>
+          <div className="form-item agent-select">
+            <div className="form-item">
+              <span className="form-item-label">Command Start</span>
+              <input
+                type="text"
+                defaultValue={custom_command_starter}
+                onChange={e => {
+                  setCustomCommandStarter(e.target.value)
+                }}
+              />
+            </div>
+            {custom_commands.map((d, idx) => {
+              return (
+                <div id={idx}>
+                  <div className="form-item">
+                    <span className="form-item-label">Command Name</span>
+                    <input
+                      type="text"
+                      defaultValue={d.command_name}
+                      onChange={e => {
+                        d.command_name = e.target.value
+                      }}
+                    />
+                  </div>
+                  <div className="form-item">
+                    <span className="form-item-label">Command Description</span>
+                    <input
+                      type="text"
+                      defaultValue={d.command_description}
+                      onChange={e => {
+                        d.command_description = e.target.value
+                      }}
+                    />
+                  </div>
+                  <div className="form-item agent-select">
+                    <span className="form-item-label">
+                      Spell Handler (Command Handler)
+                    </span>
+                    <select
+                      name="spellHandlerIncoming"
+                      id="spellHandlerIncoming"
+                      value={d.spell_Handler}
+                      onChange={event => {
+                        d.spell_Handler = event.target.value
+                      }}
+                    >
+                      {spellList.length > 0 &&
+                        spellList.map((spell, idx) => (
+                          <option value={spell.name} key={idx}>
+                            {spell.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div className="form-item">
+                    <button
+                      onClick={() => {
+                        for (let i = 0; i < custom_commands.length; i++) {
+                          if (custom_commands[i].id === d.id) {
+                            custom_commands.splice(i, 1)
+                            break
+                          }
+                        }
+                        setCustomCommandsUpdated(!cusotm_commands_updated)
+                        console.log('added new cmd:', custom_commands)
+                      }}
+                      style={{ marginRight: '10px' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+            <div className="form-item">
+              <button
+                onClick={() => {
+                  custom_commands.push({
+                    id: getNextCustomCommandId(),
+                    command_name: '',
+                    command_description: '',
+                    spell_Handler: '',
+                  })
+                  setCustomCommandsUpdated(!cusotm_commands_updated)
+                  console.log('added new cmd:', custom_commands)
+                }}
+                style={{ marginRight: '10px' }}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </React.Fragment>
       )}
