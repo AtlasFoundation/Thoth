@@ -14,6 +14,15 @@ import { makeCompletion } from '../utils/MakeCompletionRequest'
 import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
+import {
+  authorize,
+  initCalendar,
+  addCalendarEvent,
+  deleteCalendarEvent,
+} from '../../src/entities/connectors/calendar'
+import { isValidArray, isValidObject } from '../../src/utils/utils'
+import fs from 'fs'
+import path from 'path'
 
 export const modules: Record<string, unknown> = {}
 
@@ -146,7 +155,7 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const conversation = await database.instance.getEvents(
+  const event = await database.instance.getEvents(
     type,
     agent,
     speaker,
@@ -156,9 +165,9 @@ const getEvent = async (ctx: Koa.Context) => {
     maxCount
   )
 
-  console.log('conversation, query:', ctx.request.query, 'conv:', conversation)
+  console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = conversation)
+  return (ctx.body = event)
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
@@ -257,35 +266,46 @@ const createEvent = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
-const getSpeechToText = async (ctx: Koa.Context) => {
+const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
   const character = ctx.request.query.character ?? 'none'
   console.log('text and character are', text, character)
+  const voice_provider = ctx.request.query.voice_provider
+  const voice_character = ctx.request.query.voice_character
+  const voice_language_code = ctx.request.query.voice_language_code
+
+  console.log('text and character are', text, voice_character)
   const cache = await cacheManager.instance.get(
-    character as string,
-    'speech_' + character + ': ' + text,
-    true
+    'voice_' + voice_provider + '_' + voice_character + '_' + text
   )
-  if (cache !== undefined && cache !== null) {
+  if (cache !== undefined && cache !== null && cache.length > 0) {
     console.log('got sst from cache, cache:', cache)
     return (ctx.body = cache)
   }
 
-  // const fileId = await tts(text as string)
-  // const url =
-  //   (process.env.FILE_SERVER_URL?.endsWith('/')
-  //     ? process.env.FILE_SERVER_URL
-  //     : process.env.FILE_SERVER_URL + '/') + fileId
+  let url = ''
 
-  const url = await getAudioUrl(
-    process.env.UBER_DUCK_KEY as string,
-    process.env.UBER_DUCK_SECRET_KEY as string,
-    character as string,
-    text as string
-  )
+  if (!cache && cache.length <= 0) {
+    if (voice_provider === 'uberduck') {
+      url = await getAudioUrl(
+        process.env.UBER_DUCK_KEY as string,
+        process.env.UBER_DUCK_SECRET_KEY as string,
+        voice_character as string,
+        text as string
+      )
+    } else {
+      url = await tts(text, voice_character, voice_language_code)
+    }
+  }
+
   console.log('stt url:', url)
 
-  cacheManager.instance.set('global', 'speech_' + character + ': ' + text, url)
+  if (url && url.length > 0) {
+    cacheManager.instance.set(
+      'voice_' + voice_provider + '_' + voice_character + '_' + text,
+      url
+    )
+  }
 
   return (ctx.body = url)
 }
@@ -336,9 +356,7 @@ const customMessage = async (ctx: Koa.Context) => {
     console.log('generating voice')
     const character = 'kurzgesagt'
     const cache = cacheManager.instance.get(
-      'global',
-      'speech_' + character + ': ' + response,
-      true
+      'speech_' + character + ': ' + response
     )
     if (cache !== undefined && cache !== null) {
       return (ctx.body = cache)
@@ -351,11 +369,7 @@ const customMessage = async (ctx: Koa.Context) => {
       response as string
     )
 
-    cacheManager.instance.set(
-      'global',
-      'speech_' + character + ': ' + response,
-      url
-    )
+    cacheManager.instance.set('speech_' + character + ': ' + response, url)
   }
 
   return (ctx.body = { response: isVoice ? url : message, isVoice: isVoice })
@@ -364,9 +378,8 @@ const customMessage = async (ctx: Koa.Context) => {
 const getFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
-  const strict = ctx.request.query.strict as string
 
-  const value = cacheManager.instance.get(agent, key, strict === 'true')
+  const value = cacheManager.instance.get(key)
   return (ctx.body = { data: value })
 }
 
@@ -374,7 +387,7 @@ const deleteFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
 
-  cacheManager.instance._delete(agent, key)
+  cacheManager.instance._delete(key)
   return (ctx.body = 'ok')
 }
 
@@ -383,7 +396,7 @@ const setInCache = async (ctx: Koa.Context) => {
   const agent = ctx.request.body.agent as string
   const value = ctx.request.body.value
 
-  cacheManager.instance.set(agent, key, value)
+  cacheManager.instance.set(key, value)
   return (ctx.body = 'ok')
 }
 
@@ -546,6 +559,7 @@ const getEntitiesInfo = async (ctx: Koa.Context) => {
 }
 
 const handleCustomInput = async (ctx: Koa.Context) => {
+  console.log('received handle custom input')
   const message = ctx.request.body.message as string
   const speaker = ctx.request.body.sender as string
   const agent = ctx.request.body.agent as string
@@ -569,6 +583,229 @@ const handleCustomInput = async (ctx: Koa.Context) => {
 const zoomBufferChunk = async (ctx: Koa.Context) => {
   const chunk = ctx.request.body.chunk
   console.log('GOT ZOOM BUFFER CHUNK:', chunk)
+  return (ctx.body = 'ok')
+}
+
+const getCalendarEvents = async (ctx: Koa.Context) => {
+  try {
+    let calendarEvents = await database.instance.getCalendarEvents()
+    return (ctx.body = calendarEvents)
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+const addCalendarEvent = async (ctx: Koa.Context) => {
+  const name = ctx.request.body.name
+  const date = ctx.request.body.date
+  const time = ctx.request.body.time
+  const type = ctx.request.body.type
+  const moreInfo = ctx.request.body.moreInfo
+
+  try {
+    await database.instance.createCalendarEvent(
+      name,
+      date,
+      time,
+      type,
+      moreInfo
+    )
+    return (ctx.body = 'inserted')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { payload: [], message: 'internal error' })
+  }
+}
+
+/**
+ * @param {number} time - time in seconds format: new Date().getTime()
+ * @param {string} date - format: MM-DD-YYYY
+ * @param {string} name - calendar event summary name
+ * @param {string} moreInfo - calendar event description name
+ */
+
+const addCalendarEvents = async (ctx: Koa.Context) => {
+  const { name, date, time, type, moreInfo } = ctx.request.body
+
+  try {
+    const content = await initCalendar()
+    const auth = await authorize(content)
+
+    const currentTime = new Date(Number(time)).getHours()
+    const givenTime = new Date(Number(time)).getHours() + 1
+    const currentDate = new Date().getDate()
+    const givenDate = new Date(date).getDate()
+
+    if (
+      isNaN(currentTime) ||
+      isNaN(givenTime) ||
+      isNaN(currentDate) ||
+      isNaN(givenDate)
+    ) {
+      return (ctx.body = { error: 'invalid date or time' })
+    }
+
+    if (currentDate > givenDate) {
+      return (ctx.body = { error: 'invalid date' })
+    }
+
+    if (currentTime > givenTime) {
+      return (ctx.body = { error: 'invalid time' })
+    }
+
+    let startDateTime: Date = new Date()
+    startDateTime.setDate(currentDate)
+    startDateTime.setHours(currentTime)
+
+    let endDateTime: Date = new Date()
+    endDateTime.setDate(currentDate)
+    endDateTime.setHours(givenTime)
+
+    const addEvenetRes = await addCalendarEvent(auth, {
+      summary: name,
+      start: {
+        dateTime: startDateTime.toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+      end: {
+        dateTime: endDateTime.toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+      description: moreInfo,
+      location: '',
+      attendees: [],
+      reminders: {
+        useDefault: false,
+        overrides: [
+          {
+            method: 'email',
+            minutes: 24 * 60,
+          },
+          {
+            method: 'popup',
+            minutes: 10,
+          },
+        ],
+      },
+    })
+
+    if (isValidObject(addEvenetRes)) {
+      const { id: calendar_id } = addEvenetRes
+
+      const res = await database.instance.createCalendarEvent(
+        name,
+        calendar_id,
+        date,
+        time,
+        type,
+        JSON.stringify(addEvenetRes)
+      )
+
+      const { command, rowCount } = res
+
+      if (command === 'INSERT' && rowCount === 1) {
+        const event = await database.instance.getCalendarEventByCalId(
+          calendar_id
+        )
+
+        return (ctx.body = {
+          message: 'Inserting Calender event is success',
+          payload: event,
+        })
+      }
+    }
+
+    return (ctx.body = {
+      message: 'Inserting Calender event is failed',
+      payload: [],
+    })
+  } catch (e) {
+    console.log('addCalendarEvents:', e)
+
+    ctx.status = 500
+    return (ctx.body = { error: 'Invalid user credentials or Internal error' })
+  }
+}
+
+const editCalendarEvent = async (ctx: Koa.Context) => {
+  const id = ctx.params.id
+  const name = ctx.request.body.name
+  const date = ctx.request.body.date
+  const time = ctx.request.body.time
+  const type = ctx.request.body.type
+  const moreInfo = ctx.request.body.moreInfo
+
+  try {
+    await database.instance.editCalendarEvent(
+      id,
+      name,
+      date,
+      time,
+      type,
+      moreInfo
+    )
+    return (ctx.body = 'edited')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
+const deleteCalendarEvents = async (ctx: Koa.Context) => {
+  const id = ctx.params.id
+  try {
+    const content = await initCalendar()
+    const auth = await authorize(content)
+
+    const res = await database.instance.deleteCalendarEvent(id)
+
+    if (isValidArray(res)) {
+      const { calendar_id } = res[0]
+      const response = await deleteCalendarEvent(auth, calendar_id)
+      if (response)
+        return (ctx.body = {
+          message: 'calendar deleted successfully!',
+          success: true,
+        })
+    }
+
+    return (ctx.body = {
+      message: 'calendar deleted failed!',
+      success: false,
+    })
+  } catch (e) {
+    console.log('deleteCalendarEvent:', e)
+
+    ctx.status = 500
+    return (ctx.body = {
+      error: 'Invalid user credentials or Internal error',
+      success: false,
+    })
+  }
+}
+
+const addVideo = async (ctx: Koa.Context) => {
+  try {
+    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
+    const [type, subType] = mimeType.split('/')
+    if (type !== 'video') {
+      ctx.response.status = 400
+      return (ctx.body = 'Only video can be uploaded')
+    }
+
+    fs.copyFileSync(
+      videoPath,
+      path.join(process.cwd(), `/files/videos/${name}`)
+    )
+    return (ctx.body = 'ok')
+  } catch (e) {
+    ctx.status = 500
+    return (ctx.body = { error: 'internal error' })
+  }
+}
+
+const post_pipedream = async (ctx: Koa.Context) => {
+  console.log('testPipeDream:', ctx.request)
   return (ctx.body = 'ok')
 }
 
@@ -617,9 +854,21 @@ export const entities: Route[] = [
     get: getSortedEventsByDate,
   },
   {
-    path: '/speech_to_text',
+    path: '/calendar_event',
     access: noAuth,
-    get: getSpeechToText,
+    get: getCalendarEvents,
+    post: addCalendarEvents,
+  },
+  {
+    path: '/calendar_event/:id',
+    access: noAuth,
+    patch: editCalendarEvent,
+    delete: deleteCalendarEvents,
+  },
+  {
+    path: '/text_to_speech',
+    access: noAuth,
+    get: getTextToSpeech,
   },
   {
     path: '/get_entity_image',
@@ -672,5 +921,15 @@ export const entities: Route[] = [
     path: '/zoom_buffer_chunk',
     access: noAuth,
     post: zoomBufferChunk,
+  },
+  {
+    path: '/video',
+    access: noAuth,
+    post: addVideo,
+  },
+  {
+    path: '/pipedream',
+    access: noAuth,
+    post: post_pipedream,
   },
 ]

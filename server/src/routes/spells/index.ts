@@ -122,12 +122,12 @@ const saveHandler = async (ctx: Koa.Context) => {
   }
 
   const spell = await creatorToolsDatabase.spells.findOne({
-    where: { name: body.name },
+    where: { id: body.id },
   })
 
   if (
     spell &&
-    spell.userId.toString() !== (ctx.state.user?.id ?? ctx.query.userId).toString()
+    spell.userId?.toString() !== (ctx.state.user?.id ?? ctx.query.userId).toString()
   ) {
     throw new CustomError(
       'input-failed',
@@ -243,7 +243,6 @@ const patchHandler = async (ctx: Koa.Context) => {
 
   const name = ctx.params.name
   const userId = ctx.state.user?.id ?? ctx.query.userId
-
   const spell = await creatorToolsDatabase.spells.findOne({
     where: {
       name,
@@ -306,10 +305,10 @@ const getSpellHandler = async (ctx: Koa.Context) => {
         gameState: {},
         modules: [],
       })
-      userId: ctx.state.user?.id ?? 0, (ctx.body = newSpell)
+      ctx.body = newSpell
     } else {
       let userId = ctx.state.user?.id ?? ctx.query.userId
-      if(spell?.userId !== userId) throw new Error('spell not found')
+      if (spell?.userId !== userId) throw new Error('spell not found')
       else ctx.body = spell
     }
   } catch (e) {

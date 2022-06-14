@@ -464,6 +464,66 @@ export class discord_client {
     args['grpc_args'] = {}
 
     let { author, channel, content, mentions, id } = message
+    content = content.trim()
+
+    if (this.haveCustomCommands && !author.bot) {
+      for (let i = 0; i < this.custom_commands.length; i++) {
+        console.log(
+          'command:',
+          this.custom_commands[i].command_name,
+          'starting_with:',
+          content.startsWith(this.custom_commands[i].command_name)
+        )
+        if (content.startsWith(this.custom_commands[i].command_name)) {
+          const _content = content
+            .replace(this.custom_commands[i].command_name, '')
+            .trim()
+          console.log(
+            'handling command:',
+            this.custom_commands[i].command_name,
+            'content:',
+            _content
+          )
+
+          setTimeout(() => {
+            channel.sendTyping()
+          }, message.content.length)
+
+          const roomInfo: {
+            user: string
+            inConversation: boolean
+            isBot: boolean
+            info3d: string
+          }[] = []
+          for (const [memberID, member] of channel.members) {
+            roomInfo.push({
+              user: member.user.username,
+              inConversation: this.isInConversation(member.user.id),
+              isBot: member.user.bot,
+              info3d: '',
+            })
+          }
+
+          const response = await this.custom_commands[i].spell_handler(
+            _content,
+            message.author.username,
+            this.discord_bot_name,
+            'discord',
+            message.channel.id,
+            this.entity,
+            roomInfo
+          )
+
+          this.handlePingSoloAgent(
+            message.channel.id,
+            message.id,
+            response,
+            false
+          )
+          return
+        }
+      }
+    }
 
     //replaces the discord specific mentions (<!@id>) to the actual mention
     if (
@@ -1636,6 +1696,8 @@ export class discord_client {
   voice_provider: string
   voice_character: string
   voice_language_code: string
+  haveCustomCommands: boolean
+  custom_commands: any[]
   createDiscordClient = async (
     entity: any,
     discord_api_token: string | undefined,
@@ -1660,7 +1722,9 @@ export class discord_client {
     use_voice,
     voice_provider,
     voice_character,
-    voice_language_code
+    voice_language_code,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) => {
     console.log('creating discord client')
     this.entity = entity
@@ -1669,6 +1733,8 @@ export class discord_client {
     this.voice_provider = voice_provider
     this.voice_character = voice_character
     this.voice_language_code = voice_language_code
+    this.haveCustomCommands = haveCustomCommands
+    this.custom_commands = custom_commands
     if (!discord_starting_words || discord_starting_words?.length <= 0) {
       this.discord_starting_words = ['hi', 'hey']
     } else {
@@ -1822,7 +1888,7 @@ export class discord_client {
 
   discussionChannels = {}
 
-  async sendMessageToChannel(channelId: any, msg: any) {
+  async sendMessageToChannel(channelId: any, msg: string) {
     const channel = await this.client.channels.fetch(channelId)
     if (channel && channel !== undefined) {
       channel.send(msg)

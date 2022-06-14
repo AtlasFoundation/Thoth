@@ -20,6 +20,12 @@ import {
   makeResponse,
 } from '../../utils/utils'
 import { isString } from 'lodash'
+import {
+  addCalendarEvent,
+  authorize,
+  getCalendarEvents,
+  initCalendar,
+} from '../../../src/entities/connectors/calendar'
 
 const addClient = async (ctx: Koa.Context) => {
   const { body } = ctx.request
@@ -128,7 +134,7 @@ const getAllClient = async (ctx: Koa.Context) => {
     data = [] as any,
     success = false
 
-  let { page, per_page, search, field } = query as ClientFilterOptions
+  let { page, per_page, search, field, id } = query as ClientFilterOptions
 
   page = page || (1 as any)
   per_page = per_page || (10 as any)
@@ -136,6 +142,21 @@ const getAllClient = async (ctx: Koa.Context) => {
   let validateFields = ['name', 'type', 'default_value', 'client']
 
   try {
+    if (isString(id)) {
+      const { success, data } = await database.instance.getSingleClient(
+        id as string
+      )
+
+      if (!success)
+        return (
+          (ctx.body = makeResponse('Setting not available in record!', {})),
+          (ctx.status = 404)
+        )
+
+      if (success)
+        return (ctx.body = makeResponse('Setting found successfully', data))
+    }
+
     if (isString(field) && isString(search)) {
       if (!validateFields.includes(field))
         return (
@@ -153,6 +174,7 @@ const getAllClient = async (ctx: Koa.Context) => {
           search,
           field,
         } as ClientFilterOptions)
+
       isWithFieldKey = true
       success = clientSuccess
       data = clientData
@@ -166,6 +188,7 @@ const getAllClient = async (ctx: Koa.Context) => {
           per_page,
           search,
         } as ClientFilterOptions)
+
       isWithoutFieldKey = true
       success = clientSuccess
       data = clientData
@@ -177,6 +200,7 @@ const getAllClient = async (ctx: Koa.Context) => {
           page,
           per_page,
         } as ClientFilterOptions)
+
       success = clientSuccess
       data = clientData
     }
@@ -284,7 +308,8 @@ const getAllConfiguration = async (ctx: Koa.Context) => {
     data = [] as any,
     success = false
 
-  let { page, per_page, search, field } = query as ConfigurationFilterOptions
+  let { page, per_page, search, field, id } =
+    query as ConfigurationFilterOptions
 
   page = page || (1 as any)
   per_page = per_page || (10 as any)
@@ -292,6 +317,21 @@ const getAllConfiguration = async (ctx: Koa.Context) => {
   let validateFields = ['key', 'value']
 
   try {
+    if (isString(id)) {
+      const { success, data } = await database.instance.getSingleConfiguration(
+        id as string
+      )
+
+      if (!success)
+        return (
+          (ctx.body = makeResponse('Setting not available in record!', {})),
+          (ctx.status = 404)
+        )
+
+      if (success)
+        return (ctx.body = makeResponse('Setting found successfully', data))
+    }
+
     if (isString(field) && isString(search)) {
       if (!validateFields.includes(field))
         return (
@@ -502,7 +542,7 @@ const getAllScope = async (ctx: Koa.Context) => {
     data = [] as any,
     success = false
 
-  let { page, per_page, search, field } = query as ConfigurationFilterOptions
+  let { page, per_page, search, field, id } = query as ScopeFilterOptions
 
   page = page || (1 as any)
   per_page = per_page || (10 as any)
@@ -510,6 +550,21 @@ const getAllScope = async (ctx: Koa.Context) => {
   let validateFields = ['tables', 'fullTableSize', 'tableSize', 'recordCount']
 
   try {
+    if (isString(id)) {
+      const { success, data } = await database.instance.getSingleScope(
+        id as string
+      )
+
+      if (!success)
+        return (
+          (ctx.body = makeResponse('Setting not available in record!', {})),
+          (ctx.status = 404)
+        )
+
+      if (success)
+        return (ctx.body = makeResponse('Setting found successfully', data))
+    }
+
     // search data with perticular given field
     if (isString(field) && isString(search)) {
       if (!validateFields.includes(field))

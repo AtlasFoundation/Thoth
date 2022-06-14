@@ -19,6 +19,8 @@ import {
   ScopeFilterOptions,
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
+import format from 'pg-format'
+import { auth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -90,16 +92,27 @@ export class database {
   async getEvents(
     type: string,
     agent: any,
-    sender: any = null,
+    sender: any,
     client: any,
     channel: any,
     asString: boolean = true,
     maxCount: number = 10
   ) {
-    const query =
-      'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
-    const values = [agent, client, channel, type]
-
+    // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
+    let query, values
+    if (!channel) {
+      query =
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND type=$4 ORDER BY id desc'
+      values = [agent, client, sender, type]
+    } else if (!sender) {
+      query =
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
+      values = [agent, client, channel, type]
+    } else {
+      query =
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+      values = [agent, client, sender, channel, type]
+    }
     const row = await this.client.query(query, values)
     if (!row || !row.rows || row.rows.length === 0) {
       console.log('rows are null, returning')
@@ -188,13 +201,13 @@ export class database {
   }
 
   async addWikipediaData(agent: any, data: any) {
-    const query = 'INSERT INTO wikipedia(agent, data) VALUES($1, $2)'
+    const query = 'INSERT INTO events(agent, data) VALUES($1, $2)'
     const values = [agent, data]
 
     await this.client.query(query, values)
   }
   async getWikipediaData(agent: any) {
-    const query = 'SELECT * FROM wikipedia WHERE agent=$1'
+    const query = 'SELECT * FROM events WHERE agent=$1'
     const values = [agent]
 
     const rows = await this.client.query(query, values)
@@ -205,7 +218,7 @@ export class database {
     }
   }
   async wikipediaDataExists(agent: any) {
-    const query = 'SELECT * FROM wikipedia WHERE agent=$1'
+    const query = 'SELECT * FROM events WHERE agent=$1'
     const values = [agent]
 
     const rows = await this.client.query(query, values)
@@ -293,7 +306,7 @@ export class database {
       data.dirty = 'true'
       let q = ''
       let dataArray = Object.keys(data)
-      dataArray.map((key) => {
+      dataArray.map(key => {
         if (data[key] !== null) {
           q += `${key}='${('' + data[key]).replace("'", "''")}',`
         }
@@ -308,9 +321,10 @@ export class database {
         throw new Error(e)
       }
     } else {
-      let q = '', cols = ''
+      let q = '',
+        cols = ''
       let dataArray = Object.keys(data)
-      dataArray.map((key) => {
+      dataArray.map(key => {
         if (data[key] !== null) {
           cols += `${key},`
           q += `'${('' + data[key]).replace("'", "''")}',`
@@ -330,19 +344,21 @@ export class database {
   }
 
   async addDocument(
+    title: any,
     description: any,
-    keywords: any,
     is_included: any,
-    storeId: any
+    store_id: any
   ): Promise<number> {
     let id = randomInt(0, 100000)
     while (await this.documentIdExists(id)) {
       id = randomInt(0, 100000)
     }
 
+    console.log('document store id:', id)
+
     const query =
-      'INSERT INTO documents(id, description, keywords, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
-    const values = [id, description, keywords, is_included, storeId]
+      'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
+    const values = [id, title, description, is_included, store_id]
 
     await this.client.query(query, values)
     return id
@@ -354,22 +370,23 @@ export class database {
     await this.client.query(query, values)
   }
   async updateDocument(
-    documentId: any,
+    document_id: any,
+    title: any,
     description: any,
-    keywords: any,
     is_included: any,
-    storeId: any
+    store_id: any
   ) {
     const query =
-      'UPDATE documents SET description=$1, keywords=$2, is_included=$3, store_id=$4 WHERE id=$5'
-    const values = [description, keywords, is_included, storeId, documentId]
+      'UPDATE documents SET title=$5, description=$1, is_included=$2, store_id=$3 WHERE id=$4'
+    const values = [description, is_included, store_id, document_id, title]
 
     await this.client.query(query, values)
   }
   async getDocumentsOfStore(
     storeId: string | string[] | undefined
   ): Promise<any> {
-    const query = 'SELECT * FROM documents WHERE store_id=$1 ORDER BY id DESC'
+    const query =
+      'SELECT id, title, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)
@@ -410,7 +427,7 @@ export class database {
       return []
     }
   }
-  async getSingleDocument(docId: any): Promise<any[]> {
+  async getSingleDocument(docId: any): Promise<any> {
     const query = 'SELECT * FROM documents WHERE id=$1'
     const values = [docId]
 
@@ -419,7 +436,7 @@ export class database {
     if (rows && rows.rows && rows.rows.length > 0) {
       return rows.rows[0]
     } else {
-      return []
+      return null
     }
   }
   async getDocumentsWithTopic(agent: any, topic: any): Promise<any[]> {
@@ -443,9 +460,8 @@ export class database {
 
   async addContentObj(
     description: any,
-    keywords: any,
     is_included: any,
-    documentId: any
+    document_id: any
   ): Promise<number> {
     let id = randomInt(0, 100000)
     while (await this.contentObjIdExists(id)) {
@@ -453,29 +469,28 @@ export class database {
     }
 
     const query =
-      'INSERT INTO content_objects(id, description, keywords, is_included, document_id) VALUES($1, $2, $3, $4, $5)'
-    const values = [id, description, keywords, is_included, documentId]
+      'INSERT INTO content_objects(id, description, is_included, document_id) VALUES($1, $2, $3, $4)'
+    const values = [id, description, is_included, document_id]
 
     await this.client.query(query, values)
     return id
   }
   async editContentObj(
-    objId: any,
+    obj_id: any,
     description: any,
-    keywords: any,
     is_included: any,
-    documentId: any
+    document_id: any
   ) {
     const query =
-      'UPDATE content_objects SET description = $1, keywords = $2, is_included = $3, document_id = $4 WHERE id = $5'
-    const values = [description, keywords, is_included, documentId, objId]
+      'UPDATE content_objects SET description = $1, is_included = $2, document_id = $3 WHERE id = $4'
+    const values = [description, is_included, document_id, obj_id]
     await this.client.query(query, values)
   }
   async getContentObjOfDocument(
     documentId: string | string[] | undefined
   ): Promise<any> {
     const query =
-      'SELECT * FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
+      'SELECT id, description, is_included AS "isIncluded", document_id AS "documentId" FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
     const values = [documentId]
 
     const rows = await this.client.query(query, values)
@@ -544,7 +559,87 @@ export class database {
     return rows && rows.rows && rows.rows.length > 0
   }
 
-  /* 
+  async getCalendarEventById(id: string) {
+    const query =
+      'SELECT id, calendar_id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE id=$1'
+    const rows = await this.client.query(query, [id])
+
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+
+  async getCalendarEventByCalId(id: string) {
+    const query =
+      'SELECT id, calendar_id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE calendar_id=$1'
+    const rows = await this.client.query(query, [id])
+
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+
+  async getCalendarEvents() {
+    const query =
+      'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
+    const rows = await this.client.query(query)
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+  async createCalendarEvent(
+    name: string,
+    calendar_id: string,
+    date: string,
+    time: string,
+    type: string,
+    moreInfo: string
+  ) {
+    const query =
+      'INSERT INTO calendar_events(name, calendar_id, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5, $6)'
+    const values = [name, calendar_id, date, time, type, moreInfo]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async editCalendarEvent(
+    id: string,
+    name: string,
+    date: string,
+    time: string,
+    type: string,
+    moreInfo: string
+  ) {
+    const query =
+      'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
+    const values = [name, date, time, type, moreInfo, id]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async deleteCalendarEvent(id: string) {
+    const query1 =
+      'SELECT id, name, calendar_id, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE id = $1'
+    const rows = await this.client.query(query1, [id])
+
+    let body: object[] = []
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      body = rows.rows
+    }
+
+    const query2 = 'DELETE FROM calendar_events WHERE id = $1'
+    const values = [id]
+    const res = await this.client.query(query2, values)
+
+    const { command, rowCount } = res
+    if (command === 'DELETE' && rowCount > 0) {
+      return body
+    }
+    return {}
+  }
+  /*
     Section : Settings
     Modules : Client, Configuration, Scope
   */
@@ -580,9 +675,24 @@ export class database {
     const query =
       'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const rows = await this.client.query(query, [per_page, offset])
+
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -597,12 +707,27 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -616,14 +741,54 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE is_deleted=false AND (name LIKE '%' || $3 || '%' OR client LIKE '%' || $3 || '%' OR default_value LIKE '%' || $3 || '%' OR type LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
+  }
+
+  async seedClientSetting(body: AddClient[]): Promise<any> {
+    let newBody = []
+
+    for (let i = 0; i < body.length; i++) {
+      const client = body[i].client
+      const name = body[i].name
+      const type = body[i].type
+      const default_value = body[i].defaultValue
+
+      newBody.push([client, name, type, default_value])
+    }
+
+    const query = format(
+      'INSERT INTO client_settings (client, name, type, default_value) VALUES %L returning id',
+      newBody
+    )
+
+    try {
+      await this.client.query(query)
+      return { success: true, data: {}, isAlreadyExists: false }
+    } catch (error) {
+      console.log('Error => seedClientSetting => ', error)
+    }
+    return { success: false, data: {}, isAlreadyExists: false }
   }
 
   async addClientSetting(body: AddClient): Promise<any> {
@@ -715,6 +880,21 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleClient(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, client, name, type, default_value FROM client_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Client not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Client settings end
 
   // Configuration settings start
@@ -736,13 +916,27 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query =
       'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -757,12 +951,26 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -776,12 +984,26 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, key, value FROM configuration_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, key, value FROM configuration_settings WHERE is_deleted=false AND (value LIKE '%' || $3 || '%' OR key LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -883,6 +1105,21 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleConfiguration(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, key, value FROM configuration_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Configuration not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Configuration settings end
 
   // Scope settings start
@@ -904,13 +1141,27 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query =
       'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC LIMIT $1 OFFSET $2'
 
     const rows = await this.client.query(query, [per_page, offset])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -925,12 +1176,26 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND ${field} LIKE '%' || $3 || '%' ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -944,12 +1209,26 @@ export class database {
       (per_page as number) * Math.abs((page as number) - 1)
     ) as number
 
+    const query2 =
+      'SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false ORDER BY id ASC'
+
+    const rows2 = await this.client.query(query2)
+
+    const total = rows2.rows.length
+
     const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE is_deleted=false AND (full_table_size LIKE '%' || $3 || '%' OR table_size LIKE '%' || $3 || '%' OR tables LIKE '%' || $3 || '%' OR record_count LIKE '%' || $3 || '%') ORDER BY id ASC LIMIT $1 OFFSET $2`
 
     const rows = await this.client.query(query, [per_page, offset, search])
 
     if (rows && rows.rows && rows.rows.length > 0) {
-      return { data: rows.rows, success: true }
+      const data = {
+        data: rows.rows,
+        currentPage: Number(page),
+        totalItems: total,
+        totalPages: Math.ceil(total / (per_page as any)),
+        currentPageTotalItems: rows.rows.length,
+      }
+      return { data: data, success: true }
     }
     return { data: [], success: false }
   }
@@ -1048,5 +1327,132 @@ export class database {
     return { success: false, data: data, isExists: false }
   }
 
+  async getSingleScope(id: string): Promise<any> {
+    try {
+      const query = `SELECT id, full_table_size, table_size, tables, record_count FROM scope_settings WHERE id=$1 AND is_deleted=false`
+
+      const rows = await this.client.query(query, [id])
+
+      if (rows && rows.rows && rows.rows.length > 0) {
+        return { success: true, data: rows.rows[0] }
+      }
+      throw new Error('Scope not found')
+    } catch (error) {
+      return { success: false, data: {} }
+    }
+  }
+
   // Scope settings end
+
+  async getAuthuserById(id: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE id=$1 AND is_deleted=false'
+    const values = [id]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async getAuthuserByToken(token: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE token=$1 AND is_deleted=false'
+    const values = [token]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async getAuthuserByUserId(user_id: string): Promise<any> {
+    const query =
+      'SELECT id, user_id, token FROM auth_users WHERE user_id=$1 AND is_deleted=false'
+    const values = [user_id]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
+  }
+
+  async addAuthUser(body: AddAuthUser): Promise<any> {
+    const { token: newToken, user_id } = body
+    let isValidToken = false
+
+    try {
+      const res1 = await this.getAuthuserByUserId(user_id)
+
+      if (isValidObject(res1)) {
+        const { token, user_id } = res1 as any
+
+        const decryptedUserId = auth.verify(token)
+
+        isValidToken = decryptedUserId === user_id
+
+        if (!isValidToken) {
+          const query3 =
+            'UPDATE auth_users SET token=$2 WHERE user_id=$1 AND is_deleted=false'
+          const values3: any = [user_id, newToken]
+
+          const res3 = await this.client.query(query3, values3)
+          const { command, rowCount } = res3
+
+          if (command === 'UPDATE' && rowCount > 0) {
+            const data = await this.getAuthuserByUserId(user_id)
+            return { success: true, data: data, isAlreadyExists: false }
+          }
+        } else {
+          return { success: true, data: res1, isAlreadyExists: true }
+        }
+      }
+
+      const query2 = 'INSERT INTO auth_users(token, user_id) VALUES($1, $2)'
+      const values2: any = [newToken, user_id]
+
+      const res2 = await this.client.query(query2, values2)
+      const { command, rowCount } = res2
+
+      if (command === 'INSERT' && rowCount > 0) {
+        const data = await this.getAuthuserByUserId(user_id)
+        return { success: true, data: data, isAlreadyExists: false }
+      }
+      throw new Error('Something break in insert query')
+    } catch (error) {
+      console.log('Error => addAuthUser => ', error)
+      return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+
+  async getAuthuser(user_id: string) {
+    try {
+      const res1 = await this.getAuthuserByUserId(user_id)
+
+      if (isValidObject(res1)) {
+        const { token, user_id } = res1 as any
+
+        const decryptedUserId = auth.verify(token)
+
+        if (decryptedUserId === user_id) {
+          return { success: true, data: res1, isAlreadyExists: true }
+        }
+
+        // remove token from user
+        const query2 = 'UPDATE auth_users SET token=null WHERE user_id=$1'
+        const values2: any = [user_id]
+
+        const res2 = await this.client.query(query2, values2)
+        const { command, rowCount } = res2
+
+        if (command === 'UPDATE' && rowCount > 0) {
+          const data = await this.getAuthuserByUserId(user_id)
+          return { success: false, data: data, isAlreadyExists: false }
+        }
+      }
+      return { success: false, data: {}, isAlreadyExists: false }
+    } catch (error) {
+      console.log('Error => getAuthuser => ', error)
+      return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+}
+
+type AddAuthUser = {
+  user_id: string
+  token: string
 }

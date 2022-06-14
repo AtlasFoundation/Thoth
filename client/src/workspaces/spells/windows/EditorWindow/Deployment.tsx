@@ -31,12 +31,15 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
   const [saveSpell] = useSaveSpellMutation()
   const [getDeplopyment, { data: deploymentData }] = useLazyGetDeploymentQuery()
   const { user } = useAuth()
-  const { data: spell } = useGetSpellQuery({ 
-    spellId: spellId, 
-    userId: user?.id as string 
-  }, {
-    skip: !spellId,
-  })
+  const { data: spell } = useGetSpellQuery(
+    {
+      spellId: spellId,
+      userId: user?.id as string,
+    },
+    {
+      skip: !spellId,
+    }
+  )
   const name = spell?.name as string
   const { data: deployments, isLoading } = useGetDeploymentsQuery(name, {
     skip: !spell?.name,
@@ -70,15 +73,15 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
 
   useEffect(() => {
     if (!deploymentData || !loadingVersion) return
-      ; (async () => {
-        close()
-        await saveSpell({ ...spell, graph: deploymentData.graph, user: user?.id })
-        enqueueSnackbar(`version ${deploymentData.version} loaded!`, {
-          variant: 'success',
-        })
-        setLoadingVersion(false)
-        loadGraph(deploymentData.graph)
-      })()
+    ;(async () => {
+      close()
+      await saveSpell({ ...spell, graph: deploymentData.graph, user: user?.id })
+      enqueueSnackbar(`version ${deploymentData.version} loaded!`, {
+        variant: 'success',
+      })
+      setLoadingVersion(false)
+      loadGraph(deploymentData.graph)
+    })()
   }, [deploymentData, loadingVersion])
 
   const copy = url => {
@@ -155,8 +158,9 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
                 return (
                   <SimpleAccordion
                     key={deploy.version}
-                    heading={`${deploy.version}${deploy.versionName ? ' - ' + deploy.versionName : ''
-                      }`}
+                    heading={`${deploy.version}${
+                      deploy.versionName ? ' - ' + deploy.versionName : ''
+                    }`}
                     defaultExpanded={true}
                   >
                     <button

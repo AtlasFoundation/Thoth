@@ -111,8 +111,8 @@ export class InputDestructureComponent extends ThothComponent<
       output: (input as any).Input ?? input,
       speaker: (input as any)['Speaker'] ?? 'Speaker',
       agent: (input as any)['Agent'] ?? 'Agent',
-      client: (input as any)['Client'],
-      channel: (input as any)['ChannelID'],
+      client: (input as any)['Client'] ?? 'Playtest',
+      channel: (input as any)['ChannelID'] ?? 'TestChannel',
       entity: (input as any)['Entity'],
       roomInfo: (input as any)['RoomInfo'],
     }

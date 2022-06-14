@@ -4,9 +4,10 @@ import { useGetSpellQuery, useSaveSpellMutation } from '../../state/api/spells'
 import { useForm } from 'react-hook-form'
 import Modal from '../Modal/Modal'
 import css from './modalForms.module.css'
-import { openTab } from '@/state/tabs'
+import { closeTab } from '@/state/tabs'
 import { useDispatch } from 'react-redux'
 import { useAuth } from '@/contexts/AuthProvider'
+import { useNavigate } from 'react-router'
 
 const EditSpellModal = ({ tab, closeModal }) => {
   const dispatch = useDispatch()
@@ -20,6 +21,7 @@ const EditSpellModal = ({ tab, closeModal }) => {
     skip: !tab.spellId,
   })
   const { enqueueSnackbar } = useSnackbar()
+  const navigate = useNavigate()
 
   const {
     register,
@@ -44,16 +46,10 @@ const EditSpellModal = ({ tab, closeModal }) => {
     }
 
     enqueueSnackbar('Spell saved', { variant: 'success' })
-
-    // show snackbar
-    // open a new tab to the new spell
-    dispatch(
-      openTab({
-        name: data.name,
-        spellId: data.name,
-        type: 'spell',
-      })
-    )
+    
+    // close current tab and navigate to the new spell
+    dispatch(closeTab(tab.id))
+    navigate(`/thoth/${data.name}`)
 
     closeModal()
   })

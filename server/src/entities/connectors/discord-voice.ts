@@ -76,9 +76,7 @@ export function initSpeechClient(
         // otherwise use uberduck
         // 2. set the character name from the request
         let url = await cacheManager.instance.get(
-          voiceCharacter,
-          'voice_' + voiceProvider + '_' + response,
-          true
+          'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response
         )
 
         if (!url) {
@@ -95,8 +93,7 @@ export function initSpeechClient(
           }
 
           cacheManager.instance.set(
-            voiceCharacter,
-            'voice_' + voiceProvider + '_' + response,
+            'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response,
             url
           )
         }

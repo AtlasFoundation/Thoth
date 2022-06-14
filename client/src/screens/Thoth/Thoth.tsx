@@ -23,7 +23,8 @@ const Thoth = ({ empty = false }) => {
 
   useEffect(() => {
     if (!tabs) return
-
+    console.log('tabs :::: ', tabs);
+    
     // If there are still tabs, grab one at random to open to for now.
     // We should do better at this.  Probably with some kind of tab ordering.
     // Could fit in well with drag and drop for tabs

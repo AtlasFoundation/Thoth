@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "noImplicitAny": false,
     "strictNullChecks": true,
-    "outDir": "build",
+    "outDir": "./build/",
     "strict": false,
     "composite": true,
     "sourceMap": true,
@@ -26,5 +26,5 @@
       "path": "../core"
     }
   ],
-  "include": ["src", "src/data/layouts/defaultLayout.json"]
+  "include": ["src", "src/data/layouts/defaultLayout.json", "vite.config.ts"]
 }

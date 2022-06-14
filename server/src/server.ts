@@ -3,7 +3,7 @@ config()
 //@ts-ignore
 import cors from '@koa/cors'
 import Router from '@koa/router'
-import { initClassifier } from '@latitudegames/thoth-core/src/utils/textClassifier'
+import { initClassifier } from '../../core/src/utils/textClassifier'
 import HttpStatus from 'http-status-codes'
 import Koa from 'koa'
 import koaBody from 'koa-body'
@@ -19,7 +19,8 @@ import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
-import { convertToMp4 } from './systems/videoConverter'
+import { auth } from './middleware/auth'
+import { classify, initWeaviateClient } from './systems/weaviateClient'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -53,10 +54,22 @@ async function init() {
 
   // required for some current consumers (i.e Thoth)
   // to-do: standardize an allowed origin list based on env values or another source of truth?
+
+  new database()
+  await database.instance.connect()
+  await creatorToolsDatabase.sequelize.sync({
+    force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
+  })
+  await database.instance.firstInit()
+
   await initFileServer()
   await initClassifier()
   await initTextToSpeech()
-  new cacheManager(-1)
+  new cacheManager()
+  await initWeaviateClient(
+    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true',
+    process.env.CLASSIFIER_IMPORT_DATA?.toLowerCase().trim() === 'true'
+  )
 
   if (process.env.RUN_PYTHON_SERVER === 'true') {
     spawnPythonServer()
@@ -80,13 +93,6 @@ async function init() {
   app.use(cors(options))
 
   // new cors_server(process.env.CORS_PORT, '0.0.0.0')
-  new database()
-
-  await database.instance.connect()
-  await creatorToolsDatabase.sequelize.sync({
-    force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
-  })
-  await database.instance.firstInit()
 
   process.on('unhandledRejection', (err: Error) => {
     console.error('Unhandled Rejection:' + err + ' - ' + err.stack)
@@ -94,6 +100,9 @@ async function init() {
 
   // Middleware used by every request. For route-specific middleware, add it to you route middleware specification
   app.use(koaBody({ multipart: true }))
+
+  // Middleware used to handle authentication
+  app.use(auth.isValidToken)
 
   const createRoute = (
     method: Method,

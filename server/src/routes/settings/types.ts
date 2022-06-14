@@ -2,7 +2,7 @@ export type AddClient = {
   client: string
   name: string
   type: string
-  defaultValue: string
+  defaultValue: string | boolean
 }
 
 export type EditClient = {
@@ -16,6 +16,7 @@ export type ClientFilterOptions = {
   page: number | string
   search?: string
   field?: string
+  id?: string
 }
 
 export type AddConfiguration = {
@@ -34,6 +35,7 @@ export type ConfigurationFilterOptions = {
   page: number | string
   search?: string
   field?: string
+  id?: string
 }
 
 export type FullTableSize = {
@@ -48,9 +50,9 @@ export type TableSize = {
 
 export type AddScope = {
   tables: string
-  fullTableSize?: FullTableSize
-  tableSize?: TableSize
-  recordCount?: string
+  fullTableSize?: FullTableSize | string
+  tableSize?: TableSize | string
+  recordCount?: string | number
 }
 
 export type EditScope = {
@@ -67,6 +69,7 @@ export type ScopeFilterOptions = {
   page: number | string
   search?: string
   field?: string
+  id?: string
 }
 
 export enum AddScopeOptional {

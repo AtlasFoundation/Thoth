@@ -1,104 +1,49 @@
 import axios from 'axios'
+import { createClient } from 'redis'
+
 //@ts-ignore
 import similarity from 'similarity'
 
 export class cacheManager {
   static instance: cacheManager
 
-  cache: { [key: string]: { [key: string]: any } } = {}
-  cleanTime: number = -1
+  client: any
 
-  constructor(cleanTime: number) {
+  constructor() {
     cacheManager.instance = this
-    this.cleanTime = cleanTime
+    this.client = createClient({
+      url: process.env.REDIS_URL,
+    })
+    this.client.on('error', (err: any) =>
+      console.log('Redis client error:', err)
+    )
+    this.client.connect()
   }
 
-  async get(agent: string, key: string, strict: boolean) {
-    if (
-      !this.cache[agent] ||
-      this.cache[agent] === undefined ||
-      this.cache[agent]?.length <= 0
-    ) {
-      console.log('empty')
-      return undefined
-    }
-
-    let res = this.cache[agent][key]
-    if (!res || res === undefined) {
-      for (var x in this.cache[agent]) {
-        if (similarity(x, key, { sensitive: false }) > 0.7) {
-          console.log('similar:', this.cache[agent][x])
-          res = this.cache[agent][x]
-          break
-        }
-      }
-    }
-
-    if (strict === true) {
-      return res
-    }
-
-    if (!res || res === undefined) {
-      const docs: string[] = []
-      for (var x in this.cache[agent]) {
-        docs.push(this.cache[agent][x])
-      }
-
-      if (docs.length > 0) {
-        const response = await axios.post(
-          `https://api.openai.com/v1/engines/ada/search`,
-          { documents: docs, query: key },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: 'Bearer ' + process.env.OPENAI_API_KEY,
-            },
-          }
-        )
-
-        let highestScore = -1
-        let highestIndex = -1
-
-        for (let i = 0; i < response.data.data.length; i++) {
-          const score = response.data.data[i].score
-          if (score > highestScore) {
-            highestScore = score
-            highestIndex = i
-          }
-        }
-
-        if (highestIndex !== -1 && highestScore >= 200) {
-          console.log(
-            'highest:',
-            docs[response.data.data[highestIndex].document]
-          )
-          res = docs[response.data.data[highestIndex].document]
-        }
-      }
-    }
-
-    return res
-  }
-  set(agent: string, key: string, value: any) {
-    if (this.cache[agent] === undefined) {
-      this.cache[agent] = {}
-    }
-
-    this.cache[agent][key] = value
-    if (this.cleanTime > 0) {
-      setTimeout(() => {
-        if (this.cache[agent]?.[key]) {
-          delete this.cache[agent][key]
-        }
-      }, this.cleanTime)
+  async get(key: string) {
+    if (await this.client.exists(key)) {
+      return await this.client.get(key)
+    } else {
+      return ''
     }
   }
-  _delete(agent: string, key: string) {
-    if (this.cache[agent] && this.cache[agent][key]) {
-      delete this.cache[agent][key]
+  async set(key: string, value: any) {
+    await this.client.set(key, value)
+  }
+
+  async _delete(key: string) {
+    if (await this.client.exists(key)) {
+      await this.client.del(key)
     }
   }
-  clear() {
-    this.cache = {}
+  async clear() {
+    await this.client.flushAll()
+  }
+  async disconnect() {
+    this.client.disconnect()
+  }
+
+  async has(key: string) {
+    return (await this.client.exists(key)) > 0
   }
 }

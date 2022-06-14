@@ -25,6 +25,7 @@ You will need to make a few environment variable modifications
 To keep values privates, create a new file for each .env, called .env.local (these files are safe from the .gitignore)
 
 In order to run the client and server use
+
 ```
 yarn run dev
 
@@ -94,8 +95,8 @@ Open [https://localhost:3001](https://localhost:3001) to view it in the browser.
 
 ### `yarn start`
 
-Runs @latitudegames/thoth-client in the development mode.\
-Open [https://localhost:3001](https://localhost:3001) to view it in the browser.
+Runs @thoth/client in the development mode.\
+Open [http://localhost:3003](http://localhost:3003) to view it in the browser.
 
 ### `yarn build`
 

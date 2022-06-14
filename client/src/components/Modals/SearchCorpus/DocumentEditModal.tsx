@@ -15,10 +15,10 @@ const DocumentEditModal = ({ closeModal, field, document, getDocuments }) => {
 
   const update = async () => {
     console.log('value ::: ', val);
+    const { id, ..._document } = document
     const body = {
-      ...document,
-      documentId: document.id,
-      storeId: document.store_id,
+      ..._document,
+      documentId: id,
       [field]: val
     }
     console.log('body ::: ', body);

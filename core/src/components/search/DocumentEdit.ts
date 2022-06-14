@@ -41,7 +41,7 @@ export class DocumentEdit extends ThothComponent<void> {
   builder(node: ThothNode) {
     const documentId = new Rete.Input('documentId', 'documentId', numSocket)
     const storeIdInput = new Rete.Input('storeId', 'Store ID', numSocket)
-    const keywordsInput = new Rete.Input('keywords', 'Keywords', stringSocket)
+    const titleInput = new Rete.Input('title', 'Title', stringSocket)
     const descriptionInput = new Rete.Input(
       'description',
       'Description',
@@ -58,7 +58,7 @@ export class DocumentEdit extends ThothComponent<void> {
     return node
       .addInput(storeIdInput)
       .addInput(documentId)
-      .addInput(keywordsInput)
+      .addInput(titleInput)
       .addInput(descriptionInput)
       .addInput(isIncludedInput)
       .addInput(dataInput)
@@ -73,7 +73,7 @@ export class DocumentEdit extends ThothComponent<void> {
   ) {
     const documentId = inputs['documentId'][0]
     const storeId = inputs['storeId'][0]
-    const keywords = inputs['keywords'] ? (inputs['keywords'][0] as string) : ''
+    const title = inputs['title'] ? (inputs['title'][0] as string) : ''
     const description = inputs['description']
       ? (inputs['description'][0] as string)
       : ''
@@ -83,7 +83,7 @@ export class DocumentEdit extends ThothComponent<void> {
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/update_document`,
       {
         documentId,
-        keywords,
+        title,
         description,
         is_included,
         storeId,

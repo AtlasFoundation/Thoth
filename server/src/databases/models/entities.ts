@@ -21,6 +21,10 @@ export interface entitiesAttributes {
   voice_provider?: string
   voice_character?: string
   voice_language_code?: string
+  voice_default_phrases?: string
+  use_custom_commands?: boolean
+  custom_command_starter?: string
+  custom_commands?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
   xrengine_spell_handler_incoming?: string
@@ -39,6 +43,7 @@ export interface entitiesAttributes {
   twitter_access_token_secret?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
+  twitter_spell_handler_incoming?: string
   telegram_enabled?: boolean
   telegram_bot_token?: string
   telegram_bot_name?: string
@@ -55,6 +60,25 @@ export interface entitiesAttributes {
   zoom_password?: string
   zoom_bot_name?: string
   zoom_spell_handler_incoming?: string
+  instagram_enabled?: boolean
+  instagram_username?: string
+  instagram_password?: string
+  instagram_bot_name?: string
+  instagram_bot_name_regex?: string
+  instagram_spell_handler_incoming?: string
+  messenger_enabled?: boolean
+  messenger_page_access_token?: string
+  messenger_verify_token?: string
+  messenger_bot_name?: string
+  messenger_bot_name_regex?: string
+  messenger_spell_handler_incoming?: string
+  twilio_enabled?: boolean
+  twilio_account_sid?: string
+  twilio_auth_token?: string
+  twilio_phone_number?: string
+  twilio_bot_name?: string
+  twilio_empty_responses?: string
+  twilio_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -73,6 +97,10 @@ export type entitiesOptionalAttributes =
   | 'voice_provider'
   | 'voice_character'
   | 'voice_language_code'
+  | 'voice_default_phrases'
+  | 'use_custom_commands'
+  | 'custom_command_starter'
+  | 'custom_commands'
   | 'xrengine_enabled'
   | 'xrengine_url'
   | 'xrengine_spell_handler_incoming'
@@ -89,6 +117,7 @@ export type entitiesOptionalAttributes =
   | 'twitter_access_token_secret'
   | 'twitter_bot_name'
   | 'twitter_bot_name_regex'
+  | 'twitter_spell_handler_incoming'
   | 'telegram_enabled'
   | 'telegram_bot_token'
   | 'telegram_bot_name'
@@ -105,6 +134,24 @@ export type entitiesOptionalAttributes =
   | 'zoom_password'
   | 'zoom_bot_name'
   | 'zoom_spell_handler_incoming'
+  | 'instagram_enabled'
+  | 'instagram_username'
+  | 'instagram_password'
+  | 'instagram_bot_name'
+  | 'instagram_bot_name_regex'
+  | 'instagram_spell_handler_incoming'
+  | 'messenger_enabled'
+  | 'messenger_page_access_token'
+  | 'messenger_verify_token'
+  | 'messenger_bot_name'
+  | 'messenger_bot_name_regex'
+  | 'messenger_spell_handler_incoming'
+  | 'twilio_enabled'
+  | 'twilio_account_sid'
+  | 'twilio_auth_token'
+  | 'twilio_phone_number'
+  | 'twilio_bot_name'
+  | 'twilio_empty_responses'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -134,6 +181,10 @@ export class entities
   voice_provider?: string
   voice_character?: string
   voice_language_code?: string
+  voice_default_phrases?: string
+  use_custom_commands?: boolean
+  custom_command_starter?: string
+  custom_commands?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
   xrengine_spell_handler_incoming?: string
@@ -152,6 +203,7 @@ export class entities
   twitter_access_token_secret?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
+  twitter_spell_handler_incoming?: string
   telegram_enabled?: boolean
   telegram_bot_token?: string
   telegram_bot_name?: string
@@ -168,6 +220,25 @@ export class entities
   zoom_password?: string
   zoom_bot_name?: string
   zoom_spell_handler_incoming?: string
+  instagram_enabled?: boolean
+  instagram_username?: string
+  instagram_password?: string
+  instagram_bot_name?: string
+  instagram_bot_name_regex?: string
+  instagram_spell_handler_incoming?: string
+  messenger_enabled?: boolean
+  messenger_page_access_token?: string
+  messenger_verify_token?: string
+  messenger_bot_name?: string
+  messenger_bot_name_regex?: string
+  messenger_spell_handler_incoming?: string
+  twilio_enabled?: boolean
+  twilio_account_sid?: string
+  twilio_auth_token?: string
+  twilio_phone_number?: string
+  twilio_bot_name?: string
+  twilio_empty_responses?: string
+  twilio_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -235,6 +306,22 @@ export class entities
           allowNull: true,
         },
         voice_language_code: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        voice_default_phrases: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        use_custom_commands: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        custom_command_starter: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        custom_commands: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
@@ -318,6 +405,10 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        twitter_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
         telegram_enabled: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
@@ -379,6 +470,82 @@ export class entities
           allowNull: true,
         },
         zoom_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        instagram_username: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        messenger_page_access_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_verify_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        twilio_account_sid: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_auth_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_phone_number: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_empty_responses: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

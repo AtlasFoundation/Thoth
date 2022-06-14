@@ -3,13 +3,13 @@ import { DataTypes, Model, Optional } from 'sequelize'
 
 export interface documentsAttributes {
   id: number
+  title: string
   description: string
-  keywords: string
   is_included: boolean
   storeId: number
 }
 
-export type documentsOptionalAttributes = 'description' | 'keywords'
+export type documentsOptionalAttributes = 'description'
 export type documentsCreationAttributes = Optional<
   documentsAttributes,
   documentsOptionalAttributes
@@ -19,8 +19,8 @@ export class documents
   extends Model<documentsAttributes, documentsCreationAttributes>
   implements documentsAttributes {
   id: number
+  title: string
   description: string
-  keywords: string
   is_included: boolean
   storeId: number
 
@@ -33,11 +33,11 @@ export class documents
           autoIncrement: false,
           primaryKey: true,
         },
-        description: {
+        title: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        keywords: {
+        description: {
           type: DataTypes.TEXT,
           allowNull: false,
         },

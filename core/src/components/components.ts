@@ -21,6 +21,7 @@ import { IsNullOrUndefined } from './logic/IsNullOrUndefined'
 import { IsVariableTrue } from './logic/IsVariableTrue'
 import { LogicalOperator } from './logic/LogicalOperator'
 import { SwitchGate } from './logic/SwitchGate'
+import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
 import { ActionTypeComponent } from './ml/ActionType'
 import { Classifier } from './ml/Classifier'
@@ -50,6 +51,7 @@ import { StateRead } from './state/StateRead'
 import { StateWrite } from './state/StateWrite'
 import { ComplexStringMatcher } from './strings/ComplexStringMatcher'
 import { JoinListComponent } from './strings/JoinList'
+import { ProfanityFilter } from './strings/ProfanityFilter'
 import { RandomStringFromList } from './strings/RandomStringFromList'
 import { StringAdder } from './strings/StringAdder'
 import { StringCombiner } from './strings/StringCombiner'
@@ -112,6 +114,7 @@ export const components = {
   stringVariable: () => new StringVariable(),
   fewshotVariable: () => new FewshotVariable(),
   stringAdder: () => new StringAdder(),
+  profanityFilter: () => new ProfanityFilter(),
   numberVariable: () => new NumberVariable(),
   booleanVariable: () => new BooleanVariable(),
   arrayVariable: () => new ArrayVariable(),
@@ -137,6 +140,7 @@ export const components = {
   timeDetectorComponent: () => new TimeDetectorComponent(),
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
+  waitForAll: () => new WaitForAll(),
 }
 
 export const getComponents = () => {

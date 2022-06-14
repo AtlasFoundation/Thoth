@@ -1,4 +1,6 @@
 import Koa from 'koa'
+import { ParamsDictionary, Query } from 'express-serve-static-core'
+import { Request } from 'express'
 
 export type Middleware = (ctx: Koa.Context, next: any) => any
 
@@ -39,3 +41,27 @@ export type GoFn = [
 
 // Elixir-inspired function return
 export type ExFn = [true, any] | [false, string]
+
+export type SearchSchema = {
+  title: string
+  description: string
+}
+
+export type ClassifierSchema = {
+  type: string
+  examples: string[] | string
+}
+
+type MessagingWebhookBody = {
+  MessageSid: string
+  Body: string
+  From: string
+  To: string
+}
+
+export type MessagingRequest = Request<
+  ParamsDictionary,
+  any,
+  MessagingWebhookBody,
+  Query
+>

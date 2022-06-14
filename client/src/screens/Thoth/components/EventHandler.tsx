@@ -66,6 +66,8 @@ const EventHandler = ({ pubSub, tab }) => {
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
+    $CREATE_VIDEO_TRANSCRIPTION,
+    $CREATE_CALENDAR_TAB,
     $CREATE_TEXT_EDITOR,
     $SERIALIZE,
     $EXPORT,
@@ -161,6 +163,14 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
   }
 
+  const createVideoTranscription = () => {
+    createOrFocus(windowTypes.VIDEO_TRANSCRIPTION, 'Video Transcription')
+  }
+
+  const createCalendarTab = () => {
+    createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
+  }
+
   const onSerialize = () => {
     // eslint-disable-next-line no-console
     console.log(serialize())
@@ -228,6 +238,8 @@ const EventHandler = ({ pubSub, tab }) => {
     [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
     [$CREATE_CONSOLE(tab.id)]: createConsole,
     [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
+    [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
+    [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
     [$SERIALIZE(tab.id)]: onSerialize,
     [$EXPORT(tab.id)]: onExport,
     [$CLOSE_EDITOR(tab.id)]: onCloseEditor,
