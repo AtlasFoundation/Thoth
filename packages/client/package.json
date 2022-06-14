@@ -1,6 +1,6 @@
 {
   "name": "@thothai/thoth-client",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "Apache-2.0",
   "author": "Michael Sharpe <m.sharpe@project89.org> (https://www.project89.org)",
   "contributors": [
@@ -37,7 +37,7 @@
     "@mui/styles": "^5.5.3",
     "@rebass/forms": "^4.0.6",
     "@reduxjs/toolkit": "^1.6.2",
-    "@thothai/thoth-core": "^0.1.1",
+    "@thothai/thoth-core": "^0.1.2",
     "@types/deep-equal": "^1.0.1",
     "@types/node": "^16.4.3",
     "@types/react": "^18.0.0",
