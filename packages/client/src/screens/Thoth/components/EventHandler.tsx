@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { GraphData, Spell } from '@thothai/thoth-core/dist/types'
+import { GraphData, Spell } from '@thothai/thoth-core/types'
 
 import {
   uniqueNamesGenerator,

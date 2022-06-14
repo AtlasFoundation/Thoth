@@ -1,4 +1,4 @@
-import { EngineContext } from '@thothai/thoth-core/dist/types'
+import { EngineContext } from '@thothai/thoth-core/types'
 
 export const buildThothInterface = (): EngineContext => {
   return {

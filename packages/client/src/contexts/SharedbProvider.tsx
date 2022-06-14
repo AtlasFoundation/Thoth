@@ -4,7 +4,7 @@ import { Doc } from 'sharedb'
 
 import client from 'sharedb/lib/client'
 import { Socket } from 'sharedb/lib/sharedb'
-import { Spell } from '@thothai/thoth-core/dist/types'
+import { Spell } from '@thothai/thoth-core/types'
 import LoadingScreen from '@/components/LoadingScreen/LoadingScreen'
 import { useWebSocket } from './WebSocketProvider'
 

@@ -1,4 +1,4 @@
-import { ImageCacheResponse } from '@thothai/thoth-core/dist/types'
+import { ImageCacheResponse } from '@thothai/thoth-core/types'
 import { rootApi } from './api'
 
 export const visualGenerationsApi = rootApi.injectEndpoints({

@@ -1,6 +1,6 @@
 import { initEditor } from '@thothai/thoth-core'
-import { GraphData, EditorContext, Spell } from '@thothai/thoth-core/dist/types'
-import { ThothEditor } from '@thothai/thoth-core/dist/types'
+import { GraphData, EditorContext, Spell } from '@thothai/thoth-core/types'
+import { ThothEditor } from '@thothai/thoth-core/types'
 import React, {
   useRef,
   useContext,

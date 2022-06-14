@@ -11,7 +11,7 @@ import {
   getComponents,
 } from '@thothai/thoth-core/dist/server'
 import { Module } from '../routes/spells/module'
-import { ModuleType } from '@thothai/thoth-core/dist/types'
+import { ModuleType } from '@thothai/thoth-core/types'
 import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
 
 export const CreateSpellHandler = async (props: {

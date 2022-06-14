@@ -10,7 +10,7 @@ import {
   useNewSpellMutation,
 } from '@/state/api/spells'
 import defaultGraph from '@/data/graphs/default'
-import { GraphData } from '@thothai/thoth-core/dist/types'
+import { GraphData } from '@thothai/thoth-core/types'
 import { useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthProvider'
 
