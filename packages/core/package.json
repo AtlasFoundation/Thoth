@@ -1,6 +1,6 @@
 {
   "name": "@thothai/thoth-core",
-  "version": "0.0.69",
+  "version": "0.1.1",
   "license": "Apache-2.0",
   "author": "Michael Sharpe <m.sharpe@project89.org> (https://www.project89.org)",
   "contributors": [
@@ -76,16 +76,16 @@
     "similarity": "^1.2.1",
     "snoostream": "1.0.1",
     "snoowrap": "1.23.0",
+    "socket.io": "^4.5.0",
     "tedis": "0.1.12",
     "twilio": "3.72.0",
     "twit": "2.2.11",
     "twitter-api-v2": "1.8.0",
     "twitter-autohook": "1.7.2",
+    "uuid": "^8.3.2",
     "weaviate-client": "^2.3.0",
     "wikipedia": "^1.1.6",
-    "xvfb": "0.4.0",
-    "socket.io": "^4.5.0",
-    "uuid": "^8.3.2"
+    "xvfb": "0.4.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.18.2",
