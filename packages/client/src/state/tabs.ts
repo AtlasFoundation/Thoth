@@ -42,9 +42,8 @@ const _activeTabSelector = createDraftSafeSelector(
 )
 
 const selectTabBySpellId = createDraftSafeSelector(
-  [tabSelectors.selectAll, (_, spellId) => spellId],
-  (tabs: Tab[], spellId) =>
-    Object.values(tabs).find(tab => tab.spellId === spellId)
+  [state => tabSelectors.selectAll(state), (_, spellId) => spellId],
+  (tabs, spellId) => Object.values(tabs).find(tab => tab.spellId === spellId)
 )
 
 // Used to build a tab with various defaults set, as well as workspace json and UUID
@@ -76,7 +75,7 @@ export const tabSlice = createSlice({
         })
 
       // Check if the tab is already open.
-      const existingTab = selectTabBySpellId(state)
+      const existingTab = selectTabBySpellId(state, activeTab.id)
 
       if (existingTab && !switchActive) return
 
@@ -97,7 +96,7 @@ export const tabSlice = createSlice({
     closeTab: tabAdapater.removeOne,
     switchTab: tabAdapater.updateOne,
     clearTabs: tabAdapater.removeAll,
-    saveTabLayout: (state, action) => { },
+    saveTabLayout: (state, action) => {},
   },
 })
 
