@@ -30,7 +30,7 @@
     "test:full": "jest --clearCache && jest --coverage",
     "tsc:noEmit": "tsc --noEmit",
     "test:watch": "jest --watch --silent",
-    "seed": "sh ../scripts/seed_dev.sh"
+    "seed": "sh ../../scripts/seed_dev.sh"
   },
   "dependencies": {
     "@google-cloud/speech": "^4.10.0",
