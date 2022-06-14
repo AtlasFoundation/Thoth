@@ -8,7 +8,6 @@ import WindowMessage from '../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@thothai/thoth-core/types'
 import { RootState } from '@/state/store'
-import { debounce } from '@/utils/debounce'
 
 import { useSelector } from 'react-redux'
 // import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
@@ -60,10 +59,7 @@ const Inspector = props => {
       },
     }
 
-    debounce(() => {
-      if (!preferences.autoSave) return
-      saveInspector(newData)
-    }, 2000)
+    saveInspector(newData)
   }
 
   // const onLock = () => {

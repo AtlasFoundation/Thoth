@@ -23,6 +23,9 @@ export class ForEach extends ThothComponent<Promise<WorkerReturn | undefined>> {
     }
     this.category = 'Logic'
     this.info = info
+    this.deprecated = true
+    this.deprecationMessage =
+      'This component has been deprecated, it will be re-enabled once stabilized.'
   }
 
   builder(node: ThothNode) {
