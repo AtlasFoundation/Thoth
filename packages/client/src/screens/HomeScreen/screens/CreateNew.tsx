@@ -32,7 +32,7 @@ export type Template = {
 }
 
 export const thothTemplates = [
-  { label: 'Starter', bg: emptyImg, chain: defaultGraph },
+  { label: 'Starter', bg: emptyImg, graph: defaultGraph },
   // { label: 'Language example', bg: langImg, chain: defaultChain },
   // { label: 'Enki example', bg: enkiImg, chain: defaultChain },
 ]
@@ -57,6 +57,7 @@ const CreateNew = () => {
     try {
       const placeholderName = uniqueNamesGenerator(customConfig)
       const name = data.name || placeholderName
+      console.log('SELECTED GRAPH', selectedTemplate)
       const response = await newSpell({
         graph: selectedTemplate?.graph,
         name,
