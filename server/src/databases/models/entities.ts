@@ -55,6 +55,11 @@ export interface entitiesAttributes {
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  zoom_enabled?: boolean
+  zoom_invitation_link?: string
+  zoom_password?: string
+  zoom_bot_name?: string
+  zoom_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
   instagram_password?: string
@@ -74,6 +79,13 @@ export interface entitiesAttributes {
   twilio_bot_name?: string
   twilio_empty_responses?: string
   twilio_spell_handler_incoming?: string
+  slack_enabled?: boolean
+  slack_token?: string
+  slack_signing_secret?: string
+  slack_bot_token?: string
+  slack_bot_name?: string
+  slack_port?: string
+  slack_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -124,6 +136,11 @@ export type entitiesOptionalAttributes =
   | 'reddit_bot_name'
   | 'reddit_bot_name_regex'
   | 'reddit_spell_handler_incoming'
+  | 'zoom_enabled'
+  | 'zoom_invitation_link'
+  | 'zoom_password'
+  | 'zoom_bot_name'
+  | 'zoom_spell_handler_incoming'
   | 'instagram_enabled'
   | 'instagram_username'
   | 'instagram_password'
@@ -142,6 +159,14 @@ export type entitiesOptionalAttributes =
   | 'twilio_phone_number'
   | 'twilio_bot_name'
   | 'twilio_empty_responses'
+  | 'twilio_spell_handler_incoming'
+  | 'slack_enabled'
+  | 'slack_token'
+  | 'slack_signing_secret'
+  | 'slack_bot_token'
+  | 'slack_bot_name'
+  | 'slack_port'
+  | 'slack_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -205,6 +230,11 @@ export class entities
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  zoom_enabled?: boolean
+  zoom_invitation_link?: string
+  zoom_password?: string
+  zoom_bot_name?: string
+  zoom_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
   instagram_password?: string
@@ -224,6 +254,13 @@ export class entities
   twilio_bot_name?: string
   twilio_empty_responses?: string
   twilio_spell_handler_incoming?: string
+  slack_enabled?: boolean
+  slack_token?: string
+  slack_signing_secret?: string
+  slack_bot_token?: string
+  slack_bot_name?: string
+  slack_port?: string
+  slack_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -438,6 +475,26 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        zoom_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        zoom_invitation_link: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
         instagram_enabled: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
@@ -511,6 +568,34 @@ export class entities
           allowNull: true,
         },
         twilio_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        slack_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_signing_secret: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_bot_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_port: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

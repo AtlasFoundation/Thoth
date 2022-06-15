@@ -268,6 +268,8 @@ const createEvent = async (ctx: Koa.Context) => {
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
+  const character = ctx.request.query.character ?? 'none'
+  console.log('text and character are', text, character)
   const voice_provider = ctx.request.query.voice_provider
   const voice_character = ctx.request.query.voice_character
   const voice_language_code = ctx.request.query.voice_language_code
@@ -578,6 +580,12 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
+const zoomBufferChunk = async (ctx: Koa.Context) => {
+  const chunk = ctx.request.body.chunk
+  console.log('GOT ZOOM BUFFER CHUNK:', chunk)
+  return (ctx.body = 'ok')
+}
+
 const getCalendarEvents = async (ctx: Koa.Context) => {
   try {
     let calendarEvents = await database.instance.getCalendarEvents()
@@ -618,6 +626,20 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
 
 const addCalendarEvents = async (ctx: Koa.Context) => {
   const { name, date, time, type, moreInfo } = ctx.request.body
+  if (
+    !name ||
+    !date ||
+    !time ||
+    !type ||
+    !moreInfo ||
+    name?.length <= 0 ||
+    date?.length <= 0 ||
+    time?.length <= 0 ||
+    type?.length <= 0 ||
+    moreInfo?.length <= 0
+  ) {
+    return (ctx.body = { error: 'invalid event data' })
+  }
 
   try {
     const content = await initCalendar()
@@ -908,6 +930,11 @@ export const entities: Route[] = [
     path: '/handle_custom_input',
     access: noAuth,
     post: handleCustomInput,
+  },
+  {
+    path: '/zoom_buffer_chunk',
+    access: noAuth,
+    post: zoomBufferChunk,
   },
   {
     path: '/video',

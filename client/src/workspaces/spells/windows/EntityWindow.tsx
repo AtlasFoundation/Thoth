@@ -98,6 +98,13 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [reddit_spell_handler_incoming, setRedditSpellHandlerIncoming] =
     useState('')
 
+  const [zoom_enabled, setZoomEnabled] = useState('')
+  const [zoom_invitation_link, setZoomInvitationLink] = useState('')
+  const [zoom_password, setZoomPassword] = useState('')
+  const [zoom_bot_name, setZoomBotName] = useState('')
+  const [zoom_spell_handler_incoming, setZoomSpellHandlerIncoming] =
+    useState('')
+
   const [playingAudio, setPlayingAudio] = useState(false)
 
   const [instagram_enabled, setInstagramEnabled] = useState(false)
@@ -126,17 +133,16 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [twilio_spell_handler_incoming, setTwilioSpellHandlerIncoming] =
     useState('')
 
+  const [slack_enabled, setSlackEnabled] = useState(false)
+  const [slack_token, setSlackToken] = useState('')
+  const [slack_signing_secret, setSlackSigningSecret] = useState('')
+  const [slack_bot_token, setSlackBotToken] = useState('')
+  const [slack_bot_name, setSlackBotName] = useState('')
+  const [slack_port, setSlackPort] = useState('')
+  const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
+    useState('')
+
   const testVoice = async () => {
-    console.log(
-      'voice_provider:',
-      voice_provider,
-      'voice_character:',
-      voice_character,
-      'voice_language_code:',
-      voice_language_code,
-      'playingAudio:',
-      playingAudio
-    )
     if (
       (voice_provider && voice_character && voice_language_code) ||
       playingAudio
@@ -256,6 +262,12 @@ const EntityWindow = ({ id, updateCallback }) => {
         setRedditBotNameRegex(res.data.reddit_bot_name_regex)
         setRedditSpellHandlerIncoming(res.data.reddit_spell_handler_incoming)
 
+        setZoomEnabled(res.data.zoom_enabled === true)
+        setZoomInvitationLink(res.data.zoom_invitation_link)
+        setZoomPassword(res.data.zoom_password)
+        setZoomBotName(res.data.zoom_bot_name)
+        setZoomSpellHandlerIncoming(res.data.zoom_spell_handler_incoming)
+
         setInstagramEnabled(res.data.instagram_enabled)
         setInstagramUsername(res.data.instagram_username)
         setInstagramPassword(res.data.instagram_password)
@@ -281,6 +293,14 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwilioBotName(res.data.twilio_bot_name)
         setTwilioEmptyResponses(res.data.twilio_empty_responses)
         setTwilioSpellHandlerIncoming(res.data.twilio_spell_handler_incoming)
+
+        setSlackEnabled(res.data.slack_enabled === true)
+        setSlackToken(res.data.slack_token)
+        setSlackBotToken(res.data.slack_bot_token)
+        setSlackSigningSecret(res.data.slack_signing_secret)
+        setSlackBotName(res.data.slack_bot_name)
+        setSlackPort(res.data.slack_port)
+        setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
         setLoaded(true)
       })()
@@ -371,6 +391,11 @@ const EntityWindow = ({ id, updateCallback }) => {
       reddit_bot_name,
       reddit_bot_name_regex,
       reddit_spell_handler_incoming,
+      zoom_enabled,
+      zoom_invitation_link,
+      zoom_password,
+      zoom_bot_name,
+      zoom_spell_handler_incoming,
       instagram_enabled,
       instagram_username,
       instagram_password,
@@ -390,6 +415,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_bot_name,
       twilio_empty_responses,
       twilio_spell_handler_incoming,
+      slack_enabled,
+      slack_token,
+      slack_signing_secret,
+      slack_bot_token,
+      slack_bot_name,
+      slack_port,
+      slack_spell_handler_incoming,
     }
     axios
       .post(`${process.env.REACT_APP_API_ROOT_URL}/entity`, {
@@ -397,7 +429,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         data: _data,
       })
       .then(res => {
-        if (res.data === 'internal error') {
+        if (typeof res.data === 'string' && res.data === 'internal error') {
           enqueueSnackbar('internal error updating entity', {
             variant: 'error',
           })
@@ -472,6 +504,12 @@ const EntityWindow = ({ id, updateCallback }) => {
             responseData.reddit_spell_handler_incoming
           )
 
+          setZoomEnabled(responseData.zoom_enabled)
+          setZoomInvitationLink(responseData.zoom_invitation_link)
+          setZoomPassword(responseData.zoom_password)
+          setZoomBotName(responseData.zoom_bot_name)
+          setZoomSpellHandlerIncoming(responseData.zoom_spell_handler_incoming)
+
           setInstagramEnabled(responseData.instagram_enabled)
           setInstagramUsername(responseData.instagram_username)
           setInstagramPassword(responseData.instagram_password)
@@ -498,6 +536,16 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwilioEmptyResponses(responseData.twilio_empty_responses)
           setTwilioSpellHandlerIncoming(
             responseData.twilio_spell_handler_incoming
+          )
+
+          setSlackEnabled(responseData.slack_enabled)
+          setSlackToken(responseData.slack_token)
+          setSlackSigningSecret(responseData.slack_signing_secret)
+          setSlackBotToken(responseData.slack_bot_token)
+          setSlackBotName(responseData.slack_bot_name)
+          setSlackPort(responseData.slack_port)
+          setSlackSpellHandlerIncoming(
+            responseData.slack_spell_handler_incoming
           )
 
           updateCallback()
@@ -559,6 +607,11 @@ const EntityWindow = ({ id, updateCallback }) => {
       reddit_bot_name,
       reddit_bot_name_regex,
       reddit_spell_handler_incoming,
+      zoom_enabled,
+      zoom_invitation_link,
+      zoom_password,
+      zoom_bot_name,
+      zoom_spell_handler_incoming,
       instagram_enabled,
       instagram_username,
       instagram_password,
@@ -578,6 +631,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_bot_name,
       twilio_empty_responses,
       twilio_spell_handler_incoming,
+      slack_enabled,
+      slack_token,
+      slack_signing_secret,
+      slack_bot_token,
+      slack_bot_name,
+      slack_port,
+      slack_spell_handler_incoming,
     }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
@@ -635,8 +695,10 @@ const EntityWindow = ({ id, updateCallback }) => {
               value={voice_provider}
               onChange={event => {
                 setVoiceProvider(event.target.value)
+                setVoiceCharacter('')
               }}
             >
+              <option defaultValue hidden></option>
               <option value={'google'}>Google</option>
               <option value={'uberduck'}>Uberduck</option>
             </select>
@@ -653,6 +715,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
+                <option defaultValue hidden></option>
                 <option value={'en-US-Standard-A'}>en-US-Standard-A</option>
                 <option value={'en-US-Standard-B'}>en-US-Standard-B</option>
                 <option value={'en-US-Standard-C'}>en-US-Standard-C</option>
@@ -683,6 +746,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
+                <option defaultValue hidden></option>
                 <option value={'101-dalmatians-lucky'}>
                   101-dalmatians-lucky
                 </option>
@@ -731,8 +795,9 @@ const EntityWindow = ({ id, updateCallback }) => {
                 setVoiceLanguageCode(event.target.value)
               }}
             >
+              <option defaultValue hidden></option>
               <option value={'en-US'}>en-US</option>
-              <option value={'en-US'}>en-GB</option>
+              <option value={'en-GB'}>en-GB</option>
             </select>
           </div>
 
@@ -965,6 +1030,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordSpellHandlerUpdate(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -984,6 +1050,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordSpellHandlerFeed(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1076,6 +1143,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setXREngineSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1095,6 +1163,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setXREngineSpellHandlerUpdate(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1114,6 +1183,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setXREngineSpellHandlerFeed(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1237,6 +1307,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setTwitterSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1294,6 +1365,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setTelegramSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1381,6 +1453,74 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setRedditSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+          
+          <div className="form-item">
+            <span className="form-item-label">Zoom Client Enabled</span>
+            <input
+              type="checkbox"
+              value={zoom_enabled}
+              defaultChecked={zoom_enabled || zoom_enabled === 'true'}
+              onChange={e => {
+                setZoomEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {zoom_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Zoom Invitation Link</span>
+                <input
+                  type="text"
+                  defaultValue={zoom_invitation_link}
+                  onChange={e => {
+                    setZoomInvitationLink(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Zoom Password</span>
+                <input
+                  type="text"
+                  defaultValue={zoom_password}
+                  onChange={e => {
+                    setZoomPassword(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={zoom_bot_name}
+                  onChange={e => {
+                    setZoomBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={zoom_spell_handler_incoming}
+                  onChange={event => {
+                    setZoomSpellHandlerIncoming(event.target.value)
+                  }}
+                >
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1458,6 +1598,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setInstagramSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1620,6 +1761,93 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={twilio_spell_handler_incoming}
                   onChange={event => {
                     setTwilioSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="form-item">
+            <span className="form-item-label">Slack Client Enabled</span>
+            <input
+              type="checkbox"
+              value={slack_enabled}
+              defaultChecked={slack_enabled || slack_enabled === 'true'}
+              onChange={e => {
+                setSlackEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {slack_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_token}
+                  onChange={e => {
+                    setSlackToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Signing Secret</span>
+                <input
+                  type="text"
+                  defaultValue={slack_signing_secret}
+                  onChange={e => {
+                    setSlackSigningSecret(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Port</span>
+                <input
+                  type="text"
+                  defaultValue={slack_port}
+                  onChange={e => {
+                    setSlackPort(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_bot_token}
+                  onChange={e => {
+                    setSlackBotToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={slack_bot_name}
+                  onChange={e => {
+                    setSlackBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={slack_spell_handler_incoming}
+                  onChange={event => {
+                    setSlackSpellHandlerIncoming(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&

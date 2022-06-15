@@ -16,6 +16,7 @@ import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
 import { urlencoded, json } from 'express'
 import express from 'express'
+import { slack_client } from './connectors/slack'
 
 export class Entity {
   name = ''
@@ -31,6 +32,7 @@ export class Entity {
   twilio: twilio_client | null
   //harmony: any
   xrengine: xrengine_client | null
+  slack: slack_client | null
   id: any
 
   router: any
@@ -223,7 +225,7 @@ export class Entity {
     }
   }
 
-  startReddit(
+  async startReddit(
     reddit_app_id: string,
     reddit_app_secret_id: string,
     reddit_oauth_token: string,
@@ -240,7 +242,7 @@ export class Entity {
       throw new Error('Reddit already running for this entity on this instance')
     }
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: reddit_spell_handler_incoming,
       version: spell_version,
     })
@@ -265,6 +267,43 @@ export class Entity {
     if (this.reddit) {
       this.reddit.destroy()
       this.reddit = null
+    }
+  }
+
+  async startZoom(
+    zoom_invitation_link: string,
+    zoom_password: string,
+    zoom_bot_name: string,
+    zoom_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if (this.zoom) {
+      throw new Error('Zoom already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: zoom_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.zoom = new zoom_client()
+    this.zoom.createZoomClient(
+      spellHandler,
+      {
+        zoom_invitation_link,
+        zoom_password,
+        zoom_bot_name,
+        zoom_spell_handler_incoming,
+      },
+      entity
+    )
+  }
+
+  stopZoom() {
+    if (this.zoom) {
+      this.zoom.destroy()
+      this.zoom = null
     }
   }
 
@@ -395,8 +434,44 @@ export class Entity {
       spellHandler
     )
   }
-
   async stopTwlio() {}
+
+  async startSlack(
+    slack_token: any,
+    slack_signing_secret: any,
+    slack_bot_token: any,
+    slack_bot_name: any,
+    slack_port: any,
+    slack_spell_handler_incoming: any,
+    spell_version: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
+  ) {
+    if (this.slack) {
+      throw new Error('Slack already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: slack_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.slack = new slack_client()
+    this.slack.createSlackClient(
+      spellHandler,
+      {
+        slack_token,
+        slack_signing_secret,
+        slack_bot_token,
+        slack_bot_name,
+        slack_port,
+        haveCustomCommands,
+        custom_commands,
+      },
+      this
+    )
+  }
+  async stopSlack() {}
 
   async onDestroy() {
     console.log(
@@ -411,6 +486,7 @@ export class Entity {
     if (this.instagram) this.stopInstagram()
     if (this.messenger) this.stopMessenger()
     if (this.twilio) this.stopTwlio()
+    if (this.slack) this.stopSlack()
   }
 
   async generateVoices(data: any) {
@@ -623,45 +699,32 @@ export class Entity {
         custom_commands
       )
     }
+
+    if (data.zoom_enabled) {
+      this.startZoom(
+        data.zoom_invitation_link,
+        data.zoom_password,
+        data.zoom_bot_name,
+        data.zoom_spell_handler_incoming,
+        data.spell_version,
+        data
+      )
+    }
+
+    if (data.slack_enabled) {
+      this.startSlack(
+        data.slack_token,
+        data.slack_signing_secret,
+        data.slack_bot_token,
+        data.slack_bot_name,
+        data.slack_port,
+        data.slack_spell_handler_incoming,
+        data.spell_version,
+        haveCustomCommands,
+        custom_commands
+      )
+    }
   }
-
-  // TODO: Fix me
-
-  // for (let i = 0; i < clients.length; i++) {
-  //   if (clients[i].enabled === 'true') {
-  //     if (clients[i].client === 'discord') {
-  //       this.discord = new discord_client()
-  //       this.discord.createDiscordClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'telegram') {
-  //       this.telegram = new telegram_client()
-  //       this.telegram.createTelegramClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'zoom') {
-  //       this.zoom = new zoom_client()
-  //       this.zoom.createZoomClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'twitter') {
-  //       this.twitter = new twitter_client()
-  //       this.twitter.createTwitterClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'reddit') {
-  //       this.reddit = new reddit_client()
-  //       this.reddit.createRedditClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'instagram') {
-  //       this.instagram = new instagram_client()
-  //       this.instagram.createInstagramClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'messenger') {
-  //       this.messenger = new messenger_client()
-  //       this.messenger.createMessengerClient(app, this, clients[i].settings)
-  //     } else if (clients[i].client === 'whatsapp') {
-  //       this.whatsapp = new whatsapp_client()
-  //       this.whatsapp.createWhatsappClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'twilio') {
-  //       this.twilio = new twilio_client()
-  //       this.twilio.createTwilioClient(app, router, this, clients[i].settings)
-  //     } else if (clients[i].client === 'harmony') {
-  //       //this.harmony = new harmony_client();
-  //       //this.harmony.createHarmonyClient(this, clients[i].settings);
-  //     }
-  //   }
-  // }
 }
 
 export default Entity
