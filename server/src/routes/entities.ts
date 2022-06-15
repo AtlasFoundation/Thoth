@@ -626,6 +626,20 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
 
 const addCalendarEvents = async (ctx: Koa.Context) => {
   const { name, date, time, type, moreInfo } = ctx.request.body
+  if (
+    !name ||
+    !date ||
+    !time ||
+    !type ||
+    !moreInfo ||
+    name?.length <= 0 ||
+    date?.length <= 0 ||
+    time?.length <= 0 ||
+    type?.length <= 0 ||
+    moreInfo?.length <= 0
+  ) {
+    return (ctx.body = { error: 'invalid event data' })
+  }
 
   try {
     const content = await initCalendar()
