@@ -55,6 +55,11 @@ export interface entitiesAttributes {
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  zoom_enabled?: boolean
+  zoom_invitation_link?: string
+  zoom_password?: string
+  zoom_bot_name?: string
+  zoom_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
   instagram_password?: string
@@ -131,6 +136,11 @@ export type entitiesOptionalAttributes =
   | 'reddit_bot_name'
   | 'reddit_bot_name_regex'
   | 'reddit_spell_handler_incoming'
+  | 'zoom_enabled'
+  | 'zoom_invitation_link'
+  | 'zoom_password'
+  | 'zoom_bot_name'
+  | 'zoom_spell_handler_incoming'
   | 'instagram_enabled'
   | 'instagram_username'
   | 'instagram_password'
@@ -220,6 +230,11 @@ export class entities
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  zoom_enabled?: boolean
+  zoom_invitation_link?: string
+  zoom_password?: string
+  zoom_bot_name?: string
+  zoom_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
   instagram_password?: string
@@ -457,6 +472,26 @@ export class entities
           allowNull: true,
         },
         reddit_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        zoom_invitation_link: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

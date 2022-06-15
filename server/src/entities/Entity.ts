@@ -225,7 +225,7 @@ export class Entity {
     }
   }
 
-  startReddit(
+  async startReddit(
     reddit_app_id: string,
     reddit_app_secret_id: string,
     reddit_oauth_token: string,
@@ -242,7 +242,7 @@ export class Entity {
       throw new Error('Reddit already running for this entity on this instance')
     }
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: reddit_spell_handler_incoming,
       version: spell_version,
     })
@@ -267,6 +267,43 @@ export class Entity {
     if (this.reddit) {
       this.reddit.destroy()
       this.reddit = null
+    }
+  }
+
+  async startZoom(
+    zoom_invitation_link: string,
+    zoom_password: string,
+    zoom_bot_name: string,
+    zoom_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if (this.zoom) {
+      throw new Error('Zoom already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: zoom_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.zoom = new zoom_client()
+    this.zoom.createZoomClient(
+      spellHandler,
+      {
+        zoom_invitation_link,
+        zoom_password,
+        zoom_bot_name,
+        zoom_spell_handler_incoming,
+      },
+      entity
+    )
+  }
+
+  stopZoom() {
+    if (this.zoom) {
+      this.zoom.destroy()
+      this.zoom = null
     }
   }
 
@@ -662,6 +699,18 @@ export class Entity {
         custom_commands
       )
     }
+
+    if (data.zoom_enabled) {
+      this.startZoom(
+        data.zoom_invitation_link,
+        data.zoom_password,
+        data.zoom_bot_name,
+        data.zoom_spell_handler_incoming,
+        data.spell_version,
+        data
+      )
+    }
+
     if (data.slack_enabled) {
       this.startSlack(
         data.slack_token,
