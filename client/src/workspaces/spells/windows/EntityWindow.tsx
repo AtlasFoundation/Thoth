@@ -41,6 +41,11 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [voice_language_code, setVoiceLanguageCode] = useState('')
   const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
 
+  const [use_custom_commands, setUseCustomCommands] = useState(false)
+  const [custom_command_starter, setCustomCommandStarter] = useState('')
+  const [custom_commands, setCustomCommands] = useState([])
+  const [cusotm_commands_updated, setCustomCommandsUpdated] = useState(false)
+
   const [discord_starting_words, setDiscordStartingWords] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
@@ -121,17 +126,16 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [twilio_spell_handler_incoming, setTwilioSpellHandlerIncoming] =
     useState('')
 
+  const [slack_enabled, setSlackEnabled] = useState(false)
+  const [slack_token, setSlackToken] = useState('')
+  const [slack_signing_secret, setSlackSigningSecret] = useState('')
+  const [slack_bot_token, setSlackBotToken] = useState('')
+  const [slack_bot_name, setSlackBotName] = useState('')
+  const [slack_port, setSlackPort] = useState('')
+  const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
+    useState('')
+
   const testVoice = async () => {
-    console.log(
-      'voice_provider:',
-      voice_provider,
-      'voice_character:',
-      voice_character,
-      'voice_language_code:',
-      voice_language_code,
-      'playingAudio:',
-      playingAudio
-    )
     if (
       (voice_provider && voice_character && voice_language_code) ||
       playingAudio
@@ -171,6 +175,17 @@ const EntityWindow = ({ id, updateCallback }) => {
     }
   }
 
+  const getNextCustomCommandId = () => {
+    let index = 0
+    for (let i = 0; i < custom_commands.length; i++) {
+      if (custom_commands[i].id === index) {
+        index++
+      }
+    }
+
+    return index
+  }
+
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
     if (!loaded) {
@@ -186,6 +201,13 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceCharacter(res.data.voice_character)
         setVoiceLanguageCode(res.data.voice_language_code)
         setVoiceDefaultPhrases(res.data.voice_default_phrases)
+
+        setUseCustomCommands(res.data.use_custom_commands === true)
+        setCustomCommandStarter(res.data.custom_command_starter)
+        setCustomCommands(
+          res.data.custom_commands ? JSON.parse(res.data.custom_commands) : []
+        )
+
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
@@ -259,6 +281,14 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwilioEmptyResponses(res.data.twilio_empty_responses)
         setTwilioSpellHandlerIncoming(res.data.twilio_spell_handler_incoming)
 
+        setSlackEnabled(res.data.slack_enabled === true)
+        setSlackToken(res.data.slack_token)
+        setSlackBotToken(res.data.slack_bot_token)
+        setSlackSigningSecret(res.data.slack_signing_secret)
+        setSlackBotName(res.data.slack_bot_name)
+        setSlackPort(res.data.slack_port)
+        setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
+
         setLoaded(true)
       })()
     }
@@ -315,6 +345,9 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_character,
       voice_language_code,
       voice_default_phrases,
+      use_custom_commands,
+      custom_command_starter,
+      custom_commands: JSON.stringify(custom_commands),
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -357,10 +390,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       messenger_bot_name,
       messenger_bot_name_regex,
       messenger_spell_handler_incoming,
-      // twilio_client_enable,
-      // twilio_sid,
-      // twilio_auth_token,
-      // twilio_phone_number
       twilio_enabled,
       twilio_account_sid,
       twilio_auth_token,
@@ -368,6 +397,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_bot_name,
       twilio_empty_responses,
       twilio_spell_handler_incoming,
+      slack_enabled,
+      slack_token,
+      slack_signing_secret,
+      slack_bot_token,
+      slack_bot_name,
+      slack_port,
+      slack_spell_handler_incoming,
     }
     axios
       .post(`${process.env.REACT_APP_API_ROOT_URL}/entity`, {
@@ -375,7 +411,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         data: _data,
       })
       .then(res => {
-        if (res.data === 'internal error') {
+        if (typeof res.data === 'string' && res.data === 'internal error') {
           enqueueSnackbar('internal error updating entity', {
             variant: 'error',
           })
@@ -386,6 +422,14 @@ const EntityWindow = ({ id, updateCallback }) => {
           console.log('response on update', JSON.parse(res.config.data).data)
           let responseData = res && JSON.parse(res?.config?.data).data
           console.log(responseData, 'responseDataresponseData')
+          setUseCustomCommands(responseData.use_custom_commands)
+          setCustomCommandStarter(responseData.custom_command_starter)
+          setCustomCommands(
+            responseData.custom_commands
+              ? JSON.parse(responseData.custom_commands)
+              : []
+          )
+
           setEnabled(responseData.enabled)
           setDiscordEnabled(responseData.discord_enabled)
           setDiscordApiKey(responseData.discord_api_key)
@@ -470,6 +514,16 @@ const EntityWindow = ({ id, updateCallback }) => {
             responseData.twilio_spell_handler_incoming
           )
 
+          setSlackEnabled(responseData.slack_enabled)
+          setSlackToken(responseData.slack_token)
+          setSlackSigningSecret(responseData.slack_signing_secret)
+          setSlackBotToken(responseData.slack_bot_token)
+          setSlackBotName(responseData.slack_bot_name)
+          setSlackPort(responseData.slack_port)
+          setSlackSpellHandlerIncoming(
+            responseData.slack_spell_handler_incoming
+          )
+
           updateCallback()
         }
       })
@@ -496,6 +550,9 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_provider,
       voice_character,
       voice_language_code,
+      use_custom_commands,
+      custom_command_starter,
+      custom_commands,
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -545,6 +602,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_bot_name,
       twilio_empty_responses,
       twilio_spell_handler_incoming,
+      slack_enabled,
+      slack_token,
+      slack_signing_secret,
+      slack_bot_token,
+      slack_bot_name,
+      slack_port,
+      slack_spell_handler_incoming,
     }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
@@ -723,6 +787,114 @@ const EntityWindow = ({ id, updateCallback }) => {
             <button onClick={() => testVoice()} style={{ marginRight: '10px' }}>
               Test
             </button>
+          </div>
+        </React.Fragment>
+      )}
+
+      <div className="form-item">
+        <span className="form-item-label">Custom Commands Enabled</span>
+        <input
+          type="checkbox"
+          value={use_voice}
+          defaultChecked={use_custom_commands || use_custom_commands === 'true'}
+          onChange={e => {
+            setUseCustomCommands(e.target.checked)
+          }}
+        />
+      </div>
+      {use_custom_commands && (
+        <React.Fragment>
+          <div className="form-item agent-select">
+            <div className="form-item">
+              <span className="form-item-label">Command Start</span>
+              <input
+                type="text"
+                defaultValue={custom_command_starter}
+                onChange={e => {
+                  setCustomCommandStarter(e.target.value)
+                }}
+              />
+            </div>
+            {custom_commands.map((d, idx) => {
+              return (
+                <div id={idx}>
+                  <div className="form-item">
+                    <span className="form-item-label">Command Name</span>
+                    <input
+                      type="text"
+                      defaultValue={d.command_name}
+                      onChange={e => {
+                        d.command_name = e.target.value
+                      }}
+                    />
+                  </div>
+                  <div className="form-item">
+                    <span className="form-item-label">Command Description</span>
+                    <input
+                      type="text"
+                      defaultValue={d.command_description}
+                      onChange={e => {
+                        d.command_description = e.target.value
+                      }}
+                    />
+                  </div>
+                  <div className="form-item agent-select">
+                    <span className="form-item-label">
+                      Spell Handler (Command Handler)
+                    </span>
+                    <select
+                      name="spellHandlerIncoming"
+                      id="spellHandlerIncoming"
+                      value={d.spell_Handler}
+                      onChange={event => {
+                        d.spell_Handler = event.target.value
+                      }}
+                    >
+                      {spellList.length > 0 &&
+                        spellList.map((spell, idx) => (
+                          <option value={spell.name} key={idx}>
+                            {spell.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                  <div className="form-item">
+                    <button
+                      onClick={() => {
+                        for (let i = 0; i < custom_commands.length; i++) {
+                          if (custom_commands[i].id === d.id) {
+                            custom_commands.splice(i, 1)
+                            break
+                          }
+                        }
+                        setCustomCommandsUpdated(!cusotm_commands_updated)
+                        console.log('added new cmd:', custom_commands)
+                      }}
+                      style={{ marginRight: '10px' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+            <div className="form-item">
+              <button
+                onClick={() => {
+                  custom_commands.push({
+                    id: getNextCustomCommandId(),
+                    command_name: '',
+                    command_description: '',
+                    spell_Handler: '',
+                  })
+                  setCustomCommandsUpdated(!cusotm_commands_updated)
+                  console.log('added new cmd:', custom_commands)
+                }}
+                style={{ marginRight: '10px' }}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </React.Fragment>
       )}
@@ -1493,6 +1665,93 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={twilio_spell_handler_incoming}
                   onChange={event => {
                     setTwilioSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="form-item">
+            <span className="form-item-label">Slack Client Enabled</span>
+            <input
+              type="checkbox"
+              value={slack_enabled}
+              defaultChecked={slack_enabled || slack_enabled === 'true'}
+              onChange={e => {
+                setSlackEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {slack_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_token}
+                  onChange={e => {
+                    setSlackToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Signing Secret</span>
+                <input
+                  type="text"
+                  defaultValue={slack_signing_secret}
+                  onChange={e => {
+                    setSlackSigningSecret(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Port</span>
+                <input
+                  type="text"
+                  defaultValue={slack_port}
+                  onChange={e => {
+                    setSlackPort(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_bot_token}
+                  onChange={e => {
+                    setSlackBotToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={slack_bot_name}
+                  onChange={e => {
+                    setSlackBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={slack_spell_handler_incoming}
+                  onChange={event => {
+                    setSlackSpellHandlerIncoming(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&

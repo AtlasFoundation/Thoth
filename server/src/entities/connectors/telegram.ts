@@ -194,6 +194,38 @@ export class telegram_client {
     let content = msg.text
     const _sender =
       msg.from.username === undefined ? msg.from.first_name : msg.from.username
+
+    if (this.haveCustomCommands) {
+      for (let i = 0; i < this.custom_commands[i].length; i++) {
+        if (content.startsWith(this.custom_commands[i].command_name)) {
+          const _content = content.replace(
+            this.custom_commands[i].command_name,
+            ''
+          )
+
+          const cresponse = await this.custom_commands[i].spell_handler(
+            _content,
+            msg.from.first_name ?? 'User',
+            this.settings.telegram_bot_name ?? 'Agent',
+            'telegram',
+            msg.chat.id,
+            this.entity,
+            []
+          )
+          console.log('GOT RESPONSE:', resp)
+          this.handleMessage(
+            msg.chat.id,
+            cresponse,
+            msg.message_id,
+            false,
+            _sender,
+            this.bot
+          )
+          return
+        }
+      }
+    }
+
     this.addMessageToHistory(msg.chat.id, msg.message_id, _sender, content)
     let addPing = false
     if (msg.chat.type == 'supergroup') {
@@ -425,10 +457,14 @@ export class telegram_client {
   spellHandler
   settings
   bot
+  haveCustomCommands
+  custom_commands
 
   createTelegramClient = async (spellHandler, settings) => {
     this.spellHandler = spellHandler
     this.settings = settings
+    this.haveCustomCommands = settings.haveCustomCommands
+    this.custom_commands = settings.custom_commands
 
     const token = settings.telegram_bot_token
 
