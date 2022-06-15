@@ -133,17 +133,16 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [twilio_spell_handler_incoming, setTwilioSpellHandlerIncoming] =
     useState('')
 
+  const [slack_enabled, setSlackEnabled] = useState(false)
+  const [slack_token, setSlackToken] = useState('')
+  const [slack_signing_secret, setSlackSigningSecret] = useState('')
+  const [slack_bot_token, setSlackBotToken] = useState('')
+  const [slack_bot_name, setSlackBotName] = useState('')
+  const [slack_port, setSlackPort] = useState('')
+  const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
+    useState('')
+
   const testVoice = async () => {
-    console.log(
-      'voice_provider:',
-      voice_provider,
-      'voice_character:',
-      voice_character,
-      'voice_language_code:',
-      voice_language_code,
-      'playingAudio:',
-      playingAudio
-    )
     if (
       (voice_provider && voice_character && voice_language_code) ||
       playingAudio
@@ -295,6 +294,14 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwilioEmptyResponses(res.data.twilio_empty_responses)
         setTwilioSpellHandlerIncoming(res.data.twilio_spell_handler_incoming)
 
+        setSlackEnabled(res.data.slack_enabled === true)
+        setSlackToken(res.data.slack_token)
+        setSlackBotToken(res.data.slack_bot_token)
+        setSlackSigningSecret(res.data.slack_signing_secret)
+        setSlackBotName(res.data.slack_bot_name)
+        setSlackPort(res.data.slack_port)
+        setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
+
         setLoaded(true)
       })()
     }
@@ -408,6 +415,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_bot_name,
       twilio_empty_responses,
       twilio_spell_handler_incoming,
+      slack_enabled,
+      slack_token,
+      slack_signing_secret,
+      slack_bot_token,
+      slack_bot_name,
+      slack_port,
+      slack_spell_handler_incoming,
     }
     axios
       .post(`${process.env.REACT_APP_API_ROOT_URL}/entity`, {
@@ -415,7 +429,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         data: _data,
       })
       .then(res => {
-        if (res.data === 'internal error') {
+        if (typeof res.data === 'string' && res.data === 'internal error') {
           enqueueSnackbar('internal error updating entity', {
             variant: 'error',
           })
@@ -524,6 +538,16 @@ const EntityWindow = ({ id, updateCallback }) => {
             responseData.twilio_spell_handler_incoming
           )
 
+          setSlackEnabled(responseData.slack_enabled)
+          setSlackToken(responseData.slack_token)
+          setSlackSigningSecret(responseData.slack_signing_secret)
+          setSlackBotToken(responseData.slack_bot_token)
+          setSlackBotName(responseData.slack_bot_name)
+          setSlackPort(responseData.slack_port)
+          setSlackSpellHandlerIncoming(
+            responseData.slack_spell_handler_incoming
+          )
+
           updateCallback()
         }
       })
@@ -607,6 +631,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_bot_name,
       twilio_empty_responses,
       twilio_spell_handler_incoming,
+      slack_enabled,
+      slack_token,
+      slack_signing_secret,
+      slack_bot_token,
+      slack_bot_name,
+      slack_port,
+      slack_spell_handler_incoming,
     }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
@@ -1716,6 +1747,93 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={twilio_spell_handler_incoming}
                   onChange={event => {
                     setTwilioSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="form-item">
+            <span className="form-item-label">Slack Client Enabled</span>
+            <input
+              type="checkbox"
+              value={slack_enabled}
+              defaultChecked={slack_enabled || slack_enabled === 'true'}
+              onChange={e => {
+                setSlackEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {slack_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_token}
+                  onChange={e => {
+                    setSlackToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Signing Secret</span>
+                <input
+                  type="text"
+                  defaultValue={slack_signing_secret}
+                  onChange={e => {
+                    setSlackSigningSecret(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Port</span>
+                <input
+                  type="text"
+                  defaultValue={slack_port}
+                  onChange={e => {
+                    setSlackPort(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_bot_token}
+                  onChange={e => {
+                    setSlackBotToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={slack_bot_name}
+                  onChange={e => {
+                    setSlackBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={slack_spell_handler_incoming}
+                  onChange={event => {
+                    setSlackSpellHandlerIncoming(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&
