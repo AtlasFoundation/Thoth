@@ -8,7 +8,6 @@
 import { launch } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
 import { detectOsOption } from './utils'
-import io from 'socket.io-client'
 import { removeEmojisFromString } from '../../utils/utils'
 import { cacheManager } from '../../cacheManager'
 import { tts } from '../../systems/googleTextToSpeech'
@@ -57,8 +56,6 @@ export class zoom {
       args: [
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        //`--use-file-for-fake-video-capture=${this.fakeMediaPath}video.y4m`,
-        //`--use-file-for-fake-audio-capture=${this.fakeMediaPath}test_audio.wav`,
         '--disable-web-security',
         '--autoplay-policy=no-user-gesture-required',
         '--ignoreHTTPSErrors: true',
@@ -112,36 +109,30 @@ export class zoom {
 
     await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
     await this.catchScreenshot()
-    const linkHandlers4 = await this.page.$x(
+    const linkHandlers = await this.page.$x(
       "//a[contains(text(), 'Show Subtitle')]"
     )
-
-    if (linkHandlers4.length > 0) {
-      await linkHandlers4[0].evaluate(b => b.click())
+    if (linkHandlers.length > 0) {
+      await linkHandlers[0].evaluate(b => b.click())
     } else {
       console.log('Link not found')
     }
+
     await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
     await this.catchScreenshot()
-    /*await this.page.evaluate(async su => {
-      //su.initRecording()
-    }, singleton.getInstance())*/
 
-    /*
-    const file = fs.createWriteStream('test5.webm')
-    const stream = await getStream(this.page, { audio: true, video: true })
-    stream.on('data', chunk => {
-      console.log('puppeteer stream chunk:', chunk)
+    await this.clickElementById('button', 'moreButton')
+    const participantsDiv = await this.page.$x(
+      "//a[contains(text(), 'Participants')]"
+    )
+    if(participantsDiv.length > 0) await participantsDiv[0].evaluate(b => b.click())
+    let meetingHost = await this.page.evaluate(async () => {
+      // Get the element containing the details of the host of the meeting
+      const el = document.getElementById('participants-list-1')
+      const displayName = el?.querySelector('.participants-item__display-name')
+      return displayName?.textContent
     })
-    stream.on('readable', () => {
-      console.log('readable')
-    })
-    stream.pipe(file)
-    setTimeout(async () => {
-      await stream.destroy()
-      file.close()
-      console.log('finished')
-    }, 30000)*/
+    await new Promise((resolve) => setTimeout(resolve, 5000))
     setInterval(async () => {
       //live-transcription-subtitle
       let text = await this.page.evaluate(async () => {
@@ -149,9 +140,12 @@ export class zoom {
         return el?.textContent
       })
       console.log('TRANSCRIPTION VALUE:', text)
+      console.log('lastMessage:', this.lastMessage)
+      console.log('lastResponse:', this.lastResponse)
+
       text = text?.toLowerCase()?.trim()
       if ((text && text !== undefined) || text?.length <= 0) {
-        if (text == this.lastResponse || this.lastMessage === text) {
+        if ((this.lastResponse && text.includes(this.lastResponse)) || (this.lastMessage && text.includes(this.lastMessage))) {
           return
         }
 
@@ -166,7 +160,7 @@ export class zoom {
         console.log('spellHandler:', this.spellHandler)
         let response = await this.spellHandler(
           text,
-          'User',
+          meetingHost ?? 'User',
           this.settings.zoom_bot_name ?? 'Agent',
           'zoom',
           this.settings.zoom_invitation_link,
@@ -178,14 +172,10 @@ export class zoom {
         response = removeEmojisFromString(response)
         const temp = response
         if (!cacheManager.instance) {
-          new cacheManager(-1)
+          new cacheManager()
         }
 
-        const cache = await cacheManager.instance.get(
-          this.agent,
-          'voice_' + temp,
-          true
-        )
+        const cache = await cacheManager.instance.get('voice_' + temp)
         if (cache) {
           response = cache
           console.log('got from cache:', cache)
@@ -199,195 +189,32 @@ export class zoom {
           console.log('url:', url)
           response = url
         }
-        await this.playAudio(response)
-        cacheManager.instance.set(this.agent, 'voice_' + temp, response)
-        this.lastResponse = tempResp
+        try {
+          await this.playAudio(response)
+          cacheManager.instance.set('voice_' + temp, response)
+          this.lastResponse = tempResp.toLowerCase()
+
+          await new Promise((resolve) => setTimeout(resolve, 4000))
+          await this.clickElementById('button', 'audioOptionMenu')
+          await this.catchScreenshot()
+          const linkHandlers1 = await this.page.$x(
+            "//a[contains(text(), 'Same as System')]"
+          )
+          if (linkHandlers1.length > 0) {
+            await linkHandlers1[0].evaluate(btn => btn.click())
+            await linkHandlers1[1].evaluate(btn => btn.click())
+          } else {
+            console.log('Link not found')
+          }
+        } catch (e) {
+          console.log('error in init ::: ', e);
+        }
       }
     }, 5000)
-    await this.connectToVoiceServer()
-    await this.getVideo()
-    //this.frameCapturerer()
   }
 
   lastMessage = ''
   lastResponse = ''
-
-  frameCapturerer() {
-    setTimeout(() => {
-      this.getRemoteScreednshot()
-      this.frameCapturerer()
-    }, 500)
-  }
-
-  c = 0
-  async getRemoteScreenshot() {
-    const dataUrl = await this.page.evaluate(async () => {
-      const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-      await sleep(5000)
-      return document.getElementById('main-video').toDataURL()
-    })
-
-    this.c++
-    const data = Buffer.from(dataUrl.split(',').pop(), 'base64')
-    //fs.writeFileSync('image' + this.c + '.png', data);
-  }
-
-  async getVideo() {
-    await this.page.exposeFunction('emitDataToSTT', audioArray => {
-      this.socket.emit('binaryData', audioArray)
-    })
-    await this.page.exposeFunction('startStream', () => {
-      this.socket.emit('startGoogleCloudStream', '')
-    })
-    await this.page.evaluate(async () => {
-      const onError = err => {
-        console.log('----err in userMedia----', err)
-      }
-      const onSuccess = stream => {
-        const recorder = new MediaRecorder(stream, {
-          mimeType: 'audio/webm',
-        })
-        recorder.onstart = async () => {
-          await window.startStream()
-        }
-        recorder.ondataavailable = async e => {
-          console.log('on data available:', e.data.size)
-          if (e.data.size > 0) {
-            const buffer = await e.data.arrayBuffer()
-            const uint8Arr = new Uint8Array(buffer)
-            const int16arr = new Int16Array(uint8Arr)
-            //const audioArray = Array.from(int16arr)
-            const audioSampler = this.downsampleBuffer(int16arr, 44100, 16000)
-            console.log('sending audioSampler')
-            await window.emitDataToSTT(audioSampler)
-          }
-        }
-        recorder.onstop = async e => {
-          await window.endStream()
-        }
-        recorder.start(2000)
-      }
-      if (navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices
-          .getUserMedia({ audio: true, video: false })
-          .then(onSuccess, onError)
-      }
-    })
-  }
-
-  downsampleBuffer = (buffer: any, sampleRate: any, outSampleRate: any) => {
-    if (outSampleRate == sampleRate) {
-      return buffer
-    }
-    if (outSampleRate > sampleRate) {
-      throw 'downsampling rate should be smaller than original sample rate'
-    }
-    const sampleRateRatio = sampleRate / outSampleRate
-    const newLength = Math.round(buffer.length / sampleRateRatio)
-    let result = new Int16Array(newLength)
-    let offsetResult = 0
-    let offsetBuffer = 0
-    while (offsetResult < result.length) {
-      const nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio)
-      let accum = 0,
-        count = 0
-      for (
-        let i = offsetBuffer;
-        i < nextOffsetBuffer && i < buffer.length;
-        i++
-      ) {
-        accum += buffer[i]
-        count++
-      }
-
-      result[offsetResult] = Math.min(1, accum / count) * 0x7fff
-      offsetResult++
-      offsetBuffer = nextOffsetBuffer
-    }
-    return result.buffer
-  }
-
-  async connectToVoiceServer() {
-    const socket = io(`https://localhost:65532`, {
-      rejectUnauthorized: false,
-      secure: true,
-    })
-    this.socket = socket
-
-    // socket.emit('startGoogleCloudStream', '')
-    // console.log('socket:', socket.connected)
-
-    socket.on('connect', () => {
-      socket.emit('join', 'connected')
-    })
-    socket.on('messages', (data: any) => {
-      console.log('messages:', data)
-    })
-
-    socket.on('speechData', async (data: any) => {
-      console.log('---speechData event handler---')
-
-      const dataFinal = undefined || data.results[0].isFinal
-
-      if (dataFinal === true) {
-        const finalString = data.results[0].alternatives[0].transcript
-        console.log('Speech Recognition:', dataFinal)
-        const resp = this.spellHandler(
-          finalString,
-          'User',
-          this.settings.zoom_bot_name ?? 'Agent',
-          'zoom',
-          this.settings.zoom_invitation_link,
-          this.entity,
-          []
-        )
-        //generate voiud and play it back
-        //this.playAudio(audio);
-
-        socket.emit('endGoogleCloudStream', '')
-        socket.disconnect()
-
-        const socket = io(`https://localhost:65532`, {
-          rejectUnauthorized: false,
-          secure: true,
-        })
-
-        socket.emit('startGoogleCloudStream', '')
-      }
-    })
-  }
-
-  videoCreated = false
-  async playVideo(url) {
-    console.log('playing video:', url)
-    await this.page.evaluate(
-      async (_url, _videCreated) => {
-        let video = undefined
-        if (!this.videoCreated)
-          video = await document.createElement('video', {})
-        else video = await document.getElementById('video-mock')
-        video.setAttribute('id', 'video-mock')
-        video.setAttribute('src', _url)
-        video.setAttribute('crossorigin', 'anonymous')
-        video.setAttribute('controls', '')
-
-        video.oncanplay = async () => {
-          video.play()
-        }
-
-        video.onplay = async () => {
-          console.log('on vidoe play:', _url)
-          const stream = video.captureStream()
-
-          navigator.mediaDevices.getUserMedia = () => Promise.resolve(stream)
-        }
-      },
-      url,
-      this.videoCreated
-    )
-    this.videoCreated = true
-    await this.delay(10000)
-  }
 
   async clickElementById(elemType, id) {
     await this.clickSelectorId(elemType, id)
@@ -420,36 +247,25 @@ export class zoom {
       const linkHandlers = await this.page.$x(
         "//a[contains(text(), 'Fake Audio Input 1')]"
       )
-
       if (linkHandlers.length > 0) {
-        await linkHandlers[0].click()
+        await linkHandlers[0].evaluate(btn => btn.click())
       } else {
         console.log('Link not found')
       }
-      await this.clickElementById('button', 'videoOptionMenu')
+
+      await this.clickElementById('button', 'audioOptionMenu')
       await this.catchScreenshot()
       const linkHandlers2 = await this.page.$x(
-        "//a[contains(text(), 'fake_device_0')]"
-      )
-      if (linkHandlers2.length > 0) {
-        await linkHandlers2[0].click()
-      } else {
-        console.log('Link not found')
-      }
-
-      await this.clickElementById('button', 'audioOptionMenu')
-      await this.catchScreenshot()
-      const linkHandlers3 = await this.page.$x(
         "//a[contains(text(), 'Fake Audio Output 1')]"
       )
-
-      if (linkHandlers3.length > 0) {
-        await linkHandlers3[0].click()
+      if (linkHandlers2.length > 0) {
+        await linkHandlers2[0].evaluate(btn => btn.click())
       } else {
         console.log('Link not found')
       }
-      await this.clickElementById('button', 'audioOptionMenu')
-    } catch (e) {}
+    } catch (e) {
+      console.log('error in playAudio ::: ', e);
+    }
     this.catchScreenshot()
   }
 
