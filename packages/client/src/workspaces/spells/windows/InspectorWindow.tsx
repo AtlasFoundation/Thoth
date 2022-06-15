@@ -7,16 +7,16 @@ import DataControls from '../DataControls'
 import WindowMessage from '../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@thothai/thoth-core/types'
-import { RootState } from '@/state/store'
+// import { RootState } from '@/state/store'
 
-import { useSelector } from 'react-redux'
+// import { useSelector } from 'react-redux'
 // import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
   const [width, setWidth] = useState()
   const { openModal } = useModal()
-  const preferences = useSelector((state: RootState) => state.preferences)
+  // const preferences = useSelector((state: RootState) => state.preferences)
   // const dispatch = useDispatch()
 
   useEffect(() => {
