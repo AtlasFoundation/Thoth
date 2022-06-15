@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "outDir": "build",
+    "strict": false,
+    "composite": true,
+    "sourceMap": true,
+    "noEmit": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@components/*": ["src/components/*"]
+    }
+  },
+  "typeRoots": ["@types/@thothai", "@types"],
+  //   "references": [
+  //     {
+  //       "path": "../core"
+  //     }
+  //   ],
+  "include": ["src", "src/data/layouts/defaultLayout.json"]
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@latitudegames/thoth",
+  "name": "@thothai/thoth",
   "version": "0.0.1",
   "private": true,
   "license": "apache 2.0",
@@ -11,33 +11,33 @@
   ],
   "workspaces": {
     "packages": [
-      "client",
-      "core",
-      "server",
-      "sharedb"
+      "packages/*"
     ]
   },
   "scripts": {
-    "start:core": "lerna exec --scope @latitudegames/thoth-core -- yarn start",
-    "dev": "NODE_OPTIONS=--max-old-space-size=8192 concurrently \"cd server && docker-compose up\" \"cd server/weaviate && docker-compose up\" \"cd server/redis && docker-compose up\" \"sleep 5 && yarn run dev:server\" \"yarn start:core\" \"sleep 1 && yarn start:client\" \"sleep 5 && yarn run db:seed\" ",
-    "dev-windows": "cross-env NODE_OPTIONS=--max-old-space-size=8192 concurrently \"cd server && docker-compose up\" \"cd server/weaviate && docker-compose up\" \"cd server/redis && docker-compose up\" \"yarn run dev:server\" \"yarn start:core\" yarn start:client\" yarn run db:seed\" ",
+    "start:core": "lerna exec --scope @thothai/thoth-core -- yarn start",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 concurrently \"cd packages/server && docker-compose up\" \"cd packages/server/weaviate && docker-compose up\" \"cd packages/server/redis && docker-compose up\" \"yarn start:core\" \"sleep 15 && yarn run dev:server\" \"sleep 1 && yarn start:client\" \"sleep 5 && yarn run db:seed\" ",
+    "dev-windows": "cross-env NODE_OPTIONS=--max-old-space-size=8192 concurrently \"cd packages/server && docker-compose up\" \"cd packages/server/weaviate && docker-compose up\" \"cd packages/server/redis && docker-compose up\" \"yarn run dev:server\" \"yarn start:core\" yarn start:client\" yarn run db:seed\" ",
     "dev:client": "concurrently \"yarn start:core\" \"sleep 1 && yarn start:client\"",
-    "dev:server": "lerna exec --scope @latitudegames/thoth-server -- yarn run dev",
+    "dev:server": "lerna exec --scope @thothai/thoth-server -- yarn run dev",
     "db:seed": "npx sequelize-cli db:seed:all --url 'postgres://thoth:thoth_default_pw@localhost:5432/thoth'",
-    "start:client": "lerna exec --scope @latitudegames/thoth-client -- yarn start",
-    "start:sharedb": "lerna exec --scope @latitudegames/thoth-sharedb -- yarn start",
+    "start:client": "lerna exec --scope @thothai/thoth-client -- yarn start",
+    "start:sharedb": "lerna exec --scope @thothai/thoth-sharedb -- yarn start",
+    "stop:client": "lerna exec --scope @thothai/client -- yarn stop",
+    "start:runner": "lerna exec --scope @thothai/runner -- yarn start",
     "start": "run-p start:core start:client",
     "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix --parallel",
-    "build": "copyfiles LICENSE.txt client && lerna exec --scope @latitudegames/thoth-client -- yarn build",
-    "build:core": "copyfiles LICENSE.txt core && lerna exec --scope @latitudegames/thoth-core -- yarn build",
-    "publish:canary": "lerna exec --scope @latitudegames/thoth-core -- yarn canary",
-    "install:canary": "lerna exec --scope @latitudegames/thoth-client -- yarn install:canary"
+    "build": "copyfiles LICENSE.txt client && lerna exec --scope @thothai/thoth-client -- yarn build",
+    "build:core": "copyfiles LICENSE.txt core && lerna exec --scope @thothai/thoth-core -- yarn build",
+    "publish:canary": "lerna exec --scope @thothai/thoth-core -- yarn canary",
+    "install:canary": "lerna exec --scope @thothai/thoth-client -- yarn install:canary",
+    "nukefromorbit": "rimraf ./packages/**/node_modules && rimraf ./node_modules"
   },
   "engines": {
-    "node": ">=14.17.6",
+    "node": ">=16.10.0",
     "npm": ">=6.12.0",
-    "yarn": "^1.22.10"
+    "yarn": "^1.18.0"
   },
   "resolutions": {
     "@types/react": "18.0.0"
@@ -48,7 +48,8 @@
     "craco": "^0.0.3",
     "cross-env": "^7.0.3",
     "lerna": "^4.0.0",
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "rimraf": "^3.0.2"
   },
   "dependencies": {
     "@discordjs/opus": "^0.7.0",
