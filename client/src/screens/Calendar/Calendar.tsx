@@ -363,6 +363,17 @@ export const CalendarApp = () => {
   }
 
   const addEvent = event => {
+    if (
+      event.name?.length <= 0 ||
+      event.moreInfo?.length <= 0 ||
+      event.name?.length <= 0 ||
+      event.time?.length <= 0
+    ) {
+      enqueueSnackbar('invalid event info!', {
+        variant: 'error',
+      })
+      return
+    }
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
     axios
