@@ -666,8 +666,10 @@ const EntityWindow = ({ id, updateCallback }) => {
               value={voice_provider}
               onChange={event => {
                 setVoiceProvider(event.target.value)
+                setVoiceCharacter('')
               }}
             >
+              <option defaultValue hidden></option>
               <option value={'google'}>Google</option>
               <option value={'uberduck'}>Uberduck</option>
             </select>
@@ -684,6 +686,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
+                <option defaultValue hidden></option>
                 <option value={'en-US-Standard-A'}>en-US-Standard-A</option>
                 <option value={'en-US-Standard-B'}>en-US-Standard-B</option>
                 <option value={'en-US-Standard-C'}>en-US-Standard-C</option>
@@ -714,6 +717,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
+                <option defaultValue hidden></option>
                 <option value={'101-dalmatians-lucky'}>
                   101-dalmatians-lucky
                 </option>
@@ -762,8 +766,9 @@ const EntityWindow = ({ id, updateCallback }) => {
                 setVoiceLanguageCode(event.target.value)
               }}
             >
+              <option defaultValue hidden></option>
               <option value={'en-US'}>en-US</option>
-              <option value={'en-US'}>en-GB</option>
+              <option value={'en-GB'}>en-GB</option>
             </select>
           </div>
 
@@ -996,6 +1001,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordSpellHandlerUpdate(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1015,6 +1021,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordSpellHandlerFeed(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1107,6 +1114,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setXREngineSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1126,6 +1134,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setXREngineSpellHandlerUpdate(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1145,6 +1154,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setXREngineSpellHandlerFeed(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1268,6 +1278,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setTwitterSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1325,6 +1336,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setTelegramSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1412,6 +1424,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setRedditSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1489,6 +1502,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setInstagramSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>

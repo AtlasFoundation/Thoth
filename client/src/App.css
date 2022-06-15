@@ -410,7 +410,6 @@ input[type='text'] {
 }
 
 .search-corpus-btn {
-  height: var(--c20);
   background-color: #2e2e2e;
   border: none;
   margin: 0 0.4rem;
