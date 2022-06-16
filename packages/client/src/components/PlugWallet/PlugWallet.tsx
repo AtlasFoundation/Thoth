@@ -2,7 +2,10 @@ import { useRef } from 'react'
 import './plugWallet.css'
 import { Mint } from '../Mint/Mint'
 
-export function PlugWallet({ onConnect, onFail }) {
+export function PlugWallet({
+  onConnect = (arg: string) => {},
+  onFail = (arg: string) => {},
+}) {
   // Code Goes Here
 
   let userPrincipal = 'Not Connected'

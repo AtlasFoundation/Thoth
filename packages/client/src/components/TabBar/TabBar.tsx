@@ -8,6 +8,7 @@ import Icon from '../Icon/Icon'
 import MenuBar from '../MenuBar/MenuBar'
 import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
+import { PlugWallet } from '../PlugWallet/PlugWallet'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
@@ -57,7 +58,8 @@ const TabBar = ({ tabs, activeTab }) => {
       </div>
 
       <div className={css['tabbar-user']}>
-        {<Icon name="account" size={24} />}
+        <PlugWallet />
+        {<Icon name="account" size={24} style={{ top: 14 }} />}
       </div>
     </div>
   )
