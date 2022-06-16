@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthProvider'
 import { CalendarApp } from '@/screens/Calendar/Calendar'
 import { diff } from '@/utils/json0'
 import EntityManagerWindow from './windows/EntityManagerWindow'
+import GreetingsManagerWindow from './windows/GreetingsManagerWindow'
 import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import VideoTranscription from './windows/VideoTranscription'
@@ -148,6 +149,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <SearchCorpus />
         case 'entityManager':
           return <EntityManagerWindow />
+        case 'greetingsManager':
+          return <GreetingsManagerWindow />
         case 'eventManager':
           return <EventManagerWindow />
         case 'videoTranscription':

@@ -343,6 +343,38 @@ export class database {
     }
   }
 
+  async getGreetings() {
+    const query = 'SELECT id, client, channel_id AS "channelId", message FROM greetings'
+    const rows = await this.client.query(query)
+    return rows.rows
+  }
+
+  async addGreeting(client: string, channelId: string, message: string) {
+    const query = 'INSERT INTO greetings (client, channel_id, message) VALUES ($1, $2, $3)'
+    const values = [client, channelId, message]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  
+  async updateGreeting(client: string, channelId: string, message: string, id: string) {
+    const query = 'UPDATE greetings SET client = $1, channel_id = $2, message = $3 WHERE id = $4'
+    const values = [client, channelId, message, id]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  async deleteGreeting(id: string) {
+    const query = 'DELETE FROM greetings WHERE id=$1'
+    const values = [id]
+    return await this.client.query(query, values)
+  }
+
   async addDocument(
     title: any,
     description: any,

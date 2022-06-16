@@ -21,6 +21,7 @@ const windowTypes: WindowTypes = {
   CONSOLE: 'debugConsole',
   SEARCH_CORPUS:'searchCorpus',
   ENT_MANAGER: 'entityManager',
+  GREETINGS_MANAGER: 'greetingsManager',
   EVENT_MANAGER:'eventManager',
   VIDEO_TRANSCRIPTION:'videoTranscription',
   CALENDAR_TAB:'calendarTab' 
@@ -35,6 +36,7 @@ type WindowType =
   | 'debugConsole'
   | 'searchCorpus'
   | 'entityManager'
+  | 'greetingsManager'
   | 'eventManager'
   | 'videoTranscription'
   | 'calendarTab'
