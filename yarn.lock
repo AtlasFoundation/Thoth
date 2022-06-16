@@ -1169,13 +1169,6 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@callstack/async-storage@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@callstack/async-storage/-/async-storage-2.0.3.tgz#93fc98f768926024fe01d759acaba6c80feb5727"
-  integrity sha512-JK/cV/nRHdYDdBmT0GZ7otywZXFNpWMuzjkGgeyhd/Pc+alpaSspg73U6lxFBM5ndnY+T1iQ3RSfUZl3QG+nwQ==
-  dependencies:
-    lodash.merge "^4.6.0"
-
 "@colors/colors@1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@colors/colors/-/colors-1.5.0.tgz#bb504579c1cae923e6576a4f5da43d25f97bdbd9"
@@ -21382,7 +21375,7 @@ webpack-bundle-analyzer@^4.4.2:
     sirv "^1.0.7"
     ws "^7.3.1"
 
-webpack-cli@^4.8.0:
+webpack-cli@^4.10.0, webpack-cli@^4.8.0:
   version "4.10.0"
   resolved "https://registry.yarnpkg.com/webpack-cli/-/webpack-cli-4.10.0.tgz#37c1d69c8d85214c5a65e589378f53aec64dab31"
   integrity sha512-NLhDfH/h4O6UOy+0LSso42xvYypClINuMNBVVzX4vX98TmTaTUxwRbXdhucbFMd2qLaCTcLq/PdYrvi8onw90w==
