@@ -14,6 +14,7 @@ export interface entitiesAttributes {
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
+  discord_greeting_id?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -97,6 +98,7 @@ export type entitiesOptionalAttributes =
   | 'discord_bot_name_regex'
   | 'discord_bot_name'
   | 'discord_empty_responses'
+  | 'discord_greeting_id'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
   | 'discord_spell_handler_feed'
@@ -189,6 +191,7 @@ export class entities
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
+  discord_greeting_id?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -310,6 +313,16 @@ export class entities
         discord_empty_responses: {
           type: DataTypes.TEXT,
           allowNull: true,
+        },
+        discord_greeting_id: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'greetings',
+            key: 'id'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
         },
         discord_spell_handler_incoming: {
           type: DataTypes.TEXT,

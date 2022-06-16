@@ -161,11 +161,11 @@ const getGreetings = async (ctx: Koa.Context) => {
 
 const addGreetings = async (ctx: Koa.Context) => {
   try {
-    const { client, channelId, message } = ctx.request.body
+    const { channelId, message } = ctx.request.body
     const { id } = ctx.params
 
-    if(!id) await database.instance.addGreeting(client, channelId, message)
-    else await database.instance.updateGreeting(client, channelId, message, id)
+    if(!id) await database.instance.addGreeting(channelId, message)
+    else await database.instance.updateGreeting(channelId, message, id)
 
     return (ctx.body = 'ok')
   } catch (e) {

@@ -1,10 +1,13 @@
-import axios from "axios"
+import { useDeleteGreetingMutation, useUpdateGreetingMutation } from "@/state/api/greetings"
 import { useSnackbar } from "notistack"
 import { useState } from "react"
 
 const Greeting = ({ greeting, updateCallback }) => {
   const [data, setData] = useState(greeting)
   const { enqueueSnackbar } = useSnackbar()
+  const [ updateGreeting ] = useUpdateGreetingMutation()
+  const [ deleteGreeting ] = useDeleteGreetingMutation()
+
   const handleChange = (key: string, value: string) => {
     setData({
       ...data,
@@ -12,14 +15,13 @@ const Greeting = ({ greeting, updateCallback }) => {
     })
   }
 
-  const updateGreeting = async () => {
+  const _updateGreeting = async () => {
     const { id, ...reqBody } = data
     try {
-      await axios.put(`${process.env.REACT_APP_API_ROOT_URL}/greetings/${id}`, { ...reqBody })
+      await updateGreeting({ id, data: reqBody })
       enqueueSnackbar('Greeting with id: ' + id + ' updated successfully', {
         variant: 'success',
       })
-      updateCallback()
     } catch (e) {
       enqueueSnackbar('Server Error updating entity with id: ' + id, {
         variant: 'error',
@@ -27,13 +29,12 @@ const Greeting = ({ greeting, updateCallback }) => {
     }
   }
 
-  const removeGreeting = async () => {
+  const _deleteGreeting = async () => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_ROOT_URL}/greetings/${data.id}`)
+      await deleteGreeting(data.id)
       enqueueSnackbar('Greeting with id: ' + data.id + ' deleted successfully', {
         variant: 'success',
       })
-      updateCallback()
     } catch (e) {
       enqueueSnackbar('Server Error deleting entity with id: ' + data.id, {
         variant: 'error',
@@ -43,19 +44,6 @@ const Greeting = ({ greeting, updateCallback }) => {
 
   return (
     <div>
-      <div className="form-item agent-select">
-        <span className="form-item-label">Client</span>
-        <select 
-          name="client" 
-          id="client"
-          value={data.client}
-          onChange={(e) => handleChange('client', e.target.value)}
-        >
-          <option value="discord">Discord</option>
-          <option value="slack">Slack</option>
-        </select>
-      </div>
-
       <div className="form-item">
         <span className="form-item-label">Channel ID</span>
         <input 
@@ -76,10 +64,10 @@ const Greeting = ({ greeting, updateCallback }) => {
       </div>
 
       <div className="form-item entBtns">
-        <button onClick={updateGreeting} style={{ marginRight: '10px' }}>
+        <button onClick={_updateGreeting} style={{ marginRight: '10px' }}>
           Update
         </button>
-        <button onClick={removeGreeting} style={{ marginRight: '10px' }}>
+        <button onClick={_deleteGreeting} style={{ marginRight: '10px' }}>
           Delete
         </button>
       </div>

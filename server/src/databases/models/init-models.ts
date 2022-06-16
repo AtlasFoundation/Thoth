@@ -101,6 +101,7 @@ export type {
 }
 
 export function initModels(sequelize: Sequelize) {
+  const greetings = _greetings.initModel(sequelize)
   const entities = _entities.initModel(sequelize)
   const spells = _spells.initModel(sequelize)
   const events = _events.initModel(sequelize)
@@ -113,7 +114,6 @@ export function initModels(sequelize: Sequelize) {
   const scopeSettings = _scopeSettings.initModel(sequelize)
   const calendarEvents = _calendarEvents.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
-  const greetings = _greetings.initModel(sequelize)
 
   return {
     entities: entities,

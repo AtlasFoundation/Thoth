@@ -1,41 +1,30 @@
+// @ts-nocheck
+import { useAddGreetingMutation, useGetGreetingsQuery } from "@/state/api/greetings";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Greeting from "./Greeting";
 
 const GreetingsManagerWindow = () => {
-  const [greetings, setGreetings] = useState(null)
-
-  const getGreetings = async () => {
-    const res = await axios.get(`${process.env.REACT_APP_API_ROOT_URL}/greetings`)
-    setGreetings(res.data)
-  }
+  const { data: greetings } = useGetGreetingsQuery()
+  const [ addGreeting ] = useAddGreetingMutation()
 
   const createNew = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API_ROOT_URL}/greetings`, {
-        client: '',
+      await addGreeting({
         channelId: '',
         message: ''
       })
-      await getGreetings()
     } catch (e) {
       console.log(e)
     }
   }
-
-  useEffect(() => {
-    (async () => {
-      await getGreetings()
-    })()
-  }, [])
   
   return (
     <div className="agent-editor">
-      {greetings && (greetings as any).map((greeting: any, idx) => 
+      {greetings && (greetings as any).map((greeting: any) => 
         <Greeting
-          key={idx}
+          key={greeting.id}
           greeting={greeting}
-          updateCallback={() => getGreetings()}
         />
       )}
       <div className="entBtns">

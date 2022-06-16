@@ -25,7 +25,7 @@ function capitalizeFirstLetter(word) {
   return word.charAt(0).toUpperCase() + word.slice(1)
 }
 
-const EntityWindow = ({ id, updateCallback }) => {
+const EntityWindow = ({ id, updateCallback, greetings }) => {
   const { user } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -50,6 +50,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
+  const [discord_greeting_id, setDiscordGreetingId] = useState(0)
 
   const [discord_spell_handler_incoming, setDiscordSpellHandlerIncoming] =
     useState('')
@@ -220,6 +221,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
         setDiscordBotName(res.data.discord_bot_name)
         setDiscordEmptyResponses(res.data.discord_empty_responses)
+        setDiscordGreetingId(res.data.discord_greeting_id)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
         setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
@@ -350,6 +352,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
+      discord_greeting_id,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -455,6 +458,7 @@ const EntityWindow = ({ id, updateCallback }) => {
           setDiscordBotNameRegex(responseData.discord_bot_name_regex)
           setDiscordBotName(responseData.discord_bot_name)
           setDiscordEmptyResponses(responseData.discord_empty_responses)
+          setDiscordGreetingId(responseData.discord_greeting_id)
           setDiscordSpellHandlerIncoming(
             responseData.discord_spell_handler_incoming
           )
@@ -567,6 +571,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
+      discord_greeting_id,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -997,6 +1002,26 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordEmptyResponses(e.target.value)
                   }}
                 />
+              </div>
+              
+              <div className="form-item agent-select">
+                <span className="form-item-label">Discord Greeting</span>
+                <select
+                  name="discordGreetingId"
+                  id="discordGreetingId"
+                  value={discord_greeting_id}
+                  onChange={event => {
+                    setDiscordGreetingId(event.target.value)
+                  }}
+                >
+                  <option defaultValue hidden></option>
+                  {greetings.length > 0 &&
+                    greetings.map((greeting, idx) => (
+                      <option value={greeting.id} key={idx}>
+                        {greeting.message}
+                      </option>
+                    ))}
+                </select>
               </div>
 
               <div className="form-item agent-select">
