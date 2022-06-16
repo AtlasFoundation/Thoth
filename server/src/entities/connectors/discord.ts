@@ -16,6 +16,7 @@ import emojiRegex from 'emoji-regex'
 
 // import { classifyText } from '../utils/textClassifier'
 import { database } from '../../database'
+import { CreateSpellHandler } from '../CreateSpellHandler'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
 import { getRandomEmptyResponse, startsWithCapital } from './utils'
 
@@ -105,40 +106,25 @@ export class discord_client {
   ) {
     const { message } = reaction
     const emojiName = emoji.getName(reaction.emoji)
+    const emojid = ':' + emojiName + ':'
 
-    const dateNow = new Date()
-    const utc = new Date(
-      dateNow.getUTCFullYear(),
-      dateNow.getUTCMonth(),
-      dateNow.getUTCDate(),
-      dateNow.getUTCHours(),
-      dateNow.getUTCMinutes(),
-      dateNow.getUTCSeconds()
-    )
-    const utcStr =
-      dateNow.getDate() +
-      '/' +
-      (dateNow.getMonth() + 1) +
-      '/' +
-      dateNow.getFullYear() +
-      ' ' +
-      utc.getHours() +
-      ':' +
-      utc.getMinutes() +
-      ':' +
-      utc.getSeconds()
-
-    // TODO: Replace me with direct message handler
-    log(
-      'Discord',
-      message.channel.id,
-      message.id,
-      message.content,
-      user.username,
-      emojiName,
-      utcStr
-    )
-    // MessageClient.instance.sendMessageReactionAdd('Discord', message.channel.id, message.id, message.content, user.username, emojiName, utcStr)
+    if (
+      this.message_reactions[emojid] &&
+      this.message_reactions[emojid] !== undefined
+    ) {
+      const response = await this.message_reactions[emojid](
+        '',
+        user.username,
+        this.discord_bot_name,
+        'discord',
+        message.channelId,
+        this.entity,
+        []
+      )
+      if (response && response !== undefined && response?.length > 0) {
+        this.client.channels.cache.get(message.channelId).send(response)
+      }
+    }
   }
 
   async agents(
@@ -1698,6 +1684,7 @@ export class discord_client {
   voice_language_code: string
   haveCustomCommands: boolean
   custom_commands: any[]
+  message_reactions: { [reaction: string]: any } = {}
   createDiscordClient = async (
     entity: any,
     discord_api_token: string | undefined,
@@ -1756,6 +1743,13 @@ export class discord_client {
       }
     }
 
+    const reaction_handlers = await database.instance.getMessageReactions()
+    this.setupMessageReactions(reaction_handlers)
+    setInterval(async () => {
+      const reactionhandlers = await database.instance.getMessageReactions()
+      this.setupMessageReactions(reactionhandlers)
+    }, 5000)
+
     this.discord_bot_name_regex = discord_bot_name_regex
     this.discord_bot_name = discord_bot_name
 
@@ -1763,13 +1757,14 @@ export class discord_client {
     if (!token) return console.warn('No API token for Discord bot, skipping')
 
     this.client = new Discord.Client({
-      partials: ['MESSAGE', 'USER', 'REACTION'],
+      partials: ['MESSAGE', 'USER', 'REACTION', 'CHANNEL'],
       intents: [
         Intents.FLAGS.GUILDS,
         Intents.FLAGS.GUILD_PRESENCES,
         Intents.FLAGS.GUILD_MEMBERS,
         Intents.FLAGS.GUILD_MESSAGES,
         Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
       ],
     })
     this.bot_name = discord_bot_name
@@ -1806,6 +1801,7 @@ export class discord_client {
       )
     }
 
+    console.log('registering events')
     this.client.on('messageCreate', this.messageCreate.bind(null, this.client))
     // this.client.on('messageDelete', this.messageDelete.bind(null, this.client))
     // this.client.on('messageUpdate', this.messageUpdate.bind(null, this.client))
@@ -1892,6 +1888,35 @@ export class discord_client {
     const channel = await this.client.channels.fetch(channelId)
     if (channel && channel !== undefined) {
       channel.send(msg)
+    }
+  }
+
+  prevData = []
+  async setupMessageReactions(data: any) {
+    for (let i = 0; i < data.length; i++) {
+      if (
+        data[i].discord_enabled === 'true' &&
+        !this.messageReactionUpdate(data[i])
+      ) {
+        this.message_reactions[data[i].reaction] = await CreateSpellHandler({
+          spell: data[i].spell_handler,
+          version: 'latest',
+        })
+      }
+      this.prevData = data
+    }
+  }
+  messageReactionUpdate(datai: any) {
+    for (let i = 0; i < this.prevData.length; i++) {
+      if (
+        this.prevData[i].reaction === datai.reaction &&
+        this.prevData[i].discord_enabled === datai.discord_enabled &&
+        this.prevData[i].spell_handler === datai.spell_handler
+      ) {
+        return true
+      }
+
+      return false
     }
   }
 }

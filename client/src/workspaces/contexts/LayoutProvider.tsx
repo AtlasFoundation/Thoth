@@ -19,13 +19,14 @@ const windowTypes: WindowTypes = {
   EDITOR: 'editor',
   PLAYTEST: 'playtest',
   CONSOLE: 'debugConsole',
-  SEARCH_CORPUS:'searchCorpus',
+  SEARCH_CORPUS: 'searchCorpus',
   ENT_MANAGER: 'entityManager',
-  EVENT_MANAGER:'eventManager',
-  VIDEO_TRANSCRIPTION:'videoTranscription',
-  CALENDAR_TAB:'calendarTab' 
+  EVENT_MANAGER: 'eventManager',
+  MESSAGE_REACTION_EDITOR: 'messageReactionEditor',
+  VIDEO_TRANSCRIPTION: 'videoTranscription',
+  CALENDAR_TAB: 'calendarTab',
 }
- 
+
 type WindowType =
   | 'textEditor'
   | 'inspector'
@@ -35,6 +36,7 @@ type WindowType =
   | 'debugConsole'
   | 'searchCorpus'
   | 'entityManager'
+  | 'messageReactionEditor'
   | 'eventManager'
   | 'videoTranscription'
   | 'calendarTab'
