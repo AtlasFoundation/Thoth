@@ -24,7 +24,7 @@ const FileInput = ({ loadFile }) => {
         type="file"
         ref={hiddenFileInput}
         onChange={handleChange}
-        // style={{ display: 'none' }}
+        style={{ display: 'none' }}
       />
     </>
   )
