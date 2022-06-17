@@ -1,26 +1,27 @@
-import { useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './plugWallet.css'
 
 export function PlugWallet({
   onConnect = (arg: string) => {},
   onFail = (arg: string) => {},
 }) {
-  // Code Goes Here
-
-  let currentBalance = 'N/A'
-  let tokenName = ''
-  const dropdownModal = useRef<any>(null)
-  const balanceModal = useRef<any>(null)
-
+  const [showMenu, setShowMenu] = useState<Boolean>(false)
   const [connected, setConnected] = useState<Boolean>(false)
   const [userPrinciple, setUserPrinciple] = useState<string>('Not connected')
+  const [currentBalance, setCurrentBalance] = useState<string>('N/A')
+  const [tokenName, setTokenName] = useState<string>('')
+  const [balanceLoading, setBalanceLoading] = useState<boolean>(false)
+
+  // handle turning balance loading back off when it is done
+  useEffect(() => {
+    if (tokenName !== '' && balanceLoading) setBalanceLoading(false)
+  }, [tokenName, balanceLoading])
 
   const grabBalance = async () => {
-    balanceModal.current!.innerHTML = 'Please Wait...'
-    const res = await (window as any).ic.plug.requestBalance()
-    currentBalance = res[0].amount
-    tokenName = res[0].name
-    balanceModal.current!.innerHTML = currentBalance + ' ' + tokenName
+    setBalanceLoading(true)
+    const response = await (window as any).ic.plug.requestBalance()
+    setCurrentBalance(response[0].amount.toString())
+    setTokenName(response[0].name)
   }
 
   const plugLogin = async () => {
@@ -30,65 +31,63 @@ export function PlugWallet({
       return onFail('Could not connect - Plug is not installed')
     }
 
+    // check if user is logged in
     const hasLoggedIn = await (window as any).ic.plug.isConnected()
+
+    // Set connected state for rest of UI
     setConnected(hasLoggedIn)
     await (window as any).ic.plug.createAgent()
+
+    // get the users principle that they are logged in as
     const userPrincipleResponse = await (
       window as any
     ).ic.plug.agent.getPrincipal()
 
     console.log('Logged in as: ' + userPrincipleResponse)
 
+    // call onFail callback
     if (!userPrincipleResponse) {
-      return onFail('Could not connect - User authentication failedx')
+      return onFail('Could not connect - User authentication failed')
     }
 
-    console.log(userPrincipleResponse)
-
+    // Set the users principle to component state for use in UI
     setUserPrinciple(userPrincipleResponse.toString())
 
     //   activateDabFunctions();
+
+    // Process the users wallet balance to show
     await grabBalance()
-    onConnect(userPrincipleResponse)
+
+    // Pass user principle ID out to callback
+    onConnect(userPrincipleResponse.toString())
   }
-  const dropTheMenu = async () => {
-    dropdownModal.current!.classList.toggle('showMenu')
+
+  // Drops the menu
+  const toggleMenu = async () => {
+    setShowMenu(!showMenu)
   }
-  //   const activateDabFunctions = async() => {
-  //     DabStuff.methods?.activateDab();
-  //   }
-  window.onclick = function (event) {
-    // TODO FIX THIS!!!!
-    event.preventDefault()
-    let dropdown = document.getElementById('plugSettings')!
-    if (!event.target!.matches('.plugMenu')) {
-      if (dropdown.classList.contains('showMenu')) {
-        dropdown.classList.remove('showMenu')
-      }
-    }
-  }
-  // HTML(UI) returns stay inside of the export function
 
   return (
     <>
       <div className="walletContainer">
-        <button onClick={dropTheMenu} id="plugMenu" className="plugMenu">
+        <button onClick={toggleMenu} className="plugMenu">
           Plug Menu
           <div
             className={'statusBubble' + (connected ? ' connected' : '')}
-            id="statusBubble"
           ></div>
         </button>
-        <div className="plugSettings" id="plugSettings" ref={dropdownModal}>
-          <div className="menuHeader" id="menuHeader">
-            <button onClick={plugLogin} id="connect" disabled={!!connected}>
+        <div className={'plugSettings' + (showMenu ? ' showMenu' : '')}>
+          <div className="menuHeader">
+            <button onClick={plugLogin} disabled={!!connected}>
               {connected ? 'Connected' : 'Connect'}
             </button>
             <h6>Logged In As: {userPrinciple}</h6>
             <div className="balance" id="balance">
               <p>Balance: </p>
-              <p ref={balanceModal} style={{ color: 'rgba(0,255,0,0.5' }}>
-                {currentBalance} {tokenName}
+              <p style={{ color: 'rgba(0,255,0,0.5' }}>
+                {balanceLoading
+                  ? 'Please Wait...'
+                  : `${currentBalance} ${tokenName}`}
               </p>
             </div>
           </div>
