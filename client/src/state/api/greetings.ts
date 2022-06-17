@@ -4,8 +4,11 @@ export const greetingsApi = rootApi.injectEndpoints({
   endpoints: builder => ({
     getGreetings: builder.query({
       providesTags: ['Greetings'],
-      query: () => ({
-        url: 'greetings'
+      query: (enabled) => ({
+        url: 'greetings',
+        params: {
+          enabled
+        }
       })
     }),
     addGreeting: builder.mutation({

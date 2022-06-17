@@ -86,6 +86,7 @@ export interface entitiesAttributes {
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
+  slack_greeting_id?: string
   slack_spell_handler_incoming?: string
 }
 
@@ -168,6 +169,7 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_token'
   | 'slack_bot_name'
   | 'slack_port'
+  | 'slack_greeting_id'
   | 'slack_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
@@ -263,6 +265,7 @@ export class entities
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
+  slack_greeting_id?: string
   slack_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
@@ -607,6 +610,16 @@ export class entities
         slack_port: {
           type: DataTypes.TEXT,
           allowNull: true,
+        },
+        slack_greeting_id: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'greetings',
+            key: 'id'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
         },
         slack_spell_handler_incoming: {
           type: DataTypes.TEXT,

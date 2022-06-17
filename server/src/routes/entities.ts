@@ -149,8 +149,9 @@ const deleteEntityHandler = async (ctx: Koa.Context) => {
 }
 
 const getGreetings = async (ctx: Koa.Context) => {
+  const { enabled } = ctx.request.query
   try {
-    const greetings = await database.instance.getGreetings()
+    const greetings = await database.instance.getGreetings(enabled)
     return (ctx.body = greetings)
   } catch (e) {
     console.log(e)
@@ -161,11 +162,11 @@ const getGreetings = async (ctx: Koa.Context) => {
 
 const addGreetings = async (ctx: Koa.Context) => {
   try {
-    const { channelId, message } = ctx.request.body
+    const { enabled, sendIn, channelId, message } = ctx.request.body
     const { id } = ctx.params
 
-    if(!id) await database.instance.addGreeting(channelId, message)
-    else await database.instance.updateGreeting(channelId, message, id)
+    if(!id) await database.instance.addGreeting(enabled, sendIn, channelId, message)
+    else await database.instance.updateGreeting(enabled, sendIn, channelId, message, id)
 
     return (ctx.body = 'ok')
   } catch (e) {

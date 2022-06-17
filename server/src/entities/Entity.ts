@@ -17,6 +17,7 @@ import { stringIsAValidUrl } from '../utils/utils'
 import { urlencoded, json } from 'express'
 import express from 'express'
 import { slack_client } from './connectors/slack'
+import { database } from '../database'
 
 export class Entity {
   name = ''
@@ -44,6 +45,7 @@ export class Entity {
     discord_bot_name_regex: string,
     discord_bot_name: string,
     discord_empty_responses: string,
+    discord_greeting: any,
     spell_handler: string,
     spell_version: string,
     use_voice: boolean,
@@ -71,6 +73,7 @@ export class Entity {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
+      discord_greeting,
       spellHandler,
       use_voice,
       voice_provider,
@@ -592,12 +595,14 @@ export class Entity {
     this.generateVoices(data)
 
     if (data.discord_enabled) {
+      const [ greeting ] = await database.instance.getGreeting(data.discord_greeting_id)
       this.startDiscord(
         data.discord_api_key,
         data.discord_starting_words,
         data.discord_bot_name_regex,
         data.discord_bot_name,
         data.discord_empty_responses,
+        greeting,
         data.discord_spell_handler_incoming,
         data.spell_version,
         data.use_voice,

@@ -343,15 +343,23 @@ export class database {
     }
   }
 
-  async getGreetings() {
-    const query = 'SELECT id, channel_id AS "channelId", message FROM greetings ORDER BY id ASC'
+  async getGreetings(enabled: boolean) {
+    const whereClause = 'WHERE enabled = true'
+    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${enabled ? whereClause : ''} ORDER BY id ASC`
     const rows = await this.client.query(query)
     return rows.rows
   }
 
-  async addGreeting(channelId: string, message: string) {
-    const query = 'INSERT INTO greetings (channel_id, message) VALUES ($1, $2)'
-    const values = [channelId, message]
+  async getGreeting(id: string) {
+    const query = 'SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings WHERE id = $1 ORDER BY id ASC'
+    const values = [id]
+    const rows = await this.client.query(query, values)
+    return rows.rows
+  }
+
+  async addGreeting(enabled: boolean, sendIn: string, channelId: string, message: string) {
+    const query = 'INSERT INTO greetings (enabled, send_in, channel_id, message) VALUES ($1, $2, $3, $4)'
+    const values = [enabled, sendIn, channelId, message]
     try {
       return await this.client.query(query, values)
     } catch (e) {
@@ -359,9 +367,9 @@ export class database {
     }
   }
   
-  async updateGreeting(channelId: string, message: string, id: string) {
-    const query = 'UPDATE greetings SET channel_id = $1, message = $2 WHERE id = $3'
-    const values = [channelId, message, id]
+  async updateGreeting(enabled: boolean, sendIn: string, channelId: string, message: string, id: string) {
+    const query = 'UPDATE greetings SET enabled = $1, send_in = $2, channel_id = $3, message = $4 WHERE id = $5'
+    const values = [enabled, sendIn, channelId, message, id]
     try {
       return await this.client.query(query, values)
     } catch (e) {

@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import EntityWindow from './EntityWindow'
 
 const EntityManagerWindow = () => {
-  const { data: greetings } = useGetGreetingsQuery()
+  const { data: greetings } = useGetGreetingsQuery(true)
   const [data, setData] = useState(false)
 
   const resetData = async () => {

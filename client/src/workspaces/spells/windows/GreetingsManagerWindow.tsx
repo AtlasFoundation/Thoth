@@ -11,8 +11,10 @@ const GreetingsManagerWindow = () => {
   const createNew = async () => {
     try {
       await addGreeting({
+        enabled: false,
         channelId: '',
-        message: ''
+        message: '',
+        sendIn: ''
       })
     } catch (e) {
       console.log(e)

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useDeleteGreetingMutation, useUpdateGreetingMutation } from "@/state/api/greetings"
 import { useSnackbar } from "notistack"
 import { useState } from "react"
@@ -8,7 +9,7 @@ const Greeting = ({ greeting, updateCallback }) => {
   const [ updateGreeting ] = useUpdateGreetingMutation()
   const [ deleteGreeting ] = useDeleteGreetingMutation()
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (key: string, value: string | boolean) => {
     setData({
       ...data,
       [key]: value
@@ -44,6 +45,29 @@ const Greeting = ({ greeting, updateCallback }) => {
 
   return (
     <div>
+      <div className="form-item">
+        <span className="form-item-label">Enabled</span>
+        <input
+          type="checkbox"
+          defaultChecked={data.enabled}
+          onChange={(e) => handleChange('enabled', e.target.checked)}
+        />
+      </div>
+
+      <div className="form-item agent-select">
+        <span className="form-item-label">Send Greeting In</span>
+        <select 
+          name="sendIn" 
+          id="sendIn"
+          value={data.sendIn}
+          onChange={(e) => handleChange('sendIn', e.target.value)}
+        >
+          <option defaultValue hidden></option>
+          <option value='dm'>DM</option>
+          <option value='channel'>Channel</option>
+        </select>
+      </div>
+
       <div className="form-item">
         <span className="form-item-label">Channel ID</span>
         <input 
