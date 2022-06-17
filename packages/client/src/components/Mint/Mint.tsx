@@ -14,8 +14,9 @@ export function Mint({ mintJsonData }) {
       canisterId,
       interfaceFactory: dip721v2_idl,
     })
-    let tokenIndex = await plugActor.totalSupply()
-    tokenIndex = Number(await tokenIndex.toString().slice(0, 1))
+    const totalSupply = await plugActor.totalSupply()
+    console.log('total supply', totalSupply)
+    const tokenIndex = Number(totalSupply.toString())
     return tokenIndex + 1
   }
 
@@ -23,6 +24,7 @@ export function Mint({ mintJsonData }) {
     var canisterId = cipherCanister
     const principal = await (window as any).ic.plug.agent.getPrincipal()
     const tokenIndex = await checkIndex()
+    console.log('token index', tokenIndex)
     const whitelist = [canisterId]
     await (window as any).ic.plug.createAgent({ whitelist })
     const plugActor = await (window as any).ic.plug.createActor({
@@ -48,6 +50,10 @@ export function Mint({ mintJsonData }) {
     try {
       const mintResult = await plugActor.mint(principal, tokenIndex, properties)
       console.log(mintResult)
+      if (mintResult.Err) {
+        enqueueSnackbar('Error minting spell', { variant: 'error' })
+        return
+      }
       enqueueSnackbar('Spell minted succesffuly!', { variant: 'success' })
     } catch (err) {
       enqueueSnackbar('Error minting spell', { variant: 'error' })
