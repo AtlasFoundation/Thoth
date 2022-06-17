@@ -58,7 +58,6 @@ const StartScreen = () => {
   }
 
   const loadFile = selectedFile => {
-    console.log('LOAD FILE')
     const reader = new FileReader()
     reader.onload = onReaderLoad
     reader.readAsText(selectedFile)
