@@ -3,6 +3,8 @@ import { createEventAdapter, SlackEventAdapter } from '@slack/events-api'
 import { Server } from 'http'
 import { App, ExpressReceiver } from '@slack/bolt'
 import express from 'express'
+import { CreateSpellHandler } from '../CreateSpellHandler'
+import { database } from '../../database'
 
 export class slack_client {
   spellHandler: any
@@ -12,6 +14,7 @@ export class slack_client {
   custom_commands: any[]
 
   app: App
+  message_reactions: { [reaction: string]: any } = {}
 
   //to verify use: url/slack/events
   async createSlackClient(spellHandler: any, settings: any, entity: any) {
@@ -30,11 +33,48 @@ export class slack_client {
     this.haveCustomCommands = settings.haveCustomCommands
     this.custom_commands = settings.custom_commands
 
-    console.log('settings:', settings)
     this.app = new App({
       signingSecret: settings.slack_signing_secret,
       token: settings.slack_token,
       appToken: settings.slack_app_token,
+    })
+
+    const reaction_handlers = await database.instance.getMessageReactions()
+    this.setupMessageReactions(reaction_handlers)
+    setInterval(async () => {
+      const reactionhandlers = await database.instance.getMessageReactions()
+      this.setupMessageReactions(reactionhandlers)
+    }, 5000)
+
+    this.app.event('reaction_added', async ({ event, context }) => {
+      const userId = (event as any).user
+      const emoji = (event as any).reaction
+      const result = await this.app.client.users.info({
+        user: userId,
+      })
+      const user = result.user?.name
+      const emojid = ':' + emoji + ':'
+
+      if (
+        this.message_reactions[emojid] &&
+        this.message_reactions[emojid] !== undefined
+      ) {
+        const response = await this.message_reactions[emojid](
+          '',
+          user,
+          this.settings.slack_bot_name,
+          'discord',
+          (event as any).item.channel,
+          this.entity,
+          []
+        )
+        if (response && response !== undefined && response?.length > 0) {
+          await this.app.client.chat.postMessage({
+            channel: (event as any).item.channel,
+            text: 'test',
+          })
+        }
+      }
     })
 
     this.app.message(async ({ message, say }) => {
@@ -97,4 +137,33 @@ export class slack_client {
     console.log('Slack Bolt app is running on', settings.slack_port, '!')
   }
   async destroy() {}
+
+  prevData: any[] = []
+  async setupMessageReactions(data: any) {
+    for (let i = 0; i < data.length; i++) {
+      if (
+        data[i].discord_enabled === 'true' &&
+        !this.messageReactionUpdate(data[i])
+      ) {
+        this.message_reactions[data[i].reaction] = await CreateSpellHandler({
+          spell: data[i].spell_handler,
+          version: 'latest',
+        })
+      }
+      this.prevData = data
+    }
+  }
+  messageReactionUpdate(datai: any) {
+    for (let i = 0; i < this.prevData.length; i++) {
+      if (
+        this.prevData[i].reaction === datai.reaction &&
+        this.prevData[i].discord_enabled === datai.discord_enabled &&
+        this.prevData[i].spell_handler === datai.spell_handler
+      ) {
+        return true
+      }
+
+      return false
+    }
+  }
 }

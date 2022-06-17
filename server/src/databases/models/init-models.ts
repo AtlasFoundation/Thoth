@@ -55,6 +55,11 @@ import type {
   greetingsCreationAttributes,
 } from './greetings'
 import { greetings as _greetings } from './greetings'
+import {
+  message_reactions as _message_reactions,
+  messageReactionsAttributes,
+  messageReactionCreationAttributes,
+} from './message_reactions'
 
 export {
   _entities as entities,
@@ -70,6 +75,7 @@ export {
   _calendarEvents as calendarEvents,
   _authUsers as authUsers,
   _greetings as greetings,
+  _message_reactions as messageReactions,
 }
 
 export type {
@@ -98,6 +104,8 @@ export type {
   authUsersAttributes,
   greetingsAttributes,
   greetingsCreationAttributes,
+  messageReactionsAttributes,
+  messageReactionCreationAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -114,6 +122,7 @@ export function initModels(sequelize: Sequelize) {
   const scopeSettings = _scopeSettings.initModel(sequelize)
   const calendarEvents = _calendarEvents.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
+  const messageReactions = _message_reactions.initModel(sequelize)
 
   return {
     entities: entities,
@@ -129,5 +138,6 @@ export function initModels(sequelize: Sequelize) {
     calendarEvents: calendarEvents,
     authUsers: authUsers,
     greetings,
+    messageReactions,
   }
 }

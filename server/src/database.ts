@@ -1482,6 +1482,53 @@ export class database {
       return { success: false, data: {}, isAlreadyExists: false }
     }
   }
+
+  async getMessageReactions() {
+    const query =
+      'SELECT id, reaction, spell_handler, discord_enabled, slack_enabled FROM message_reactions'
+    const rows = await this.client.query(query)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows : []
+  }
+  async addMessageReaction(
+    reaction: string,
+    spell_handler: string,
+    discord_enabled: string,
+    slack_enabled: string
+  ) {
+    const query =
+      'INSERT INTO message_reactions(reaction, spell_handler, discord_enabled, slack_enabled) VALUES($1, $2, $3, $4)'
+    const values = [reaction, spell_handler, discord_enabled, slack_enabled]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async updateMessageReaction(
+    id: string,
+    reaction: string,
+    spell_handler: string,
+    discord_enabled: string,
+    slack_enabled: string
+  ) {
+    const query =
+      'UPDATE message_reactions SET reaction=$2, spell_handler=$3, discord_enabled=$4, slack_enabled=$5 WHERE id=$1'
+    const values = [id, reaction, spell_handler, discord_enabled, slack_enabled]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async deleteMessageReaction(id: string) {
+    const query = 'DELETE FROM message_reactions WHERE id=$1'
+    const values = [id]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
 }
 
 type AddAuthUser = {

@@ -1489,7 +1489,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
               </div>
             </>
           )}
-          
+
           <div className="form-item">
             <span className="form-item-label">Zoom Client Enabled</span>
             <input

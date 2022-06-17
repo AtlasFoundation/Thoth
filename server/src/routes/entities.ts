@@ -862,6 +862,59 @@ const post_pipedream = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
+const getMessageReactions = async (ctx: Koa.Context) => {
+  try {
+    const message_reactions = await database.instance.getMessageReactions()
+    return (ctx.body = message_reactions)
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+const createMessageReaction = async (ctx: Koa.Context) => {
+  try {
+    const { reaction, spell_handler, discord_enabled, slack_enabled } =
+      ctx.request.body
+    const { id } = ctx.params
+
+    console.log('got body data:', ctx.request.body)
+    if (!id) {
+      await database.instance.addMessageReaction(
+        reaction,
+        spell_handler,
+        discord_enabled,
+        slack_enabled
+      )
+    } else {
+      await database.instance.updateMessageReaction(
+        id,
+        reaction,
+        spell_handler,
+        discord_enabled,
+        slack_enabled
+      )
+    }
+
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+const deleteMessageReaction = async (ctx: Koa.Context) => {
+  try {
+    const { id } = ctx.params
+    await database.instance.deleteMessageReaction(id)
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -996,5 +1049,17 @@ export const entities: Route[] = [
     path: '/pipedream',
     access: noAuth,
     post: post_pipedream,
+  },
+  {
+    path: '/message_reactions',
+    access: noAuth,
+    get: getMessageReactions,
+    post: createMessageReaction,
+  },
+  {
+    path: '/message_reaction/:id',
+    access: noAuth,
+    put: createMessageReaction,
+    delete: deleteMessageReaction,
   },
 ]

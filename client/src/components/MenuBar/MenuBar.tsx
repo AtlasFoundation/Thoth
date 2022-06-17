@@ -33,6 +33,7 @@ const MenuBar = () => {
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_SEARCH_CORPUS,
+    $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_TEXT_EDITOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
@@ -103,6 +104,10 @@ const MenuBar = () => {
   
   const onGreetingsManagerCreate = () => {
     publish($CREATE_GREETINGS_MANAGER(activeTabRef.current?.id))
+  }
+
+  const onMessageReactionEditorCreate = () => {
+    publish($CREATE_MESSAGE_REACTION_EDITOR(activeTabRef.current?.id))
   }
 
   const onPlaytestCreate = () => {
@@ -243,6 +248,9 @@ const MenuBar = () => {
         },
         greetings_manager: {
           onClick: onGreetingsManagerCreate,
+        },
+        message_reaction_editor: {
+          onClick: onMessageReactionEditorCreate,
         },
         playtest: {
           onClick: onPlaytestCreate,

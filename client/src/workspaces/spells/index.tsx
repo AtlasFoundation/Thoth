@@ -25,6 +25,7 @@ import GreetingsManagerWindow from './windows/GreetingsManagerWindow'
 import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import VideoTranscription from './windows/VideoTranscription'
+import MessageReactionEditor from './windows/MessageReactionEditor'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -157,6 +158,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <VideoTranscription />
         case 'calendarTab':
           return <CalendarApp />
+        case 'messageReactionEditor':
+          return <MessageReactionEditor />
         default:
           return <p></p>
       }

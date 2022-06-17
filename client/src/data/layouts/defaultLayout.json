@@ -74,7 +74,7 @@
               },
               {
                 "type": "tab",
-                "id": "#20",
+                "id": "#56",
                 "name": "Video Transcription",
                 "component": "videoTranscription"
               },
@@ -107,6 +107,12 @@
                 "id": "#19",
                 "name": "Event Manager",
                 "component": "eventManager"
+              },
+              {
+                "type": "tab",
+                "id": "#55",
+                "name": "Message Reaction Editor",
+                "component": "messageReactionEditor"
               },
               {
                 "type": "tab",
