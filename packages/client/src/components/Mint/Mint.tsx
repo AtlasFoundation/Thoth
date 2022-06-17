@@ -15,7 +15,6 @@ export function Mint({ mintJsonData }) {
       interfaceFactory: dip721v2_idl,
     })
     const totalSupply = await plugActor.totalSupply()
-    console.log('total supply', totalSupply)
     const tokenIndex = Number(totalSupply.toString())
     return tokenIndex + 1
   }
