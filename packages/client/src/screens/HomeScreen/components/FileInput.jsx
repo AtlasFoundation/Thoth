@@ -1,4 +1,5 @@
 import React from 'react'
+import { VscDebugBreakpointConditionalUnverified } from 'react-icons/vsc'
 
 import Icon from '../../../components/Icon/Icon'
 
@@ -23,7 +24,7 @@ const FileInput = ({ loadFile }) => {
         type="file"
         ref={hiddenFileInput}
         onChange={handleChange}
-        style={{ display: 'none' }}
+        // style={{ display: 'none' }}
       />
     </>
   )

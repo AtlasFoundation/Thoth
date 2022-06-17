@@ -1,9 +1,11 @@
 import './dabStuff.css'
 import dip721v2_idl from '@psychedelic/dab-js/dist/idls/dip_721_v2.did'
+import { useSnackbar } from 'notistack'
 
-export function Mint() {
+export function Mint({ mintJsonData }) {
   const cipherCanister = '6hgw2-nyaaa-aaaai-abkqq-cai'
   const whitelist = [cipherCanister]
+  const { enqueueSnackbar } = useSnackbar()
 
   const checkIndex = async () => {
     const canisterId = cipherCanister
@@ -38,18 +40,24 @@ export function Mint() {
       [
         'json',
         {
-          TextContent: '{"this":"can be your thoth spell :D"}',
+          TextContent: JSON.stringify(mintJsonData),
         },
       ],
     ]
-    const mintResult = await plugActor.mint(principal, tokenIndex, properties)
-    console.log(mintResult)
+
+    try {
+      const mintResult = await plugActor.mint(principal, tokenIndex, properties)
+      console.log(mintResult)
+      enqueueSnackbar('Spell minted succesffuly!', { variant: 'success' })
+    } catch (err) {
+      enqueueSnackbar('Error minting spell', { variant: 'error' })
+      console.log(err)
+    }
   }
 
   return (
     <>
       <div className="buttonContainer">
-        <h6>Minting Dip721v2:</h6>
         <button id="mintNFT" onClick={mintNFT} className="mintButton">
           Mint
         </button>

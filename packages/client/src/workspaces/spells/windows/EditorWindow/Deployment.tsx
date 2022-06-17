@@ -20,6 +20,7 @@ import {
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { latitudeApiRootUrl } from '@/config'
 import { useAuth } from '@/contexts/AuthProvider'
+import { Mint } from '../../../../components/Mint/Mint'
 
 const DeploymentView = ({ open, setOpen, spellId, close }) => {
   const [loadingVersion, setLoadingVersion] = useState(false)
@@ -117,6 +118,7 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
             >
               Deployments
             </div>
+            <Mint mintJsonData={spell} />
             <button
               onClick={() => {
                 setOpen(false)

@@ -1,6 +1,5 @@
 import { useRef } from 'react'
 import './plugWallet.css'
-import { Mint } from '../Mint/Mint'
 
 export function PlugWallet({
   onConnect = (arg: string) => {},
@@ -73,6 +72,7 @@ export function PlugWallet({
   //     DabStuff.methods?.activateDab();
   //   }
   window.onclick = function (event) {
+    // TODO FIX THIS!!!!
     event.preventDefault()
     let dropdown = document.getElementById('plugSettings')!
     if (!event.target!.matches('.plugMenu')) {
@@ -101,10 +101,6 @@ export function PlugWallet({
                 {currentBalance} {tokenName}
               </p>
             </div>
-          </div>
-          <div className="menuDivider" />
-          <div className="menuBody">
-            <Mint />
           </div>
         </div>
       </div>
