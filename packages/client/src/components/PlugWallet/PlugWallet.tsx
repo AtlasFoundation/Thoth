@@ -1,3 +1,4 @@
+import { usePlugWallet } from '@/contexts/PlugProvider'
 import { useEffect, useState } from 'react'
 import './plugWallet.css'
 
@@ -5,9 +6,9 @@ export function PlugWallet({
   onConnect = (arg: string) => {},
   onFail = (arg: string) => {},
 }) {
+  const { userPrinciple, connected, login } = usePlugWallet()
+
   const [showMenu, setShowMenu] = useState<Boolean>(false)
-  const [connected, setConnected] = useState<Boolean>(false)
-  const [userPrinciple, setUserPrinciple] = useState<string>('Not connected')
   const [currentBalance, setCurrentBalance] = useState<string>('N/A')
   const [tokenName, setTokenName] = useState<string>('')
   const [balanceLoading, setBalanceLoading] = useState<boolean>(false)
@@ -25,41 +26,12 @@ export function PlugWallet({
   }
 
   const plugLogin = async () => {
-    // check if (window as any).ic exists, and if (window as any).ic.plug exist
-
-    if (!(window as any).ic || !(window as any).ic.plug) {
-      return onFail('Could not connect - Plug is not installed')
+    const onSuccess = async () => {
+      await grabBalance()
     }
-
-    // check if user is logged in
-    const hasLoggedIn = await (window as any).ic.plug.isConnected()
-
-    // Set connected state for rest of UI
-    setConnected(hasLoggedIn)
-    await (window as any).ic.plug.createAgent()
-
-    // get the users principle that they are logged in as
-    const userPrincipleResponse = await (
-      window as any
-    ).ic.plug.agent.getPrincipal()
-
-    console.log('Logged in as: ' + userPrincipleResponse)
-
-    // call onFail callback
-    if (!userPrincipleResponse) {
-      return onFail('Could not connect - User authentication failed')
-    }
-
-    // Set the users principle to component state for use in UI
-    setUserPrinciple(userPrincipleResponse.toString())
-
-    //   activateDabFunctions();
+    login(onSuccess)
 
     // Process the users wallet balance to show
-    await grabBalance()
-
-    // Pass user principle ID out to callback
-    onConnect(userPrincipleResponse.toString())
   }
 
   // Drops the menu
