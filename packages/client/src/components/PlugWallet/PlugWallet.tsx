@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import './plugWallet.css'
 
 export function PlugWallet({
@@ -7,12 +7,13 @@ export function PlugWallet({
 }) {
   // Code Goes Here
 
-  let userPrincipal = 'Not Connected'
   let currentBalance = 'N/A'
   let tokenName = ''
   const dropdownModal = useRef<any>(null)
   const balanceModal = useRef<any>(null)
-  const principalModal = useRef<any>(null)
+
+  const [connected, setConnected] = useState<Boolean>(false)
+  const [userPrinciple, setUserPrinciple] = useState<string>('Not connected')
 
   const grabBalance = async () => {
     balanceModal.current!.innerHTML = 'Please Wait...'
@@ -21,19 +22,7 @@ export function PlugWallet({
     tokenName = res[0].name
     balanceModal.current!.innerHTML = currentBalance + ' ' + tokenName
   }
-  const manageLogin = async () => {
-    await (window as any).ic.plug.requestConnect()
-    userPrincipal = await (window as any).ic.plug.agent.getPrincipal()
-    document.getElementById('statusBubble')!.style.backgroundColor =
-      'rgba(0,255,0,0.5)'
-    document.getElementById('connect')!.textContent = 'Connected!'
-    // @ts-ignore
-    document.getElementById('connect')!.disabled = true
-    console.log('Logged in as: ' + userPrincipal)
-    principalModal.current!.innerHTML = 'Logged In As: ' + userPrincipal
-    // activateDabFunctions();
-    await grabBalance()
-  }
+
   const plugLogin = async () => {
     // check if (window as any).ic exists, and if (window as any).ic.plug exist
 
@@ -42,28 +31,25 @@ export function PlugWallet({
     }
 
     const hasLoggedIn = await (window as any).ic.plug.isConnected()
-    if (!hasLoggedIn) {
-      await manageLogin()
-    } else {
-      await (window as any).ic.plug.createAgent()
-      userPrincipal = await (window as any).ic.plug.agent.getPrincipal()
+    setConnected(hasLoggedIn)
+    await (window as any).ic.plug.createAgent()
+    const userPrincipleResponse = await (
+      window as any
+    ).ic.plug.agent.getPrincipal()
 
-      console.log('Logged in as: ' + userPrincipal)
+    console.log('Logged in as: ' + userPrincipleResponse)
 
-      if (!userPrincipal) {
-        return onFail('Could not connect - User authentication failedx')
-      }
-
-      document.getElementById('statusBubble')!.style.backgroundColor =
-        'rgba(0,255,0,0.5)'
-      document.getElementById('connect')!.textContent = 'Connected!'
-      // @ts-ignore
-      document.getElementById('connect')!.disabled = true
-      principalModal.current!.innerHTML = 'Logged In As: ' + userPrincipal
-      //   activateDabFunctions();
-      await grabBalance()
-      onConnect(userPrincipal)
+    if (!userPrincipleResponse) {
+      return onFail('Could not connect - User authentication failedx')
     }
+
+    console.log(userPrincipleResponse)
+
+    setUserPrinciple(userPrincipleResponse.toString())
+
+    //   activateDabFunctions();
+    await grabBalance()
+    onConnect(userPrincipleResponse)
   }
   const dropTheMenu = async () => {
     dropdownModal.current!.classList.toggle('showMenu')
@@ -87,14 +73,18 @@ export function PlugWallet({
     <>
       <div className="walletContainer">
         <button onClick={dropTheMenu} id="plugMenu" className="plugMenu">
-          Plug Menu<div className="statusBubble" id="statusBubble"></div>
+          Plug Menu
+          <div
+            className={'statusBubble' + (connected ? ' connected' : '')}
+            id="statusBubble"
+          ></div>
         </button>
         <div className="plugSettings" id="plugSettings" ref={dropdownModal}>
           <div className="menuHeader" id="menuHeader">
-            <button onClick={plugLogin} id="connect">
-              Connect
+            <button onClick={plugLogin} id="connect" disabled={!!connected}>
+              {connected ? 'Connected' : 'Connect'}
             </button>
-            <h6 ref={principalModal}>Logged In As: {userPrincipal}</h6>
+            <h6>Logged In As: {userPrinciple}</h6>
             <div className="balance" id="balance">
               <p>Balance: </p>
               <p ref={balanceModal} style={{ color: 'rgba(0,255,0,0.5' }}>
