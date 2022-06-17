@@ -2,7 +2,7 @@ import './dabStuff.css'
 import dip721v2_idl from '@psychedelic/dab-js/dist/idls/dip_721_v2.did'
 import { useSnackbar } from 'notistack'
 
-export function Mint({ mintJsonData }) {
+export function Mint({ data }) {
   const cipherCanister = '6hgw2-nyaaa-aaaai-abkqq-cai'
   const whitelist = [cipherCanister]
   const { enqueueSnackbar } = useSnackbar()
@@ -41,7 +41,7 @@ export function Mint({ mintJsonData }) {
       [
         'json',
         {
-          TextContent: JSON.stringify(mintJsonData),
+          TextContent: JSON.stringify(data),
         },
       ],
     ]
