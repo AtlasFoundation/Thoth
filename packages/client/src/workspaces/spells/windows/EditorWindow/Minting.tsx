@@ -107,7 +107,7 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
                 alignItems: 'center',
               }}
             >
-              NFTs
+              Your Spell NFTs
             </div>
             <Mint data={spell} />
             <button
