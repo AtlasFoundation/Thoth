@@ -66,6 +66,7 @@ const EventHandler = ({ pubSub, tab }) => {
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
+    $CREATE_WYSIWYG_EDITOR,
     $CREATE_EVENT_MANAGER,
     $CREATE_VIDEO_TRANSCRIPTION,
     $CREATE_CALENDAR_TAB,
@@ -175,6 +176,10 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.VIDEO_TRANSCRIPTION, 'Video Transcription')
   }
 
+  const createWysiwygEditor = () => {
+    createOrFocus(windowTypes.WYSIWYG_EDITOR, 'Wysiwyg Editor')
+  }
+
   const createCalendarTab = () => {
     createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
   }
@@ -249,6 +254,7 @@ const EventHandler = ({ pubSub, tab }) => {
     [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
     [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
     [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
+    [$CREATE_WYSIWYG_EDITOR(tab.id)]: createWysiwygEditor,
     [$SERIALIZE(tab.id)]: onSerialize,
     [$EXPORT(tab.id)]: onExport,
     [$CLOSE_EDITOR(tab.id)]: onCloseEditor,

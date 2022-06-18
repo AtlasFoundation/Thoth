@@ -110,7 +110,6 @@ const MessageReaction = ({ message_reaction, updateCallback }) => {
           id="spellHandlerIncoming"
           value={data.spell_handler}
           onChange={event => {
-            console.log('on change:', event)
             handleChange('spell_handler', event.target.value)
           }}
         >
@@ -120,9 +119,6 @@ const MessageReaction = ({ message_reaction, updateCallback }) => {
                 {spell.name}
               </option>
             ))}
-          <option value={'test'} key={55}>
-            {'test'}
-          </option>
         </select>
       </div>
 

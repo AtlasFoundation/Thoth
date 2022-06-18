@@ -110,6 +110,12 @@
               },
               {
                 "type": "tab",
+                "id": "#66",
+                "name": "Wysiwyg Editor",
+                "component": "wysiwygEditor"
+              },
+              {
+                "type": "tab",
                 "id": "#77",
                 "name": "Calendar Tab",
                 "component": "calendarTab"

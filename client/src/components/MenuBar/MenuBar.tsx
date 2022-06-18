@@ -34,6 +34,7 @@ const MenuBar = () => {
     $CREATE_SEARCH_CORPUS,
     $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_TEXT_EDITOR,
+    $CREATE_WYSIWYG_EDITOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
     $CREATE_VIDEO_TRANSCRIPTION,
@@ -95,6 +96,10 @@ const MenuBar = () => {
 
   const onCreateSearchCorpus = () => {
     publish($CREATE_SEARCH_CORPUS(activeTabRef.current?.id))
+  }
+
+  const onCreateWYSIWYGEditor = () => {
+    publish($CREATE_WYSIWYG_EDITOR(activeTabRef.current?.id))
   }
 
   const onEntityManagerCreate = () => {
@@ -240,6 +245,9 @@ const MenuBar = () => {
         },
         ent_manager: {
           onClick: onEntityManagerCreate,
+        },
+        wysiwyg_editor: {
+          onClick: onCreateWYSIWYGEditor,
         },
         message_reaction_editor: {
           onClick: onMessageReactionEditorCreate,

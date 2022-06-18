@@ -18,6 +18,7 @@ const windowTypes: WindowTypes = {
   STATE_MANAGER: 'stateManager',
   EDITOR: 'editor',
   PLAYTEST: 'playtest',
+  WYSIWYG_EDITOR: 'wysiwygEditor',
   CONSOLE: 'debugConsole',
   SEARCH_CORPUS: 'searchCorpus',
   ENT_MANAGER: 'entityManager',
@@ -36,6 +37,7 @@ type WindowType =
   | 'debugConsole'
   | 'searchCorpus'
   | 'entityManager'
+  | 'wysiwygEditor'
   | 'messageReactionEditor'
   | 'eventManager'
   | 'videoTranscription'
