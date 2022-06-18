@@ -1,14 +1,15 @@
 import { useContext, createContext, useState } from 'react'
+import { Principal } from '@dfinity/principal'
 
 interface PlugContext {
-  userPrinciple: string | null
-  setUserPrinciple: (principle: string) => void
+  userPrincipal: string | null
+  setUserPrincipal: (principal: string) => void
   login: (
     onSucces?: (arg?: any) => void,
     onFail?: (arg?: any) => void
   ) => Promise<void>
   connected: boolean
-  getUserPrinciple: () => Promise<any>
+  getUserPrincipal: () => Promise<any>
   getAgent: () => any
 }
 
@@ -18,19 +19,17 @@ export const usePlugWallet = () => useContext(Context)
 
 // Might want to namespace these
 const PlugProvider = ({ children }) => {
-  const [userPrinciple, setUserPrincipleState] = useState<string | null>(null)
+  const [userPrincipal, setUserPrincipalState] = useState<string | null>(null)
   const [connected, setConnected] = useState<boolean>(false)
 
-  const setUserPrinciple = principle => {
-    setUserPrincipleState(principle)
+  const setUserPrincipal = principal => {
+    setUserPrincipalState(principal)
   }
 
-  const getUserPrinciple = async () => {
-    const userPrincipleResponse = await (
-      window as any
-    ).ic.plug.agent.getPrincipal()
-
-    return userPrincipleResponse
+  const getUserPrincipal = async () => {
+    if (!userPrincipal) return null
+    const principal = Principal.fromText(userPrincipal)
+    return principal
   }
 
   const getAgent = () => {
@@ -54,30 +53,34 @@ const PlugProvider = ({ children }) => {
     setConnected(hasLoggedIn)
     await (window as any).ic.plug.createAgent()
 
-    // get the users principle that they are logged in as
-    const userPrincipleResponse = await getUserPrinciple()
+    // get the users principal that they are logged in as
+    const userPrincipalResponse = await (
+      window as any
+    ).ic.plug.agent.getPrincipal()
 
-    console.log('Logged in as: ' + userPrincipleResponse)
+    console.log('Logged in as: ' + userPrincipalResponse)
 
     // call onFail callback
-    if (!userPrincipleResponse) {
+    if (!userPrincipalResponse) {
       return await onFail('Could not connect - User authentication failed')
     }
 
-    // Set the users principle to component state for use in UI
-    setUserPrinciple(userPrincipleResponse.toString())
+    // Set the users principal to component state for use in UI
+    setUserPrincipal(userPrincipalResponse.toString())
 
-    await onConnect(userPrincipleResponse.toString())
+    console.log('user principal set', userPrincipalResponse.toString())
+
+    await onConnect(userPrincipalResponse.toString())
 
     //   activateDabFunctions();
   }
 
   const publicInterface: PlugContext = {
-    userPrinciple,
-    setUserPrinciple,
+    userPrincipal,
+    setUserPrincipal,
     connected,
     login,
-    getUserPrinciple,
+    getUserPrincipal,
     getAgent,
   }
 

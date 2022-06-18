@@ -6,7 +6,7 @@ export function PlugWallet({
   onConnect = (arg: string) => {},
   onFail = (arg: string) => {},
 }) {
-  const { userPrinciple, connected, login } = usePlugWallet()
+  const { userPrincipal, connected, login } = usePlugWallet()
 
   const [showMenu, setShowMenu] = useState<Boolean>(false)
   const [currentBalance, setCurrentBalance] = useState<string>('N/A')
@@ -53,7 +53,7 @@ export function PlugWallet({
             <button onClick={plugLogin} disabled={!!connected}>
               {connected ? 'Connected' : 'Connect'}
             </button>
-            <h6>Logged In As: {userPrinciple}</h6>
+            <h6>Logged In As: {userPrincipal}</h6>
             <div className="balance" id="balance">
               <p>Balance: </p>
               <p style={{ color: 'rgba(0,255,0,0.5' }}>

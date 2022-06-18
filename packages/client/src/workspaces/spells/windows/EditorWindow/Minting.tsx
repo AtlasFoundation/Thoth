@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { getAllUserNFTs } from '@psychedelic/dab-js'
-// import { useSnackbar } from 'notistack'
+import { HttpAgent } from '@dfinity/agent'
+import { useSnackbar } from 'notistack'
 
 import css from './editorwindow.module.css'
 
 import WindowToolbar from '@components/Window/WindowToolbar'
 import { useAuth } from '@/contexts/AuthProvider'
 import { useGetSpellQuery } from '@/state/api/spells'
-// import { SimpleAccordion } from '@components/Accordion'
-// import Input from '@components/Input/Input'
+import { SimpleAccordion } from '@components/Accordion'
+import Input from '@components/Input/Input'
 // import Panel from '@components/Panel/Panel'
 // import { useModal } from '@/contexts/ModalProvider'
 
@@ -18,9 +19,9 @@ import { Mint } from '../../../../components/Mint/Mint'
 import { usePlugWallet } from '@/contexts/PlugProvider'
 
 const MintingView = ({ open, setOpen, spellId, close }) => {
-  const [loadingNfts] = useState(false)
-  const [nfts] = useState([])
-  const { getUserPrinciple, getAgent, connected } = usePlugWallet()
+  const [nfts, setNfts] = useState<any>(null)
+  const { getUserPrincipal, connected, userPrincipal } = usePlugWallet()
+  const { enqueueSnackbar } = useSnackbar()
   // const { serialize } = useEditor()
 
   const { user } = useAuth()
@@ -34,25 +35,53 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
     }
   )
 
+  const buildUrl = url => {
+    return `https://urltorunspellnft.com`
+  }
+
+  // @ts-ignore
   const getNFTCollections = async () => {
-    const principle = await getUserPrinciple()
+    const host = 'https://ic0.app'
+    const agent = new HttpAgent({ host })
+    const principal = await getUserPrincipal()
     const collections = await getAllUserNFTs({
-      agent: getAgent(),
-      user: principle,
+      agent,
+      user: principal,
     })
 
     return collections
   }
 
+  const copy = url => {
+    const el = document.createElement('textarea')
+    el.value = url
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+    enqueueSnackbar('Url copied')
+  }
+
   useEffect(() => {
-    if (!connected) return
-
+    console.log('userPrincipal', userPrincipal)
+    if (!connected || !userPrincipal) return
     ;(async () => {
-      const nftCollections = await getNFTCollections()
+      try {
+        const nftCollections = await getNFTCollections()
 
-      console.log('COLLECTIONS', nftCollections)
+        const tokens = nftCollections.filter(c => c.name === 'Cipher')[0].tokens
+
+        const spellNfts = tokens.map(t => ({
+          spell: JSON.parse(t.metadata.json.value.TextContent),
+          url: t.url,
+        }))
+
+        setNfts(spellNfts)
+      } catch (err) {
+        console.log('error getting nft collections')
+      }
     })()
-  }, [connected])
+  }, [connected, userPrincipal])
 
   // const { openModal, closeModal } = useModal()
   // const { enqueueSnackbar } = useSnackbar()
@@ -91,67 +120,55 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
           </WindowToolbar>
         </div>
         <Scrollbars>
-          {!loadingNfts || !nfts || nfts.length === 0 ? (
+          {!nfts || nfts.length === 0 ? (
             <p className={css['message']}>
               You have no NFTs in your wallet. <br /> Press "Mint" to mint your
               current spwell into an NFT.
             </p>
           ) : (
             <>
-              {nfts.map(nft => {
+              {nfts.map((nft, i) => {
                 return (
-                  <div></div>
-                  // <SimpleAccordion
-                  //   key={deploy.version}
-                  //   heading={`${deploy.version}${
-                  //     deploy.versionName ? ' - ' + deploy.versionName : ''
-                  //   }`}
-                  //   defaultExpanded={true}
-                  // >
-                  //   <button
-                  //     className={css['load-button'] + ' extra-small'}
-                  //     onClick={() => {
-                  //       loadVersion(deploy.version)
-                  //     }}
-                  //   >
-                  //     Load
-                  //   </button>
-                  //   <div
-                  //     style={{
-                  //       display: 'flex',
-                  //       flexDirection: 'column',
-                  //       flex: 1,
-                  //     }}
-                  //   >
-                  //     <p> Endpoint URL </p>
-                  //     <div
-                  //       style={{
-                  //         display: 'flex',
-                  //         flex: 1,
-                  //         gap: 'var(--c1)',
-                  //         width: '100%',
-                  //       }}
-                  //     >
-                  //       <Input
-                  //         style={{ flex: 1 }}
-                  //         value={buildUrl(deploy.version)}
-                  //         readOnly
-                  //       />
-                  //       <button onClick={() => copy(buildUrl(deploy.version))}>
-                  //         copy
-                  //       </button>
-                  //     </div>
-                  //     <p> Change notes </p>
-                  //     <Panel
-                  //       style={{
-                  //         sbackgroundColor: 'var(--dark-1)',
-                  //         border: '1px solid var(--dark-3)',
-                  //       }}
-                  //     >
-                  //       {deploy.message}
-                  //     </Panel>
-                  //   </div>
-                  // </SimpleAccordion>
+                  <SimpleAccordion
+                    key={nft.spell.name + i}
+                    heading={`${nft.spell.name}`}
+                    defaultExpanded={true}
+                  >
+                    <button
+                      className={css['load-button'] + ' extra-small'}
+                      onClick={() => {
+                        // loadVersion(deploy.version)
+                      }}
+                    >
+                      Load
+                    </button>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flex: 1,
+                      }}
+                    >
+                      <p> Endpoint URL </p>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flex: 1,
+                          gap: 'var(--c1)',
+                          width: '100%',
+                        }}
+                      >
+                        <Input
+                          style={{ flex: 1 }}
+                          value={buildUrl(nft.url)}
+                          readOnly
+                        />
+                        <button onClick={() => copy(buildUrl(nft.url))}>
+                          copy
+                        </button>
+                      </div>
+                    </div>
+                  </SimpleAccordion>
                 )
               })}
             </>

@@ -38,6 +38,7 @@ export function Mint({ data }) {
             'https://f2cug-hyaaa-aaaah-abkdq-cai.raw.ic0.app/0/preview.jpg',
         },
       ],
+      ['type', { TextContent: 'spell' }],
       [
         'json',
         {

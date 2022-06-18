@@ -24,6 +24,8 @@
     "@types/react": "18.0.0"
   },
   "dependencies": {
+    "@dfinity/agent": "^0.9.3",
+    "@dfinity/principal": "^0.9.3",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@feathersjs/client": "^4.5.14",
