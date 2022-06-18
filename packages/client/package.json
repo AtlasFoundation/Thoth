@@ -46,6 +46,7 @@
     "add": "^2.0.6",
     "axios": "^0.21.4",
     "better-react-spinkit": "^2.0.4",
+    "buffer": "^6.0.3",
     "classnames": "^2.3.1",
     "deep-equal": "^2.0.5",
     "eslint-config-react-app": "^6.0.0",

@@ -8,6 +8,8 @@ interface PlugContext {
     onFail?: (arg?: any) => void
   ) => Promise<void>
   connected: boolean
+  getUserPrinciple: () => Promise<any>
+  getAgent: () => any
 }
 
 const Context = createContext<PlugContext>(undefined!)
@@ -21,6 +23,18 @@ const PlugProvider = ({ children }) => {
 
   const setUserPrinciple = principle => {
     setUserPrincipleState(principle)
+  }
+
+  const getUserPrinciple = async () => {
+    const userPrincipleResponse = await (
+      window as any
+    ).ic.plug.agent.getPrincipal()
+
+    return userPrincipleResponse
+  }
+
+  const getAgent = () => {
+    return (window as any).ic.plug.agent
   }
 
   const login = async (
@@ -41,9 +55,7 @@ const PlugProvider = ({ children }) => {
     await (window as any).ic.plug.createAgent()
 
     // get the users principle that they are logged in as
-    const userPrincipleResponse = await (
-      window as any
-    ).ic.plug.agent.getPrincipal()
+    const userPrincipleResponse = await getUserPrinciple()
 
     console.log('Logged in as: ' + userPrincipleResponse)
 
@@ -65,6 +77,8 @@ const PlugProvider = ({ children }) => {
     setUserPrinciple,
     connected,
     login,
+    getUserPrinciple,
+    getAgent,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>

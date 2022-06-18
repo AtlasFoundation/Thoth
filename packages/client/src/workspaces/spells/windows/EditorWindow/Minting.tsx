@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
+import { getAllUserNFTs } from '@psychedelic/dab-js'
 // import { useSnackbar } from 'notistack'
 
 import css from './editorwindow.module.css'
@@ -14,10 +15,12 @@ import { useGetSpellQuery } from '@/state/api/spells'
 
 // import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { Mint } from '../../../../components/Mint/Mint'
+import { usePlugWallet } from '@/contexts/PlugProvider'
 
 const MintingView = ({ open, setOpen, spellId, close }) => {
   const [loadingNfts] = useState(false)
   const [nfts] = useState([])
+  const { getUserPrinciple, getAgent, connected } = usePlugWallet()
   // const { serialize } = useEditor()
 
   const { user } = useAuth()
@@ -30,6 +33,26 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
       skip: !spellId,
     }
   )
+
+  const getNFTCollections = async () => {
+    const principle = await getUserPrinciple()
+    const collections = await getAllUserNFTs({
+      agent: getAgent(),
+      user: principle,
+    })
+
+    return collections
+  }
+
+  useEffect(() => {
+    if (!connected) return
+
+    ;(async () => {
+      const nftCollections = await getNFTCollections()
+
+      console.log('COLLECTIONS', nftCollections)
+    })()
+  }, [connected])
 
   // const { openModal, closeModal } = useModal()
   // const { enqueueSnackbar } = useSnackbar()
