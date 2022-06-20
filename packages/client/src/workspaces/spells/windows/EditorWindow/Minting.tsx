@@ -8,7 +8,11 @@ import css from './editorwindow.module.css'
 
 import WindowToolbar from '@components/Window/WindowToolbar'
 import { useAuth } from '@/contexts/AuthProvider'
-import { useGetSpellQuery, useSaveSpellMutation } from '@/state/api/spells'
+import {
+  useGetSpellQuery,
+  useNewSpellMutation,
+  useSpellExistsMutation,
+} from '@/state/api/spells'
 import { SimpleAccordion } from '@components/Accordion'
 import Input from '@components/Input/Input'
 // import Panel from '@components/Panel/Panel'
@@ -23,7 +27,7 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
   const [nfts, setNfts] = useState<any>(null)
   const { getUserPrincipal, connected, userPrincipal } = usePlugWallet()
   const { enqueueSnackbar } = useSnackbar()
-  const [saveSpellMutation] = useSaveSpellMutation()
+  const [spellExists] = useSpellExistsMutation()
   const navigate = useNavigate()
 
   // const { serialize } = useEditor()
@@ -56,6 +60,30 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
     return collections
   }
 
+  const getSpellNfts = async () => {
+    try {
+      const nftCollections = await getNFTCollections()
+
+      const tokens = nftCollections.filter(c => c.name === 'Cipher')[0].tokens
+
+      const spellNfts = tokens.map(t => ({
+        index: Number(t.index.toString()),
+        spell: JSON.parse(t.metadata.json.value.TextContent),
+        url: t.url,
+      }))
+
+      setNfts(spellNfts)
+    } catch (err) {
+      console.log('error getting nft collections')
+    }
+  }
+
+  const onRefresh = () => {
+    ;(async () => {
+      await getSpellNfts()
+    })()
+  }
+
   const copy = url => {
     const el = document.createElement('textarea')
     el.value = url
@@ -70,31 +98,36 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
     console.log('userPrincipal', userPrincipal)
     if (!connected || !userPrincipal) return
     ;(async () => {
-      try {
-        const nftCollections = await getNFTCollections()
-
-        const tokens = nftCollections.filter(c => c.name === 'Cipher')[0].tokens
-
-        const spellNfts = tokens.map(t => ({
-          index: Number(t.index.toString()),
-          spell: JSON.parse(t.metadata.json.value.TextContent),
-          url: t.url,
-        }))
-
-        setNfts(spellNfts)
-      } catch (err) {
-        console.log('error getting nft collections')
-      }
+      await getSpellNfts()
     })()
   }, [connected, userPrincipal])
 
   const loadSpell = spell => {
+    if (!user) return
     ;(async () => {
-      const savedSpell = await saveSpellMutation(spell)
+      // Clean old user ID from the spell name
+      const cleanedName = spell.name.split('#')[0]
+      // make a new spell name for the new user
+      const name = `${cleanedName}#${user.id}`
+      // check if spell exists
+      const exists = await spellExists(name)
 
-      console.log('SAVED SPELL', savedSpell)
+      console.log('Spell exists', exists)
 
-      navigate(`/thoth/${spell.name}`)
+      if (!exists) {
+        const savedSpell = await useNewSpellMutation({
+          ...spell,
+          name,
+          userId: user.id,
+          user: user.id,
+        })
+
+        console.log('savedSpell', savedSpell)
+
+        // check this call for errors
+      }
+
+      navigate(`/thoth/${name}`)
     })()
   }
 
@@ -127,6 +160,13 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
             <Mint data={spell} />
             <button
               onClick={() => {
+                onRefresh()
+              }}
+            >
+              Refresh
+            </button>
+            <button
+              onClick={() => {
                 setOpen(false)
               }}
             >
@@ -147,7 +187,7 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
                   <SimpleAccordion
                     key={nft.spell.name + i}
                     heading={`${nft.spell.name}`}
-                    defaultExpanded={true}
+                    defaultExpanded={false}
                   >
                     <button
                       className={css['load-button'] + ' extra-small'}
