@@ -90,6 +90,15 @@ export const spellApi = rootApi.injectEndpoints({
         body: diffData,
       }),
     }),
+    spellExists: builder.mutation<boolean, string>({
+      query: name => ({
+        url: 'game/spells/exists',
+        method: 'POST',
+        body: {
+          name,
+        },
+      }),
+    }),
     saveSpell: builder.mutation<Partial<Spell>, Partial<Spell> | Spell>({
       invalidatesTags: ['Spell'],
       // needed to use queryFn as query option didnt seem to allow async functions.
@@ -174,6 +183,7 @@ export const selectAllSpells = createSelector(
 export const {
   useGetSpellQuery,
   useGetSpellsQuery,
+  useSpellExistsMutation,
   useLazyGetSpellQuery,
   useNewSpellMutation,
   useDeleteSpellMutation,
