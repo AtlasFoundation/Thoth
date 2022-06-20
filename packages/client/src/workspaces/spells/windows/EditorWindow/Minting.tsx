@@ -157,7 +157,7 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
             >
               Your Spell NFTs
             </div>
-            <Mint data={spell} />
+            <Mint data={spell} onSuccess={onRefresh} />
             <button
               onClick={() => {
                 onRefresh()

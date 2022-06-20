@@ -2,7 +2,7 @@ import './dabStuff.css'
 import dip721v2_idl from '@psychedelic/dab-js/dist/idls/dip_721_v2.did'
 import { useSnackbar } from 'notistack'
 
-export function Mint({ data }) {
+export function Mint({ data, onSuccess = (any?) => {} }) {
   const cipherCanister = '6hgw2-nyaaa-aaaai-abkqq-cai'
   const whitelist = [cipherCanister]
   const { enqueueSnackbar } = useSnackbar()
@@ -55,6 +55,7 @@ export function Mint({ data }) {
         return
       }
       enqueueSnackbar('Spell minted succesffuly!', { variant: 'success' })
+      onSuccess(mintResult)
     } catch (err) {
       enqueueSnackbar('Error minting spell', { variant: 'error' })
       console.log(err)
