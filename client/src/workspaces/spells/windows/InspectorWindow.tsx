@@ -7,9 +7,12 @@ import DataControls from '../DataControls'
 import WindowMessage from '../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@latitudegames/thoth-core/types'
+import { useWysiwygInspector } from '@/workspaces/contexts/WysiwygProvider'
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
+  const { wysiwygData, saveWysiwyg } = useWysiwygInspector()
+
   const [width, setWidth] = useState()
   const { openModal } = useModal()
 

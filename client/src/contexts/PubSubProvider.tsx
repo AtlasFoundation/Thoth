@@ -45,6 +45,7 @@ export const events = {
   $CREATE_GREETINGS_MANAGER: tabId => `createGreetingsManager:${tabId}`,
   $CREATE_VIDEO_TRANSCRIPTION: tabId => `createVideoTranscription:${tabId}`,
   $CREATE_CALENDAR_TAB: tabId => `createCalendarTab:${tabId}`,
+  $CREATE_WYSIWYG_EDITOR: tabId => `createWysiwygEditor:${tabId}`,
   $CREATE_SEARCH_CORPUS: tabId => `createSearchCorpus:${tabId}`,
   $CREATE_DEBUG_CONSOLE: tabId => `createDebugConsole:${tabId}`,
   $CREATE_CONSOLE: tabId => `createDebugConsole:${tabId}`,

@@ -26,6 +26,7 @@ import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import VideoTranscription from './windows/VideoTranscription'
 import MessageReactionEditor from './windows/MessageReactionEditor'
+import WysiwygEditor from './windows/WysiwygEditor'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -142,6 +143,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <Inspector {...props} />
         case 'textEditor':
           return <TextEditor {...props} />
+        case 'wysiwygEditor':
+          return <WysiwygEditor {...props} />
         case 'editorWindow':
           return <EditorWindow {...props} />
         case 'debugConsole':
