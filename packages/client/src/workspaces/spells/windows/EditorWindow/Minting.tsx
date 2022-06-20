@@ -8,7 +8,7 @@ import css from './editorwindow.module.css'
 
 import WindowToolbar from '@components/Window/WindowToolbar'
 import { useAuth } from '@/contexts/AuthProvider'
-import { useGetSpellQuery } from '@/state/api/spells'
+import { useGetSpellQuery, useSaveSpellMutation } from '@/state/api/spells'
 import { SimpleAccordion } from '@components/Accordion'
 import Input from '@components/Input/Input'
 // import Panel from '@components/Panel/Panel'
@@ -17,11 +17,15 @@ import Input from '@components/Input/Input'
 // import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { Mint } from '../../../../components/Mint/Mint'
 import { usePlugWallet } from '@/contexts/PlugProvider'
+import { useNavigate } from 'react-router'
 
 const MintingView = ({ open, setOpen, spellId, close }) => {
   const [nfts, setNfts] = useState<any>(null)
   const { getUserPrincipal, connected, userPrincipal } = usePlugWallet()
   const { enqueueSnackbar } = useSnackbar()
+  const [saveSpellMutation] = useSaveSpellMutation()
+  const navigate = useNavigate()
+
   // const { serialize } = useEditor()
 
   const { user } = useAuth()
@@ -72,6 +76,7 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
         const tokens = nftCollections.filter(c => c.name === 'Cipher')[0].tokens
 
         const spellNfts = tokens.map(t => ({
+          index: Number(t.index.toString()),
           spell: JSON.parse(t.metadata.json.value.TextContent),
           url: t.url,
         }))
@@ -82,6 +87,16 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
       }
     })()
   }, [connected, userPrincipal])
+
+  const loadSpell = spell => {
+    ;(async () => {
+      const savedSpell = await saveSpellMutation(spell)
+
+      console.log('SAVED SPELL', savedSpell)
+
+      navigate(`/thoth/${spell.name}`)
+    })()
+  }
 
   // const { openModal, closeModal } = useModal()
   // const { enqueueSnackbar } = useSnackbar()
@@ -137,7 +152,7 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
                     <button
                       className={css['load-button'] + ' extra-small'}
                       onClick={() => {
-                        // loadVersion(deploy.version)
+                        loadSpell(nft.spell)
                       }}
                     >
                       Load
