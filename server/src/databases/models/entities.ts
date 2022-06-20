@@ -86,6 +86,7 @@ export interface entitiesAttributes {
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
+  slack_verification_token?: string
   slack_greeting_id?: string
   slack_spell_handler_incoming?: string
 }
@@ -169,6 +170,7 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_token'
   | 'slack_bot_name'
   | 'slack_port'
+  | 'slack_verification_token'
   | 'slack_greeting_id'
   | 'slack_spell_handler_incoming'
   | 'enabled'
@@ -265,6 +267,7 @@ export class entities
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
+  slack_verification_token?: string
   slack_greeting_id?: string
   slack_spell_handler_incoming?: string
 
@@ -608,6 +611,10 @@ export class entities
           allowNull: true,
         },
         slack_port: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_verification_token: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

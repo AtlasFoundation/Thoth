@@ -445,6 +445,8 @@ export class Entity {
     slack_bot_token: any,
     slack_bot_name: any,
     slack_port: any,
+    slack_verification_token: any,
+    slack_greeting: any,
     slack_spell_handler_incoming: any,
     spell_version: any,
     haveCustomCommands: boolean,
@@ -461,6 +463,7 @@ export class Entity {
 
     this.slack = new slack_client()
     this.slack.createSlackClient(
+      this.app,
       spellHandler,
       {
         slack_token,
@@ -468,6 +471,8 @@ export class Entity {
         slack_bot_token,
         slack_bot_name,
         slack_port,
+        slack_verification_token,
+        slack_greeting,
         haveCustomCommands,
         custom_commands,
       },
@@ -717,12 +722,15 @@ export class Entity {
     }
 
     if (data.slack_enabled) {
+      const [ greeting ] = await database.instance.getGreeting(data.slack_greeting_id)
       this.startSlack(
         data.slack_token,
         data.slack_signing_secret,
         data.slack_bot_token,
         data.slack_bot_name,
         data.slack_port,
+        data.slack_verification_token,
+        greeting,
         data.slack_spell_handler_incoming,
         data.spell_version,
         haveCustomCommands,

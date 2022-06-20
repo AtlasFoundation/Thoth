@@ -140,6 +140,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [slack_bot_token, setSlackBotToken] = useState('')
   const [slack_bot_name, setSlackBotName] = useState('')
   const [slack_port, setSlackPort] = useState('')
+  const [slack_verification_token, setSlackVerificationToken] = useState('')
   const [slack_greeting_id, setSlackGreetingId] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
@@ -303,6 +304,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setSlackSigningSecret(res.data.slack_signing_secret)
         setSlackBotName(res.data.slack_bot_name)
         setSlackPort(res.data.slack_port)
+        setSlackVerificationToken(res.data.slack_verification_token)
         setSlackGreetingId(res.data.slack_greeting_id)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
@@ -426,6 +428,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_bot_token,
       slack_bot_name,
       slack_port,
+      slack_verification_token,
       slack_greeting_id,
       slack_spell_handler_incoming,
     }
@@ -551,6 +554,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setSlackBotToken(responseData.slack_bot_token)
           setSlackBotName(responseData.slack_bot_name)
           setSlackPort(responseData.slack_port)
+          setSlackVerificationToken(responseData.slack_verification_token)
           setSlackGreetingId(responseData.slack_greeting_id)
           setSlackSpellHandlerIncoming(
             responseData.slack_spell_handler_incoming
@@ -646,6 +650,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_bot_token,
       slack_bot_name,
       slack_port,
+      slack_verification_token,
       slack_greeting_id,
       slack_spell_handler_incoming,
     }
@@ -1850,6 +1855,16 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                 />
               </div>
               <div className="form-item">
+                <span className="form-item-label">Verification Token</span>
+                <input
+                  type="text"
+                  defaultValue={slack_verification_token}
+                  onChange={e => {
+                    setSlackVerificationToken(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
                 <span className="form-item-label">Bot Token</span>
                 <input
                   type="text"
@@ -1900,6 +1915,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                     setSlackSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
