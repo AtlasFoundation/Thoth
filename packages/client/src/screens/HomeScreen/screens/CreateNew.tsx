@@ -33,8 +33,8 @@ export type Template = {
 
 export const thothTemplates = [
   { label: 'Starter', bg: emptyImg, graph: defaultGraph },
-  // { label: 'Language example', bg: langImg, chain: defaultChain },
-  // { label: 'Enki example', bg: enkiImg, chain: defaultChain },
+  // { label: 'Language example', bg: langImg, graph: defaultChain },
+  // { label: 'Enki example', bg: enkiImg, graph: defaultChain },
 ]
 
 const CreateNew = () => {
