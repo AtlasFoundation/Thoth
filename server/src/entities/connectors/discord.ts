@@ -16,7 +16,7 @@ import emojiRegex from 'emoji-regex'
 
 // import { classifyText } from '../utils/textClassifier'
 import { database } from '../../database'
-import { CreateSpellHandler } from '../handlers/CreateSpellHandler'
+import { CreateSpellHandler } from '../CreateSpellHandler'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
 import { getRandomEmptyResponse, startsWithCapital, makeGreeting } from './utils'
 
@@ -65,7 +65,15 @@ export class discord_client {
 
     // TODO: Replace me with direct message handler
     log('Discord', 'join', userName, utcStr)
-    // MessageClient.instance.sendUserUpdateEvent('Discord', 'join', username, utcStr)
+    this.userUpdateSpellHandler(
+      'join', 
+      userName,
+      '', 
+      'Discord', 
+      '', 
+      this.entity,
+      []
+    )
     const { enabled, sendIn, message, channelId } = this.discord_greeting
     if(!enabled) return
     const greeting = makeGreeting(message, { userName, serverName })
@@ -125,7 +133,15 @@ export class discord_client {
       utc.getSeconds()
     // TODO: Replace me with direct message handler
     log('Discord', 'leave', username, utcStr)
-    // MessageClient.instance.sendUserUpdateEvent('Discord', 'leave', username, utcStr)
+    this.userUpdateSpellHandler(
+      'leave', 
+      username,
+      '', 
+      'Discord', 
+      '', 
+      this.entity,
+      []
+    )
   }
 
   //Event that is triggered when a user reacts to a message
@@ -596,7 +612,15 @@ export class discord_client {
                   false,
                   'parentId:' + parentId
                 )
-                // MessageClient.instance.sendMessageEdit(edited.content, edited.id, 'Discord', edited.channel.id, utcStr, false, 'parentId:' + parentId)
+                this.handleInput(
+                  edited.content,
+                  edited.id,
+                  '',
+                  'Discord',
+                  edited.channel.id,
+                  parentId,
+                  []
+                )
               }
             })
           })
@@ -645,7 +669,15 @@ export class discord_client {
           }
           // TODO: Replace message with direct message handler
           log('Discord', newMember.status, user.username, utcStr)
-          // MessageClient.instance.sendUserUpdateEvent('Discord', newMember.status, user.username, utcStr)
+          this.userUpdateSpellHandler(
+            newMember.status, 
+            user.username,
+            '', 
+            'Discord', 
+            '', 
+            this.entity,
+            []
+          )
         })
     }
   }
@@ -737,7 +769,15 @@ export class discord_client {
                   channel.id,
                   channel.topic || 'none'
                 )
-                // MessageClient.instance.sendMetadata(channel.name, 'Discord', channel.id, channel.topic || 'none')
+                this.metadataSpellHandler(
+                  channel.topic || 'none',
+                  '',
+                  '',
+                  'Discord',
+                  channel.id, 
+                  this.entity,
+                  []
+                )
                 channel.messages
                   .fetch({ limit: 100 })
                   .then(async (messages: any[]) => {
@@ -972,7 +1012,15 @@ export class discord_client {
       chatId,
       utcStr
     )
-    // MessageClient.instance.sendSlashCommand(sender, command, command === 'say' ? interaction.data.options[0].value : 'none', 'Discord', chatId, utcStr)
+    this.sendSlashCommandResponse(
+      command === 'say' ? interaction.data.options[0].value : 'none',
+      command,
+      sender,
+      'Discord',
+      chatId,
+      this.entity,
+      []
+    )
   }
 
   async handleSlashCommandResponse(chat_id: any, response: any) {
@@ -985,10 +1033,6 @@ export class discord_client {
         }
       )
       .catch((err: string | boolean) => log(err))
-  }
-
-  async handleUserUpdateEvent(response: string) {
-    log('handleUserUpdateEvent: ' + response)
   }
 
   async handlePingSoloAgent(
@@ -1360,7 +1404,9 @@ export class discord_client {
   client = Discord.Client as any
   entity = undefined
   handleInput = null
-  handleUserUpdateEvent = null
+  userUpdateSpellHandler = null
+  metadataSpellHandler = null
+  slashCommandSpellHandler = null
   discord_starting_words: string[] = []
   discord_bot_name_regex: string = ''
   discord_bot_name: string = 'Bot'
@@ -1395,12 +1441,9 @@ export class discord_client {
         info3d: string
       }[]
     ) => Promise<unknown>,
-    handleUserUpdateEvent: (
-      client: string,
-      status: string,
-      user: string,
-      time: string
-    ) => Promise<unknown>,
+    userUpdateSpellHandler: any,
+    metadataSpellHandler: any,
+    slashCommandSpellHandler: any,
     use_voice,
     voice_provider,
     voice_character,
@@ -1412,7 +1455,9 @@ export class discord_client {
     this.entity = entity
     this.discord_greeting = discord_greeting
     this.handleInput = handleInput
-    this.handleUserUpdateEvent = handleUserUpdateEvent
+    this.userUpdateSpellHandler = userUpdateSpellHandler
+    this.metadataSpellHandler = metadataSpellHandler
+    this.slashCommandSpellHandler = slashCommandSpellHandler
     this.use_voice = use_voice
     this.voice_provider = voice_provider
     this.voice_character = voice_character

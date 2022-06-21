@@ -9,7 +9,7 @@ import { whatsapp_client } from './connectors/whatsapp'
 import { twilio_client } from './connectors/twilio'
 //import { harmony_client } from '../../../core/src/connectors/harmony'
 import { xrengine_client } from './connectors/xrengine'
-import { CreateSpellHandler } from './handlers/CreateSpellHandler'
+import { CreateSpellHandler } from './CreateSpellHandler'
 import { cacheManager } from '../cacheManager'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
@@ -17,7 +17,6 @@ import { stringIsAValidUrl } from '../utils/utils'
 import { urlencoded, json } from 'express'
 import express from 'express'
 import { slack_client } from './connectors/slack'
-import { UpdateSpellHandler } from './handlers/UpdateSpellHandler'
 import { database } from '../database'
 
 export class Entity {
@@ -50,6 +49,8 @@ export class Entity {
     discord_greeting: any,
     spell_handler: string,
     spell_handler_update: string,
+    spell_handler_metadata: string,
+    spell_handler_slash_command: string,
     spell_version: string,
     use_voice: boolean,
     voice_provider: string,
@@ -66,13 +67,18 @@ export class Entity {
       spell: spell_handler,
       version: spell_version,
     })
-
-    const updateSpellHandler = await UpdateSpellHandler({
+    const updateSpellHandler = spell_handler_update ? await CreateSpellHandler({
       spell: spell_handler_update,
       version: spell_version
-    })
-    console.log('updateSpellHandler ::: ', updateSpellHandler);
-    
+    }) : null
+    const metadataSpellHandler = spell_handler_metadata ? await CreateSpellHandler({
+      spell: spell_handler_metadata,
+      version: spell_version
+    }) : null
+    const slashCommandSpellHandler = spell_handler_slash_command ? await CreateSpellHandler({
+      spell: spell_handler_slash_command,
+      version: spell_version
+    }) : null
     this.discord = new discord_client()
     console.log('createDiscordClient')
     await this.discord.createDiscordClient(
@@ -85,6 +91,8 @@ export class Entity {
       discord_greeting,
       spellHandler,
       updateSpellHandler,
+      metadataSpellHandler,
+      slashCommandSpellHandler,
       use_voice,
       voice_provider,
       voice_character,
@@ -642,7 +650,7 @@ export class Entity {
     this.onDestroy()
     this.id = data.id
     console.log('initing agent')
-    // console.log('agent data is ', data)
+    console.log('agent data is ', data)
     this.name = data.agent ?? data.name ?? 'agent'
 
     this.generateVoices(data)
@@ -667,6 +675,8 @@ export class Entity {
         greeting,
         data.discord_spell_handler_incoming,
         data.discord_spell_handler_update,
+        data.discord_spell_handler_metadata,
+        data.discord_spell_handler_slash_command,
         data.spell_version,
         data.use_voice,
         data.voice_provider,
