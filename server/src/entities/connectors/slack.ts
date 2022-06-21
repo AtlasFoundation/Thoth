@@ -3,7 +3,7 @@ import { createEventAdapter, SlackEventAdapter } from '@slack/events-api'
 import { Server } from 'http'
 import { App, ExpressReceiver } from '@slack/bolt'
 import express from 'express'
-import { CreateSpellHandler } from '../CreateSpellHandler'
+import { CreateSpellHandler } from '../handlers/CreateSpellHandler'
 import { database } from '../../database'
 
 export class slack_client {

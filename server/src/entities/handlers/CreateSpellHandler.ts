@@ -2,13 +2,13 @@ import {
   buildThothInterface,
   extractModuleInputKeys,
   extractNodes,
-} from '../routes/spells/runSpell'
-import { creatorToolsDatabase } from '../databases/creatorTools'
-import { CustomError } from '../utils/CustomError'
+} from '../../routes/spells/runSpell'
+import { creatorToolsDatabase } from '../../databases/creatorTools'
+import { CustomError } from '../../utils/CustomError'
 import { getComponents } from '@latitudegames/thoth-core/src/components/components'
-import { Graph, ModuleComponent } from '../routes/spells/types'
+import { Graph, ModuleComponent } from '../../routes/spells/types'
 import { initSharedEngine } from '@latitudegames/thoth-core/src/engine'
-import { Module } from '../routes/spells/module'
+import { Module } from '../../routes/spells/module'
 import { ModuleType } from '@latitudegames/thoth-core/types'
 import { Task } from '@latitudegames/thoth-core/src/plugins/taskPlugin'
 import { StringDataType } from 'sequelize/types'
@@ -153,16 +153,18 @@ export const CreateSpellHandler = async (props: {
     } as any
 
     console.log('********** spellInputs are')
-    console.log(spellInputs)
+    // console.log(spellInputs)
 
     // TODO: Remove this line
     // TEST CASE: Chatting with agent on Discord doesn't get same response over and over
     // This resets everything and makes it work, BUT it is very slow
     // We need to reset the task outputs (and tasks in general) without
     // calling this function here
-
+    console.log('inputKeys :: ', inputKeys)
     let error = null
-    const inputs = inputKeys.reduce((inputs, expectedInput: string) => {
+    const inputs = inputKeys.reduce((inputs, expectedInput: string, idx: number) => {
+      console.log(`expectedInput[${idx}] :: `, expectedInput);
+      
       const requestInput = spellInputs
 
       if (requestInput) {
@@ -177,6 +179,7 @@ export const CreateSpellHandler = async (props: {
         // )
       }
     }, {} as Record<string, unknown>)
+    
 
     engine.tasks.forEach((task: Task) => {
       task.reset()

@@ -16,7 +16,7 @@ import emojiRegex from 'emoji-regex'
 
 // import { classifyText } from '../utils/textClassifier'
 import { database } from '../../database'
-import { CreateSpellHandler } from '../CreateSpellHandler'
+import { CreateSpellHandler } from '../handlers/CreateSpellHandler'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
 import { getRandomEmptyResponse, startsWithCapital } from './utils'
 
@@ -1331,6 +1331,7 @@ export class discord_client {
   client = Discord.Client as any
   entity = undefined
   handleInput = null
+  handleUserUpdateEvent = null
   discord_starting_words: string[] = []
   discord_bot_name_regex: string = ''
   discord_bot_name: string = 'Bot'
@@ -1363,6 +1364,12 @@ export class discord_client {
         info3d: string
       }[]
     ) => Promise<unknown>,
+    handleUserUpdateEvent: (
+      client: string,
+      status: string,
+      user: string,
+      time: string
+    ) => Promise<unknown>,
     use_voice,
     voice_provider,
     voice_character,
@@ -1373,6 +1380,7 @@ export class discord_client {
     console.log('creating discord client')
     this.entity = entity
     this.handleInput = handleInput
+    this.handleUserUpdateEvent = handleUserUpdateEvent
     this.use_voice = use_voice
     this.voice_provider = voice_provider
     this.voice_character = voice_character

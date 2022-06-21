@@ -9,7 +9,7 @@ import { whatsapp_client } from './connectors/whatsapp'
 import { twilio_client } from './connectors/twilio'
 //import { harmony_client } from '../../../core/src/connectors/harmony'
 import { xrengine_client } from './connectors/xrengine'
-import { CreateSpellHandler } from './CreateSpellHandler'
+import { CreateSpellHandler } from './handlers/CreateSpellHandler'
 import { cacheManager } from '../cacheManager'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
@@ -17,6 +17,7 @@ import { stringIsAValidUrl } from '../utils/utils'
 import { urlencoded, json } from 'express'
 import express from 'express'
 import { slack_client } from './connectors/slack'
+import { UpdateSpellHandler } from './handlers/UpdateSpellHandler'
 
 export class Entity {
   name = ''
@@ -45,6 +46,7 @@ export class Entity {
     discord_bot_name: string,
     discord_empty_responses: string,
     spell_handler: string,
+    spell_handler_update: string,
     spell_version: string,
     use_voice: boolean,
     voice_provider: string,
@@ -62,6 +64,12 @@ export class Entity {
       version: spell_version,
     })
 
+    const updateSpellHandler = await UpdateSpellHandler({
+      spell: spell_handler_update,
+      version: spell_version
+    })
+    console.log('updateSpellHandler ::: ', updateSpellHandler);
+    
     this.discord = new discord_client()
     console.log('createDiscordClient')
     await this.discord.createDiscordClient(
@@ -72,6 +80,7 @@ export class Entity {
       discord_bot_name,
       discord_empty_responses,
       spellHandler,
+      updateSpellHandler,
       use_voice,
       voice_provider,
       voice_character,
@@ -586,7 +595,7 @@ export class Entity {
     this.onDestroy()
     this.id = data.id
     console.log('initing agent')
-    console.log('agent data is ', data)
+    // console.log('agent data is ', data)
     this.name = data.agent ?? data.name ?? 'agent'
 
     this.generateVoices(data)
@@ -599,6 +608,7 @@ export class Entity {
         data.discord_bot_name,
         data.discord_empty_responses,
         data.discord_spell_handler_incoming,
+        data.discord_spell_handler_update,
         data.spell_version,
         data.use_voice,
         data.voice_provider,

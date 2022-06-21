@@ -1011,6 +1011,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordSpellHandlerIncoming(event.target.value)
                   }}
                 >
+                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1030,7 +1031,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setDiscordSpellHandlerUpdate(event.target.value)
                   }}
                 >
-                  <option defaultValue hidden></option>
+                  <option value='null' selected>--Disabled--</option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
