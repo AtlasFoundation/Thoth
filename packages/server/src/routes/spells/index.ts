@@ -168,16 +168,14 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
     throw new CustomError('input-failed', 'No diff provided in request body')
 
   try {
-    const newGraph = otJson0.type.apply(spell.graph, diff)
+    const newSpell = otJson0.type.apply(spell.toJSON(), diff)
 
-    const updatedSpell = await creatorToolsDatabase.spells.update(
-      {
-        graph: newGraph,
-      },
-      {
-        where: { name },
-      }
-    )
+    const updatedSpell = await creatorToolsDatabase.spells.update(newSpell, {
+      where: { name },
+    })
+
+    console.log('SPELL UPDATE', newSpell)
+    console.log('UPDATED', updatedSpell)
 
     ctx.response.status = 200
     ctx.body = updatedSpell
