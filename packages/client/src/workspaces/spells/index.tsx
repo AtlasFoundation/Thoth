@@ -49,7 +49,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       'nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
-          publish(events.$SAVE_SPELL_DIFF(tab.id), { chain: serialize() })
+          publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
         }
       }, 2000)
     )
@@ -60,7 +60,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   useEffect(() => {
     if (!editor?.on) return
     const unsubscribe = editor.on('save', () =>
-      publish(events.$SAVE_SPELL_DIFF(tab.id), { chain: serialize() })
+      publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
     )
 
     return unsubscribe as () => void
@@ -79,7 +79,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
         const event = events.$SUBSPELL_UPDATED(spellRef.current.name)
         const spell = {
           ...spellRef.current,
-          chain: editor.toJSON(),
+          graph: editor.toJSON(),
         }
         publish(event, spell)
       }
