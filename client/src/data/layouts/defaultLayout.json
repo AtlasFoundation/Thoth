@@ -92,6 +92,12 @@
               },
               {
                 "type": "tab",
+                "id": "#33",
+                "name": "Greetings Manager",
+                "component": "greetingsManager"
+              },
+              {
+                "type": "tab",
                 "id": "#16",
                 "name": "Search Corpus",
                 "component": "searchCorpus"

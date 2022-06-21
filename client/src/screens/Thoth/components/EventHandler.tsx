@@ -62,6 +62,7 @@ const EventHandler = ({ pubSub, tab }) => {
     $CREATE_STATE_MANAGER,
     $CREATE_SEARCH_CORPUS,
     $CREATE_ENT_MANAGER,
+    $CREATE_GREETINGS_MANAGER,
     $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
@@ -143,6 +144,10 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const createEntityManager = () => {
     createOrFocus(windowTypes.ENT_MANAGER, 'Ent Manager')
+  }
+  
+  const createGreetingsManager = () => {
+    createOrFocus(windowTypes.GREETINGS_MANAGER, 'Greetings Manager')
   }
 
   const createMessageReactionEditor = () => {
@@ -247,6 +252,7 @@ const EventHandler = ({ pubSub, tab }) => {
     [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
     [$CREATE_MESSAGE_REACTION_EDITOR(tab.id)]: createMessageReactionEditor,
     [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
+    [$CREATE_GREETINGS_MANAGER(tab.id)]: createGreetingsManager,
     [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
     [$CREATE_INSPECTOR(tab.id)]: createInspector,
     [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,

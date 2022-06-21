@@ -17,6 +17,7 @@ import { stringIsAValidUrl } from '../utils/utils'
 import { urlencoded, json } from 'express'
 import express from 'express'
 import { slack_client } from './connectors/slack'
+import { database } from '../database'
 
 export class Entity {
   name = ''
@@ -45,6 +46,7 @@ export class Entity {
     discord_bot_name_regex: string,
     discord_bot_name: string,
     discord_empty_responses: string,
+    discord_greeting: any,
     spell_handler: string,
     spell_version: string,
     use_voice: boolean,
@@ -72,6 +74,7 @@ export class Entity {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
+      discord_greeting,
       spellHandler,
       use_voice,
       voice_provider,
@@ -443,6 +446,8 @@ export class Entity {
     slack_bot_token: any,
     slack_bot_name: any,
     slack_port: any,
+    slack_verification_token: any,
+    slack_greeting: any,
     slack_spell_handler_incoming: any,
     spell_version: any,
     haveCustomCommands: boolean,
@@ -459,6 +464,7 @@ export class Entity {
 
     this.slack = new slack_client()
     this.slack.createSlackClient(
+      this.app,
       spellHandler,
       {
         slack_token,
@@ -466,6 +472,8 @@ export class Entity {
         slack_bot_token,
         slack_bot_name,
         slack_port,
+        slack_verification_token,
+        slack_greeting,
         haveCustomCommands,
         custom_commands,
       },
@@ -640,12 +648,14 @@ export class Entity {
     }
 
     if (data.discord_enabled) {
+      const [ greeting ] = await database.instance.getGreeting(data.discord_greeting_id)
       this.startDiscord(
         data.discord_api_key,
         data.discord_starting_words,
         data.discord_bot_name_regex,
         data.discord_bot_name,
         data.discord_empty_responses,
+        greeting,
         data.discord_spell_handler_incoming,
         data.spell_version,
         data.use_voice,
@@ -760,12 +770,15 @@ export class Entity {
     }
 
     if (data.slack_enabled) {
+      const [ greeting ] = await database.instance.getGreeting(data.slack_greeting_id)
       this.startSlack(
         data.slack_token,
         data.slack_signing_secret,
         data.slack_bot_token,
         data.slack_bot_name,
         data.slack_port,
+        data.slack_verification_token,
+        greeting,
         data.slack_spell_handler_incoming,
         data.spell_version,
         haveCustomCommands,

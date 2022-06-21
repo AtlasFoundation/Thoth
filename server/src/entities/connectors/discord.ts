@@ -18,7 +18,7 @@ import emojiRegex from 'emoji-regex'
 import { database } from '../../database'
 import { CreateSpellHandler } from '../CreateSpellHandler'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
-import { getRandomEmptyResponse, startsWithCapital } from './utils'
+import { getRandomEmptyResponse, startsWithCapital, makeGreeting } from './utils'
 
 function log(...s: (string | boolean)[]) {
   console.log(...s)
@@ -38,8 +38,8 @@ export class discord_client {
 
   //Event that is triggered when a new user is added to the server
   async handleGuildMemberAdd(user: { user: { id: any; username: any } }) {
-    const userId = user.user.id
-    const username = user.user.username
+    const userName = user.user.username
+    const serverName = user.guild.name
 
     const dateNow = new Date()
     const utc = new Date(
@@ -64,8 +64,37 @@ export class discord_client {
       utc.getSeconds()
 
     // TODO: Replace me with direct message handler
-    log('Discord', 'join', username, utcStr)
+    log('Discord', 'join', userName, utcStr)
     // MessageClient.instance.sendUserUpdateEvent('Discord', 'join', username, utcStr)
+    const { enabled, sendIn, message, channelId } = this.discord_greeting
+    if(!enabled) return
+    const greeting = makeGreeting(message, { userName, serverName })
+    switch(sendIn) {
+      case 'dm':
+        const dmChannel = await user.createDM()
+        await this.sendGreetingInChannel(greeting, dmChannel)
+        break;
+      case 'channel':
+        try {
+          const channel = await user.guild.channels.fetch(channelId)
+          console.log('channel ::: ', channel);
+          await this.sendGreetingInChannel(greeting, channel)
+        } catch (e) {
+          console.log('Error fetching channel ::: ', e)
+        }
+        break;
+      default:
+        break;
+    }
+  }
+  
+  async sendGreetingInChannel(greeting, channel) {
+    try {
+      await channel.send(greeting)
+      console.log('Greeting sent ::: ', greeting)
+    } catch (e) {
+      console.log('Error sending greeting ::: ', e)
+    }
   }
 
   //Event that is triggered when a user is removed from the server
@@ -1335,6 +1364,7 @@ export class discord_client {
   discord_bot_name_regex: string = ''
   discord_bot_name: string = 'Bot'
   discord_empty_responses: string[] = []
+  discord_greeting: any
   use_voice: boolean
   voice_provider: string
   voice_character: string
@@ -1349,6 +1379,7 @@ export class discord_client {
     discord_bot_name_regex: string,
     discord_bot_name: string | RegExp,
     discord_empty_responses: string,
+    discord_greeting: any,
     handleInput: (
       message: string | undefined,
       speaker: string,
@@ -1372,6 +1403,7 @@ export class discord_client {
   ) => {
     console.log('creating discord client')
     this.entity = entity
+    this.discord_greeting = discord_greeting
     this.handleInput = handleInput
     this.use_voice = use_voice
     this.voice_provider = voice_provider
