@@ -86,6 +86,10 @@ export interface entitiesAttributes {
   slack_bot_name?: string
   slack_port?: string
   slack_spell_handler_incoming?: string
+  loop_enabled?: boolean
+  loop_interval?: string
+  loop_agent_name?: string
+  loop_spell_handler?: string
 }
 
 export type entitiesPk = 'id'
@@ -167,6 +171,10 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_name'
   | 'slack_port'
   | 'slack_spell_handler_incoming'
+  | 'loop_enabled'
+  | 'loop_interval'
+  | 'loop_agent_name'
+  | 'loop_spell_handler'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -261,6 +269,10 @@ export class entities
   slack_bot_name?: string
   slack_port?: string
   slack_spell_handler_incoming?: string
+  loop_enabled?: boolean
+  loop_interval?: string
+  loop_agent_name?: string
+  loop_spell_handler?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -596,6 +608,22 @@ export class entities
           allowNull: true,
         },
         slack_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        loop_interval: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_agent_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_spell_handler: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

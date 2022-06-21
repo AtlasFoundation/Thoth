@@ -44,7 +44,9 @@ import { DocumentDelete } from './search/DocumentDelete'
 import { DocumentEdit } from './search/DocumentEdit'
 import { DocumentGet } from './search/DocumentGet'
 import { DocumentSet } from './search/DocumentSet'
+import { DocumentSetMass } from './search/DocumentSetMass'
 import { DocumentStoreGet } from './search/DocumentStoreGet'
+import { RSSGet } from './search/RSSGet'
 import { Search } from './search/Search'
 import { VectorSearch } from './search/VectorSearch'
 import { SpellComponent } from './Spell'
@@ -104,9 +106,11 @@ export const components = {
   documentEdit: () => new DocumentEdit(),
   documentDelete: () => new DocumentDelete(),
   documentSet: () => new DocumentSet(),
+  documentSetMass: () => new DocumentSetMass(),
   documentStoreGet: () => new DocumentStoreGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
+  rssGet: () => new RSSGet(),
   cacheManagerGet: () => new CacheManagerGet(),
   cacheManagerDelete: () => new CacheManagerDelete(),
   cacheManagerSet: () => new CacheManagerSet(),
