@@ -343,7 +343,6 @@ const deleteHandler = async (ctx: Koa.Context) => {
 }
 
 // TODO create a 'build handler' WHOF that can take in things like an array of required params and parse errors, etc.
-
 const postSpellExistsHandler = async (ctx: Koa.Context) => {
   const body = ctx.request.body
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
