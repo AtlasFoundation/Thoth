@@ -28,7 +28,7 @@ module.exports = () => {
     entry: ['regenerator-runtime/runtime.js', './src/index.tsx'],
     output: {
       path: path.resolve(__dirname, './build'),
-      filename: '[name].[contenthash].bundle.js',
+      filename: '[name].[contenthash]-1.bundle.js',
       clean: true,
     },
     resolve: {
