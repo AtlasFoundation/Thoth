@@ -177,12 +177,6 @@ export class telegram_client {
   }
 
   async onMessage(bot, msg, botName, username_regex) {
-    this.addMessageToHistory(
-      msg.chat.id,
-      msg.message_id,
-      msg.from.username === undefined ? msg.from.first_name : msg.from.username,
-      msg.text
-    )
     log(JSON.stringify(msg))
     const date = Date.now() / 1000
     const msgDate = msg.date
@@ -226,7 +220,6 @@ export class telegram_client {
       }
     }
 
-    this.addMessageToHistory(msg.chat.id, msg.message_id, _sender, content)
     let addPing = false
     if (msg.chat.type == 'supergroup') {
       if (content === '') content = '{sent media}'
@@ -446,10 +439,6 @@ export class telegram_client {
   getResponse(chatId, message) {
     if (this.messageResponses[chatId] === undefined) return undefined
     return this.messageResponses[chatId][message]
-  }
-
-  async addMessageToHistory(chatId, messageId, senderName, content) {
-    return
   }
 
   async updateMessage(chatId, messageId, newContent) {}

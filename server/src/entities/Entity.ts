@@ -38,6 +38,7 @@ export class Entity {
 
   router: any
   app: any
+  loopHandler: any
 
   async startDiscord(
     discord_api_token: string,
@@ -481,11 +482,49 @@ export class Entity {
   }
   async stopSlack() {}
 
+  async startLoop(
+    loop_interval: string,
+    loop_spell_handler: string,
+    spell_version: string,
+    agent_name: string
+  ) {
+    if (this.loopHandler) {
+      throw new Error('Loop already running for this client on this instance')
+    }
+
+    const loopInterval = parseInt(loop_interval)
+    if (typeof loopInterval === 'number' && loopInterval > 0) {
+      const spellHandler = await CreateSpellHandler({
+        spell: loop_spell_handler,
+        version: spell_version,
+      })
+
+      this.loopHandler = setInterval(async () => {
+        const resp = await spellHandler(
+          'loop',
+          'loop',
+          agent_name,
+          'loop',
+          'loop',
+          this,
+          []
+        )
+        if (resp && (resp as string)?.length > 0) {
+          console.log('Loop Response:', resp)
+        }
+      }, loopInterval)
+    } else {
+      throw new Error('Loop Interval must be a number greater than 0')
+    }
+  }
+  async stopLoop() {}
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
       this.discord === null || this.discord === undefined
     )
+    if (this.loopHandler && this.loopHandler !== undefined) this.stopLoop()
     if (this.discord) this.stopDiscord()
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
@@ -598,6 +637,15 @@ export class Entity {
     this.name = data.agent ?? data.name ?? 'agent'
 
     this.generateVoices(data)
+
+    if (data.loop_enabled) {
+      this.startLoop(
+        data.loop_interval,
+        data.loop_spell_handler,
+        data.spell_version,
+        data.loop_agent_name
+      )
+    }
 
     if (data.discord_enabled) {
       const [ greeting ] = await database.instance.getGreeting(data.discord_greeting_id)

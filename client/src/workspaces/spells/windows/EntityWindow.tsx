@@ -145,6 +145,11 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
 
+  const [loop_enabled, setLoopEnabled] = useState(false)
+  const [loop_interval, setLoopInterval] = useState('')
+  const [loop_agent_name, setLoopAgentName] = useState('')
+  const [loop_spell_handler, setLoopSpellHandler] = useState('')
+
   const testVoice = async () => {
     if (
       (voice_provider && voice_character && voice_language_code) ||
@@ -308,6 +313,11 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setSlackGreetingId(res.data.slack_greeting_id)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
+        setLoopEnabled(res.data.loop_enabled === true)
+        setLoopInterval(res.data.loop_interval)
+        setLoopAgentName(res.data.loop_agent_name)
+        setLoopSpellHandler(res.data.loop_spell_handler)
+
         setLoaded(true)
       })()
     }
@@ -431,6 +441,10 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_verification_token,
       slack_greeting_id,
       slack_spell_handler_incoming,
+      loop_enabled,
+      loop_interval,
+      loop_agent_name,
+      loop_spell_handler,
     }
     axios
       .post(`${process.env.REACT_APP_API_ROOT_URL}/entity`, {
@@ -560,6 +574,11 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
             responseData.slack_spell_handler_incoming
           )
 
+          setLoopEnabled(responseData.loop_enabled)
+          setLoopInterval(responseData.loop_interval)
+          setLoopAgentName(responseData.loop_agent_name)
+          setLoopSpellHandler(responseData.loop_spell_handler)
+
           updateCallback()
         }
       })
@@ -653,6 +672,10 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_verification_token,
       slack_greeting_id,
       slack_spell_handler_incoming,
+      loop_enabled,
+      loop_interval,
+      loop_agent_name,
+      loop_spell_handler,
     }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
@@ -1916,6 +1939,62 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                   }}
                 >
                   <option defaultValue hidden></option>
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="form-item">
+            <span className="form-item-label">Loop Enabled</span>
+            <input
+              type="checkbox"
+              value={loop_enabled}
+              defaultChecked={loop_enabled || loop_enabled === 'true'}
+              onChange={e => {
+                setLoopEnabled(e.target.checked)
+              }}
+            />
+          </div>
+
+          {loop_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Loop Interval</span>
+                <input
+                  type="text"
+                  pattern="[0-9]*"
+                  defaultValue={loop_interval}
+                  onChange={e => {
+                    setLoopInterval(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Loop Agent Name</span>
+                <input
+                  type="text"
+                  defaultValue={loop_agent_name}
+                  onChange={e => {
+                    setLoopAgentName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">Spell Handler</span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={loop_spell_handler}
+                  onChange={event => {
+                    setLoopSpellHandler(event.target.value)
+                  }}
+                >
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>

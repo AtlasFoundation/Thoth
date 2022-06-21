@@ -41,7 +41,6 @@ export class DocumentSet extends ThothComponent<void> {
 
   builder(node: ThothNode) {
     const storeIdInput = new Rete.Input('storeId', 'Store ID', numSocket)
-    const keywordsInput = new Rete.Input('keywords', 'Keywords', stringSocket)
     const descriptionInput = new Rete.Input(
       'description',
       'Description',
@@ -58,7 +57,6 @@ export class DocumentSet extends ThothComponent<void> {
 
     return node
       .addInput(storeIdInput)
-      .addInput(keywordsInput)
       .addInput(descriptionInput)
       .addInput(isIncludedInput)
       .addInput(dataInput)
@@ -73,7 +71,6 @@ export class DocumentSet extends ThothComponent<void> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const storeId = inputs['storeId'][0]
-    const keywords = inputs['keywords'] ? (inputs['keywords'][0] as string) : ''
     const description = inputs['description']
       ? (inputs['description'][0] as string)
       : ''
@@ -82,7 +79,6 @@ export class DocumentSet extends ThothComponent<void> {
     const resp = await axios.post(
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/document`,
       {
-        keywords,
         description,
         is_included,
         storeId,
