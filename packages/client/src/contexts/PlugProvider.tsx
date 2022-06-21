@@ -46,6 +46,8 @@ const PlugProvider = ({ children }) => {
       return await onFail('Could not connect - Plug is not installed')
     }
 
+    await (window as any).ic.plug.requestConnect()
+
     // check if user is logged in
     const hasLoggedIn = await (window as any).ic.plug.isConnected()
 
