@@ -14,6 +14,7 @@ export interface entitiesAttributes {
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
+  discord_greeting_id?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -85,7 +86,13 @@ export interface entitiesAttributes {
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
+  slack_verification_token?: string
+  slack_greeting_id?: string
   slack_spell_handler_incoming?: string
+  loop_enabled?: boolean
+  loop_interval?: string
+  loop_agent_name?: string
+  loop_spell_handler?: string
 }
 
 export type entitiesPk = 'id'
@@ -97,6 +104,7 @@ export type entitiesOptionalAttributes =
   | 'discord_bot_name_regex'
   | 'discord_bot_name'
   | 'discord_empty_responses'
+  | 'discord_greeting_id'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
   | 'discord_spell_handler_feed'
@@ -166,7 +174,13 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_token'
   | 'slack_bot_name'
   | 'slack_port'
+  | 'slack_verification_token'
+  | 'slack_greeting_id'
   | 'slack_spell_handler_incoming'
+  | 'loop_enabled'
+  | 'loop_interval'
+  | 'loop_agent_name'
+  | 'loop_spell_handler'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -189,6 +203,7 @@ export class entities
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
+  discord_greeting_id?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -260,7 +275,13 @@ export class entities
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
+  slack_verification_token?: string
+  slack_greeting_id?: string
   slack_spell_handler_incoming?: string
+  loop_enabled?: boolean
+  loop_interval?: string
+  loop_agent_name?: string
+  loop_spell_handler?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -310,6 +331,16 @@ export class entities
         discord_empty_responses: {
           type: DataTypes.TEXT,
           allowNull: true,
+        },
+        discord_greeting_id: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'greetings',
+            key: 'id'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
         },
         discord_spell_handler_incoming: {
           type: DataTypes.TEXT,
@@ -595,7 +626,37 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        slack_verification_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_greeting_id: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'greetings',
+            key: 'id'
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
+        },
         slack_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        loop_interval: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_agent_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_spell_handler: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

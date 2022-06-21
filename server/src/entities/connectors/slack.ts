@@ -1,10 +1,7 @@
-import { WebClient } from '@slack/web-api'
-import { createEventAdapter, SlackEventAdapter } from '@slack/events-api'
-import { Server } from 'http'
-import { App, ExpressReceiver } from '@slack/bolt'
-import express from 'express'
-import { CreateSpellHandler } from '../handlers/CreateSpellHandler'
+import { App } from '@slack/bolt'
+import { CreateSpellHandler } from '../CreateSpellHandler'
 import { database } from '../../database'
+import { makeGreeting } from './utils'
 
 export class slack_client {
   spellHandler: any
@@ -12,16 +9,18 @@ export class slack_client {
   entity: any
   haveCustomCommands: boolean
   custom_commands: any[]
+  greeting: any
 
   app: App
   message_reactions: { [reaction: string]: any } = {}
 
   //to verify use: url/slack/events
-  async createSlackClient(spellHandler: any, settings: any, entity: any) {
+  async createSlackClient(expressApp: any, spellHandler: any, settings: any, entity: any) {
     if (
       !settings.slack_token ||
       !settings.slack_signing_secret ||
-      !settings.slack_bot_token
+      !settings.slack_bot_token ||
+      !settings.slack_verification_token
     ) {
       console.log('invalid slack tokens')
       return
@@ -32,11 +31,12 @@ export class slack_client {
     this.entity = entity
     this.haveCustomCommands = settings.haveCustomCommands
     this.custom_commands = settings.custom_commands
+    this.greeting = settings.slack_greeting
 
     this.app = new App({
       signingSecret: settings.slack_signing_secret,
-      token: settings.slack_token,
-      appToken: settings.slack_app_token,
+      token: settings.slack_bot_token,
+      appToken: settings.slack_token,
     })
 
     const reaction_handlers = await database.instance.getMessageReactions()
@@ -133,6 +133,28 @@ export class slack_client {
       say(response)
     })
 
+    expressApp.post('/slack/event', async (req: any, res: any) => {
+      if(req.body.token !== this.settings.slack_verification_token) return res.sendStatus(403)
+      const { challenge, event } = req.body
+      if(req.body.type === 'url_verification') return res.status(200).send(challenge)
+      if(req.body.type === 'event_callback') {
+        switch (event.type) {
+          case 'member_joined_channel': {
+            if(!this.greeting.enabled) break
+            try {
+              const { user } = await this.app.client.users.info({ user: event.user })
+              this.sendGreeting(user)
+            } catch (e) {
+              console.log('Error ::: ', e)
+            }
+            break
+          }
+          default: break
+        }
+      }
+      return res.status(200).send('OK')
+    })
+
     await this.app.start(settings.slack_port)
     console.log('Slack Bolt app is running on', settings.slack_port, '!')
   }
@@ -164,6 +186,46 @@ export class slack_client {
       }
 
       return false
+    }
+  }
+
+  async sendGreeting(user: any) {
+    const { channelId, sendIn, message } = this.greeting
+    switch(sendIn) {
+      case 'dm': {
+        try {
+          const { channel } = await this.app.client.conversations.open({
+            users: user?.id
+          })
+          const greeting = makeGreeting(message, { 
+            userName: user?.real_name as string, 
+            serverName: 'DM'
+          })
+          await this.app.client.chat.postMessage({
+            channel: channel?.id as string,
+            text: greeting
+          })
+        } catch (e) {
+          console.log('Error sending greeting in DM ::: ', e)          
+        }
+        break
+      }
+      case 'channel': {
+        try {
+          const { channel } = await this.app.client.conversations.info({ channel: channelId }) 
+          const greeting = makeGreeting(message, { 
+            userName: user?.real_name as string, 
+            serverName: channel?.name as string
+          })
+          await this.app.client.chat.postMessage({
+            channel: channelId,
+            text: greeting
+          })
+        } catch (e) {
+          console.log('Error sending greeting in channel ::: ', e)
+        }
+        break
+      }
     }
   }
 }

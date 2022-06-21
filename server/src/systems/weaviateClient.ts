@@ -8,7 +8,9 @@ import { database } from '../database'
 import axios from 'axios'
 import { ClassifierSchema } from '../types'
 
+const saved_docs: SearchSchema[] = []
 let client: weaviate.client
+
 export async function initWeaviateClient(
   _train: boolean,
   _trainClassifier: boolean
@@ -90,11 +92,16 @@ async function train(data: SearchSchema[]) {
       title: data[i].title,
       description: data[i].description,
     }
+    if (saved_docs.includes(object)) {
+      continue
+    }
+
     const topic = await classifyText(data[i].description)
     if (!topic || topic === undefined || topic.length <= 0) {
       continue
     }
 
+    saved_docs.push(object)
     const res = await client.data
       .creator()
       .withClassName(topic)
@@ -111,11 +118,16 @@ async function train(data: SearchSchema[]) {
         title: 'Document',
         description: documents[i].description,
       }
+      if (saved_docs.includes(object)) {
+        continue
+      }
+
       const topic = await classifyText(documents[i].description)
       if (!topic || topic === undefined || topic.length <= 0) {
         continue
       }
 
+      saved_docs.push(object)
       const res = await client.data
         .creator()
         .withClassName(topic)
@@ -172,11 +184,16 @@ export async function singleTrain(data: SearchSchema) {
     title: data.title,
     description: data.description,
   }
+  if (saved_docs.includes(object)) {
+    return
+  }
+
   const topic = await classifyText(object.description)
   if (!topic || topic === undefined || topic.length <= 0) {
     return
   }
 
+  saved_docs.push(object)
   const res = await client.data
     .creator()
     .withClassName(topic)

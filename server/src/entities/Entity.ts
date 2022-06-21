@@ -18,6 +18,7 @@ import { urlencoded, json } from 'express'
 import express from 'express'
 import { slack_client } from './connectors/slack'
 import { UpdateSpellHandler } from './handlers/UpdateSpellHandler'
+import { database } from '../database'
 
 export class Entity {
   name = ''
@@ -38,6 +39,7 @@ export class Entity {
 
   router: any
   app: any
+  loopHandler: any
 
   async startDiscord(
     discord_api_token: string,
@@ -45,6 +47,7 @@ export class Entity {
     discord_bot_name_regex: string,
     discord_bot_name: string,
     discord_empty_responses: string,
+    discord_greeting: any,
     spell_handler: string,
     spell_handler_update: string,
     spell_version: string,
@@ -79,6 +82,7 @@ export class Entity {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
+      discord_greeting,
       spellHandler,
       updateSpellHandler,
       use_voice,
@@ -451,6 +455,8 @@ export class Entity {
     slack_bot_token: any,
     slack_bot_name: any,
     slack_port: any,
+    slack_verification_token: any,
+    slack_greeting: any,
     slack_spell_handler_incoming: any,
     spell_version: any,
     haveCustomCommands: boolean,
@@ -467,6 +473,7 @@ export class Entity {
 
     this.slack = new slack_client()
     this.slack.createSlackClient(
+      this.app,
       spellHandler,
       {
         slack_token,
@@ -474,6 +481,8 @@ export class Entity {
         slack_bot_token,
         slack_bot_name,
         slack_port,
+        slack_verification_token,
+        slack_greeting,
         haveCustomCommands,
         custom_commands,
       },
@@ -482,11 +491,49 @@ export class Entity {
   }
   async stopSlack() {}
 
+  async startLoop(
+    loop_interval: string,
+    loop_spell_handler: string,
+    spell_version: string,
+    agent_name: string
+  ) {
+    if (this.loopHandler) {
+      throw new Error('Loop already running for this client on this instance')
+    }
+
+    const loopInterval = parseInt(loop_interval)
+    if (typeof loopInterval === 'number' && loopInterval > 0) {
+      const spellHandler = await CreateSpellHandler({
+        spell: loop_spell_handler,
+        version: spell_version,
+      })
+
+      this.loopHandler = setInterval(async () => {
+        const resp = await spellHandler(
+          'loop',
+          'loop',
+          agent_name,
+          'loop',
+          'loop',
+          this,
+          []
+        )
+        if (resp && (resp as string)?.length > 0) {
+          console.log('Loop Response:', resp)
+        }
+      }, loopInterval)
+    } else {
+      throw new Error('Loop Interval must be a number greater than 0')
+    }
+  }
+  async stopLoop() {}
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
       this.discord === null || this.discord === undefined
     )
+    if (this.loopHandler && this.loopHandler !== undefined) this.stopLoop()
     if (this.discord) this.stopDiscord()
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
@@ -600,13 +647,24 @@ export class Entity {
 
     this.generateVoices(data)
 
+    if (data.loop_enabled) {
+      this.startLoop(
+        data.loop_interval,
+        data.loop_spell_handler,
+        data.spell_version,
+        data.loop_agent_name
+      )
+    }
+
     if (data.discord_enabled) {
+      const [ greeting ] = await database.instance.getGreeting(data.discord_greeting_id)
       this.startDiscord(
         data.discord_api_key,
         data.discord_starting_words,
         data.discord_bot_name_regex,
         data.discord_bot_name,
         data.discord_empty_responses,
+        greeting,
         data.discord_spell_handler_incoming,
         data.discord_spell_handler_update,
         data.spell_version,
@@ -722,12 +780,15 @@ export class Entity {
     }
 
     if (data.slack_enabled) {
+      const [ greeting ] = await database.instance.getGreeting(data.slack_greeting_id)
       this.startSlack(
         data.slack_token,
         data.slack_signing_secret,
         data.slack_bot_token,
         data.slack_bot_name,
         data.slack_port,
+        data.slack_verification_token,
+        greeting,
         data.slack_spell_handler_incoming,
         data.spell_version,
         haveCustomCommands,
