@@ -15,7 +15,7 @@ const Tab = ({ tab, activeTab }) => {
   const navigate = useNavigate()
   const active = tab.id === activeTab?.id
 
-  const title = `${tab.type}- ${tab.name}`
+  const title = `${tab.type}- ${tab.name.split('--')[0]}`
   const tabClass = classnames({
     [css['tabbar-tab']]: true,
     [css['active']]: active,
