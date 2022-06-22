@@ -12,6 +12,7 @@ import { usePlugWallet } from '@/contexts/PlugProvider'
 const EditorWindow = ({ tab }) => {
   const { getNodes, getNodeMap, editor } = useEditor()
   const [deployOpen, setDeployOpen] = useState(false)
+  const [mintingOpen, setMintingOpen] = useState(false)
   const { connected } = usePlugWallet()
   const nodeList = getNodes()
   const nodeMap = getNodeMap()
@@ -69,6 +70,10 @@ const EditorWindow = ({ tab }) => {
     setDeployOpen(false)
   }
 
+  const closeMinting = () => {
+    setMintingOpen(false)
+  }
+
   const EditorToolbar = () => {
     return (
       <React.Fragment>
@@ -88,10 +93,17 @@ const EditorWindow = ({ tab }) => {
         <button
           style={{ visibility: `${connected ? 'initial' : 'hidden'}` }}
           onClick={() => {
-            setDeployOpen(true)
+            setMitningOpen(true)
           }}
         >
           Minting
+        </button>
+        <button
+          onClick={() => {
+            setDeployOpen(true)
+          }}
+        >
+          Deploy
         </button>
       </React.Fragment>
     )
@@ -106,17 +118,17 @@ const EditorWindow = ({ tab }) => {
         <Editor tab={tab} />
       </div>
       <Minting
+        open={mintingOpen}
+        setOpen={setMintingOpen}
+        close={closeMinting}
+        spellId={tab.spellId}
+      />
+      <Deployment
         open={deployOpen}
         setOpen={setDeployOpen}
         close={closeDeploy}
         spellId={tab.spellId}
       />
-      {/* <Deployment
-        open={deployOpen}
-        setOpen={setDeployOpen}
-        close={closeDeploy}
-        spellId={tab.spellId}
-      /> */}
     </div>
   )
 }
