@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { getAllUserNFTs } from '@psychedelic/dab-js'
@@ -8,11 +9,7 @@ import css from './editorwindow.module.css'
 
 import WindowToolbar from '@components/Window/WindowToolbar'
 import { useAuth } from '@/contexts/AuthProvider'
-import {
-  useGetSpellQuery,
-  useNewSpellMutation,
-  useSpellExistsMutation,
-} from '@/state/api/spells'
+import { useGetSpellQuery, useNewSpellMutation } from '@/state/api/spells'
 import { SimpleAccordion } from '@components/Accordion'
 import Input from '@components/Input/Input'
 // import Panel from '@components/Panel/Panel'
@@ -22,12 +19,12 @@ import Input from '@components/Input/Input'
 import { Mint } from '../../../../components/Mint/Mint'
 import { usePlugWallet } from '@/contexts/PlugProvider'
 import { useNavigate } from 'react-router'
+import { thothApiRootUrl } from '@/config'
 
 const MintingView = ({ open, setOpen, spellId, close }) => {
   const [nfts, setNfts] = useState<any>(null)
   const { getUserPrincipal, connected, userPrincipal } = usePlugWallet()
   const { enqueueSnackbar } = useSnackbar()
-  const [spellExists] = useSpellExistsMutation()
   const navigate = useNavigate()
 
   // const { serialize } = useEditor()
@@ -104,27 +101,44 @@ const MintingView = ({ open, setOpen, spellId, close }) => {
 
   const loadSpell = spell => {
     if (!user) return
+    console.log('loading spell!', spell)
     ;(async () => {
       // Clean old user ID from the spell name
-      const cleanedName = spell.name.split('#')[0]
+      const cleanedName = spell.name.split('--')[0]
       // make a new spell name for the new user
-      const name = `${cleanedName}#${user.id}`
+      const name = `${cleanedName}--${user.id}`
       // check if spell exists
-      const exists = await spellExists(name)
 
-      console.log('Spell exists', exists)
+      try {
+        const url = `${thothApiRootUrl}/game/spells/${name}?userId=${user.id}`
+        console.log('url', url)
+        const spellResponse = await axios.get(url)
 
-      if (!exists) {
-        const savedSpell = await useNewSpellMutation({
+        console.log('Spell response', spellResponse)
+
+        if (!spellResponse) {
+          const savedSpell = await useNewSpellMutation({
+            ...spell,
+            name,
+            userId: user.id,
+            user: user.id,
+          })
+
+          console.log('savedSpell', savedSpell)
+
+          // check this call for errors
+        }
+      } catch (err) {
+        const url = `${thothApiRootUrl}/game/spells?userId=${user.id}`
+        const body = {
           ...spell,
           name,
           userId: user.id,
           user: user.id,
-        })
+        }
+        const savedSpell = await axios.post(url, body)
 
         console.log('savedSpell', savedSpell)
-
-        // check this call for errors
       }
 
       navigate(`/thoth/${name}`)

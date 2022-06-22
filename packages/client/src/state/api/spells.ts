@@ -161,7 +161,9 @@ export const spellApi = rootApi.injectEndpoints({
     }),
     getDeployments: builder.query<DeployedSpellVersion[], string>({
       providesTags: ['Version'],
-      query: spellId => ({ url: `game/spells/deployed/${spellId}` }),
+      query: spellId => ({
+        url: `game/spells/deployed/${spellId}`,
+      }),
     }),
     getDeployment: builder.query<DeployedSpellVersion, GetDeployArgs>({
       providesTags: ['Version'],
