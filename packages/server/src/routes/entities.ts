@@ -59,6 +59,8 @@ const executeHandler = async (ctx: Koa.Context) => {
   )
 }
 
+const createWikipediaEntityHandler = async (ctx: Koa.Context) => {}
+
 const getEntitiesHandler = async (ctx: Koa.Context) => {
   try {
     let data = await database.instance.getEntities()
@@ -666,6 +668,11 @@ export const entities: Route[] = [
     path: '/execute',
     access: noAuth,
     post: executeHandler,
+  },
+  {
+    path: '/createWikipediaEntity',
+    access: noAuth,
+    post: createWikipediaEntityHandler,
   },
   {
     path: '/entities',
