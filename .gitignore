@@ -15,8 +15,6 @@ server/google_credentials.json
 server/files/
 
 # Ignore lockfiles
-yarn.lock
-package-lock.json
 .idea
 
 .env.local
