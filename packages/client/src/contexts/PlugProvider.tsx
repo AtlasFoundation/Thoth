@@ -11,6 +11,7 @@ interface PlugContext {
   connected: boolean
   getUserPrincipal: () => Promise<any>
   getAgent: () => any
+  getPlug: () => any
 }
 
 const Context = createContext<PlugContext>(undefined!)
@@ -33,27 +34,34 @@ const PlugProvider = ({ children }) => {
   }
 
   const getAgent = () => {
-    return (window as any).ic.plug.agent
+    return (window as any)?.ic?.plug.agent
+  }
+
+  const getPlug = () => {
+    return (window as any)?.ic?.plug
   }
 
   const login = async (
     onConnect = (arg?: any) => {},
     onFail = (arg?: any) => {}
   ) => {
+    const plug = getPlug()
     // check if (window as any).ic exists, and if (window as any).ic.plug exist
-
-    if (!(window as any).ic || !(window as any).ic.plug) {
-      return await onFail('Could not connect - Plug is not installed')
+    if (!plug) {
+      const error = 'Could not connect - Plug is not installed'
+      return onFail ? onFail(error) : console.error(error)
     }
 
-    await (window as any).ic.plug.requestConnect()
-
     // check if user is logged in
-    const hasLoggedIn = await (window as any).ic.plug.isConnected()
+    const hasLoggedIn = await plug.isConnected()
+    if (!hasLoggedIn) {
+      await plug.requestConnect()
+    } else {
+      await plug.createAgent()
+    }
 
     // Set connected state for rest of UI
     setConnected(hasLoggedIn)
-    await (window as any).ic.plug.createAgent()
 
     // get the users principal that they are logged in as
     const userPrincipalResponse = await (
@@ -64,7 +72,8 @@ const PlugProvider = ({ children }) => {
 
     // call onFail callback
     if (!userPrincipalResponse) {
-      return await onFail('Could not connect - User authentication failed')
+      const error = 'Could not connect - User authentication failed'
+      return onFail ? onFail(error) : console.error(error)
     }
 
     // Set the users principal to component state for use in UI
@@ -84,6 +93,7 @@ const PlugProvider = ({ children }) => {
     login,
     getUserPrincipal,
     getAgent,
+    getPlug,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>
