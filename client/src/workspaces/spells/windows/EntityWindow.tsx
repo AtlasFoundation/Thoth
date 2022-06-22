@@ -51,7 +51,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
   const [discord_greeting_id, setDiscordGreetingId] = useState(0)
-
+  const [discord_echo_slack, setDiscordEchoSlack] = useState(false)
+  const [discord_echo_format, setDiscordEchoFormat] = useState('')
   const [discord_spell_handler_incoming, setDiscordSpellHandlerIncoming] =
     useState('')
   const [discord_spell_handler_update, setDiscordSpellHandlerUpdate] =
@@ -142,6 +143,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [slack_port, setSlackPort] = useState('')
   const [slack_verification_token, setSlackVerificationToken] = useState('')
   const [slack_greeting_id, setSlackGreetingId] = useState('')
+  const [slack_echo_channel, setSlackEchoChannel] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
 
@@ -229,6 +231,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setDiscordBotName(res.data.discord_bot_name)
         setDiscordEmptyResponses(res.data.discord_empty_responses)
         setDiscordGreetingId(res.data.discord_greeting_id)
+        setDiscordEchoSlack(res.data.discord_echo_slack === true)
+        setDiscordEchoFormat(res.data.discord_echo_format)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
         setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
@@ -311,6 +315,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setSlackPort(res.data.slack_port)
         setSlackVerificationToken(res.data.slack_verification_token)
         setSlackGreetingId(res.data.slack_greeting_id)
+        setSlackEchoChannel(res.data.slack_echo_channel)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
         setLoopEnabled(res.data.loop_enabled === true)
@@ -367,6 +372,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_bot_name,
       discord_empty_responses,
       discord_greeting_id,
+      discord_echo_slack,
+      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -440,6 +447,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_port,
       slack_verification_token,
       slack_greeting_id,
+      slack_echo_channel,
       slack_spell_handler_incoming,
       loop_enabled,
       loop_interval,
@@ -479,6 +487,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setDiscordBotName(responseData.discord_bot_name)
           setDiscordEmptyResponses(responseData.discord_empty_responses)
           setDiscordGreetingId(responseData.discord_greeting_id)
+          setDiscordEchoSlack(responseData.discord_echo_slack)
+          setDiscordEchoFormat(responseData.discord_echo_format)
           setDiscordSpellHandlerIncoming(
             responseData.discord_spell_handler_incoming
           )
@@ -570,6 +580,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setSlackPort(responseData.slack_port)
           setSlackVerificationToken(responseData.slack_verification_token)
           setSlackGreetingId(responseData.slack_greeting_id)
+          setSlackEchoChannel(responseData.slack_echo_channel)
           setSlackSpellHandlerIncoming(
             responseData.slack_spell_handler_incoming
           )
@@ -599,6 +610,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_bot_name,
       discord_empty_responses,
       discord_greeting_id,
+      discord_echo_slack,
+      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -671,6 +684,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_port,
       slack_verification_token,
       slack_greeting_id,
+      slack_echo_channel,
       slack_spell_handler_incoming,
       loop_enabled,
       loop_interval,
@@ -1036,7 +1050,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                   }}
                 />
               </div>
-              
+
               <div className="form-item agent-select">
                 <span className="form-item-label">Discord Greeting</span>
                 <select
@@ -1055,6 +1069,30 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                       </option>
                     ))}
                 </select>
+
+                <div className="form-item">
+                  <span className="form-item-label">Echo Slack</span>
+                  <input
+                    type="checkbox"
+                    value={discord_echo_slack}
+                    defaultChecked={
+                      discord_echo_slack || discord_echo_slack === 'true'
+                    }
+                    onChange={e => {
+                      setDiscordEchoSlack(e.target.checked)
+                    }}
+                  />
+                </div>
+                <div className="form-item">
+                  <span className="form-item-label">Echo Format</span>
+                  <input
+                    type="text"
+                    defaultValue={discord_echo_format}
+                    onChange={e => {
+                      setDiscordEchoFormat(e.target.value)
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="form-item agent-select">
@@ -1925,6 +1963,16 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                       </option>
                     ))}
                 </select>
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Echo Channel</span>
+                <input
+                  type="text"
+                  defaultValue={slack_echo_channel}
+                  onChange={e => {
+                    setSlackEchoChannel(e.target.value)
+                  }}
+                />
               </div>
               <div className="form-item agent-select">
                 <span className="form-item-label">

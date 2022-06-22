@@ -53,6 +53,8 @@ export class Entity {
     voice_provider: string,
     voice_character: string,
     voice_language_code: string,
+    discord_echo_slack: boolean,
+    discord_echo_format: string,
     haveCustomCommands: boolean,
     custom_commands: any[]
   ) {
@@ -80,6 +82,8 @@ export class Entity {
       voice_provider,
       voice_character,
       voice_language_code,
+      discord_echo_slack,
+      discord_echo_format,
       haveCustomCommands,
       custom_commands
     )
@@ -448,6 +452,7 @@ export class Entity {
     slack_port: any,
     slack_verification_token: any,
     slack_greeting: any,
+    slack_echo_channel: any,
     slack_spell_handler_incoming: any,
     spell_version: any,
     haveCustomCommands: boolean,
@@ -464,7 +469,6 @@ export class Entity {
 
     this.slack = new slack_client()
     this.slack.createSlackClient(
-      this.app,
       spellHandler,
       {
         slack_token,
@@ -474,6 +478,7 @@ export class Entity {
         slack_port,
         slack_verification_token,
         slack_greeting,
+        slack_echo_channel,
         haveCustomCommands,
         custom_commands,
       },
@@ -648,7 +653,9 @@ export class Entity {
     }
 
     if (data.discord_enabled) {
-      const [ greeting ] = await database.instance.getGreeting(data.discord_greeting_id)
+      const [greeting] = await database.instance.getGreeting(
+        data.discord_greeting_id
+      )
       this.startDiscord(
         data.discord_api_key,
         data.discord_starting_words,
@@ -662,6 +669,8 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
+        data.discord_echo_slack,
+        data.discord_echo_format,
         haveCustomCommands,
         custom_commands
       )
@@ -770,7 +779,9 @@ export class Entity {
     }
 
     if (data.slack_enabled) {
-      const [ greeting ] = await database.instance.getGreeting(data.slack_greeting_id)
+      const [greeting] = await database.instance.getGreeting(
+        data.slack_greeting_id
+      )
       this.startSlack(
         data.slack_token,
         data.slack_signing_secret,
@@ -779,6 +790,7 @@ export class Entity {
         data.slack_port,
         data.slack_verification_token,
         greeting,
+        data.slack_echo_channel,
         data.slack_spell_handler_incoming,
         data.spell_version,
         haveCustomCommands,
