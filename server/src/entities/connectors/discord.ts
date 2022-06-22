@@ -45,58 +45,27 @@ export class discord_client {
     const userName = user.user.username
     const serverName = user.guild.name
 
-    const dateNow = new Date()
-    const utc = new Date(
-      dateNow.getUTCFullYear(),
-      dateNow.getUTCMonth(),
-      dateNow.getUTCDate(),
-      dateNow.getUTCHours(),
-      dateNow.getUTCMinutes(),
-      dateNow.getUTCSeconds()
-    )
-    const utcStr =
-      dateNow.getDate() +
-      '/' +
-      (dateNow.getMonth() + 1) +
-      '/' +
-      dateNow.getFullYear() +
-      ' ' +
-      utc.getHours() +
-      ':' +
-      utc.getMinutes() +
-      ':' +
-      utc.getSeconds()
-
-    // TODO: Replace me with direct message handler
-    log('Discord', 'join', userName, utcStr)
-    this.userUpdateSpellHandler(
-      'join', 
-      userName,
-      '', 
-      'Discord', 
-      '', 
-      this.entity,
-      []
-    )
-    const { enabled, sendIn, message, channelId } = this.discord_greeting
-    if (!enabled) return
-    const greeting = makeGreeting(message, { userName, serverName })
-    switch (sendIn) {
-      case 'dm':
-        const dmChannel = await user.createDM()
-        await this.sendGreetingInChannel(greeting, dmChannel)
-        break
-      case 'channel':
-        try {
-          const channel = await user.guild.channels.fetch(channelId)
-          console.log('channel ::: ', channel)
-          await this.sendGreetingInChannel(greeting, channel)
-        } catch (e) {
-          console.log('Error fetching channel ::: ', e)
-        }
-        break
-      default:
-        break
+    if (this.discord_greeting) {
+      const { enabled, sendIn, message, channelId } = this.discord_greeting
+      if (!enabled) return
+      const greeting = makeGreeting(message, { userName, serverName })
+      switch (sendIn) {
+        case 'dm':
+          const dmChannel = await user.createDM()
+          await this.sendGreetingInChannel(greeting, dmChannel)
+          break
+        case 'channel':
+          try {
+            const channel = await user.guild.channels.fetch(channelId)
+            console.log('channel ::: ', channel)
+            await this.sendGreetingInChannel(greeting, channel)
+          } catch (e) {
+            console.log('Error fetching channel ::: ', e)
+          }
+          break
+        default:
+          break
+      }
     }
   }
 
@@ -138,11 +107,11 @@ export class discord_client {
     // TODO: Replace me with direct message handler
     log('Discord', 'leave', username, utcStr)
     this.userUpdateSpellHandler(
-      'leave', 
+      'leave',
       username,
-      '', 
-      'Discord', 
-      '', 
+      '',
+      'Discord',
+      '',
       this.entity,
       []
     )
@@ -199,6 +168,36 @@ export class discord_client {
 
     let { author, channel, content, mentions, id } = message
     content = content.trim()
+    if (
+      mentions !== null &&
+      mentions.members !== null &&
+      mentions.members.size > 0
+    ) {
+      const data = content.split(' ')
+      for (let i = 0; i < data.length; i++) {
+        if (
+          data[i].startsWith('<@!') &&
+          data[i].charAt(data[i].length - 1) === '>'
+        ) {
+          try {
+            const x = data[i].replace('<@!', '').replace('>', '')
+            const user = await this.client.users.cache.find(
+              (user: { id: any }) => user.id == x
+            )
+            if (user !== undefined) {
+              //const u = '@' + user.username + '#' + user.discriminator
+              const u =
+                user.id == this.client.user
+                  ? this.discord_bot_name
+                  : user.username
+              content = content.replace(data[i], u)
+            }
+          } catch (err) {
+            error(err)
+          }
+        }
+      }
+    }
 
     if (this.discord_echo_slack && this.entity && this.entity.slack) {
       let msg = this.discord_echo_format
@@ -207,18 +206,22 @@ export class discord_client {
       } else {
         if (msg.includes('$client')) {
           msg = msg.replace('$client', 'discord')
-        } else if (msg.includes('$author')) {
+        }
+        if (msg.includes('$author')) {
           msg = msg.replace('$author', author.username)
-        } else if (msg.includes('$channel')) {
+        }
+        if (msg.includes('$channel')) {
           msg = msg.replace('$channel', channel.name)
-        } else if (msg.includes('$message')) {
+        }
+        if (msg.includes('$message')) {
           msg = msg.replace('$message', content)
         }
       }
 
       if (msg && msg?.length > 0) {
+        console.log('sending echo message:', msg)
         await this.entity.slack.sendMessage(
-          this.entity.slack.settings.echo_channel_id,
+          this.entity.slack.settings.slack_echo_channel,
           msg
         )
       }
@@ -279,38 +282,6 @@ export class discord_client {
             false
           )
           return
-        }
-      }
-    }
-
-    //replaces the discord specific mentions (<!@id>) to the actual mention
-    if (
-      mentions !== null &&
-      mentions.members !== null &&
-      mentions.members.size > 0
-    ) {
-      const data = content.split(' ')
-      for (let i = 0; i < data.length; i++) {
-        if (
-          data[i].startsWith('<@!') &&
-          data[i].charAt(data[i].length - 1) === '>'
-        ) {
-          try {
-            const x = data[i].replace('<@!', '').replace('>', '')
-            const user = await this.client.users.cache.find(
-              (user: { id: any }) => user.id == x
-            )
-            if (user !== undefined) {
-              //const u = '@' + user.username + '#' + user.discriminator
-              const u =
-                user.id == this.client.user
-                  ? this.discord_bot_name
-                  : user.username
-              content = content.replace(data[i], u)
-            }
-          } catch (err) {
-            error(err)
-          }
         }
       }
     }
@@ -698,11 +669,11 @@ export class discord_client {
           // TODO: Replace message with direct message handler
           log('Discord', newMember.status, user.username, utcStr)
           this.userUpdateSpellHandler(
-            newMember.status, 
+            newMember.status,
             user.username,
-            '', 
-            'Discord', 
-            '', 
+            '',
+            'Discord',
+            '',
             this.entity,
             []
           )
@@ -802,7 +773,7 @@ export class discord_client {
                   '',
                   '',
                   'Discord',
-                  channel.id, 
+                  channel.id,
                   this.entity,
                   []
                 )

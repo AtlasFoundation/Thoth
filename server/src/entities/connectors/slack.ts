@@ -176,6 +176,7 @@ export class slack_client {
   }
 
   async sendMessage(channelId: string, message: string) {
+    console.log('sending Message to:', channelId, message)
     if (
       !channelId ||
       channelId?.length <= 0 ||
