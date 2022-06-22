@@ -18,7 +18,11 @@ import emojiRegex from 'emoji-regex'
 import { database } from '../../database'
 import { CreateSpellHandler } from '../CreateSpellHandler'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
-import { getRandomEmptyResponse, startsWithCapital, makeGreeting } from './utils'
+import {
+  getRandomEmptyResponse,
+  startsWithCapital,
+  makeGreeting,
+} from './utils'
 
 function log(...s: (string | boolean)[]) {
   console.log(...s)
@@ -75,27 +79,27 @@ export class discord_client {
       []
     )
     const { enabled, sendIn, message, channelId } = this.discord_greeting
-    if(!enabled) return
+    if (!enabled) return
     const greeting = makeGreeting(message, { userName, serverName })
-    switch(sendIn) {
+    switch (sendIn) {
       case 'dm':
         const dmChannel = await user.createDM()
         await this.sendGreetingInChannel(greeting, dmChannel)
-        break;
+        break
       case 'channel':
         try {
           const channel = await user.guild.channels.fetch(channelId)
-          console.log('channel ::: ', channel);
+          console.log('channel ::: ', channel)
           await this.sendGreetingInChannel(greeting, channel)
         } catch (e) {
           console.log('Error fetching channel ::: ', e)
         }
-        break;
+        break
       default:
-        break;
+        break
     }
   }
-  
+
   async sendGreetingInChannel(greeting, channel) {
     try {
       await channel.send(greeting)
@@ -195,6 +199,30 @@ export class discord_client {
 
     let { author, channel, content, mentions, id } = message
     content = content.trim()
+
+    if (this.discord_echo_slack && this.entity && this.entity.slack) {
+      let msg = this.discord_echo_format
+      if (!msg || msg?.length <= 0) {
+        msg = content
+      } else {
+        if (msg.includes('$client')) {
+          msg = msg.replace('$client', 'discord')
+        } else if (msg.includes('$author')) {
+          msg = msg.replace('$author', author.username)
+        } else if (msg.includes('$channel')) {
+          msg = msg.replace('$channel', channel.name)
+        } else if (msg.includes('$message')) {
+          msg = msg.replace('$message', content)
+        }
+      }
+
+      if (msg && msg?.length > 0) {
+        await this.entity.slack.sendMessage(
+          this.entity.slack.settings.echo_channel_id,
+          msg
+        )
+      }
+    }
 
     if (this.haveCustomCommands && !author.bot) {
       for (let i = 0; i < this.custom_commands.length; i++) {
@@ -1416,6 +1444,8 @@ export class discord_client {
   voice_provider: string
   voice_character: string
   voice_language_code: string
+  discord_echo_slack: boolean
+  discord_echo_format: string
   haveCustomCommands: boolean
   custom_commands: any[]
   message_reactions: { [reaction: string]: any } = {}
@@ -1448,6 +1478,8 @@ export class discord_client {
     voice_provider,
     voice_character,
     voice_language_code,
+    discord_echo_slack: boolean,
+    discord_echo_format: string,
     haveCustomCommands: boolean,
     custom_commands: any[]
   ) => {
@@ -1462,6 +1494,8 @@ export class discord_client {
     this.voice_provider = voice_provider
     this.voice_character = voice_character
     this.voice_language_code = voice_language_code
+    this.discord_echo_slack = discord_echo_slack
+    this.discord_echo_format = discord_echo_format
     this.haveCustomCommands = haveCustomCommands
     this.custom_commands = custom_commands
     if (!discord_starting_words || discord_starting_words?.length <= 0) {

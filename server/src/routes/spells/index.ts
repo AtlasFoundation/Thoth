@@ -342,6 +342,33 @@ const deleteHandler = async (ctx: Koa.Context) => {
   }
 }
 
+// TODO create a 'build handler' WHOF that can take in things like an array of required params and parse errors, etc.
+const postSpellExistsHandler = async (ctx: Koa.Context) => {
+  const body = ctx.request.body
+  if (!body) throw new CustomError('input-failed', 'No parameters provided')
+
+  const missingBody = ['name'].filter(property => !body[property])
+
+  if (missingBody.length > 0) {
+    const message = `Request body missing ${missingBody.join(', ')} values`
+    throw new CustomError('input-failed', message)
+  }
+
+  const { name } = ctx.body as { name: string }
+
+  try {
+    const spell = await creatorToolsDatabase.spells.findOne({
+      where: { name },
+    })
+
+    if (spell) return (ctx.body = true)
+
+    ctx.body = false
+  } catch (err) {
+    ctx.body = false
+  }
+}
+
 const deploySpellHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
   if (latitudeApiKey) {
@@ -459,6 +486,11 @@ export const spells: Route[] = [
     path: '/game/spells/:name',
     access: noAuth,
     get: getSpellHandler,
+  },
+  {
+    path: '/game/spells/exists',
+    access: noAuth,
+    post: postSpellExistsHandler,
   },
   {
     path: '/game/spells/:name/deploy',
