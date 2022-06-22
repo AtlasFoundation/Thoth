@@ -51,7 +51,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
   const [discord_greeting_id, setDiscordGreetingId] = useState(0)
-
+  const [discord_echo_slack, setDiscordEchoSlack] = useState(false)
+  const [discord_echo_format, setDiscordEchoFormat] = useState('')
   const [discord_spell_handler_incoming, setDiscordSpellHandlerIncoming] =
     useState('')
   const [discord_spell_handler_update, setDiscordSpellHandlerUpdate] =
@@ -126,7 +127,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
     useState('')
 
   const [twilio_enabled, setTwilioEnabled] = useState(false)
-  const [twilio_account_sid, setTwilioAccountSID] = useState('')
+  const [twilio_account_sid, setTwilioAccoundSID] = useState('')
   const [twilio_auth_token, setTwilioAuthToken] = useState('')
   const [twilio_phone_number, setTwilioPhoneNumber] = useState('')
   const [twilio_bot_name, setTwilioBotName] = useState('')
@@ -142,6 +143,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [slack_port, setSlackPort] = useState('')
   const [slack_verification_token, setSlackVerificationToken] = useState('')
   const [slack_greeting_id, setSlackGreetingId] = useState('')
+  const [slack_echo_channel, setSlackEchoChannel] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
 
@@ -229,6 +231,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setDiscordBotName(res.data.discord_bot_name)
         setDiscordEmptyResponses(res.data.discord_empty_responses)
         setDiscordGreetingId(res.data.discord_greeting_id)
+        setDiscordEchoSlack(res.data.discord_echo_slack === true)
+        setDiscordEchoFormat(res.data.discord_echo_format)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
         setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
@@ -296,7 +300,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         )
 
         setTwilioEnabled(res.data.twilio_enabled === true)
-        setTwilioAccountSID(res.data.twilio_account_sid)
+        setTwilioAccoundSID(res.data.twilio_account_sid)
         setTwilioAuthToken(res.data.twilio_auth_token)
         setTwilioPhoneNumber(res.data.twilio_phone_number)
         setTwilioBotName(res.data.twilio_bot_name)
@@ -311,6 +315,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setSlackPort(res.data.slack_port)
         setSlackVerificationToken(res.data.slack_verification_token)
         setSlackGreetingId(res.data.slack_greeting_id)
+        setSlackEchoChannel(res.data.slack_echo_channel)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
         setLoopEnabled(res.data.loop_enabled === true)
@@ -367,6 +372,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_bot_name,
       discord_empty_responses,
       discord_greeting_id,
+      discord_echo_slack,
+      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -440,6 +447,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_port,
       slack_verification_token,
       slack_greeting_id,
+      slack_echo_channel,
       slack_spell_handler_incoming,
       loop_enabled,
       loop_interval,
@@ -452,129 +460,138 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         data: _data,
       })
       .then(res => {
-        enqueueSnackbar('updated entity', {
-          variant: 'success',
-        })
-        console.log('response on update', JSON.parse(res.config.data).data)
-        let responseData = res && JSON.parse(res?.config?.data).data
-        console.log(responseData, 'responseDataresponseData')
-        setUseCustomCommands(responseData.use_custom_commands)
-        setCustomCommandStarter(responseData.custom_command_starter)
-        setCustomCommands(
-          responseData.custom_commands
-            ? JSON.parse(responseData.custom_commands)
-            : []
-        )
+        if (typeof res.data === 'string' && res.data === 'internal error') {
+          enqueueSnackbar('internal error updating entity', {
+            variant: 'error',
+          })
+        } else {
+          enqueueSnackbar('updated entity', {
+            variant: 'success',
+          })
+          console.log('response on update', JSON.parse(res.config.data).data)
+          let responseData = res && JSON.parse(res?.config?.data).data
+          console.log(responseData, 'responseDataresponseData')
+          setUseCustomCommands(responseData.use_custom_commands)
+          setCustomCommandStarter(responseData.custom_command_starter)
+          setCustomCommands(
+            responseData.custom_commands
+              ? JSON.parse(responseData.custom_commands)
+              : []
+          )
 
-        setEnabled(responseData.enabled)
-        setDiscordEnabled(responseData.discord_enabled)
-        setDiscordApiKey(responseData.discord_api_key)
-        setDiscordStartingWords(responseData.discord_starting_words)
-        setDiscordBotNameRegex(responseData.discord_bot_name_regex)
-        setDiscordBotName(responseData.discord_bot_name)
-        setDiscordEmptyResponses(responseData.discord_empty_responses)
-        setDiscordGreetingId(responseData.discord_greeting_id)
-        setDiscordSpellHandlerIncoming(
-          responseData.discord_spell_handler_incoming
-        )
-        setDiscordSpellHandlerUpdate(
-          responseData.discord_spell_handler_update
-        )
-        setDiscordSpellHandlerFeed(responseData.discord_spell_handler_feed)
-        setXREngineSpellHandlerIncoming(
-          responseData.xrengine_spell_handler_incoming
-        )
-        setXREngineSpellHandlerUpdate(
-          responseData.xrengine_spell_handler_update
-        )
-        setXREngineSpellHandlerFeed(responseData.xrengine_spell_handler_feed)
-        setXREngineBotName(responseData.xrengine_bot_name)
-        setXREngineBotNameRegex(responseData.xrengine_bot_name_regex)
-        setXREngineStartingWords(responseData.xrengine_starting_words)
-        setXREngineEmptyResponses(responseData.xrengine_empty_responses)
+          setEnabled(responseData.enabled)
+          setDiscordEnabled(responseData.discord_enabled)
+          setDiscordApiKey(responseData.discord_api_key)
+          setDiscordStartingWords(responseData.discord_starting_words)
+          setDiscordBotNameRegex(responseData.discord_bot_name_regex)
+          setDiscordBotName(responseData.discord_bot_name)
+          setDiscordEmptyResponses(responseData.discord_empty_responses)
+          setDiscordGreetingId(responseData.discord_greeting_id)
+          setDiscordEchoSlack(responseData.discord_echo_slack)
+          setDiscordEchoFormat(responseData.discord_echo_format)
+          setDiscordSpellHandlerIncoming(
+            responseData.discord_spell_handler_incoming
+          )
+          setDiscordSpellHandlerUpdate(
+            responseData.discord_spell_handler_update
+          )
+          setDiscordSpellHandlerFeed(responseData.discord_spell_handler_feed)
+          setXREngineSpellHandlerIncoming(
+            responseData.xrengine_spell_handler_incoming
+          )
+          setXREngineSpellHandlerUpdate(
+            responseData.xrengine_spell_handler_update
+          )
+          setXREngineSpellHandlerFeed(responseData.xrengine_spell_handler_feed)
+          setXREngineBotName(responseData.xrengine_bot_name)
+          setXREngineBotNameRegex(responseData.xrengine_bot_name_regex)
+          setXREngineStartingWords(responseData.xrengine_starting_words)
+          setXREngineEmptyResponses(responseData.xrengine_empty_responses)
 
-        setTwitterClientEnable(responseData.twitter_client_enable)
-        setTwitterToken(responseData.twitter_token)
-        setTwitterId(responseData.twitter_id)
-        setTwitterAppToken(responseData.twitter_app_token)
-        setTwitterAppTokenSecret(responseData.twitter_app_token_secret)
-        setTwitterAccessToken(responseData.twitter_access_token)
-        setTwitterAccessTokenSecret(responseData.twitter_access_token_secret)
-        setTwitterBotName(responseData.twitter_bot_name)
-        setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
-        setTwitterSpellHandlerIncoming(
-          responseData.twitter_spell_handler_incoming
-        )
+          setTwitterClientEnable(responseData.twitter_client_enable)
+          setTwitterToken(responseData.twitter_token)
+          setTwitterId(responseData.twitter_id)
+          setTwitterAppToken(responseData.twitter_app_token)
+          setTwitterAppTokenSecret(responseData.twitter_app_token_secret)
+          setTwitterAccessToken(responseData.twitter_access_token)
+          setTwitterAccessTokenSecret(responseData.twitter_access_token_secret)
+          setTwitterBotName(responseData.twitter_bot_name)
+          setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
+          setTwitterSpellHandlerIncoming(
+            responseData.twitter_spell_handler_incoming
+          )
 
-        setTelegramEnabled(responseData.telegram_enabled)
-        setTelegramBotToken(responseData.telegram_bot_token)
-        setTelegramBotName(responseData.telegram_bot_name)
-        setTelegramSpellHandlerIncoming(
-          responseData.telegram_spell_handler_incoming
-        )
+          setTelegramEnabled(responseData.telegram_enabled)
+          setTelegramBotToken(responseData.telegram_bot_token)
+          setTelegramBotName(responseData.telegram_bot_name)
+          setTelegramSpellHandlerIncoming(
+            responseData.telegram_spell_handler_incoming
+          )
 
-        setRedditEnabled(responseData.reddit_enabled)
-        setRedditAppId(responseData.reddit_app_id)
-        setRedditAppSecretId(responseData.reddit_app_secret_id)
-        setRedditOauthToken(responseData.reddit_oauth_token)
-        setRedditBotName(responseData.reddit_bot_name)
-        setRedditBotNameRegex(responseData.reddit_bot_name_regex)
-        setRedditSpellHandlerIncoming(
-          responseData.reddit_spell_handler_incoming
-        )
+          setRedditEnabled(responseData.reddit_enabled)
+          setRedditAppId(responseData.reddit_app_id)
+          setRedditAppSecretId(responseData.reddit_app_secret_id)
+          setRedditOauthToken(responseData.reddit_oauth_token)
+          setRedditBotName(responseData.reddit_bot_name)
+          setRedditBotNameRegex(responseData.reddit_bot_name_regex)
+          setRedditSpellHandlerIncoming(
+            responseData.reddit_spell_handler_incoming
+          )
 
-        setZoomEnabled(responseData.zoom_enabled)
-        setZoomInvitationLink(responseData.zoom_invitation_link)
-        setZoomPassword(responseData.zoom_password)
-        setZoomBotName(responseData.zoom_bot_name)
-        setZoomSpellHandlerIncoming(responseData.zoom_spell_handler_incoming)
+          setZoomEnabled(responseData.zoom_enabled)
+          setZoomInvitationLink(responseData.zoom_invitation_link)
+          setZoomPassword(responseData.zoom_password)
+          setZoomBotName(responseData.zoom_bot_name)
+          setZoomSpellHandlerIncoming(responseData.zoom_spell_handler_incoming)
 
-        setInstagramEnabled(responseData.instagram_enabled)
-        setInstagramUsername(responseData.instagram_username)
-        setInstagramPassword(responseData.instagram_password)
-        setInstagramBotName(responseData.instagram_bot_name)
-        setInstagramBotNameRegex(responseData.instagram_bot_name_regex)
-        setInstagramSpellHandlerIncoming(
-          responseData.instagram_spell_handler_incoming
-        )
+          setInstagramEnabled(responseData.instagram_enabled)
+          setInstagramUsername(responseData.instagram_username)
+          setInstagramPassword(responseData.instagram_password)
+          setInstagramBotName(responseData.instagram_bot_name)
+          setInstagramBotNameRegex(responseData.instagram_bot_name_regex)
+          setInstagramSpellHandlerIncoming(
+            responseData.instagram_spell_handler_incoming
+          )
 
-        setMessengerEnabled(responseData.messenger_enabled)
-        setMessengerPageAccessToken(responseData.messenger_page_access_token)
-        setMessengerVerifyToken(responseData.messenger_verify_token)
-        setMessengerBotName(responseData.messenger_bot_name)
-        setMessengerBotNameRegex(responseData.messenger_bot_name_regex)
-        setMessengerSpellHandlerIncoming(
-          responseData.messenger_spell_handler_incoming
-        )
+          setMessengerEnabled(responseData.messenger_enabled)
+          setMessengerPageAccessToken(responseData.messenger_page_access_token)
+          setMessengerVerifyToken(responseData.messenger_verify_token)
+          setMessengerBotName(responseData.messenger_bot_name)
+          setMessengerBotNameRegex(responseData.messenger_bot_name_regex)
+          setMessengerSpellHandlerIncoming(
+            responseData.messenger_spell_handler_incoming
+          )
 
-        setTwilioEnabled(responseData.twilio_enabled)
-        setTwilioAccountSID(responseData.twilio_account_sid)
-        setTwilioAuthToken(responseData.twilio_auth_token)
-        setTwilioPhoneNumber(responseData.twilio_phone_number)
-        setTwilioBotName(responseData.twilio_bot_name)
-        setTwilioEmptyResponses(responseData.twilio_empty_responses)
-        setTwilioSpellHandlerIncoming(
-          responseData.twilio_spell_handler_incoming
-        )
+          setTwilioEnabled(responseData.twilio_enabled)
+          setTwilioAccountSID(responseData.twilio_account_sid)
+          setTwilioAuthToken(responseData.twilio_auth_token)
+          setTwilioPhoneNumber(responseData.twilio_phone_number)
+          setTwilioBotName(responseData.twilio_bot_name)
+          setTwilioEmptyResponses(responseData.twilio_empty_responses)
+          setTwilioSpellHandlerIncoming(
+            responseData.twilio_spell_handler_incoming
+          )
 
-        setSlackEnabled(responseData.slack_enabled)
-        setSlackToken(responseData.slack_token)
-        setSlackSigningSecret(responseData.slack_signing_secret)
-        setSlackBotToken(responseData.slack_bot_token)
-        setSlackBotName(responseData.slack_bot_name)
-        setSlackPort(responseData.slack_port)
-        setSlackVerificationToken(responseData.slack_verification_token)
-        setSlackGreetingId(responseData.slack_greeting_id)
-        setSlackSpellHandlerIncoming(
-          responseData.slack_spell_handler_incoming
-        )
+          setSlackEnabled(responseData.slack_enabled)
+          setSlackToken(responseData.slack_token)
+          setSlackSigningSecret(responseData.slack_signing_secret)
+          setSlackBotToken(responseData.slack_bot_token)
+          setSlackBotName(responseData.slack_bot_name)
+          setSlackPort(responseData.slack_port)
+          setSlackVerificationToken(responseData.slack_verification_token)
+          setSlackGreetingId(responseData.slack_greeting_id)
+          setSlackEchoChannel(responseData.slack_echo_channel)
+          setSlackSpellHandlerIncoming(
+            responseData.slack_spell_handler_incoming
+          )
 
-        setLoopEnabled(responseData.loop_enabled)
-        setLoopInterval(responseData.loop_interval)
-        setLoopAgentName(responseData.loop_agent_name)
-        setLoopSpellHandler(responseData.loop_spell_handler)
+          setLoopEnabled(responseData.loop_enabled)
+          setLoopInterval(responseData.loop_interval)
+          setLoopAgentName(responseData.loop_agent_name)
+          setLoopSpellHandler(responseData.loop_spell_handler)
 
-        updateCallback()
+          updateCallback()
+        }
       })
       .catch(e => {
         enqueueSnackbar('internal error updating entity', {
@@ -593,6 +610,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_bot_name,
       discord_empty_responses,
       discord_greeting_id,
+      discord_echo_slack,
+      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -665,6 +684,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_port,
       slack_verification_token,
       slack_greeting_id,
+      slack_echo_channel,
       slack_spell_handler_incoming,
       loop_enabled,
       loop_interval,
@@ -1030,7 +1050,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                   }}
                 />
               </div>
-              
+
               <div className="form-item agent-select">
                 <span className="form-item-label">Discord Greeting</span>
                 <select
@@ -1049,6 +1069,30 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                       </option>
                     ))}
                 </select>
+
+                <div className="form-item">
+                  <span className="form-item-label">Echo Slack</span>
+                  <input
+                    type="checkbox"
+                    value={discord_echo_slack}
+                    defaultChecked={
+                      discord_echo_slack || discord_echo_slack === 'true'
+                    }
+                    onChange={e => {
+                      setDiscordEchoSlack(e.target.checked)
+                    }}
+                  />
+                </div>
+                <div className="form-item">
+                  <span className="form-item-label">Echo Format</span>
+                  <input
+                    type="text"
+                    defaultValue={discord_echo_format}
+                    onChange={e => {
+                      setDiscordEchoFormat(e.target.value)
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="form-item agent-select">
@@ -1760,7 +1804,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                   type="text"
                   defaultValue={twilio_account_sid}
                   onChange={e => {
-                    setTwilioAccountSID(e.target.value)
+                    setTwilioAccoundSID(e.target.value)
                   }}
                 />
               </div>
@@ -1919,6 +1963,16 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                       </option>
                     ))}
                 </select>
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Echo Channel</span>
+                <input
+                  type="text"
+                  defaultValue={slack_echo_channel}
+                  onChange={e => {
+                    setSlackEchoChannel(e.target.value)
+                  }}
+                />
               </div>
               <div className="form-item agent-select">
                 <span className="form-item-label">

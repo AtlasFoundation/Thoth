@@ -15,12 +15,11 @@ export class slack_client {
   message_reactions: { [reaction: string]: any } = {}
 
   //to verify use: url/slack/events
-  async createSlackClient(expressApp: any, spellHandler: any, settings: any, entity: any) {
+  async createSlackClient(spellHandler: any, settings: any, entity: any) {
     if (
       !settings.slack_token ||
       !settings.slack_signing_secret ||
-      !settings.slack_bot_token ||
-      !settings.slack_verification_token
+      !settings.slack_bot_token
     ) {
       console.log('invalid slack tokens')
       return
@@ -33,6 +32,7 @@ export class slack_client {
     this.custom_commands = settings.custom_commands
     this.greeting = settings.slack_greeting
 
+    console.log('slack settings:', settings)
     this.app = new App({
       signingSecret: settings.slack_signing_secret,
       token: settings.slack_bot_token,
@@ -63,7 +63,7 @@ export class slack_client {
           '',
           user,
           this.settings.slack_bot_name,
-          'discord',
+          'slack',
           (event as any).item.channel,
           this.entity,
           []
@@ -71,10 +71,18 @@ export class slack_client {
         if (response && response !== undefined && response?.length > 0) {
           await this.app.client.chat.postMessage({
             channel: (event as any).item.channel,
-            text: 'test',
+            text: response,
           })
         }
       }
+    })
+    this.app.event('member_joined_channel', async ({ event }) => {
+      const { user } = event
+      if (!this.greeting || !this.greeting.enabled) {
+        return
+      }
+
+      this.sendGreeting(user)
     })
 
     this.app.message(async ({ message, say }) => {
@@ -133,28 +141,6 @@ export class slack_client {
       say(response)
     })
 
-    expressApp.post('/slack/event', async (req: any, res: any) => {
-      if(req.body.token !== this.settings.slack_verification_token) return res.sendStatus(403)
-      const { challenge, event } = req.body
-      if(req.body.type === 'url_verification') return res.status(200).send(challenge)
-      if(req.body.type === 'event_callback') {
-        switch (event.type) {
-          case 'member_joined_channel': {
-            if(!this.greeting.enabled) break
-            try {
-              const { user } = await this.app.client.users.info({ user: event.user })
-              this.sendGreeting(user)
-            } catch (e) {
-              console.log('Error ::: ', e)
-            }
-            break
-          }
-          default: break
-        }
-      }
-      return res.status(200).send('OK')
-    })
-
     await this.app.start(settings.slack_port)
     console.log('Slack Bolt app is running on', settings.slack_port, '!')
   }
@@ -189,37 +175,55 @@ export class slack_client {
     }
   }
 
+  async sendMessage(channelId: string, message: string) {
+    if (
+      !channelId ||
+      channelId?.length <= 0 ||
+      !message ||
+      message?.length <= 0
+    ) {
+      return
+    }
+
+    await this.app.client.chat.postMessage({
+      channel: channelId,
+      text: message,
+    })
+  }
+
   async sendGreeting(user: any) {
     const { channelId, sendIn, message } = this.greeting
-    switch(sendIn) {
+    switch (sendIn) {
       case 'dm': {
         try {
           const { channel } = await this.app.client.conversations.open({
-            users: user?.id
+            users: user?.id,
           })
-          const greeting = makeGreeting(message, { 
-            userName: user?.real_name as string, 
-            serverName: 'DM'
+          const greeting = makeGreeting(message, {
+            userName: user?.real_name as string,
+            serverName: 'DM',
           })
           await this.app.client.chat.postMessage({
             channel: channel?.id as string,
-            text: greeting
+            text: greeting,
           })
         } catch (e) {
-          console.log('Error sending greeting in DM ::: ', e)          
+          console.log('Error sending greeting in DM ::: ', e)
         }
         break
       }
       case 'channel': {
         try {
-          const { channel } = await this.app.client.conversations.info({ channel: channelId }) 
-          const greeting = makeGreeting(message, { 
-            userName: user?.real_name as string, 
-            serverName: channel?.name as string
+          const { channel } = await this.app.client.conversations.info({
+            channel: channelId,
+          })
+          const greeting = makeGreeting(message, {
+            userName: user?.real_name as string,
+            serverName: channel?.name as string,
           })
           await this.app.client.chat.postMessage({
             channel: channelId,
-            text: greeting
+            text: greeting,
           })
         } catch (e) {
           console.log('Error sending greeting in channel ::: ', e)
