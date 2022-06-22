@@ -8,13 +8,14 @@ import Icon from '../Icon/Icon'
 import MenuBar from '../MenuBar/MenuBar'
 import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
+import { PlugWallet } from '../PlugWallet/PlugWallet'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const active = tab.id === activeTab?.id
 
-  const title = `${tab.type}- ${tab.name}`
+  const title = `${tab.type}- ${tab.name.split('--')[0]}`
   const tabClass = classnames({
     [css['tabbar-tab']]: true,
     [css['active']]: active,
@@ -57,7 +58,8 @@ const TabBar = ({ tabs, activeTab }) => {
       </div>
 
       <div className={css['tabbar-user']}>
-        {<Icon name="account" size={24} />}
+        <PlugWallet />
+        {<Icon name="account" size={24} style={{ top: 14 }} />}
       </div>
     </div>
   )

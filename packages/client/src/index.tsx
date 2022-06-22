@@ -1,3 +1,7 @@
+import buffer from 'buffer'
+
+;(window as any).buffer = buffer
+
 import './wdyr'
 import 'regenerator-runtime/runtime'
 import React from 'react'
@@ -20,7 +24,7 @@ ReactDOM.render(
           <App />
         </React.StrictMode>
       </AppProviders>
-      {/* </PersistGate> */}
+      w{/* </PersistGate> */}
     </Provider>
   </Router>,
   document.getElementById('root')

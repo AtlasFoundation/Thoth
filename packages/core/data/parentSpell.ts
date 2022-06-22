@@ -2,7 +2,7 @@ import { Spell } from '@thothai/thoth-core/types'
 export default {
   id: '801b7a36-9468-402a-8ecd-aed4038dfcd5',
   name: 'whole amethyst',
-  chain: {
+  graph: {
     id: 'demo@0.1.0',
     nodes: {
       '124': {

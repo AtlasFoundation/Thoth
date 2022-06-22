@@ -23,7 +23,7 @@ module.exports = () => {
       react: 'react',
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js'],
+      extensions: ['.tsx', '.ts', '.js', '.jsx'],
       alias: {
         handlebars: 'handlebars/dist/handlebars.js',
       },

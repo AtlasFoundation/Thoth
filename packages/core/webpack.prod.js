@@ -11,9 +11,9 @@ module.exports = () => {
   const commonConfig = common()
 
   const prodConfig = {
-    mode: 'production',
+    mode: 'development',
     optimization: {
-      minimize: true,
+      minimize: false,
       minimizer: [new TerserPlugin()],
     },
   }

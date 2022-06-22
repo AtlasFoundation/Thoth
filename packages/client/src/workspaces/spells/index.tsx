@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { Layout } from '@/workspaces/contexts/LayoutProvider'
-import { useLazyGetSpellQuery } from '@/state/api/spells'
+import { useLazyGetSpellQuery, useSaveDiffMutation } from '@/state/api/spells'
 import { debounce } from '@/utils/debounce'
 import EditorWindow from './windows/EditorWindow/'
 import EventHandler from '@/screens/Thoth/components/EventHandler'
@@ -27,6 +27,8 @@ import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
+import { diff } from '@/utils/json0'
+import { useSnackbar } from 'notistack'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -34,22 +36,42 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   const { getSpellDoc } = useSharedb()
   const { user } = useAuth()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
-  const { serialize, editor } = useEditor()
+  const [saveDiff] = useSaveDiffMutation()
+  const { editor } = useEditor()
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
   const preferences = useSelector((state: RootState) => state.preferences)
 
   const [docLoaded, setDocLoaded] = useState<boolean>(false)
 
+  const { enqueueSnackbar } = useSnackbar()
+
   // Set up autosave for the workspaces
   useEffect(() => {
     if (!editor?.on) return
     const unsubscribe = editor.on(
       // Comment events:  commentremoved commentcreated addcomment removecomment editcomment connectionpath
-      'nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
+      'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
-          publish(events.$SAVE_SPELL_DIFF(tab.id), { chain: serialize() })
+          const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
+          console.log('Saving diff', jsonDiff)
+          if (jsonDiff == [] || !jsonDiff) return
+
+          const response = await saveDiff({
+            name: spellRef.current.name,
+            diff: jsonDiff,
+          })
+          loadSpell({
+            spellId: tab.spellId,
+            userId: user?.id as string,
+          })
+
+          if ('error' in response) {
+            enqueueSnackbar('Error saving spell', {
+              variant: 'error',
+            })
+          }
         }
       }, 2000)
     )
@@ -57,14 +79,14 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     return unsubscribe as () => void
   }, [editor, preferences.autoSave])
 
-  useEffect(() => {
-    if (!editor?.on) return
-    const unsubscribe = editor.on('save', () =>
-      publish(events.$SAVE_SPELL_DIFF(tab.id), { chain: serialize() })
-    )
+  // useEffect(() => {
+  //   if (!editor?.on) return
+  //   const unsubscribe = editor.on('save', () =>
+  //     publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
+  //   )
 
-    return unsubscribe as () => void
-  }, [editor])
+  //   return unsubscribe as () => void
+  // }, [editor])
 
   useEffect(() => {
     if (!editor?.on) return
@@ -79,7 +101,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
         const event = events.$SUBSPELL_UPDATED(spellRef.current.name)
         const spell = {
           ...spellRef.current,
-          chain: editor.toJSON(),
+          graph: editor.toJSON(),
         }
         publish(event, spell)
       }

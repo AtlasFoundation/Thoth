@@ -2,7 +2,7 @@ import { Spell } from '@thothai/thoth-core/types'
 export default {
   id: '9b970450-4a0f-43cd-8763-ce0920f9ce1e',
   name: 'unfortunate olive',
-  chain: {
+  graph: {
     id: 'demo@0.1.0',
     nodes: {
       '124': {

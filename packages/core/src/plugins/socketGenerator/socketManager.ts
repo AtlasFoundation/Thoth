@@ -21,7 +21,7 @@ export default class SocketManager {
     if (!this.node.data.outputs) this.node.data.outputs = []
   }
 
-  updateSocketsFromChain(chain: GraphData) {}
+  updateSocketsFromChain(graph: GraphData) {}
 
   regenerateSockets() {}
 }

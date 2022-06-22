@@ -83,7 +83,7 @@ export const buildThothInterface = (
         return vm.run(codeToRun)
       } catch (err) {
         console.log({ err })
-        throw new Error('Error in runChain: processCode.')
+        throw new Error('Error in rungraph: processCode.')
       }
     },
   }

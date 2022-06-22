@@ -11,19 +11,22 @@ module.exports = () => {
   const commonConfig = common()
 
   const prodConfig = {
-    mode: 'production',
-    plugins: [
-      new CompressionPlugin(),
-      new Dotenv(),
-    ],
+    mode: 'development',
+    plugins: [new CompressionPlugin(), new Dotenv()],
     optimization: {
       minimize: true,
       minimizer: [new TerserPlugin()],
       splitChunks: {
+        maxSize: 500000,
         cacheGroups: {
           vendor: {
+            test: /[\\/]node_modules[\\/](react|react-dom|)[\\/]/,
+            name: false,
+            chunks: 'all',
+          },
+          vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
+            name: false,
             chunks: 'all',
           },
         },

@@ -3,7 +3,7 @@ import { Spell } from '../types'
 export default {
   id: '3b7add2b-0f49-4c6b-8db9-18ecbb34602c',
   name: 'like coral',
-  chain: {
+  graph: {
     id: 'demo@0.1.0',
     nodes: {
       '124': {

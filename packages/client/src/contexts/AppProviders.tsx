@@ -7,6 +7,7 @@ import {
 
 import AuthProvider from './AuthProvider'
 import FeathersProvider from './FeathersProvider'
+import PlugProvider from './PlugProvider'
 import PubSubProvider from './PubSubProvider'
 import SharedbProvider from './SharedbProvider'
 import ToastProvider from './ToastProvider'
@@ -14,7 +15,7 @@ import WebSocketProvider from './WebSocketProvider'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme { }
+  interface DefaultTheme extends Theme {}
 }
 
 const darkTheme = createTheme(
@@ -33,6 +34,7 @@ const providers = [
   FeathersProvider,
   WebSocketProvider,
   SharedbProvider,
+  PlugProvider,
 ]
 
 /**

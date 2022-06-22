@@ -2,7 +2,6 @@ import { NodeEditor } from 'rete'
 import ConnectionPlugin from 'rete-connection-plugin'
 import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
 import ContextMenuPlugin from 'rete-context-menu-plugin'
-import ReactRenderPlugin from 'rete-react-render-plugin'
 import { Data } from 'rete/types/core/data'
 import { EventsTypes, EditorContext } from '../types'
 import { ThothNode } from './../types'
@@ -21,6 +20,7 @@ import { ModuleManager } from './plugins/modulePlugin/module-manager'
 import SocketGenerator from './plugins/socketGenerator'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
+import ReactRenderPlugin from './plugins/reactRenderPlugin/index'
 import { PubSubContext, ThothComponent } from './thoth-component'
 import SocketPlugin from './plugins/socketPlugin'
 // import SelectionPlugin from './plugins/selectionPlugin'
@@ -101,7 +101,7 @@ export const initEditor = function ({
   // React rendering for the editor
   editor.use(ReactRenderPlugin, {
     // this component parameter is a custom default style for nodes
-    component: node as { contextMenuName: string; name: string },
+    component: node as any,
   })
   // renders a context menu on right click that shows available nodes
   editor.use(LifecyclePlugin)

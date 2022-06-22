@@ -43,7 +43,7 @@ const StartScreen = () => {
       graph: spellData.graph,
       name: spellData.name,
       gameState: spellData.gameState,
-      user: user?.id
+      user: user?.id,
     })
 
     dispatch(

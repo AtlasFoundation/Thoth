@@ -64,7 +64,7 @@ export default {
     try {
       return vm.run(codeToRun)
     } catch (err) {
-      throw new Error('Error in runChain: processCode.')
+      throw new Error('Error in rungraph: processCode.')
     }
   },
 }

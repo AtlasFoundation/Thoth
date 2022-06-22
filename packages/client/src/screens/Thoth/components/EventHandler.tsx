@@ -62,6 +62,10 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const { events, subscribe } = pubSub
 
+  useEffect(() => {
+    console.log('using effect')
+  }, [])
+
   const {
     $DELETE,
     $UNDO,
@@ -214,108 +218,109 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const createCalendarTab = () => {
     createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
-
-    const createSettingsWindow = () => {
-      createOrFocus(windowTypes.SETTINGS, 'Settings')
-    }
-
-    const onSerialize = () => {
-      // eslint-disable-next-line no-console
-      console.log(serialize())
-    }
-
-    const onProcess = () => {
-      const editor = getEditor()
-      if (!editor) return
-
-      editor.runProcess()
-    }
-
-    const onUndo = () => {
-      undo()
-    }
-
-    const onRedo = () => {
-      redo()
-    }
-
-    const onDelete = () => {
-      del()
-    }
-
-    const onExport = async () => {
-      // refetch spell from local DB to ensure it is the most up to date
-      const spell = { ...spellRef.current }
-      spell.graph = serialize() as GraphData
-      spell.name = uniqueNamesGenerator(customConfig)
-
-      const json = JSON.stringify(spell)
-
-      const blob = new Blob([json], { type: 'application/json' })
-      const url = window.URL.createObjectURL(new Blob([blob]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `${spell.name}.thoth`)
-
-      // Append to html link element page
-      document.body.appendChild(link)
-
-      // Start download
-      link.click()
-
-      if (!link.parentNode) return
-
-      // Clean up and remove the link
-      link.parentNode.removeChild(link)
-    }
-
-    // clean up anything inside the editor which we need to shut down.
-    // mainly subscriptions, etc.
-    const onCloseEditor = () => {
-      const editor = getEditor() as Record<string, any>
-      if (editor.moduleSubscription) editor.moduleSubscription.unsubscribe()
-    }
-
-    const handlerMap = {
-      [$SAVE_SPELL(tab.id)]: saveSpell,
-      [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
-      [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
-      [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
-      [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
-      [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
-      [$CREATE_INSPECTOR(tab.id)]: createInspector,
-      [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
-      [$CREATE_CONSOLE(tab.id)]: createConsole,
-      [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
-      [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
-      [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
-      [$SERIALIZE(tab.id)]: onSerialize,
-      [$EXPORT(tab.id)]: onExport,
-      [$CLOSE_EDITOR(tab.id)]: onCloseEditor,
-      [$UNDO(tab.id)]: onUndo,
-      [$REDO(tab.id)]: onRedo,
-      [$DELETE(tab.id)]: onDelete,
-      [$PROCESS(tab.id)]: onProcess,
-      [$SAVE_SPELL_DIFF(tab.id)]: sharedb ? sharedbDiff : onSaveDiff,
-    }
-
-    useEffect(() => {
-      if (!tab && !spell && !client) return
-
-      const subscriptions = Object.entries(handlerMap).map(
-        ([event, handler]) => {
-          return subscribe(event, handler)
-        }
-      )
-
-      // unsubscribe from all subscriptions on unmount
-      return () => {
-        subscriptions.forEach(unsubscribe => {
-          unsubscribe()
-        })
-      }
-    }, [tab, client])
   }
+
+  const createSettingsWindow = () => {
+    createOrFocus(windowTypes.SETTINGS, 'Settings')
+  }
+
+  const onSerialize = () => {
+    // eslint-disable-next-line no-console
+    console.log(serialize())
+  }
+
+  const onProcess = () => {
+    const editor = getEditor()
+    if (!editor) return
+
+    editor.runProcess()
+  }
+
+  const onUndo = () => {
+    undo()
+  }
+
+  const onRedo = () => {
+    redo()
+  }
+
+  const onDelete = () => {
+    del()
+  }
+
+  const onExport = async () => {
+    // refetch spell from local DB to ensure it is the most up to date
+    console.log('ON EXPORT')
+    const spell = { ...spellRef.current }
+    spell.graph = serialize() as GraphData
+    spell.name = uniqueNamesGenerator(customConfig)
+
+    const json = JSON.stringify(spell)
+
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = window.URL.createObjectURL(new Blob([blob]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `${spell.name}.thoth`)
+
+    // Append to html link element page
+    document.body.appendChild(link)
+
+    // Start download
+    link.click()
+
+    if (!link.parentNode) return
+
+    // Clean up and remove the link
+    link.parentNode.removeChild(link)
+  }
+
+  // clean up anything inside the editor which we need to shut down.
+  // mainly subscriptions, etc.
+  const onCloseEditor = () => {
+    const editor = getEditor() as Record<string, any>
+    if (editor.moduleSubscription) editor.moduleSubscription.unsubscribe()
+  }
+
+  const handlerMap = {
+    [$SAVE_SPELL(tab.id)]: saveSpell,
+    [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
+    [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
+    [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
+    [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
+    [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
+    [$CREATE_INSPECTOR(tab.id)]: createInspector,
+    [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
+    [$CREATE_CONSOLE(tab.id)]: createConsole,
+    [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
+    [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
+    [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
+    [$SERIALIZE(tab.id)]: onSerialize,
+    [$EXPORT(tab.id)]: onExport,
+    [$CLOSE_EDITOR(tab.id)]: onCloseEditor,
+    [$UNDO(tab.id)]: onUndo,
+    [$REDO(tab.id)]: onRedo,
+    [$DELETE(tab.id)]: onDelete,
+    [$PROCESS(tab.id)]: onProcess,
+    [$SAVE_SPELL_DIFF(tab.id)]: sharedb ? sharedbDiff : onSaveDiff,
+  }
+
+  useEffect(() => {
+    if (!tab && !spell && !client) return
+
+    console.log('TAB ID I EVENT HANDLER', tab.id)
+
+    const subscriptions = Object.entries(handlerMap).map(([event, handler]) => {
+      return subscribe(event, handler)
+    })
+
+    // unsubscribe from all subscriptions on unmount
+    return () => {
+      subscriptions.forEach(unsubscribe => {
+        unsubscribe()
+      })
+    }
+  }, [tab, client])
 
   return null
 }

@@ -4,6 +4,37 @@ Thoth is a multishot system builder. it leverages a visual coding style interfac
 
 This repository is a prototype and can be expected to change radically.
 
+## Internet Computer
+
+### Deploy locally
+
+In the client run:
+
+```
+npm install
+dfx start --background --clean
+dfx deploy
+```
+
+CD back into the root and run:
+
+```
+npm run dev
+```
+
+### Deploy to the IC
+
+Make sure you have a wallet with cycles, you can get cycles on Sonic.ooo
+
+In the Client run:
+
+```
+npm install
+dfx deploy --network ic
+```
+
+visit the "Asset Canister" link to view the front-end via canister.
+
 ## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

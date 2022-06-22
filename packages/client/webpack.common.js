@@ -28,7 +28,7 @@ module.exports = () => {
     entry: ['regenerator-runtime/runtime.js', './src/index.tsx'],
     output: {
       path: path.resolve(__dirname, './build'),
-      filename: '[name].[contenthash].bundle.js',
+      filename: '[name].[contenthash]-1.bundle.js',
       clean: true,
     },
     resolve: {
@@ -41,6 +41,7 @@ module.exports = () => {
       fallback: {
         crypto: require.resolve('crypto-browserify'),
         stream: require.resolve('stream-browserify'),
+        buffer: require.resolve('buffer/'),
       },
     },
     ignoreWarnings: [/Failed to parse source map/],
@@ -94,6 +95,9 @@ module.exports = () => {
         template: './index.ejs',
         filename: './index.html',
         inject: true,
+      }),
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
       }),
       new webpack.DefinePlugin({
         'process.env.NODE_DEBUG': JSON.stringify(process.env.NODE_DEBUG),
