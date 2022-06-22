@@ -1,4 +1,4 @@
-import { useContext, createContext, useState } from 'react'
+import { useContext, createContext, useState, useEffect } from 'react'
 import { Principal } from '@dfinity/principal'
 
 interface PlugContext {
@@ -22,6 +22,17 @@ export const usePlugWallet = () => useContext(Context)
 const PlugProvider = ({ children }) => {
   const [userPrincipal, setUserPrincipalState] = useState<string | null>(null)
   const [connected, setConnected] = useState<boolean>(false)
+
+  useEffect(() => {
+    ;(async () => {
+      const plug = getPlug()
+      const hasLoggedIn = await plug.isConnected()
+
+      if (!hasLoggedIn) return
+
+      login()
+    })()
+  })
 
   const setUserPrincipal = principal => {
     setUserPrincipalState(principal)

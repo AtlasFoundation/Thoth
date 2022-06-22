@@ -6,7 +6,7 @@ export function PlugWallet({
   onConnect = (arg: string) => {},
   onFail = (arg: string) => {},
 }) {
-  const { userPrincipal, connected, login, getPlug } = usePlugWallet()
+  const { userPrincipal, connected, login } = usePlugWallet()
 
   const [showMenu, setShowMenu] = useState<Boolean>(false)
   const [currentBalance, setCurrentBalance] = useState<string>('N/A')
@@ -19,15 +19,10 @@ export function PlugWallet({
   }, [tokenName, balanceLoading])
 
   useEffect(() => {
-    ;(async () => {
-      const plug = getPlug()
-      const hasLoggedIn = await plug.isConnected()
+    if (!connected || !userPrincipal) return
 
-      if (!hasLoggedIn) return
-
-      plugLogin()
-    })()
-  })
+    grabBalance()
+  }, [connected, userPrincipal])
 
   const grabBalance = async () => {
     setBalanceLoading(true)
@@ -37,10 +32,10 @@ export function PlugWallet({
   }
 
   const plugLogin = async () => {
-    const onSuccess = async () => {
-      await grabBalance()
-    }
-    login(onSuccess)
+    // const onSuccess = async () => {
+    //   await grabBalance()
+    // }
+    login()
 
     // Process the users wallet balance to show
   }
