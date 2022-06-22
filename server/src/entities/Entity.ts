@@ -48,6 +48,9 @@ export class Entity {
     discord_empty_responses: string,
     discord_greeting: any,
     spell_handler: string,
+    spell_handler_update: string,
+    spell_handler_metadata: string,
+    spell_handler_slash_command: string,
     spell_version: string,
     use_voice: boolean,
     voice_provider: string,
@@ -66,7 +69,18 @@ export class Entity {
       spell: spell_handler,
       version: spell_version,
     })
-
+    const updateSpellHandler = spell_handler_update ? await CreateSpellHandler({
+      spell: spell_handler_update,
+      version: spell_version
+    }) : null
+    const metadataSpellHandler = spell_handler_metadata ? await CreateSpellHandler({
+      spell: spell_handler_metadata,
+      version: spell_version
+    }) : null
+    const slashCommandSpellHandler = spell_handler_slash_command ? await CreateSpellHandler({
+      spell: spell_handler_slash_command,
+      version: spell_version
+    }) : null
     this.discord = new discord_client()
     console.log('createDiscordClient')
     await this.discord.createDiscordClient(
@@ -78,6 +92,9 @@ export class Entity {
       discord_empty_responses,
       discord_greeting,
       spellHandler,
+      updateSpellHandler,
+      metadataSpellHandler,
+      slashCommandSpellHandler,
       use_voice,
       voice_provider,
       voice_character,
@@ -664,6 +681,9 @@ export class Entity {
         data.discord_empty_responses,
         greeting,
         data.discord_spell_handler_incoming,
+        data.discord_spell_handler_update,
+        data.discord_spell_handler_metadata,
+        data.discord_spell_handler_slash_command,
         data.spell_version,
         data.use_voice,
         data.voice_provider,

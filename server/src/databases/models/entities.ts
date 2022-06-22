@@ -19,7 +19,8 @@ export interface entitiesAttributes {
   discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
-  discord_spell_handler_feed?: string
+  discord_spell_handler_metadata?: string
+  discord_spell_handler_slash_command?: string
   use_voice?: boolean
   voice_provider?: string
   voice_character?: string
@@ -112,7 +113,8 @@ export type entitiesOptionalAttributes =
   | 'discord_echo_format'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
-  | 'discord_spell_handler_feed'
+  | 'discord_spell_handler_metadata'
+  | 'discord_spell_handler_slash_command'
   | 'use_voice'
   | 'voice_provider'
   | 'voice_character'
@@ -214,7 +216,8 @@ export class entities
   discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
-  discord_spell_handler_feed?: string
+  discord_spell_handler_metadata?: string
+  discord_spell_handler_slash_command?: string
   use_voice?: boolean
   voice_provider?: string
   voice_character?: string
@@ -399,7 +402,11 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
-        discord_spell_handler_feed: {
+        discord_spell_handler_metadata: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        discord_spell_handler_slash_command: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

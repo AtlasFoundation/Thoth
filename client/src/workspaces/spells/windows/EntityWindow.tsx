@@ -57,7 +57,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
     useState('')
   const [discord_spell_handler_update, setDiscordSpellHandlerUpdate] =
     useState('')
-  const [discord_spell_handler_feed, setDiscordSpellHandlerFeed] = useState('')
+  const [discord_spell_handler_metadata, setDiscordSpellHandlerMetadata] = useState('')
+  const [discord_spell_handler_slash_command, setDiscordSpellHandlerSlashCommand] = useState('')
 
   const [xrengine_spell_handler_incoming, setXREngineSpellHandlerIncoming] =
     useState('')
@@ -235,7 +236,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setDiscordEchoFormat(res.data.discord_echo_format)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
-        setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
+        setDiscordSpellHandlerMetadata(res.data.discord_spell_handler_metadata)
+        setDiscordSpellHandlerSlashCommand(res.data.discord_spell_handler_slash_command)
 
         setxrengine_enabled(res.data.xrengine_enabled === true)
         setXREngineUrl(res.data.xrengine_url)
@@ -376,7 +378,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
-      discord_spell_handler_feed,
+      discord_spell_handler_metadata,
+      discord_spell_handler_slash_command,
       use_voice,
       voice_provider,
       voice_character,
@@ -495,7 +498,9 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setDiscordSpellHandlerUpdate(
             responseData.discord_spell_handler_update
           )
-          setDiscordSpellHandlerFeed(responseData.discord_spell_handler_feed)
+          setDiscordSpellHandlerMetadata(responseData.discord_spell_handler_metadata)
+          setDiscordSpellHandlerSlashCommand(responseData.discord_spell_handler_slash_command)
+
           setXREngineSpellHandlerIncoming(
             responseData.xrengine_spell_handler_incoming
           )
@@ -614,7 +619,8 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
-      discord_spell_handler_feed,
+      discord_spell_handler_metadata,
+      discord_spell_handler_slash_command,
       use_voice,
       voice_provider,
       voice_character,
@@ -1127,7 +1133,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                     setDiscordSpellHandlerUpdate(event.target.value)
                   }}
                 >
-                  <option defaultValue hidden></option>
+                  <option value='null' selected>--Disabled--</option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1138,16 +1144,36 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
               </div>
 
               <div className="form-item agent-select">
-                <span className="form-item-label">Event Feed Handler</span>
+                <span className="form-item-label">Metadata Handler</span>
                 <select
-                  name="spellHandlerFeed"
-                  id="spellHandlerFeed"
-                  value={discord_spell_handler_feed}
+                  name="spellHandlerMetadata"
+                  id="spellHandlerMetadata"
+                  value={discord_spell_handler_metadata}
                   onChange={event => {
-                    setDiscordSpellHandlerFeed(event.target.value)
+                    setDiscordSpellHandlerMetadata(event.target.value)
                   }}
                 >
-                  <option defaultValue hidden></option>
+                  <option value='null' selected>--Disabled--</option>
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              
+              <div className="form-item agent-select">
+                <span className="form-item-label">Slash Command Handler</span>
+                <select
+                  name="spellHandlerSlashCommand"
+                  id="spellHandlerSlashCommand"
+                  value={discord_spell_handler_slash_command}
+                  onChange={event => {
+                    setDiscordSpellHandlerSlashCommand(event.target.value)
+                  }}
+                >
+                  <option value='null' selected>--Disabled--</option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>

@@ -153,16 +153,15 @@ export const CreateSpellHandler = async (props: {
     } as any
 
     console.log('********** spellInputs are')
-    console.log(spellInputs)
+    // console.log(spellInputs)
 
     // TODO: Remove this line
     // TEST CASE: Chatting with agent on Discord doesn't get same response over and over
     // This resets everything and makes it work, BUT it is very slow
     // We need to reset the task outputs (and tasks in general) without
     // calling this function here
-
     let error = null
-    const inputs = inputKeys.reduce((inputs, expectedInput: string) => {
+    const inputs = inputKeys.reduce((inputs, expectedInput: string, idx: number) => {
       const requestInput = spellInputs
 
       if (requestInput) {
