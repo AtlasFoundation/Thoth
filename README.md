@@ -7,6 +7,8 @@ Thoth is a multishot system builder. It leverages a visual coding style interfac
 You will need **yarn or npm** and **Docker** installed, along with **Node.js 16 or higher**. We use Docker to run a local Postgres database. You can skip the docker and install postgres directly, but you are almost always better off just using Docker.
 For **Linux** and **MAC** users, **sleep** and **concurently** commands must be installed in the machine.
 
+Install xvfb, chromium and ffmpeg
+
 First, clone and set up Thoth
 
 ```
