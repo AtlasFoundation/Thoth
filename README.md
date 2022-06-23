@@ -1,6 +1,12 @@
+# **SUPERNOVA HAS BEEN MERGED INTO MAIN**
+
+Please note that this branch for supernova has been merged into main. Thanks for looking!
+
 # THOTH
 
 Thoth is a multishot system builder. It leverages a visual coding style interface to allows game designers and developers to rapidly create powerful natural language systems and prototype games.
+
+---
 
 ## Quickstart
 
