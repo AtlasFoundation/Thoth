@@ -26,7 +26,7 @@ const PlugProvider = ({ children }) => {
   useEffect(() => {
     ;(async () => {
       const plug = getPlug()
-      const hasLoggedIn = await plug.isConnected()
+      const hasLoggedIn = await plug?.isConnected()
 
       if (!hasLoggedIn) return
 
