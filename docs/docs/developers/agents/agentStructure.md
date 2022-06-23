@@ -9,26 +9,42 @@ sidebar_position: 1
 
 ## Data Structure
 
+speaker -- key of who is speaking, probably discord id of person chatting with agent
+agent -- key of this particular agent receiving, since each agent can be different, probably supplied from agent settings (depends on connector)
+client -- type of client -- discord, xrengine, etc
+channel -- where it is received, i.e. discord channel or xrengine room (at least ideally, discord does this but other connectors might need work)
+entity -- information about this running entity instance (entity number, etc)
+roomInfo -- info from the world, this is how we do text gen from worlds ideally
+output -- actual information received
+
 ### Input
 
 This is the input which the agent is receiving. Usually a snippet of conversation, but could be anything that is being processed by the particular agent.
 
 ### Speaker
 
-Who is it that is speaking to the Agent? This helps to store associated data between the speaker and the agent. Could be a user ID, a user name, etc.
+The person interacting with or engaging with the Agent. This helps to store associated data between the speaker and the agent. Could be a user ID, a user name, etc.
 
 ### Agent
 
-Name of the agent that is being interacted with.
+Key of this particular agent receiving the input, since each agent can be different, probably supplied from agent settings (depends on connector)
 
 ### Client
 
-What client channel is this interaction occurring on? Web, discord, twitter?
+Type of client that is interacting with the Agent (discord, XR Engine, twitter, web, etc)
 
 ### Channel Id
 
-Represents a unique channel that this interaction may be occurring in.
+Where it is received from, i.e. discord channel or xrengine room (at least ideally, discord does this but other connectors might need work)
 
 ### Entity
 
-### Output
+Information about this running entity instance (entity number, etc)
+
+### roomInfo
+
+Info from the world, this is how we do text gen from worlds ideally
+
+### Output (output socket)
+
+This is the original input that was received.
