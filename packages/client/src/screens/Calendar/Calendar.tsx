@@ -46,7 +46,9 @@ const dateToInputFormat = date => {
 }
 
 const findEventsForDate = (events, date) => {
-  return events.filter(event => date.toDateString() === new Date(event.date).toDateString())
+  return events.filter(
+    event => date.toDateString() === new Date(event.date).toDateString()
+  )
 }
 
 const Navigation = ({ date, setDate, setShowingEventForm }) => {
@@ -107,11 +109,13 @@ const EventModal = ({
       title={`${event.name} (${event.type})`}
       className="eventModal"
     >
-      <p>Date: <b>{event.date}</b> Time: <b>{event.time}</b></p>
+      <p>
+        Date: <b>{event.date}</b> Time: <b>{event.time}</b>
+      </p>
       <p>{event.moreInfo}</p>
 
       <button
-        className='calendarBtn'
+        className="calendarBtn"
         onClick={() => {
           setViewingEvent(null)
           setShowingEventForm({ visible: true, withEvent: event })
@@ -120,7 +124,7 @@ const EventModal = ({
         Edit event
       </button>
 
-      <button className='calendarBtn red' onClick={() => deleteEvent(event)}>
+      <button className="calendarBtn red" onClick={() => deleteEvent(event)}>
         Delete event
       </button>
 
@@ -144,7 +148,7 @@ const EventForm = ({
     date: '',
     time: '',
     type: 'standard',
-    moreInfo: ''
+    moreInfo: '',
   }
   if (!withEvent && !!preselectedDate) {
     newEvent.date = dateToInputFormat(preselectedDate)
@@ -208,7 +212,9 @@ const EventForm = ({
 
         {withEvent ? (
           <Fragment>
-            <button className='calendarBtn' onClick={() => editEvent(event)}>Edit event</button>
+            <button className="calendarBtn" onClick={() => editEvent(event)}>
+              Edit event
+            </button>
             <a
               className="close"
               onClick={() => {
@@ -221,12 +227,12 @@ const EventForm = ({
           </Fragment>
         ) : (
           <Fragment>
-            <button className='calendarBtn Add' onClick={() => addEvent(event)}>
+            <button className="calendarBtn Add" onClick={() => addEvent(event)}>
               Add event
             </button>
 
             <button
-              className='calendarBtn close'
+              className="calendarBtn close"
               onClick={() => setShowingEventForm({ visible: false })}
             >
               Cancel
@@ -344,7 +350,8 @@ export const CalendarApp = () => {
   }, [])
 
   const fetchEvents = async () => {
-    axios.get(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event`)
+    axios
+      .get(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event`)
       .then(({ data }) => {
         console.log(data)
         setEvents(data)
@@ -356,15 +363,28 @@ export const CalendarApp = () => {
   }
 
   const addEvent = event => {
+    if (
+      event.name?.length <= 0 ||
+      event.moreInfo?.length <= 0 ||
+      event.name?.length <= 0 ||
+      event.time?.length <= 0
+    ) {
+      enqueueSnackbar('invalid event info!', {
+        variant: 'error',
+      })
+      return
+    }
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
-    axios.post(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event`, event)
+    axios
+      .post(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event`, event)
       .then(res => {
         setIsLoading(false)
         fetchEvents()
         enqueueSnackbar('Event created successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not created', { variant: 'error' })
       })
@@ -374,13 +394,18 @@ export const CalendarApp = () => {
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
     let { id, ...eventBody } = event
-    axios.patch(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event/${id}`, eventBody)
+    axios
+      .patch(
+        `${process.env.REACT_APP_API_ROOT_URL}/calendar_event/${id}`,
+        eventBody
+      )
       .then(res => {
         setIsLoading(false)
         fetchEvents()
         enqueueSnackbar('Event updated successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not updated', { variant: 'error' })
       })
@@ -391,13 +416,17 @@ export const CalendarApp = () => {
     setViewingEvent(false)
     setShowingEventForm({ visible: false, withEvent: false })
 
-    axios.delete(`${process.env.REACT_APP_API_ROOT_URL}/calendar_event/${event.id}`)
+    axios
+      .delete(
+        `${process.env.REACT_APP_API_ROOT_URL}/calendar_event/${event.id}`
+      )
       .then(res => {
         setIsLoading(false)
         fetchEvents()
         enqueueSnackbar('Event deleted successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not deleted', { variant: 'error' })
       })

@@ -2,7 +2,7 @@ import axios from 'axios'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
 import { creatorToolsDatabase } from '../../databases/creatorTools'
-import { noAuth } from '../middleware/auth'
+import { noAuth } from '../../middleware/auth'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 import {

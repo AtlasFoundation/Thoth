@@ -6,7 +6,7 @@ import { handleInput } from '../entities/connectors/handleInput'
 import weaviate from 'weaviate-client'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
-import { noAuth } from './middleware/auth'
+import { noAuth } from '../middleware/auth'
 import { Route } from '../types'
 import axios from 'axios'
 import { cacheManager } from '../cacheManager'
@@ -143,6 +143,54 @@ const deleteEntityHandler = async (ctx: Koa.Context) => {
   }
 }
 
+const getGreetings = async (ctx: Koa.Context) => {
+  const { enabled } = ctx.request.query
+  try {
+    const greetings = await database.instance.getGreetings(enabled)
+    return (ctx.body = greetings)
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
+const addGreetings = async (ctx: Koa.Context) => {
+  try {
+    const { enabled, sendIn, channelId, message } = ctx.request.body
+    const { id } = ctx.params
+
+    if (!id)
+      await database.instance.addGreeting(enabled, sendIn, channelId, message)
+    else
+      await database.instance.updateGreeting(
+        enabled,
+        sendIn,
+        channelId,
+        message,
+        id
+      )
+
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
+const deleteGreeting = async (ctx: Koa.Context) => {
+  try {
+    const { id } = ctx.params
+    await database.instance.deleteGreeting(id)
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
 const getEvent = async (ctx: Koa.Context) => {
   const type = ctx.request.query.type as string
   const agent = ctx.request.query.agent
@@ -263,6 +311,8 @@ const createEvent = async (ctx: Koa.Context) => {
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text
+  const character = ctx.request.query.character ?? 'none'
+  console.log('text and character are', text, character)
   const voice_provider = ctx.request.query.voice_provider
   const voice_character = ctx.request.query.voice_character
   const voice_language_code = ctx.request.query.voice_language_code
@@ -577,6 +627,12 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
+const zoomBufferChunk = async (ctx: Koa.Context) => {
+  const chunk = ctx.request.body.chunk
+  console.log('GOT ZOOM BUFFER CHUNK:', chunk)
+  return (ctx.body = 'ok')
+}
+
 const getCalendarEvents = async (ctx: Koa.Context) => {
   try {
     let calendarEvents = await database.instance.getCalendarEvents()
@@ -604,7 +660,131 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
     return (ctx.body = 'inserted')
   } catch (e) {
     ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
+    return (ctx.body = { payload: [], message: 'internal error' })
+  }
+}
+
+/**
+ * @param {number} time - time in seconds format: new Date().getTime()
+ * @param {string} date - format: MM-DD-YYYY
+ * @param {string} name - calendar event summary name
+ * @param {string} moreInfo - calendar event description name
+ */
+
+const addCalendarEvents = async (ctx: Koa.Context) => {
+  const { name, date, time, type, moreInfo } = ctx.request.body
+  if (
+    !name ||
+    !date ||
+    !time ||
+    !type ||
+    !moreInfo ||
+    name?.length <= 0 ||
+    date?.length <= 0 ||
+    time?.length <= 0 ||
+    type?.length <= 0 ||
+    moreInfo?.length <= 0
+  ) {
+    return (ctx.body = { error: 'invalid event data' })
+  }
+
+  try {
+    const content = await initCalendar()
+    const auth = await authorize(content)
+
+    const currentTime = new Date(Number(time)).getHours()
+    const givenTime = new Date(Number(time)).getHours() + 1
+    const currentDate = new Date().getDate()
+    const givenDate = new Date(date).getDate()
+
+    if (
+      isNaN(currentTime) ||
+      isNaN(givenTime) ||
+      isNaN(currentDate) ||
+      isNaN(givenDate)
+    ) {
+      return (ctx.body = { error: 'invalid date or time' })
+    }
+
+    if (currentDate > givenDate) {
+      return (ctx.body = { error: 'invalid date' })
+    }
+
+    if (currentTime > givenTime) {
+      return (ctx.body = { error: 'invalid time' })
+    }
+
+    let startDateTime: Date = new Date()
+    startDateTime.setDate(currentDate)
+    startDateTime.setHours(currentTime)
+
+    let endDateTime: Date = new Date()
+    endDateTime.setDate(currentDate)
+    endDateTime.setHours(givenTime)
+
+    const addEvenetRes = await addCalendarEvent(auth, {
+      summary: name,
+      start: {
+        dateTime: startDateTime.toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+      end: {
+        dateTime: endDateTime.toISOString(),
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      },
+      description: moreInfo,
+      location: '',
+      attendees: [],
+      reminders: {
+        useDefault: false,
+        overrides: [
+          {
+            method: 'email',
+            minutes: 24 * 60,
+          },
+          {
+            method: 'popup',
+            minutes: 10,
+          },
+        ],
+      },
+    })
+
+    if (isValidObject(addEvenetRes)) {
+      const { id: calendar_id } = addEvenetRes
+
+      const res = await database.instance.createCalendarEvent(
+        name,
+        calendar_id,
+        date,
+        time,
+        type,
+        JSON.stringify(addEvenetRes)
+      )
+
+      const { command, rowCount } = res
+
+      if (command === 'INSERT' && rowCount === 1) {
+        const event = await database.instance.getCalendarEventByCalId(
+          calendar_id
+        )
+
+        return (ctx.body = {
+          message: 'Inserting Calender event is success',
+          payload: event,
+        })
+      }
+    }
+
+    return (ctx.body = {
+      message: 'Inserting Calender event is failed',
+      payload: [],
+    })
+  } catch (e) {
+    console.log('addCalendarEvents:', e)
+
+    ctx.status = 500
+    return (ctx.body = { error: 'Invalid user credentials or Internal error' })
   }
 }
 
@@ -663,6 +843,64 @@ const addVideo = async (ctx: Koa.Context) => {
   }
 }
 
+const post_pipedream = async (ctx: Koa.Context) => {
+  console.log('testPipeDream:', ctx.request)
+  return (ctx.body = 'ok')
+}
+
+const getMessageReactions = async (ctx: Koa.Context) => {
+  try {
+    const message_reactions = await database.instance.getMessageReactions()
+    return (ctx.body = message_reactions)
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+const createMessageReaction = async (ctx: Koa.Context) => {
+  try {
+    const { reaction, spell_handler, discord_enabled, slack_enabled } =
+      ctx.request.body
+    const { id } = ctx.params
+
+    console.log('got body data:', ctx.request.body)
+    if (!id) {
+      await database.instance.addMessageReaction(
+        reaction,
+        spell_handler,
+        discord_enabled,
+        slack_enabled
+      )
+    } else {
+      await database.instance.updateMessageReaction(
+        id,
+        reaction,
+        spell_handler,
+        discord_enabled,
+        slack_enabled
+      )
+    }
+
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+const deleteMessageReaction = async (ctx: Koa.Context) => {
+  try {
+    const { id } = ctx.params
+    await database.instance.deleteMessageReaction(id)
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -689,6 +927,18 @@ export const entities: Route[] = [
     path: '/entity/:id',
     access: noAuth,
     delete: deleteEntityHandler,
+  },
+  {
+    path: '/greetings',
+    access: noAuth,
+    get: getGreetings,
+    post: addGreetings,
+  },
+  {
+    path: '/greetings/:id',
+    access: noAuth,
+    put: addGreetings,
+    delete: deleteGreeting,
   },
   {
     path: '/event',
@@ -777,8 +1027,30 @@ export const entities: Route[] = [
     post: handleCustomInput,
   },
   {
+    path: '/zoom_buffer_chunk',
+    access: noAuth,
+    post: zoomBufferChunk,
+  },
+  {
     path: '/video',
     access: noAuth,
     post: addVideo,
+  },
+  {
+    path: '/pipedream',
+    access: noAuth,
+    post: post_pipedream,
+  },
+  {
+    path: '/message_reactions',
+    access: noAuth,
+    get: getMessageReactions,
+    post: createMessageReaction,
+  },
+  {
+    path: '/message_reaction/:id',
+    access: noAuth,
+    put: createMessageReaction,
+    delete: deleteMessageReaction,
   },
 ]

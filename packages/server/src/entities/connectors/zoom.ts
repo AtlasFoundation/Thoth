@@ -7,38 +7,45 @@
 // @ts-nocheck
 import { launch } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
-import { detectOsOption, getSetting } from './utils'
+import { detectOsOption } from './utils'
+import { removeEmojisFromString } from '../../utils/utils'
+import { cacheManager } from '../../cacheManager'
+import { tts } from '../../systems/googleTextToSpeech'
 
 export class zoom_client {
-  async createZoomClient(agent, settings) {
+  async createZoomClient(spellHandler, settings, entity) {
     const xvfb = new Xvfb()
     await xvfb.start(async function (err, xvfbProcess) {
       if (err) {
-        log(err)
+        console.log(err)
         xvfb.stop(function (_err) {
-          if (_err) log(_err)
+          if (_err) console.log(_err)
         })
       }
 
-      log('started virtual window')
-      const zoomObj = new zoom(agent, settings)
+      console.log('started virtual window')
+      const zoomObj = new zoom(spellHandler, settings, entity)
       await zoomObj.init()
     })
   }
+  destroy() {}
 }
 
 export class zoom {
-  agent
+  spellHandler
   settings
+  entity
+
   fakeMediaPath
 
   browser
   page
+  socket
 
-  constructor(agent, settings, fakeMediaPath = '') {
-    this.agent = agent
+  constructor(spellHandler, settings, entity) {
+    this.spellHandler = spellHandler
     this.settings = settings
-    this.fakeMediaPath = fakeMediaPath
+    this.entity = entity
   }
 
   async init() {
@@ -49,8 +56,6 @@ export class zoom {
       args: [
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
-        //`--use-file-for-fake-video-capture=${this.fakeMediaPath}video.y4m`,
-        //`--use-file-for-fake-audio-capture=${this.fakeMediaPath}test_audio.wav`,
         '--disable-web-security',
         '--autoplay-policy=no-user-gesture-required',
         '--ignoreHTTPSErrors: true',
@@ -61,147 +66,211 @@ export class zoom {
       },
       ...detectOsOption(),
     }
-    log(JSON.stringify(options))
+    console.log(JSON.stringify(options))
 
     this.browser = await launch(options)
     this.page = await this.browser.newPage()
-    this.page.on('console', log => console.log(log._text))
+    this.page.on('console', log => {
+      if (
+        log._text.includes('color:green') ||
+        log._text.includes('clib state')
+      ) {
+        return
+      }
+
+      console.log(log._text)
+    })
 
     this.page.setViewport({ width: 0, height: 0 })
     await this.page.setUserAgent(
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
     )
-    await this.navigate(getSetting(this.settings, 'zoomInvitationLink'))
+    await this.navigate(this.settings.zoom_invitation_link)
     await this.delay(20000)
-    await this.typeMessage('inputname', agent.name, false)
+    await this.catchScreenshot()
+    await this.clickElementById('button', 'onetrust-accept-btn-handler')
+    await this.catchScreenshot()
+    await this.delay(500)
+    await this.typeMessage('inputname', this.settings.zoom_bot_name, false)
     await this.clickElementById('button', 'joinBtn')
     await this.delay(20000)
+
     await this.clickElementById('button', 'wc_agree1')
     await this.delay(20000)
     try {
       await this.typeMessage(
         'inputpasscode',
-        getSetting(this.settings, 'zoomPassword'),
+        this.settings.zoom_password,
         false
       )
       await this.clickElementById('button', 'joinBtn')
       await this.delay(20000)
-    } catch (ex) { }
+    } catch (ex) {}
 
-    await this.playVideo('https://woolyss.com/f/spring-vp9-vorbis.webm')
-
-    await this.clickElementById('button', 'audioOptionMenu')
+    await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
     await this.catchScreenshot()
     const linkHandlers = await this.page.$x(
-      "//a[contains(text(), 'Fake Audio Input 1')]"
+      "//a[contains(text(), 'Show Subtitle')]"
     )
-
     if (linkHandlers.length > 0) {
-      await linkHandlers[0].click()
+      await linkHandlers[0].evaluate(b => b.click())
     } else {
-      throw new Error('Link not found')
+      console.log('Link not found')
     }
-    await this.clickElementById('button', 'videoOptionMenu')
+
+    await this.clickElementById('button', 'liveTranscriptionPermissionMenu')
     await this.catchScreenshot()
-    const linkHandlers2 = await this.page.$x(
-      "//a[contains(text(), 'fake_device_0')]"
+
+    await this.clickElementById('button', 'moreButton')
+    const participantsDiv = await this.page.$x(
+      "//a[contains(text(), 'Participants')]"
     )
-    if (linkHandlers2.length > 0) {
-      await linkHandlers2[0].click()
-    } else {
-      throw new Error('Link not found')
-    }
-
-    await this.clickElementById('button', 'audioOptionMenu')
-    await this.catchScreenshot()
-    const linkHandlers3 = await this.page.$x(
-      "//a[contains(text(), 'Fake Audio Output 1')]"
-    )
-
-    if (linkHandlers3.length > 0) {
-      await linkHandlers3[0].click()
-    } else {
-      throw new Error('Link not found')
-    }
-
-    await this.clickElementById('button', 'audioOptionMenu')
-    await this.catchScreenshot()
-    await this.getVideo()
-    this.frameCapturerer()
-  }
-
-  frameCapturerer() {
-    setTimeout(() => {
-      this.getRemoteScreenshot()
-      this.frameCapturerer()
-    }, 500)
-  }
-
-  c = 0
-  async getRemoteScreenshot() {
-    const dataUrl = await this.page.evaluate(async () => {
-      const sleep = time => new Promise(resolve => setTimeout(resolve, time))
-      await sleep(5000)
-      return document.getElementById('main-video').toDataURL()
+    if(participantsDiv.length > 0) await participantsDiv[0].evaluate(b => b.click())
+    let meetingHost = await this.page.evaluate(async () => {
+      // Get the element containing the details of the host of the meeting
+      const el = document.getElementById('participants-list-1')
+      const displayName = el?.querySelector('.participants-item__display-name')
+      return displayName?.textContent
     })
-
-    this.c++
-    const data = Buffer.from(dataUrl.split(',').pop(), 'base64')
-    //fs.writeFileSync('image' + this.c + '.png', data);
-  }
-
-  async getVideo() {
-    await this.page.evaluate(async () => {
-      const video = document.getElementById('main-video')
-      const stream = video.captureStream()
-      const recorder = new MediaRecorder(stream)
-      recorder.addEventListener('error', error => {
-        log('recorder error: ' + error)
+    await new Promise((resolve) => setTimeout(resolve, 5000))
+    setInterval(async () => {
+      //live-transcription-subtitle
+      let text = await this.page.evaluate(async () => {
+        const el = document.getElementById('live-transcription-subtitle')
+        return el?.textContent
       })
-      recorder.addEventListener('dataavailable', ({ data }) => {
-        log('data: ' + JSON.stringify(data))
-      })
-      recorder.start(5000)
-      log(stream.id)
-    })
-  }
+      console.log('TRANSCRIPTION VALUE:', text)
+      console.log('lastMessage:', this.lastMessage)
+      console.log('lastResponse:', this.lastResponse)
 
-  videoCreated = false
-  async playVideo(url) {
-    await this.page.evaluate(
-      async (_url, _videCreated) => {
-        let video = undefined
-        if (!this.videoCreated)
-          video = await document.createElement('video', {})
-        else video = await document.getElementById('video-mock')
-        video.setAttribute('id', 'video-mock')
-        video.setAttribute('src', _url)
-        video.setAttribute('crossorigin', 'anonymous')
-        video.setAttribute('controls', '')
-
-        video.oncanplay = async () => {
-          video.play()
+      text = text?.toLowerCase()?.trim()
+      if ((text && text !== undefined) || text?.length <= 0) {
+        if ((this.lastResponse && text.includes(this.lastResponse)) || (this.lastMessage && text.includes(this.lastMessage))) {
+          return
         }
 
-        video.onplay = async () => {
-          const stream = video.captureStream()
-
-          navigator.mediaDevices.getUserMedia = () => Promise.resolve(stream)
+        if (text.includes(this.lastMessage)) {
+          text = text.replace(this.lastMessage, '')
+          if (text.length <= 0) {
+            return
+          }
         }
-      },
-      url,
-      this.videoCreated
-    )
-    this.videoCreated = true
-    await this.delay(10000)
+
+        this.lastMessage = text
+        console.log('spellHandler:', this.spellHandler)
+        let response = await this.spellHandler(
+          text,
+          meetingHost ?? 'User',
+          this.settings.zoom_bot_name ?? 'Agent',
+          'zoom',
+          this.settings.zoom_invitation_link,
+          this.entity,
+          []
+        )
+        const tempResp = response
+        console.log('RESP:', response)
+        response = removeEmojisFromString(response)
+        const temp = response
+        if (!cacheManager.instance) {
+          new cacheManager()
+        }
+
+        const cache = await cacheManager.instance.get('voice_' + temp)
+        if (cache) {
+          response = cache
+          console.log('got from cache:', cache)
+        } else {
+          const fileId = await tts(response as string)
+          const url =
+            (process.env.FILE_SERVER_URL?.endsWith('/')
+              ? process.env.FILE_SERVER_URL
+              : process.env.FILE_SERVER_URL + '/') + fileId
+
+          console.log('url:', url)
+          response = url
+        }
+        try {
+          await this.playAudio(response)
+          cacheManager.instance.set('voice_' + temp, response)
+          this.lastResponse = tempResp.toLowerCase()
+
+          await new Promise((resolve) => setTimeout(resolve, 4000))
+          await this.clickElementById('button', 'audioOptionMenu')
+          await this.catchScreenshot()
+          const linkHandlers1 = await this.page.$x(
+            "//a[contains(text(), 'Same as System')]"
+          )
+          if (linkHandlers1.length > 0) {
+            await linkHandlers1[0].evaluate(btn => btn.click())
+            await linkHandlers1[1].evaluate(btn => btn.click())
+          } else {
+            console.log('Link not found')
+          }
+        } catch (e) {
+          console.log('error in init ::: ', e);
+        }
+      }
+    }, 5000)
   }
+
+  lastMessage = ''
+  lastResponse = ''
 
   async clickElementById(elemType, id) {
     await this.clickSelectorId(elemType, id)
   }
 
+  async playAudio(audioUrl) {
+    console.log('playingAudio:', audioUrl)
+    await this.page.evaluate(async url => {
+      const audio = document.createElement('audio')
+      audio.setAttribute('src', url)
+      audio.setAttribute('crossorigin', 'anonymous')
+      audio.setAttribute('controls', '')
+      audio.oncanplay = async () => {
+        audio.play()
+      }
+      audio.onplay = function () {
+        console.log('audio on play')
+        const stream = audio.captureStream()
+        navigator.mediaDevices.getUserMedia
+        navigator.mediaDevices.getUserMedia = async function () {
+          console.log('get user media')
+          return stream
+        }
+      }
+      document.querySelector('body').appendChild(audio)
+    }, audioUrl)
+    try {
+      await this.clickElementById('button', 'audioOptionMenu')
+      await this.catchScreenshot()
+      const linkHandlers = await this.page.$x(
+        "//a[contains(text(), 'Fake Audio Input 1')]"
+      )
+      if (linkHandlers.length > 0) {
+        await linkHandlers[0].evaluate(btn => btn.click())
+      } else {
+        console.log('Link not found')
+      }
+
+      await this.clickElementById('button', 'audioOptionMenu')
+      await this.catchScreenshot()
+      const linkHandlers2 = await this.page.$x(
+        "//a[contains(text(), 'Fake Audio Output 1')]"
+      )
+      if (linkHandlers2.length > 0) {
+        await linkHandlers2[0].evaluate(btn => btn.click())
+      } else {
+        console.log('Link not found')
+      }
+    } catch (e) {
+      console.log('error in playAudio ::: ', e);
+    }
+    this.catchScreenshot()
+  }
+
   async clickSelectorId(selector, id) {
-    log(`Clicking for a ${selector} matching ${id}`)
+    console.log(`Clicking for a ${selector} matching ${id}`)
 
     await this.page.evaluate(
       (selector, id) => {
@@ -209,17 +278,17 @@ export class zoom {
         const singleMatch = matches.find(button => button.id === id)
         let result
         if (singleMatch && singleMatch.click) {
-          log('normal click')
+          console.log('normal click')
           result = singleMatch.click()
         }
         if (singleMatch && !singleMatch.click) {
-          log('on click')
+          console.log('on click')
           result = singleMatch.dispatchEvent(
             new MouseEvent('click', { bubbles: true })
           )
         }
         if (!singleMatch) {
-          log('event click', matches.length)
+          console.log('event click', matches.length)
           if (matches.length > 0) {
             const m = matches[0]
             result = m.dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -236,7 +305,7 @@ export class zoom {
   }
 
   async clickSelectorClassRegex(selector, classRegex) {
-    log(`Clicking for a ${selector} matching ${classRegex}`)
+    console.log(`Clicking for a ${selector} matching ${classRegex}`)
 
     await this.page.evaluate(
       (selector, classRegex) => {
@@ -265,12 +334,12 @@ export class zoom {
     }
     const context = this.browser.defaultBrowserContext()
     context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
-    log('navigating to: ' + parsedUrl)
+    console.log('navigating to: ' + parsedUrl)
     await this.page.goto(parsedUrl, { waitUntil: 'domcontentloaded' })
   }
 
   async delay(timeout) {
-    log(`Waiting for ${timeout} ms... `)
+    console.log(`Waiting for ${timeout} ms... `)
     await this.waitForTimeout(timeout)
   }
 
@@ -285,7 +354,7 @@ export class zoom {
   counter = 0
   async catchScreenshot() {
     this.counter++
-    log('screenshot')
+    console.log('screenshot')
     const path = 'screenshot' + this.counter + '.png'
     await this.page.screenshot({ path })
   }
@@ -293,6 +362,6 @@ export class zoom {
   async typeMessage(input, message, clean) {
     if (clean)
       await this.page.click(`input[name="${input}"]`, { clickCount: 3 })
-    await this.page.type(`input[name=${input}`, message)
+    await this.page.type(`input[name=${input}]`, message)
   }
 }

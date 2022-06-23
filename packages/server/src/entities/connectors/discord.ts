@@ -16,8 +16,13 @@ import emojiRegex from 'emoji-regex'
 
 // import { classifyText } from '../utils/textClassifier'
 import { database } from '../../database'
+import { CreateSpellHandler } from '../CreateSpellHandler'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
-import { getRandomEmptyResponse, startsWithCapital } from './utils'
+import {
+  getRandomEmptyResponse,
+  startsWithCapital,
+  makeGreeting,
+} from './utils'
 
 function log(...s: (string | boolean)[]) {
   console.log(...s)
@@ -37,34 +42,40 @@ export class discord_client {
 
   //Event that is triggered when a new user is added to the server
   async handleGuildMemberAdd(user: { user: { id: any; username: any } }) {
-    const userId = user.user.id
-    const username = user.user.username
+    const userName = user.user.username
+    const serverName = user.guild.name
 
-    const dateNow = new Date()
-    const utc = new Date(
-      dateNow.getUTCFullYear(),
-      dateNow.getUTCMonth(),
-      dateNow.getUTCDate(),
-      dateNow.getUTCHours(),
-      dateNow.getUTCMinutes(),
-      dateNow.getUTCSeconds()
-    )
-    const utcStr =
-      dateNow.getDate() +
-      '/' +
-      (dateNow.getMonth() + 1) +
-      '/' +
-      dateNow.getFullYear() +
-      ' ' +
-      utc.getHours() +
-      ':' +
-      utc.getMinutes() +
-      ':' +
-      utc.getSeconds()
+    if (this.discord_greeting) {
+      const { enabled, sendIn, message, channelId } = this.discord_greeting
+      if (!enabled) return
+      const greeting = makeGreeting(message, { userName, serverName })
+      switch (sendIn) {
+        case 'dm':
+          const dmChannel = await user.createDM()
+          await this.sendGreetingInChannel(greeting, dmChannel)
+          break
+        case 'channel':
+          try {
+            const channel = await user.guild.channels.fetch(channelId)
+            console.log('channel ::: ', channel)
+            await this.sendGreetingInChannel(greeting, channel)
+          } catch (e) {
+            console.log('Error fetching channel ::: ', e)
+          }
+          break
+        default:
+          break
+      }
+    }
+  }
 
-    // TODO: Replace me with direct message handler
-    log('Discord', 'join', username, utcStr)
-    // MessageClient.instance.sendUserUpdateEvent('Discord', 'join', username, utcStr)
+  async sendGreetingInChannel(greeting, channel) {
+    try {
+      await channel.send(greeting)
+      console.log('Greeting sent ::: ', greeting)
+    } catch (e) {
+      console.log('Error sending greeting ::: ', e)
+    }
   }
 
   //Event that is triggered when a user is removed from the server
@@ -95,7 +106,15 @@ export class discord_client {
       utc.getSeconds()
     // TODO: Replace me with direct message handler
     log('Discord', 'leave', username, utcStr)
-    // MessageClient.instance.sendUserUpdateEvent('Discord', 'leave', username, utcStr)
+    this.userUpdateSpellHandler(
+      'leave',
+      username,
+      '',
+      'Discord',
+      '',
+      this.entity,
+      []
+    )
   }
 
   //Event that is triggered when a user reacts to a message
@@ -105,341 +124,25 @@ export class discord_client {
   ) {
     const { message } = reaction
     const emojiName = emoji.getName(reaction.emoji)
+    const emojid = ':' + emojiName + ':'
 
-    const dateNow = new Date()
-    const utc = new Date(
-      dateNow.getUTCFullYear(),
-      dateNow.getUTCMonth(),
-      dateNow.getUTCDate(),
-      dateNow.getUTCHours(),
-      dateNow.getUTCMinutes(),
-      dateNow.getUTCSeconds()
-    )
-    const utcStr =
-      dateNow.getDate() +
-      '/' +
-      (dateNow.getMonth() + 1) +
-      '/' +
-      dateNow.getFullYear() +
-      ' ' +
-      utc.getHours() +
-      ':' +
-      utc.getMinutes() +
-      ':' +
-      utc.getSeconds()
-
-    // TODO: Replace me with direct message handler
-    log(
-      'Discord',
-      message.channel.id,
-      message.id,
-      message.content,
-      user.username,
-      emojiName,
-      utcStr
-    )
-    // MessageClient.instance.sendMessageReactionAdd('Discord', message.channel.id, message.id, message.content, user.username, emojiName, utcStr)
-  }
-
-  async agents(
-    client: any,
-    message: { channel: { id: string | boolean } },
-    args: any,
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    log('Discord', message.channel.id)
-    // TODO: Replace me with direct message handler
-    // MessageClient.instance.sendGetAgents('Discord', message.channel.id)
-  }
-
-  //ban command, it is used to ban a user from the agent so the agent doesn't respon to this user
-  async ban(
-    client: any,
-    message: { channel?: any; mentions?: any },
-    args: { parsed_words: any },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    const pw = args.parsed_words
-    if (pw === undefined || pw.length !== 1) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-
-    const { mentions } = message
-    log(JSON.stringify(mentions))
     if (
-      mentions === undefined ||
-      mentions.users === undefined ||
-      mentions.users.size !== 1
+      this.message_reactions[emojid] &&
+      this.message_reactions[emojid] !== undefined
     ) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-    const user = mentions.users.first().id
-    await database.instance.banUser(user, 'discord')
-    message.channel.send('banned user: ' + `<@!${user}>`)
-    message.channel.stopTyping()
-  }
-
-  //returns all the current commands for the bot
-  async commands(
-    client: any,
-    message: {
-      channel: { send: (arg0: string) => void; stopTyping: () => void }
-    },
-    args: any,
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    let str = ''
-    this.client.helpFields[0].commands.forEach(function (
-      item: string[],
-      index: any
-    ) {
-      if (item[3].length <= 2000 && item[3].length > 0) {
-        str += '!' + item[0] + ' - ' + item[3] + '\n'
+      const response = await this.message_reactions[emojid](
+        '',
+        user.username,
+        this.discord_bot_name,
+        'discord',
+        message.channelId,
+        this.entity,
+        []
+      )
+      if (response && response !== undefined && response?.length > 0) {
+        this.client.channels.cache.get(message.channelId).send(response)
       }
-    })
-    if (str.length === 0) this.client.embed.description = 'empty response'
-    message.channel.send(str)
-    message.channel.stopTyping()
-  }
-
-  //ping is used to send a message directly to the agent
-  async ping(
-    client: { embed: any },
-    message: {
-      channel: { send: (arg0: any) => void; stopTyping: () => void }
-      id: string | boolean
-    },
-    args: {
-      grpc_args: { [x: string]: string | boolean; message: string | undefined }
-    },
-    author: { username: string | boolean },
-    addPing: string | boolean,
-    channel: any
-  ) {
-    if (
-      args.grpc_args.message === undefined ||
-      args.grpc_args.message === '' ||
-      args.grpc_args.message.replace(/\s/g, '').length === 0
-    ) {
-      this.client.embed.description = 'Wrong format, !ping message'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
     }
-
-    args.grpc_args['client_name'] = 'discord'
-    args.grpc_args['chat_id'] = channel
-
-    const date = new Date()
-    const utc = new Date(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      date.getUTCHours(),
-      date.getUTCMinutes(),
-      date.getUTCSeconds()
-    )
-    const utcStr =
-      date.getDate() +
-      '/' +
-      (date.getMonth() + 1) +
-      '/' +
-      date.getFullYear() +
-      ' ' +
-      utc.getHours() +
-      ':' +
-      utc.getMinutes() +
-      ':' +
-      utc.getSeconds()
-    args.grpc_args['createdAt'] = utcStr
-
-    let parentId = ''
-    if (args.grpc_args['isThread'] === true) {
-      parentId = args.grpc_args['parentId']
-    }
-
-    // TODO: Replace me with direct message handler
-    // MessageClient.instance.sendMessage(args.grpc_args['message'], message.id, 'Discord', args.grpc_args['chat_id'], utcStr, addPing, author.username, 'parentId:' + parentId)
-    log(
-      args.grpc_args['message'],
-      message.id,
-      'Discord',
-      args.grpc_args['chat_id'],
-      utcStr,
-      addPing,
-      author.username,
-      'parentId:' + parentId
-    )
-  }
-
-  //ping agent is used to ping a specific agent directly
-  async pingagent(
-    client: { embed: any },
-    message: {
-      channel: {
-        send: (arg0: any) => void
-        stopTyping: () => void
-        id: string | boolean
-      }
-      id: string | boolean
-    },
-    args: {
-      grpc_args: {
-        [x: string]: string | boolean
-        message: string | undefined
-        agent: string | undefined
-      }
-    },
-    author: { username: string | boolean },
-    addPing: string | boolean,
-    channel: any
-  ) {
-    if (
-      args.grpc_args.message === undefined ||
-      args.grpc_args.message === '' ||
-      args.grpc_args.message.replace(/\s/g, '').length === 0 ||
-      args.grpc_args.message.includes('agent=') ||
-      args.grpc_args.agent === undefined ||
-      args.grpc_args.agent === '' ||
-      args.grpc_args.agent.replace(/\s/g, '').length === 0
-    ) {
-      this.client.embed.description =
-        'Wrong format, !pingagent agent=agent message=value'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-
-    // TODO: Replace me with direct message handler
-    log(
-      'Discord',
-      message.channel.id,
-      message.id,
-      args.grpc_args['message'],
-      args.grpc_args['agent'],
-      addPing,
-      author.username
-    )
-    // MessageClient.instance.sendPingSoloAgent('Discord', message.channel.id, message.id, args.grpc_args['message'], args.grpc_args['agent'], addPing, author.username)
-  }
-
-  //setagent is used to update an agent
-  async setagent(
-    client: { embed: any },
-    message: {
-      channel: {
-        send: (arg0: any) => void
-        stopTyping: () => void
-        id: string | boolean
-      }
-    },
-    args: {
-      grpc_args: { [x: string]: string | boolean; message: string | undefined }
-    },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    if (args.grpc_args.message === undefined || args.grpc_args.message === '') {
-      this.client.embed.description =
-        'Wrong format, !setagent agent=agent context=value'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-    if (
-      args.grpc_args['name'] === undefined ||
-      args.grpc_args['name'] === '' ||
-      args.grpc_args['context'] === undefined ||
-      args.grpc_args['context'] === ''
-    ) {
-      this.client.embed.description =
-        'Wrong format, !setagent agent=agent context=value'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-
-    // TODO: Replace me with direct message handler
-    log(
-      'Discord',
-      message.channel.id,
-      args.grpc_args['name'],
-      args.grpc_args['context']
-    )
-    // MessageClient.instance.sendSetAgentsFields('Discord', message.channel.id, args.grpc_args['name'], args.grpc_args['context'])
-  }
-
-  //sets the name for an agent to respond for it
-  async setname(
-    client: { bot_name: string },
-    message: {
-      channel: { send: (arg0: string) => void; stopTyping: () => void }
-    },
-    args: { parsed_words: string | any[] | undefined },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    if (args.parsed_words === undefined || args.parsed_words.length !== 1) {
-      message.channel.send('Invalid format, !setname name')
-      message.channel.stopTyping()
-      return
-    }
-
-    const name = args.parsed_words[0]
-    this.bot_name = name
-    this.client.name_regex = new RegExp(name, 'ig')
-    log(client.bot_name + ' - ' + this.client.name_regex)
-    message.channel.send('Updated bot name to: ' + name)
-    message.channel.stopTyping()
-  }
-
-  //unbans a user from the agent's ban list
-  async unban(
-    client: any,
-    message: { channel?: any; mentions?: any },
-    args: { parsed_words: any },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    const pw = args.parsed_words
-    if (pw === undefined || pw.length !== 1) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-
-    const { mentions } = message
-    log(JSON.stringify(mentions))
-    if (
-      mentions === undefined ||
-      mentions.users === undefined ||
-      mentions.users.size !== 1
-    ) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-    const user = mentions.users.first().id
-    await database.instance.unbanUser(user, 'discord')
-    message.channel.send('unbanned user: ' + `<@!${user}>`)
-    message.channel.stopTyping()
   }
 
   //Event that is trigger when a new message is created (sent)
@@ -464,8 +167,7 @@ export class discord_client {
     args['grpc_args'] = {}
 
     let { author, channel, content, mentions, id } = message
-
-    //replaces the discord specific mentions (<!@id>) to the actual mention
+    content = content.trim()
     if (
       mentions !== null &&
       mentions.members !== null &&
@@ -493,6 +195,93 @@ export class discord_client {
           } catch (err) {
             error(err)
           }
+        }
+      }
+    }
+
+    if (this.discord_echo_slack && this.entity && this.entity.slack) {
+      let msg = this.discord_echo_format
+      if (!msg || msg?.length <= 0) {
+        msg = content
+      } else {
+        if (msg.includes('$client')) {
+          msg = msg.replace('$client', 'discord')
+        }
+        if (msg.includes('$author')) {
+          msg = msg.replace('$author', author.username)
+        }
+        if (msg.includes('$channel')) {
+          msg = msg.replace('$channel', channel.name)
+        }
+        if (msg.includes('$message')) {
+          msg = msg.replace('$message', content)
+        }
+      }
+
+      if (msg && msg?.length > 0) {
+        console.log('sending echo message:', msg)
+        await this.entity.slack.sendMessage(
+          this.entity.slack.settings.slack_echo_channel,
+          msg
+        )
+      }
+    }
+
+    if (this.haveCustomCommands && !author.bot) {
+      for (let i = 0; i < this.custom_commands.length; i++) {
+        console.log(
+          'command:',
+          this.custom_commands[i].command_name,
+          'starting_with:',
+          content.startsWith(this.custom_commands[i].command_name)
+        )
+        if (content.startsWith(this.custom_commands[i].command_name)) {
+          const _content = content
+            .replace(this.custom_commands[i].command_name, '')
+            .trim()
+          console.log(
+            'handling command:',
+            this.custom_commands[i].command_name,
+            'content:',
+            _content
+          )
+
+          setTimeout(() => {
+            channel.sendTyping()
+          }, message.content.length)
+
+          const roomInfo: {
+            user: string
+            inConversation: boolean
+            isBot: boolean
+            info3d: string
+          }[] = []
+          for (const [memberID, member] of channel.members) {
+            roomInfo.push({
+              user: member.user.username,
+              inConversation: this.isInConversation(member.user.id),
+              isBot: member.user.bot,
+              info3d: '',
+            })
+          }
+
+          const response = await this.custom_commands[i].spell_handler(
+            _content,
+            message.author.username,
+            this.discord_bot_name,
+            'discord',
+            message.channel.id,
+            this.entity,
+            roomInfo
+          )
+
+          this.handlePingSoloAgent(
+            message.channel.id,
+            message.id,
+            response,
+            false
+          )
+          return
         }
       }
     }
@@ -822,7 +611,15 @@ export class discord_client {
                   false,
                   'parentId:' + parentId
                 )
-                // MessageClient.instance.sendMessageEdit(edited.content, edited.id, 'Discord', edited.channel.id, utcStr, false, 'parentId:' + parentId)
+                this.handleInput(
+                  edited.content,
+                  edited.id,
+                  '',
+                  'Discord',
+                  edited.channel.id,
+                  parentId,
+                  []
+                )
               }
             })
           })
@@ -871,7 +668,15 @@ export class discord_client {
           }
           // TODO: Replace message with direct message handler
           log('Discord', newMember.status, user.username, utcStr)
-          // MessageClient.instance.sendUserUpdateEvent('Discord', newMember.status, user.username, utcStr)
+          this.userUpdateSpellHandler(
+            newMember.status,
+            user.username,
+            '',
+            'Discord',
+            '',
+            this.entity,
+            []
+          )
         })
     }
   }
@@ -963,7 +768,15 @@ export class discord_client {
                   channel.id,
                   channel.topic || 'none'
                 )
-                // MessageClient.instance.sendMetadata(channel.name, 'Discord', channel.id, channel.topic || 'none')
+                this.metadataSpellHandler(
+                  channel.topic || 'none',
+                  '',
+                  '',
+                  'Discord',
+                  channel.id,
+                  this.entity,
+                  []
+                )
                 channel.messages
                   .fetch({ limit: 100 })
                   .then(async (messages: any[]) => {
@@ -1198,38 +1011,18 @@ export class discord_client {
       chatId,
       utcStr
     )
-    // MessageClient.instance.sendSlashCommand(sender, command, command === 'say' ? interaction.data.options[0].value : 'none', 'Discord', chatId, utcStr)
+    this.sendSlashCommandResponse(
+      command === 'say' ? interaction.data.options[0].value : 'none',
+      command,
+      sender,
+      'Discord',
+      chatId,
+      this.entity,
+      []
+    )
   }
 
   async handleSlashCommandResponse(chat_id: any, response: any) {
-    this.client.channels
-      .fetch(chat_id)
-      .then(
-        (channel: { send: (arg0: any) => void; stopTyping: () => void }) => {
-          channel.send(response)
-          channel.stopTyping()
-        }
-      )
-      .catch((err: string | boolean) => log(err))
-  }
-
-  async handleUserUpdateEvent(response: string) {
-    log('handleUserUpdateEvent: ' + response)
-  }
-
-  async handleGetAgents(chat_id: any, response: any) {
-    this.client.channels
-      .fetch(chat_id)
-      .then(
-        (channel: { send: (arg0: any) => void; stopTyping: () => void }) => {
-          channel.send(response)
-          channel.stopTyping()
-        }
-      )
-      .catch((err: string | boolean) => log(err))
-  }
-
-  async handleSetAgentsFields(chat_id: any, response: any) {
     this.client.channels
       .fetch(chat_id)
       .then(
@@ -1592,24 +1385,6 @@ export class discord_client {
     return this.messageResponses[channel][message]
   }
 
-  async wasHandled(
-    chatId: any,
-    messageId: any,
-    sender: any,
-    content: any,
-    timestamp: any
-  ) {
-    if (!database || !database.instance) return // log("Postgres not inited");
-    return await database.instance.messageExists(
-      'discord',
-      chatId,
-      messageId,
-      sender,
-      content,
-      timestamp
-    )
-  }
-
   moreThanOneInConversation() {
     let count = 0
     for (const c in this.conversation) {
@@ -1628,14 +1403,23 @@ export class discord_client {
   client = Discord.Client as any
   entity = undefined
   handleInput = null
+  userUpdateSpellHandler = null
+  metadataSpellHandler = null
+  slashCommandSpellHandler = null
   discord_starting_words: string[] = []
   discord_bot_name_regex: string = ''
   discord_bot_name: string = 'Bot'
   discord_empty_responses: string[] = []
+  discord_greeting: any
   use_voice: boolean
   voice_provider: string
   voice_character: string
   voice_language_code: string
+  discord_echo_slack: boolean
+  discord_echo_format: string
+  haveCustomCommands: boolean
+  custom_commands: any[]
+  message_reactions: { [reaction: string]: any } = {}
   createDiscordClient = async (
     entity: any,
     discord_api_token: string | undefined,
@@ -1643,6 +1427,7 @@ export class discord_client {
     discord_bot_name_regex: string,
     discord_bot_name: string | RegExp,
     discord_empty_responses: string,
+    discord_greeting: any,
     handleInput: (
       message: string | undefined,
       speaker: string,
@@ -1657,18 +1442,33 @@ export class discord_client {
         info3d: string
       }[]
     ) => Promise<unknown>,
+    userUpdateSpellHandler: any,
+    metadataSpellHandler: any,
+    slashCommandSpellHandler: any,
     use_voice,
     voice_provider,
     voice_character,
-    voice_language_code
+    voice_language_code,
+    discord_echo_slack: boolean,
+    discord_echo_format: string,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) => {
     console.log('creating discord client')
     this.entity = entity
+    this.discord_greeting = discord_greeting
     this.handleInput = handleInput
+    this.userUpdateSpellHandler = userUpdateSpellHandler
+    this.metadataSpellHandler = metadataSpellHandler
+    this.slashCommandSpellHandler = slashCommandSpellHandler
     this.use_voice = use_voice
     this.voice_provider = voice_provider
     this.voice_character = voice_character
     this.voice_language_code = voice_language_code
+    this.discord_echo_slack = discord_echo_slack
+    this.discord_echo_format = discord_echo_format
+    this.haveCustomCommands = haveCustomCommands
+    this.custom_commands = custom_commands
     if (!discord_starting_words || discord_starting_words?.length <= 0) {
       this.discord_starting_words = ['hi', 'hey']
     } else {
@@ -1690,6 +1490,13 @@ export class discord_client {
       }
     }
 
+    const reaction_handlers = await database.instance.getMessageReactions()
+    this.setupMessageReactions(reaction_handlers)
+    setInterval(async () => {
+      const reactionhandlers = await database.instance.getMessageReactions()
+      this.setupMessageReactions(reactionhandlers)
+    }, 5000)
+
     this.discord_bot_name_regex = discord_bot_name_regex
     this.discord_bot_name = discord_bot_name
 
@@ -1697,13 +1504,14 @@ export class discord_client {
     if (!token) return console.warn('No API token for Discord bot, skipping')
 
     this.client = new Discord.Client({
-      partials: ['MESSAGE', 'USER', 'REACTION'],
+      partials: ['MESSAGE', 'USER', 'REACTION', 'CHANNEL'],
       intents: [
         Intents.FLAGS.GUILDS,
         Intents.FLAGS.GUILD_PRESENCES,
         Intents.FLAGS.GUILD_MEMBERS,
         Intents.FLAGS.GUILD_MESSAGES,
         Intents.FLAGS.GUILD_VOICE_STATES,
+        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
       ],
     })
     this.bot_name = discord_bot_name
@@ -1740,6 +1548,7 @@ export class discord_client {
       )
     }
 
+    console.log('registering events')
     this.client.on('messageCreate', this.messageCreate.bind(null, this.client))
     // this.client.on('messageDelete', this.messageDelete.bind(null, this.client))
     // this.client.on('messageUpdate', this.messageUpdate.bind(null, this.client))
@@ -1826,6 +1635,35 @@ export class discord_client {
     const channel = await this.client.channels.fetch(channelId)
     if (channel && channel !== undefined) {
       channel.send(msg)
+    }
+  }
+
+  prevData = []
+  async setupMessageReactions(data: any) {
+    for (let i = 0; i < data.length; i++) {
+      if (
+        data[i].discord_enabled === 'true' &&
+        !this.messageReactionUpdate(data[i])
+      ) {
+        this.message_reactions[data[i].reaction] = await CreateSpellHandler({
+          spell: data[i].spell_handler,
+          version: 'latest',
+        })
+      }
+      this.prevData = data
+    }
+  }
+  messageReactionUpdate(datai: any) {
+    for (let i = 0; i < this.prevData.length; i++) {
+      if (
+        this.prevData[i].reaction === datai.reaction &&
+        this.prevData[i].discord_enabled === datai.discord_enabled &&
+        this.prevData[i].spell_handler === datai.spell_handler
+      ) {
+        return true
+      }
+
+      return false
     }
   }
 }

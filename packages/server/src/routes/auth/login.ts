@@ -1,11 +1,11 @@
 import axios from 'axios'
 import Koa from 'koa'
 
-import { IAuth, noAuth } from '../middleware/auth'
+import { IAuth, noAuth } from '../../middleware/auth'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 
-import { auth as authentication } from '../middleware/auth'
+import { auth as authentication } from '../../middleware/auth'
 import { database } from '../../database'
 import { makeResponse } from '../../utils/utils'
 

@@ -74,7 +74,7 @@
               },
               {
                 "type": "tab",
-                "id": "#20",
+                "id": "#56",
                 "name": "Video Transcription",
                 "component": "videoTranscription"
               },
@@ -92,6 +92,12 @@
               },
               {
                 "type": "tab",
+                "id": "#33",
+                "name": "Greetings Manager",
+                "component": "greetingsManager"
+              },
+              {
+                "type": "tab",
                 "id": "#16",
                 "name": "Search Corpus",
                 "component": "searchCorpus"
@@ -101,6 +107,18 @@
                 "id": "#19",
                 "name": "Event Manager",
                 "component": "eventManager"
+              },
+              {
+                "type": "tab",
+                "id": "#55",
+                "name": "Message Reaction Editor",
+                "component": "messageReactionEditor"
+              },
+              {
+                "type": "tab",
+                "id": "#66",
+                "name": "Wysiwyg Editor",
+                "component": "wysiwygEditor"
               },
               {
                 "type": "tab",

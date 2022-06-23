@@ -3,8 +3,7 @@ config()
 //@ts-ignore
 import cors from '@koa/cors'
 import Router from '@koa/router'
-// todo fix this import
-import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
+import { initClassifier } from '../../core/src/utils/textClassifier'
 import HttpStatus from 'http-status-codes'
 import Koa from 'koa'
 import koaBody from 'koa-body'
@@ -20,9 +19,9 @@ import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
-import { convertToMp4 } from './systems/videoConverter'
-import { auth } from './routes/middleware/auth'
-import { initWeaviateClient, search } from './systems/weaviateClient'
+import { auth } from './middleware/auth'
+import { initWeaviateClient } from './systems/weaviateClient'
+import cors_server from './cors-server'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -69,31 +68,27 @@ async function init() {
   await initTextToSpeech()
   new cacheManager()
   await initWeaviateClient(
-    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true'
+    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true',
+    process.env.CLASSIFIER_IMPORT_DATA?.toLowerCase().trim() === 'true'
   )
 
   if (process.env.RUN_PYTHON_SERVER === 'true') {
     spawnPythonServer()
   }
 
-  /*const string = 'test string'
-  const key = 'test_key'
-  cacheManager.instance.set('global', key, string)
-  cacheManager.instance.set('global', 'earth', 'earth is a planet')
-  console.log(await cacheManager.instance.get('global', key))
-  console.log(await cacheManager.instance.get('global', 'test key'))
-  console.log(await cacheManager.instance.get('global', 'testkey'))
-  console.log(await cacheManager.instance.get('global', 'TEST KEY'))
-  console.log(await cacheManager.instance.get('global', 'TEST_KEY'))
-  console.log(await cacheManager.instance.get('global', 'key_test'))
-  console.log(await cacheManager.instance.get('global', 'key test'))
-  console.log(await cacheManager.instance.get('global', 'ttes_key'))*/
   const options = {
     origin: '*',
   }
   app.use(cors(options))
 
-  // new cors_server(process.env.CORS_PORT, '0.0.0.0')
+  new cors_server(
+    parseInt(process.env.CORS_PORT as string),
+    '0.0.0.0',
+    process.env.USESSL === 'true' &&
+      fs.existsSync('certs/') &&
+      fs.existsSync('certs/key.pem') &&
+      fs.existsSync('certs/cert.pem')
+  )
 
   process.on('unhandledRejection', (err: Error) => {
     console.error('Unhandled Rejection:' + err + ' - ' + err.stack)

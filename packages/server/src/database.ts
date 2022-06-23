@@ -20,7 +20,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth } from './routes/middleware/auth'
+import { auth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -343,7 +343,64 @@ export class database {
     }
   }
 
+  async getGreetings(enabled: boolean) {
+    const whereClause = 'WHERE enabled = true'
+    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${
+      enabled ? whereClause : ''
+    } ORDER BY id ASC`
+    const rows = await this.client.query(query)
+    return rows.rows
+  }
+
+  async getGreeting(id: string) {
+    const query =
+      'SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings WHERE id = $1 ORDER BY id ASC'
+    const values = [id]
+    const rows = await this.client.query(query, values)
+    return rows.rows
+  }
+
+  async addGreeting(
+    enabled: boolean,
+    sendIn: string,
+    channelId: string,
+    message: string
+  ) {
+    const query =
+      'INSERT INTO greetings (enabled, send_in, channel_id, message) VALUES ($1, $2, $3, $4)'
+    const values = [enabled, sendIn, channelId, message]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  async updateGreeting(
+    enabled: boolean,
+    sendIn: string,
+    channelId: string,
+    message: string,
+    id: string
+  ) {
+    const query =
+      'UPDATE greetings SET enabled = $1, send_in = $2, channel_id = $3, message = $4 WHERE id = $5'
+    const values = [enabled, sendIn, channelId, message, id]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  async deleteGreeting(id: string) {
+    const query = 'DELETE FROM greetings WHERE id=$1'
+    const values = [id]
+    return await this.client.query(query, values)
+  }
+
   async addDocument(
+    title: any,
     description: any,
     is_included: any,
     store_id: any
@@ -356,8 +413,8 @@ export class database {
     console.log('document store id:', id)
 
     const query =
-      'INSERT INTO documents(id, description, is_included, store_id) VALUES($1, $2, $3, $4)'
-    const values = [id, description, is_included, store_id]
+      'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
+    const values = [id, title, description, is_included, store_id]
 
     await this.client.query(query, values)
     return id
@@ -370,13 +427,14 @@ export class database {
   }
   async updateDocument(
     document_id: any,
+    title: any,
     description: any,
     is_included: any,
     store_id: any
   ) {
     const query =
-      'UPDATE documents SET description=$1, is_included=$2, store_id=$3 WHERE id=$4'
-    const values = [description, is_included, store_id, document_id]
+      'UPDATE documents SET title=$5, description=$1, is_included=$2, store_id=$3 WHERE id=$4'
+    const values = [description, is_included, store_id, document_id, title]
 
     await this.client.query(query, values)
   }
@@ -384,7 +442,7 @@ export class database {
     storeId: string | string[] | undefined
   ): Promise<any> {
     const query =
-      'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
+      'SELECT id, title, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)
@@ -557,6 +615,24 @@ export class database {
     return rows && rows.rows && rows.rows.length > 0
   }
 
+  async getCalendarEventById(id: string) {
+    const query =
+      'SELECT id, calendar_id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE id=$1'
+    const rows = await this.client.query(query, [id])
+
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+
+  async getCalendarEventByCalId(id: string) {
+    const query =
+      'SELECT id, calendar_id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE calendar_id=$1'
+    const rows = await this.client.query(query, [id])
+
+    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
+    else return []
+  }
+
   async getCalendarEvents() {
     const query =
       'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
@@ -566,14 +642,15 @@ export class database {
   }
   async createCalendarEvent(
     name: string,
+    calendar_id: string,
     date: string,
     time: string,
     type: string,
     moreInfo: string
   ) {
     const query =
-      'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
-    const values = [name, date, time, type, moreInfo]
+      'INSERT INTO calendar_events(name, calendar_id, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5, $6)'
+    const values = [name, calendar_id, date, time, type, moreInfo]
     try {
       return await this.client.query(query, values)
     } catch (e) {
@@ -598,11 +675,27 @@ export class database {
     }
   }
   async deleteCalendarEvent(id: string) {
-    const query = 'DELETE FROM calendar_events WHERE id = $1'
+    const query1 =
+      'SELECT id, name, calendar_id, date, time, type, more_info AS "moreInfo" FROM calendar_events WHERE id = $1'
+    const rows = await this.client.query(query1, [id])
+
+    let body: object[] = []
+
+    if (rows && rows.rows && rows.rows.length > 0) {
+      body = rows.rows
+    }
+
+    const query2 = 'DELETE FROM calendar_events WHERE id = $1'
     const values = [id]
-    return await this.client.query(query, values)
+    const res = await this.client.query(query2, values)
+
+    const { command, rowCount } = res
+    if (command === 'DELETE' && rowCount > 0) {
+      return body
+    }
+    return {}
   }
-  /* 
+  /*
     Section : Settings
     Modules : Client, Configuration, Scope
   */
@@ -1411,6 +1504,53 @@ export class database {
     } catch (error) {
       console.log('Error => getAuthuser => ', error)
       return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+
+  async getMessageReactions() {
+    const query =
+      'SELECT id, reaction, spell_handler, discord_enabled, slack_enabled FROM message_reactions'
+    const rows = await this.client.query(query)
+    return rows && rows.rows && rows.rows.length > 0 ? rows.rows : []
+  }
+  async addMessageReaction(
+    reaction: string,
+    spell_handler: string,
+    discord_enabled: string,
+    slack_enabled: string
+  ) {
+    const query =
+      'INSERT INTO message_reactions(reaction, spell_handler, discord_enabled, slack_enabled) VALUES($1, $2, $3, $4)'
+    const values = [reaction, spell_handler, discord_enabled, slack_enabled]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async updateMessageReaction(
+    id: string,
+    reaction: string,
+    spell_handler: string,
+    discord_enabled: string,
+    slack_enabled: string
+  ) {
+    const query =
+      'UPDATE message_reactions SET reaction=$2, spell_handler=$3, discord_enabled=$4, slack_enabled=$5 WHERE id=$1'
+    const values = [id, reaction, spell_handler, discord_enabled, slack_enabled]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+  async deleteMessageReaction(id: string) {
+    const query = 'DELETE FROM message_reactions WHERE id=$1'
+    const values = [id]
+    try {
+      return await this.client.query(query, values)
+    } catch (e) {
+      throw new Error(e)
     }
   }
 }

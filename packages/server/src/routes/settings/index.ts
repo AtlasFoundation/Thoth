@@ -1,5 +1,5 @@
 import Koa from 'koa'
-import { noAuth } from '../middleware/auth'
+import { noAuth } from '../../middleware/auth'
 import { Route } from 'src/types'
 import { database } from '../../database'
 import {

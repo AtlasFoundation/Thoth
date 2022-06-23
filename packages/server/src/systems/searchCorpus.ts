@@ -14,7 +14,6 @@ import {
   simplifyWords,
 } from '../utils/utils'
 import { database } from '../database'
-// todo fix this import
 import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
 import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'
@@ -32,6 +31,7 @@ const client = weaviate.client({
   scheme: 'http',
   host: 'semantic-search-wikipedia-with-weaviate.api.vectors.network:8080/',
 })
+const saved_docs: any[] = []
 
 export async function initSearchCorpus(ignoreDotEnv: boolean) {
   if (ignoreDotEnv === false && process.env.ENABLE_SEARCH_CORPUS === 'false') {
@@ -78,6 +78,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.post('/document', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const description = body?.description || ''
+    const title = body?.title || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
 
@@ -90,8 +91,87 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
     let id = -1
     try {
-      id = await database.instance.addDocument(description, isIncluded, storeId)
-      await singleTrain({ title: 'Document', description: description })
+      id = await database.instance.addDocument(
+        title,
+        description,
+        isIncluded,
+        storeId
+      )
+      await singleTrain({
+        title: title ?? 'Document',
+        description: description,
+      })
+      /*const resp = await axios.get(
+        `${process.env.PYTHON_SERVER_URL}/update_search_model`
+      )
+      if (resp.data.status != 'ok') {
+        ctx.response.status = 400
+        return (ctx.body = 'internal error')
+      }*/
+    } catch (e) {
+      console.log(e)
+      return (ctx.body = 'internal error')
+    }
+
+    if (id === -1) {
+      return (ctx.body = 'internal error')
+    }
+
+    return (ctx.body = { documentId: id })
+  })
+  router.post('/document_mass', async function (ctx: Koa.Context) {
+    const { body } = ctx.request
+    let storeId = body?.storeId
+    const documents = body?.documents
+    const store_name = body?.store_name
+
+    console.log('GOT STORE ID:', storeId, 'DOCUMENTS:', documents)
+    if (!storeId || storeId === undefined) {
+      storeId = await database.instance.getSingleDocumentStore(
+        store_name && store_name?.length > 0 ? store_name : 'rss_feed'
+      )
+      if (storeId?.length <= 0 || storeId === undefined || !storeId) {
+        storeId = await database.instance.addDocumentStore(
+          store_name && store_name?.length > 0 ? store_name : 'rss_feed'
+        )
+      } else {
+        if (storeId[0] && storeId[0] !== undefined) {
+          storeId = storeId[0].id
+        } else {
+          storeId = await database.instance.addDocumentStore(
+            store_name && store_name?.length > 0 ? store_name : 'rss_feed'
+          )
+        }
+      }
+    }
+
+    let id = -1
+    try {
+      for (let i = 0; i < documents.length; i++) {
+        if (
+          saved_docs.includes({
+            title: documents[i].title,
+            description: documents[i].description,
+          })
+        ) {
+          continue
+        }
+
+        id = await database.instance.addDocument(
+          documents[i].title,
+          documents[i].description,
+          true,
+          storeId
+        )
+        saved_docs.push({
+          title: documents[i].title,
+          description: documents[i].description,
+        })
+        await singleTrain({
+          title: documents[i].title ?? 'Document',
+          description: documents[i].description,
+        })
+      }
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
@@ -117,7 +197,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.removeDocument(documentId)
       if (doc) {
-        await deleteDocument('Document', doc.description)
+        await deleteDocument(doc.title ?? 'Document', doc.description)
       }
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
@@ -137,6 +217,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const { body } = ctx.request
     const documentId = body?.documentId
     const description = body?.description || ''
+    const title = body?.title || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
     const doc = await database.instance.getSingleDocument(documentId)
@@ -151,14 +232,15 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.updateDocument(
         documentId,
+        title,
         description,
         isIncluded,
         storeId
       )
       if (doc) {
         await updateDocument(
-          'Document',
-          'Document',
+          doc.title ?? 'Document',
+          title ?? 'Document',
           doc.description,
           description
         )
@@ -300,6 +382,16 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.delete('/document-store', async function (ctx: Koa.Context) {
     const storeId = ctx.query.storeId
     try {
+      const documents = await database.instance.getDocumentsOfStore(storeId)
+      if (documents && documents.length > 0) {
+        for (let i = 0; i < documents.length; i++) {
+          await deleteDocument(
+            documents[i].title ?? 'Document',
+            documents[i].description
+          )
+        }
+      }
+
       await database.instance.removeDocumentStore(storeId)
     } catch (e) {
       console.log(e)
@@ -330,6 +422,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     fs.existsSync('certs/cert.pem')
 
   let sslOptions = {
+    rejectUnauthorized: false,
     key: useSSL ? fs.readFileSync('certs/key.pem') : '',
     cert: useSSL ? fs.readFileSync('certs/cert.pem') : '',
   }
@@ -340,9 +433,11 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
         .listen(PORT, '0.0.0.0', () => {
           console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
         })
-    : https.createServer(app.callback()).listen(PORT, '0.0.0.0', () => {
-        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-      })
+    : https
+        .createServer({ rejectUnauthorized: false }, app.callback())
+        .listen(PORT, '0.0.0.0', () => {
+          console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+        })
 }
 
 export async function extractKeywords(input: string): Promise<string[]> {

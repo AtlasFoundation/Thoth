@@ -20,6 +20,7 @@ import { ThothComponent } from '@thothai/thoth-core/types'
 import { useAuth } from '@/contexts/AuthProvider'
 import { CalendarApp } from '@/screens/Calendar/Calendar'
 import EntityManagerWindow from './windows/EntityManagerWindow'
+import GreetingsManagerWindow from './windows/GreetingsManagerWindow'
 import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import VideoTranscription from './windows/VideoTranscription'
@@ -27,6 +28,8 @@ import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
+import MessageReactionEditor from './windows/MessageReactionEditor'
+import WysiwygEditor from './windows/WysiwygEditor'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -141,6 +144,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <Inspector {...props} />
         case 'textEditor':
           return <TextEditor {...props} />
+        case 'wysiwygEditor':
+          return <WysiwygEditor {...props} />
         case 'editorWindow':
           return <EditorWindow {...props} />
         case 'debugConsole':
@@ -149,6 +154,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <SearchCorpus />
         case 'entityManager':
           return <EntityManagerWindow />
+        case 'greetingsManager':
+          return <GreetingsManagerWindow />
         case 'eventManager':
           return <EventManagerWindow />
         case 'videoTranscription':
@@ -157,6 +164,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <CalendarApp />
         case 'settings':
           return <SettingsWindow {...props} />
+        case 'messageReactionEditor':
+          return <MessageReactionEditor />
         default:
           return <p></p>
       }

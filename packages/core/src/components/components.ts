@@ -24,6 +24,7 @@ import { LogicalOperator } from './logic/LogicalOperator'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
+import { Wysiwyg } from './logic/Wysiwyg'
 import { ActionTypeComponent } from './ml/ActionType'
 import { Classifier } from './ml/Classifier'
 import { DifficultyDetectorComponent } from './ml/DifficultyDetector'
@@ -44,7 +45,9 @@ import { DocumentDelete } from './search/DocumentDelete'
 import { DocumentEdit } from './search/DocumentEdit'
 import { DocumentGet } from './search/DocumentGet'
 import { DocumentSet } from './search/DocumentSet'
+import { DocumentSetMass } from './search/DocumentSetMass'
 import { DocumentStoreGet } from './search/DocumentStoreGet'
+import { RSSGet } from './search/RSSGet'
 import { Search } from './search/Search'
 import { VectorSearch } from './search/VectorSearch'
 import { SpellComponent } from './services/Spell'
@@ -81,6 +84,7 @@ export const components = {
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
+  wysiwyg: () => new Wysiwyg(),
   sentenceMatcher: () => new SentenceMatcher(),
   difficultyDetectorComponent: () => new DifficultyDetectorComponent(),
   // enkiTask: () => new EnkiTask(),
@@ -105,9 +109,11 @@ export const components = {
   documentEdit: () => new DocumentEdit(),
   documentDelete: () => new DocumentDelete(),
   documentSet: () => new DocumentSet(),
+  documentSetMass: () => new DocumentSetMass(),
   documentStoreGet: () => new DocumentStoreGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
+  rssGet: () => new RSSGet(),
   cacheManagerGet: () => new CacheManagerGet(),
   cacheManagerDelete: () => new CacheManagerDelete(),
   cacheManagerSet: () => new CacheManagerSet(),
