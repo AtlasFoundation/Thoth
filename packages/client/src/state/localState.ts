@@ -21,17 +21,17 @@ const initialState = localAdapater.getInitialState()
 
 // This is the primary composed of our "duck", and returns a number of helper functions and properties.
 export const localStateSlice = createSlice({
-  name: 'tabs',
+  name: 'localState',
   initialState,
   reducers: {
     addLocalState: localAdapater.addOne,
     deleteLocalState: localAdapater.removeOne,
-    updateLocalState: localAdapater.updateOne,
+    upsertLocalState: localAdapater.upsertOne,
   },
 })
 
 // actions
-export const { addLocalState, deleteLocalState, updateLocalState } =
+export const { addLocalState, deleteLocalState, upsertLocalState } =
   localStateSlice.actions
 
 // selectors
