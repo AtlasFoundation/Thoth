@@ -49,6 +49,11 @@ body,
   background: #7027dd;
 }
 
+.socket.output.agent,
+.socket.input.agent {
+  background: #0e10a4;
+}
+
 .socket {
   height: var(--small);
   width: var(--small);
