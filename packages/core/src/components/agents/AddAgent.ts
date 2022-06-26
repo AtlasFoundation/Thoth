@@ -7,13 +7,14 @@
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { triggerSocket, stringSocket } from '../../sockets'
+import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Agent Text Completion is using OpenAI for the agent to respond.'
@@ -40,7 +41,7 @@ export class AddAgent extends ThothComponent<Promise<WorkerReturn>> {
 
   builder(node: ThothNode) {
     const inp = new Rete.Input('string', 'Text', stringSocket)
-    const agent = new Rete.Input('agent', 'Agent', stringSocket)
+    const agent = new Rete.Input('agent', 'Agent', agentSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const outp = new Rete.Output('output', 'output', stringSocket)
@@ -60,10 +61,10 @@ export class AddAgent extends ThothComponent<Promise<WorkerReturn>> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const action = inputs['string'][0] as string
-    const agent = inputs['agent'][0] as string
+    const agent = inputs['agent'][0] as Agent
 
     return {
-      output: action + '\n' + agent + ': ',
+      output: action + '\n' + agent.agent + ': ',
     }
   }
 }
