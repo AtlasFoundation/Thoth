@@ -64,6 +64,7 @@ import { StringProcessor } from './strings/StringProcessor'
 import { Alert } from './utility/AlertMessage'
 import { Echo } from './utility/Echo'
 import { InRange } from './utility/InRange'
+import { Cast } from './utility/Cast'
 import { InputsToJSON } from './utility/InputsToJSON'
 import { ArrayVariable } from './variable/ArrayVariable'
 import { BooleanVariable } from './variable/BooleanVariable'
@@ -81,6 +82,7 @@ export const components = {
   actionTypeComponent: () => new ActionTypeComponent(),
   alert: () => new Alert(),
   booleanGate: () => new BooleanGate(),
+  cast: () => new Cast(),
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
