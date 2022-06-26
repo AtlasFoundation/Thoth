@@ -51,7 +51,7 @@ export type EngineContext = {
   huggingface: (
     model: string,
     request: string
-  ) => Promise<{ error?: unknown; [key: string]: unknown }>
+  ) => Promise<{ error?: unknown;[key: string]: unknown }>
   runSpell: (
     flattenedInputs: Record<string, any>,
     spellId: string,
@@ -117,6 +117,21 @@ export interface Spell {
   updatedAt?: number
 }
 
+export type Agent = {
+  output: unknown
+  speaker: string
+  agent: string
+  client: string
+  channel: string
+  entity: number
+  roomInfo?: {
+    user: string
+    inConversation: boolean
+    isBot: boolean
+    info3d: string
+  }[]
+}
+
 export interface IRunContextEditor extends NodeEditor {
   thoth: EditorContext
   abort: Function
@@ -134,7 +149,7 @@ export type DataSocketType = {
 export type ThothNode = Node & {
   inspector: Inspector
   display: (content: string) => void
-  outputs: { name: string; [key: string]: unknown }[]
+  outputs: { name: string;[key: string]: unknown }[]
   category?: string
   deprecated?: boolean
   displayName?: string
@@ -269,9 +284,9 @@ export type WorkerReturn =
   | Promise<never[] | { entities: { name: string; type: string }[] }>
   | Promise<{ element: unknown } | undefined>
   | Promise<
-      | { result: { error: unknown; [key: string]: unknown } }
-      | { result?: undefined }
-    >
+    | { result: { error: unknown;[key: string]: unknown } }
+    | { result?: undefined }
+  >
   | Promise<{ text: unknown }>
   | Promise<{ boolean: boolean }>
   | Promise<null | undefined>
@@ -292,11 +307,11 @@ export type ThothWorker = (
 
 export interface PubSubBase
   extends CountSubscriptions,
-    ClearAllSubscriptions,
-    GetSubscriptions,
-    Publish,
-    Subscribe,
-    Unsubscribe {
+  ClearAllSubscriptions,
+  GetSubscriptions,
+  Publish,
+  Subscribe,
+  Unsubscribe {
   name: string
   version: string
 }
