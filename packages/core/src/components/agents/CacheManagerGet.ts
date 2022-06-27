@@ -6,13 +6,14 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { anySocket, stringSocket, triggerSocket } from '../../sockets'
+import { agentSocket, anySocket, stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Cache Manager Get is used to get data from the cache manager'
@@ -39,7 +40,7 @@ export class CacheManagerGet extends ThothComponent<Promise<WorkerReturn>> {
 
   builder(node: ThothNode) {
     const keyInput = new Rete.Input('key', 'Key', stringSocket)
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const output = new Rete.Output('output', 'Output', anySocket)
@@ -59,7 +60,7 @@ export class CacheManagerGet extends ThothComponent<Promise<WorkerReturn>> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const key = inputs['key'][0] as string
-    const agent = inputs['agent'] ? (inputs['agent'][0] as string) : 'Global'
+    const agent = inputs['agent'] ? ((inputs['agent'][0] as Agent).agent as string) : 'Global'
 
     const resp = await axios.get(
       `${process.env.REACT_APP_API_URL}/cache_manager`,

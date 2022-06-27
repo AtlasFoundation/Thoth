@@ -6,13 +6,14 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs
 } from '../../../types'
-import { stringSocket, triggerSocket } from '../../sockets'
+import { agentSocket, stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info =
@@ -35,7 +36,7 @@ export class CacheManagerDelete extends ThothComponent<void> {
 
   builder(node: ThothNode) {
     const keyInput = new Rete.Input('key', 'Key', stringSocket)
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
@@ -53,12 +54,12 @@ export class CacheManagerDelete extends ThothComponent<void> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const key = inputs['key'][0] as string
-    const agent = inputs['agent'][0] as string
+    const agent = inputs['agent'][0] as Agent
 
     await axios.delete(`${process.env.REACT_APP_API_URL}/cache_manager`, {
       params: {
         key: key,
-        agent: agent,
+        agent: agent.agent,
       },
     })
   }

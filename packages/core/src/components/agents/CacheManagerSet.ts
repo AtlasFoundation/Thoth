@@ -6,13 +6,14 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs
 } from '../../../types'
-import { anySocket, stringSocket, triggerSocket } from '../../sockets'
+import { agentSocket, anySocket, stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Cache Manager Set is used to (set/add) data in the cache manager'
@@ -35,7 +36,7 @@ export class CacheManagerSet extends ThothComponent<void> {
 
   builder(node: ThothNode) {
     const keyInput = new Rete.Input('key', 'Key', stringSocket)
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const valueInput = new Rete.Input('value', 'Value', anySocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
@@ -55,12 +56,12 @@ export class CacheManagerSet extends ThothComponent<void> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const key = inputs['key'][0] as string
-    const agent = inputs['agent'][0] as string
+    const agent = inputs['agent'][0] as Agent
     const value = inputs['value'][0]
 
     await axios.post(`${process.env.REACT_APP_API_URL}/cache_manager`, {
       key: key,
-      agent: agent,
+      agent: agent.agent,
       value: value,
     })
   }

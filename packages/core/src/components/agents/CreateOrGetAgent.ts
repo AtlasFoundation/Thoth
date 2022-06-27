@@ -6,13 +6,14 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { triggerSocket, stringSocket } from '../../sockets'
+import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Create Or GetAgent is used to generate or get an existing agent'
@@ -34,9 +35,10 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const agentInput = new Rete.Input('agentName', 'Agent Name', stringSocket)
     const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
+    const agentOut = new Rete.Output('agent', 'Agent', agentSocket)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
     return node
@@ -44,6 +46,7 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
       .addInput(speakerInput)
       .addInput(dataInput)
       .addOutput(dataOutput)
+      .addOutput(agentOut)
   }
 
   async worker(
@@ -52,14 +55,14 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const agent = inputs['agent'][0] as string
+    const agentName = inputs['agentName'][0] as Agent
     const speaker = inputs['speaker'][0] as string
 
     const resp = await axios.post(
       `${process.env.REACT_APP_API_ROOT_URL}/createWikipediaEntity`,
       {
         speaker: speaker,
-        agent: agent,
+        agentName,
       }
     )
 

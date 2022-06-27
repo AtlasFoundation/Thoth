@@ -5,13 +5,14 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { triggerSocket, stringSocket } from '../../sockets'
+import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Get Opinion About Speaker'
@@ -46,7 +47,7 @@ export class OpinionAboutSpeakerGet extends ThothComponent<
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
     const matrixOut = new Rete.Output('output', 'Matrix', stringSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
@@ -67,7 +68,7 @@ export class OpinionAboutSpeakerGet extends ThothComponent<
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const speaker = inputs['speaker'][0] as string
-    const agent = inputs['agent'][0] as string
+    const agent = (inputs['agent'][0] as Agent).agent
 
     const matrix = await getMatrix(agent, speaker)
 

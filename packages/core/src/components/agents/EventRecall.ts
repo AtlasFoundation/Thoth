@@ -6,6 +6,7 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
@@ -13,7 +14,7 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { InputControl } from '../../dataControls/InputControl'
-import { triggerSocket, stringSocket, anySocket } from '../../sockets'
+import { triggerSocket, anySocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 async function getEvent(
@@ -67,10 +68,7 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
-    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
-    const clientInput = new Rete.Input('client', 'Client', stringSocket)
-    const channelInput = new Rete.Input('channel', 'Channel', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const out = new Rete.Output('output', 'Event', anySocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
@@ -96,9 +94,6 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
 
     return node
       .addInput(agentInput)
-      .addInput(speakerInput)
-      .addInput(clientInput)
-      .addInput(channelInput)
       .addInput(dataInput)
       .addOutput(dataOutput)
       .addOutput(out)
@@ -110,10 +105,10 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const speaker = inputs['speaker'] && (inputs['speaker'][0] as string)
-    const agent = inputs['agent'] && (inputs['agent'][0] as string)
-    const client = inputs['client'] && (inputs['client'][0] as string)
-    const channel = inputs['channel'] && (inputs['channel'][0] as string)
+    const agentObj = inputs['agent'] && (inputs['agent'][0] as Agent)
+
+    const { speaker, client, channel, agent } = agentObj
+
     const typeData = node?.data?.type as string
     const type =
       typeData !== undefined && typeData.length > 0
@@ -123,11 +118,11 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     const maxCountData = node.data?.max_count as string
     const maxCount = maxCountData ? parseInt(maxCountData) : 10
 
-    const conv = await getEvent(type, agent, speaker, client, channel, maxCount)
-    if (!silent) node.display(type + ' | :' + conv || 'Not found')
+    const event = await getEvent(type, agent, speaker, client, channel, maxCount)
+    if (!silent) node.display(type + ' | :' + event || 'Not found')
 
     return {
-      output: conv ?? '',
+      output: event ?? '',
     }
   }
 }
