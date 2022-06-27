@@ -4,6 +4,7 @@ import { NodeData, ThothNode, ThothWorkerOutputs, ThothWorkerInputs } from '../.
 import { DropdownControl } from '../../dataControls/DropdownControl'
 import { TaskOptions } from '../../plugins/taskPlugin/task'
 import * as sockets from '../../sockets'
+import { SocketNameType } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 // import { DropdownControl } from '../../dataControls/DropdownControl';
 
@@ -81,7 +82,7 @@ export class Cast extends ThothComponent<void> {
     inputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs) {
     const value = inputs.input[0]
-    const key = node.data.socketType
+    const key = sockets.socketNameMap[node.data.socketType as SocketNameType]
 
     return {
       [key as string]: value
