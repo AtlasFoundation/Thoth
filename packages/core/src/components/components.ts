@@ -71,6 +71,7 @@ import { BooleanVariable } from './variable/BooleanVariable'
 import { FewshotVariable } from './variable/FewshotVariable'
 import { NumberVariable } from './variable/NumberVariable'
 import { StringVariable } from './variable/StringVariable'
+import { Destructure } from './utility/Destructure'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -89,6 +90,7 @@ export const components = {
   wysiwyg: () => new Wysiwyg(),
   sentenceMatcher: () => new SentenceMatcher(),
   difficultyDetectorComponent: () => new DifficultyDetectorComponent(),
+  destructure: () => new Destructure(),
   // enkiTask: () => new EnkiTask(),
   entityDetector: () => new EntityDetector(),
   complexStringMatcher: () => new ComplexStringMatcher(),
