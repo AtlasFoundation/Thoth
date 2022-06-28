@@ -7,7 +7,7 @@ sudo chmod -R 777 /opt/thoth
 cd /opt/thoth
 
 # install node modules
-yarn install
+# yarn install
 
 # cp /etc/letsencrypt/live/thoth.n3xus.city/privkey.pem /opt/thoth/client/certs/key.pem
 # cp /etc/letsencrypt/live/thoth.n3xus.city/cert.pem /opt/thoth/client/certs/cert.pem
@@ -21,4 +21,4 @@ yarn install
 
 #start our node app in the background using PM2
 #pm2 --name thoth start "yarn run dev"
-pm2 restart all
+# pm2 restart all
