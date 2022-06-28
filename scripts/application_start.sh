@@ -23,5 +23,6 @@ yarn install
 # cp /opt/thoth_env/core/.env /opt/thoth/core/.env
 
 #start our node app in the background using PM2
-#pm2 --name thoth start "yarn run dev"
-pm2 restart all
+pm2 --name thoth start "yarn run dev"
+pm2 save
+# pm2 restart all
