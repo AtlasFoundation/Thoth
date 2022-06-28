@@ -24,4 +24,4 @@ yarn install
 
 #start our node app in the background using PM2
 #pm2 --name thoth start "yarn run dev"
-# pm2 restart all
+pm2 restart all
