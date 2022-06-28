@@ -6,7 +6,7 @@ sudo chmod -R 777 /opt/thoth
 #navigate into our working directory where we have all our github files
 cd /opt/thoth
 
-
+sudo su ec2-user
 #install node modules
 npm install --global yarn
 npm install --global pm2
