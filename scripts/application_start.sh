@@ -8,6 +8,8 @@ cd /opt/thoth
 
 
 #install node modules
+npm install --global yarn
+npm install --global pm2
 yarn install
 
 # cp /etc/letsencrypt/live/thoth.n3xus.city/privkey.pem /opt/thoth/client/certs/key.pem
