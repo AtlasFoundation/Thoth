@@ -10,8 +10,8 @@ module.exports = () => {
     mode: 'development',
     devtool: 'source-map',
     devServer: {
-      allowedHosts: ['thoth.n3xus.city', 'thoth.superreality.com'],
-      disableHostCheck: true,
+      // allowedHosts: ['thoth.n3xus.city', 'thoth.superreality.com'],
+      allowedHosts: 'all',
       https: {
         key: fs.readFileSync('certs/key.pem'),
         cert: fs.readFileSync('certs/cert.pem'),
