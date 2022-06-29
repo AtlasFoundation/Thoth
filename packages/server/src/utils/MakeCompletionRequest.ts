@@ -84,6 +84,8 @@ export async function makeCompletion(
     Authorization: 'Bearer ' + API_KEY,
   }
 
+  console.log("API KEYS", headers)
+
   const _data = {}
   _data.prompt = data.prompt
   if (data.temperature && data.temperature !== undefined) {
@@ -116,6 +118,7 @@ export async function makeCompletion(
       return { success: true, choice }
     }
   } catch (err) {
+    console.log("ERROR")
     console.error(err)
     return { success: false }
   }

@@ -17,11 +17,11 @@
 8. Copy certificates
 
    - Copy generated certificates into client dir. (tooth/client/certs)
-     - `cp /etc/letsencrypt/live/superreality.com-0001/privkey.pem /opt/thoth/packages/client/certs/key.pem`
-     - `sudo cp /etc/letsencrypt/live/superreality.com-0001/cert.pem /opt/thoth/packages/client/certs/cert.pem`
+     - `sudo cp /etc/letsencrypt/live/superreality.com/privkey.pem /opt/thoth/packages/client/certs/key.pem`
+     - `sudo cp /etc/letsencrypt/live/superreality.com/cert.pem /opt/thoth/packages/client/certs/cert.pem`
    - Copy generated certificates into server dir. (tooth/server/certs)
-     - `sudo cp /etc/letsencrypt/live/superreality.com-0001/privkey.pem /opt/thoth/packages/server/certs/key.pem`
-     - `sudo cp /etc/letsencrypt/live/superreality.com-0001/cert.pem /opt/thoth/packages/server/certs/cert.pem`
+     - `sudo cp /etc/letsencrypt/live/superreality.com/privkey.pem /opt/thoth/packages/server/certs/key.pem`
+     - `sudo cp /etc/letsencrypt/live/superreality.com/cert.pem /opt/thoth/packages/server/certs/cert.pem`
 
 9. Open client .env file (vim client/.env).
 

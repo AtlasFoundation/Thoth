@@ -59,7 +59,7 @@ const executeHandler = async (ctx: Koa.Context) => {
   )
 }
 
-const createWikipediaEntityHandler = async (ctx: Koa.Context) => {}
+const createWikipediaEntityHandler = async (ctx: Koa.Context) => { }
 
 const getEntitiesHandler = async (ctx: Koa.Context) => {
   try {
@@ -469,6 +469,8 @@ const textCompletion = async (ctx: Koa.Context) => {
     }
   }
 
+  console.log("COMPLETION CAME IN")
+
   const { success, choice } = await makeCompletion(modelName, {
     prompt: prompt,
     temperature: temperature,
@@ -540,9 +542,8 @@ const requestInformationAboutVideo = async (
   question: string
 ): Promise<string> => {
   const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${
-    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-  }\n${agent}:`
+  const prompt = `Information: ${videoInformation} \n ${sender}: ${question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
+    }\n${agent}:`
 
   const modelName = 'davinci'
   const temperature = 0.9
