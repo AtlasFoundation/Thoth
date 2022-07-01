@@ -4959,7 +4959,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@17.0.2", "@types/react@^17", "@types/react@^17.0.2", "@types/react@^18.0.0":
+"@types/react@*", "@types/react@17.0.2", "@types/react@^17", "@types/react@^17.0.2":
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.2.tgz#3de24c4efef902dd9795a49c75f760cbe4f7a5a8"
   integrity sha512-Xt40xQsrkdvjn1EyWe1Bc0dJLcil/9x2vAuW7ya+PuQip4UYUaXyhzWmAbwRsdMgwOFHpfp7/FFZebDU6Y8VHA==
@@ -22072,7 +22072,7 @@ weak-map@^1.0.5:
   resolved "https://registry.yarnpkg.com/weak-map/-/weak-map-1.0.8.tgz#394c18a9e8262e790544ed8b55c6a4ddad1cb1a3"
   integrity sha512-lNR9aAefbGPpHO7AEnY0hCFjz1eTkWCXYvkTRrTHs9qv8zJp+SkVYpzfLIFXQQiG3tVvbNFQgVg2bQS8YGgxyw==
 
-weaviate-client@^2.3.0:
+weaviate-client@^2.10.1:
   version "2.10.1"
   resolved "https://registry.yarnpkg.com/weaviate-client/-/weaviate-client-2.10.1.tgz#ed4c4e0fdd728d674f8a976fc178e4cb4be6e057"
   integrity sha512-xkG4wJss5qWiQGBF3zvk6R2z6JNirRk+7PVhl1Xvl0ub6HESIRb3QCPfvjzTAYrmgGl2i0AEeLzqucIiD/zjcA==

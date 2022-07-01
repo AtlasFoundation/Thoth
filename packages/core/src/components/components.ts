@@ -72,6 +72,8 @@ import { FewshotVariable } from './variable/FewshotVariable'
 import { NumberVariable } from './variable/NumberVariable'
 import { StringVariable } from './variable/StringVariable'
 import { Destructure } from './utility/Destructure'
+import { WeaviateWikipedia } from './search/WeaviateWikipedia'
+import { GetWikipediaSummary } from './services/GetWikipediaSummary'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -154,6 +156,8 @@ export const components = {
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
   waitForAll: () => new WaitForAll(),
+  weaviateWikipedia: () => new WeaviateWikipedia(),
+  GetWikipediaSummary: () => new GetWikipediaSummary()
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {

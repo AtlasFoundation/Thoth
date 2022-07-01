@@ -14,7 +14,9 @@ export class Destructure extends ThothComponent<void> {
     super('Destructure')
 
     this.task = {
-      outputs: {},
+      outputs: {
+        trigger: 'option'
+      },
       init: () => { },
       onRun: () => { },
     } as TaskOptions
@@ -28,6 +30,7 @@ export class Destructure extends ThothComponent<void> {
     // create inputs here. First argument is the name, second is the type (matched to other components sockets), and third is the socket the i/o will use
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const objectInput = new Rete.Input('object', 'Object', objectSocket)
+    const outputTrigger = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
     const socketGenerator = new SocketGeneratorControl({
       connectionType: 'output',
@@ -36,7 +39,7 @@ export class Destructure extends ThothComponent<void> {
     })
 
     node.inspector.add(socketGenerator)
-    return node.addInput(dataInput).addInput(objectInput)
+    return node.addInput(dataInput).addInput(objectInput).addOutput(outputTrigger)
   }
 
   // the worker contains the main business logic of the node.  It will pass those results

@@ -61,6 +61,7 @@ const executeHandler = async (ctx: Koa.Context) => {
 
 const createWikipediaEntityHandler = async (ctx: Koa.Context) => { }
 
+
 const getEntitiesHandler = async (ctx: Koa.Context) => {
   try {
     let data = await database.instance.getEntities()
@@ -522,7 +523,9 @@ const makeWeaviateRequest = async (ctx: Koa.Context) => {
     .withLimit(3)
     .do()
 
-  if (res.data.Get !== undefined) {
+  console.log("RESPONSE", res)
+
+  if (res?.data?.Get !== undefined) {
     return (ctx.body = { data: res.data.Get })
   }
   return (ctx.body = { data: '' })

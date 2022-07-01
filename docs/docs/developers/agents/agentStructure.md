@@ -27,7 +27,7 @@ The person interacting with or engaging with the Agent. This helps to store asso
 
 ### Agent
 
-Key of this particular agent receiving the input, since each agent can be different, probably supplied from agent settings (depends on connector)
+Key of this particular agent receiving the input, since each agent can be different, probably supplied from agent settings (depends on connector). Agent is and ID.
 
 ### Client
 

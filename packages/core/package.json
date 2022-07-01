@@ -81,7 +81,7 @@
     "twitter-api-v2": "1.8.0",
     "twitter-autohook": "1.7.2",
     "uuid": "^8.3.2",
-    "weaviate-client": "^2.3.0",
+    "weaviate-client": "^2.10.1",
     "wikipedia": "^1.1.6",
     "xvfb": "0.4.0"
   },

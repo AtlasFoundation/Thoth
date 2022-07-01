@@ -128,7 +128,7 @@ const saveHandler = async (ctx: Koa.Context) => {
   if (
     spell &&
     spell.userId?.toString() !==
-      (ctx.state.user?.id ?? ctx.query.userId).toString()
+    (ctx.state.user?.id ?? ctx.query.userId).toString()
   ) {
     throw new CustomError(
       'input-failed',
@@ -284,6 +284,7 @@ const getSpellsHandler = async (ctx: Koa.Context) => {
 }
 
 const getSpellHandler = async (ctx: Koa.Context) => {
+  console.log("GETTING SPELLLLLLLL")
   const name = ctx.params.name
   if (latitudeApiKey) {
     const response = await axios({
