@@ -60,7 +60,7 @@ export class GetWikipediaSummary extends ThothComponent<void> {
       console.log('result', result)
       this._task.closed = ['error']
       return {
-        result: result.result.extract
+        result: result.data.result.extract
       }
     } catch (err) {
       console.warn('Error getting wikipedia summary', err)
