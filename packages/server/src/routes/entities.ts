@@ -473,7 +473,7 @@ const textCompletion = async (ctx: Koa.Context) => {
   console.log("COMPLETION CAME IN")
 
   const { success, choice } = await makeCompletion(modelName, {
-    prompt: prompt,
+    prompt: prompt.trim(),
     temperature: temperature,
     max_tokens: maxTokens,
     top_p: topP,
