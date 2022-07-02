@@ -1,17 +1,18 @@
-import { SocketGeneratorControl } from './../../dataControls/SocketGenerator';
+import { SocketGeneratorControl } from '../../dataControls/SocketGenerator';
 import Rete from 'rete'
 
 import { NodeData, ThothNode, ThothWorkerInputs, ThothWorkerOutputs } from '../../../types'
 import { TaskOptions } from '../../plugins/taskPlugin/task'
 import { objectSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
+import { InputControl } from '../../dataControls/InputControl';
 
-const info = `Compose an object from properties and other objects`
+const info = `Merge can take in any number of properties in the form of named sockets, and compose them together iinto an object.  Additionally, another object can be added in, in which case merge will add in any proprties from that object, but overwrite them with any from the sockets.`
 
-export class Spread extends ThothComponent<void> {
+export class Merge extends ThothComponent<void> {
   constructor() {
     // Name of the component
-    super('Spread')
+    super('Merge')
 
     this.task = {
       outputs: {
@@ -33,13 +34,19 @@ export class Spread extends ThothComponent<void> {
     const outputTrigger = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const objectOutput = new Rete.Output('object', 'Object', objectSocket)
 
-    const socketGenerator = new SocketGeneratorControl({
-      connectionType: 'input',
-      name: 'Property Name'
+    const nameInput = new InputControl({
+      dataKey: 'name',
+      name: 'Object name',
     })
 
-    node.inspector.add(socketGenerator)
-    return node.addInput(dataInput).addInput(objectInput).addOutput(objectOutput).addOutput(outputTrigger)
+    const socketGenerator = new SocketGeneratorControl({
+      connectionType: 'input',
+      name: 'Property Name',
+      ignored: ['trigger', 'object'],
+    })
+
+    node.inspector.add(socketGenerator).add(nameInput)
+    return node.addInput(dataInput).addInput(objectInput).addOutput(outputTrigger).addOutput(objectOutput)
   }
 
   // the worker contains the main business logic of the node.  It will pass those results
