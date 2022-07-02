@@ -1,6 +1,8 @@
+const webpack = require('webpack')
 const Dotenv = require('dotenv-flow-webpack')
 const { merge } = require('webpack-merge')
 const common = require('./webpack.common')
+const path = require('path')
 const fs = require('fs')
 
 module.exports = () => {
@@ -23,6 +25,12 @@ module.exports = () => {
       port: process.env.PORT || 3003,
       historyApiFallback: true,
     },
+    // optimization: {
+    //   removeAvailableModules: false,
+    //   removeEmptyChunks: false,
+    //   splitChunks: false,
+    //   runtimeChunk: true,
+    // },
     module: {
       rules: [
         {
@@ -33,7 +41,13 @@ module.exports = () => {
         },
       ],
     },
-    plugins: [new Dotenv()],
+    plugins: [
+      new Dotenv(),
+      new webpack.DllReferencePlugin({
+        context: __dirname,
+        manifest: path.join(__dirname, 'build', 'vendor-manifest.json'),
+      }),
+    ],
   }
 
   return merge(commonConfig, devConfig)

@@ -5,6 +5,9 @@ const HtmlWebPackPlugin = require('html-webpack-plugin')
 const path = require('path')
 const webpack = require('webpack')
 
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
 const prod = process.env.NODE_ENV === 'production'
 
 const babelOptions = {
@@ -24,7 +27,7 @@ const babelOptions = {
 }
 
 module.exports = () => {
-  return {
+  const common = {
     entry: ['regenerator-runtime/runtime.js', './src/index.tsx'],
     output: {
       path: path.resolve(__dirname, './build'),
@@ -107,4 +110,13 @@ module.exports = () => {
       }),
     ],
   }
+
+  const isAnalyze = typeof process.env.BUNDLE_ANALYZE !== 'undefined'
+
+  if (isAnalyze) {
+    console.log('RUNNING BUNDLE ANALYZER')
+    common.plugins.push(new BundleAnalyzerPlugin())
+  }
+
+  return common
 }
