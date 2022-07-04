@@ -43,10 +43,10 @@ module.exports = () => {
     },
     plugins: [
       new Dotenv(),
-      new webpack.DllReferencePlugin({
-        context: __dirname,
-        manifest: path.join(__dirname, 'build', 'vendor-manifest.json'),
-      }),
+      // `      new webpack.DllReferencePlugin({
+      //         context: __dirname,
+      //         manifest: path.join(__dirname, 'build', 'vendor-manifest.json'),
+      //       }),`
     ],
   }
 
