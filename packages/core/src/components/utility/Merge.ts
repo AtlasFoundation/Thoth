@@ -16,7 +16,8 @@ export class Merge extends ThothComponent<void> {
 
     this.task = {
       outputs: {
-        trigger: 'option'
+        trigger: 'option',
+        object: 'output'
       },
       init: () => { },
       onRun: () => { },
@@ -56,6 +57,7 @@ export class Merge extends ThothComponent<void> {
     outputs: ThothWorkerOutputs,) {
     const object = inputs.object[0] as Record<string, any>
     const combinedInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
+      if (key === 'object') return acc
       acc[key] = value[0]
       return acc
     }, {} as Record<string, any>)
