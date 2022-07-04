@@ -6,6 +6,7 @@ import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
@@ -13,18 +14,27 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { InputControl } from '../../dataControls/InputControl'
-import { triggerSocket, stringSocket } from '../../sockets'
+import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Event Store is used to store events for an agent and user'
 
-export async function createEvent(
+type CreateEventArgs = {
   type: string,
   agent: string,
   speaker: string,
   text: string,
   client: string,
   channel: string
+}
+
+export async function createEvent(
+  { type,
+    agent,
+    speaker,
+    text,
+    client,
+    channel }: CreateEventArgs
 ) {
   const response = await axios.post(
     `${process.env.REACT_APP_API_ROOT_URL ??
@@ -60,8 +70,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
-    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const factsInp = new Rete.Input('primary', 'Primary Event', stringSocket)
 
     const nameInput = new InputControl({
@@ -82,18 +91,14 @@ export class EventStore extends ThothComponent<Promise<void>> {
       'Secondary Event (Opt)',
       stringSocket
     )
-    const clientInput = new Rete.Input('client', 'Client', stringSocket)
-    const channelInput = new Rete.Input('channel', 'Channel', stringSocket)
+
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
     return node
       .addInput(factsInp)
       .addInput(factaInp)
-      .addInput(clientInput)
       .addInput(agentInput)
-      .addInput(speakerInput)
-      .addInput(channelInput)
       .addInput(dataInput)
       .addOutput(dataOutput)
   }
@@ -104,16 +109,11 @@ export class EventStore extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const speaker = inputs['speaker'][0] as string
-    const agent = inputs['agent'][0] as string
+    const agent = (inputs['agent'][0] as Agent)
     const primary = ((inputs['primary'] && inputs['primary'][0]) ||
       inputs['primary']) as string
     const secondary = ((inputs['secondary'] && inputs['secondary'][0]) ||
       inputs['secondary']) as string
-    const channel = ((inputs['channel'] && inputs['channel'][0]) ||
-      inputs['channel']) as string
-    const client = ((inputs['client'] && inputs['client'][0]) ||
-      inputs['client']) as string
 
     if (!primary) return console.log('Event null, so skipping')
 
@@ -126,25 +126,31 @@ export class EventStore extends ThothComponent<Promise<void>> {
     let respUser
     let respAgent
 
+    const { speaker, client, channel } = agent
+
     if (primary) {
       respUser = await createEvent(
-        type,
-        agent,
-        speaker,
-        primary,
-        client,
-        channel
+        {
+          type,
+          agent: agent.agent,
+          speaker,
+          text: primary,
+          client,
+          channel
+        }
       )
     }
 
     if (secondary) {
       respAgent = await createEvent(
-        type,
-        agent,
-        agent,
-        secondary,
-        client,
-        channel
+        {
+          type,
+          agent: agent.agent,
+          speaker: agent.agent,
+          text: secondary,
+          client,
+          channel
+        }
       )
     }
     if (!silent) node.display(respUser?.data + '|' + respAgent?.data)
