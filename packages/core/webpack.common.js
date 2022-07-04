@@ -3,6 +3,8 @@
 const path = require('path')
 const LicenseWebpackPlugin =
   require('license-webpack-plugin').LicenseWebpackPlugin
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 module.exports = () => {
   const config = {
