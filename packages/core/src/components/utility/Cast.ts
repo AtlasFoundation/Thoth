@@ -16,7 +16,9 @@ export class Cast extends ThothComponent<void> {
     super('Cast')
 
     this.task = {
-      outputs: {},
+      outputs: {
+        trigger: 'option'
+      },
     } as TaskOptions
     this.category = 'Utility'
     this.info = info
