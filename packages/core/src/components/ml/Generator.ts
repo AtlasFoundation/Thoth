@@ -38,7 +38,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     }
     this.category = 'AI/ML'
     this.info = info
-    this.display = true
+    this.display = false
   }
 
   builder(node: ThothNode) {
@@ -178,7 +178,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       const result = raw
       const composed = `${prompt}${result}`
 
-      if (!silent) node.display(result)
+      // if (!silent) node.display(result)
 
       return {
         result,
