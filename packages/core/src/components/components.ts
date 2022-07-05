@@ -75,6 +75,7 @@ import { Destructure } from './utility/Destructure'
 import { Merge } from './utility/Merge'
 import { WeaviateWikipedia } from './search/WeaviateWikipedia'
 import { GetWikipediaSummary } from './services/GetWikipediaSummary'
+import { OrGate } from './logic/OrGate'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -159,7 +160,8 @@ export const components = {
   waitForAll: () => new WaitForAll(),
   weaviateWikipedia: () => new WeaviateWikipedia(),
   getWikipediaSummary: () => new GetWikipediaSummary(),
-  Merge: () => new Merge()
+  merge: () => new Merge(),
+  orGate: () => new OrGate()
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {
