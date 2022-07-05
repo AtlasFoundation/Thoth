@@ -154,5 +154,8 @@ export class EventStore extends ThothComponent<Promise<void>> {
       )
     }
     if (!silent) node.display(respUser?.data + '|' + respAgent?.data)
+
+    // If we are on the client, we want to refresh the event table UI
+    if (this?.editor?.refreshEventTable) this.editor.refreshEventTable()
   }
 }

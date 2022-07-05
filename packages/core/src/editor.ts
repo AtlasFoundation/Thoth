@@ -39,6 +39,7 @@ export class ThothEditor extends NodeEditor<EventsTypes> {
   moduleManager: ModuleManager
   runProcess: (callback?: Function) => Promise<void>
   onSpellUpdated: (spellId: string, callback: Function) => Function
+  refreshEventTable: () => void
 }
 
 /*
@@ -156,6 +157,10 @@ export const initEditor = function ({
 
   editor.onSpellUpdated = (spellId: string, callback: Function) => {
     return thoth.onSubspellUpdated(spellId, callback)
+  }
+
+  editor.refreshEventTable = () => {
+    return thoth.refreshEventTable()
   }
 
   editor.use(KeyCodePlugin)

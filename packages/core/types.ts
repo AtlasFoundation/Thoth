@@ -83,6 +83,7 @@ export interface EditorContext extends EngineContext {
   clearTextEditor: () => void
   getCurrentGameState: () => Record<string, unknown>
   updateCurrentGameState: (update: EventPayload) => void
+  refreshEventTable: () => void
   processCode: (
     code: unknown,
     inputs: ThothWorkerInputs,

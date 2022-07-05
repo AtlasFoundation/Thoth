@@ -52,6 +52,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     $SUBSPELL_UPDATED,
     $PROCESS,
     $TRIGGER,
+    $REFRESH_EVENT_TABLE,
   } = events
 
   const onTrigger = (node, callback) => {
@@ -62,6 +63,10 @@ const ThothInterfaceProvider = ({ children, tab }) => {
       // No super elegant, but we need a better more centralised way to run the engine than these callbacks.
       setTimeout(() => callback(data), 0)
     })
+  }
+
+  const refreshEventTable = () => {
+    return publish($REFRESH_EVENT_TABLE(tab.id))
   }
 
   const onInspector = (node, callback) => {
@@ -242,6 +247,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     updateCurrentGameState,
     processCode,
     runSpell,
+    refreshEventTable,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>

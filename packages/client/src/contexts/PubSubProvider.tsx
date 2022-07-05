@@ -57,6 +57,7 @@ export const events = {
   $UNDO: tabId => `undo:${tabId}`,
   $REDO: tabId => `redo:${tabId}`,
   $DELETE: tabId => `delete:${tabId}`,
+  $REFRESH_EVENT_TABLE: tabId => `refreshEventTable: ${tabId}`,
 }
 
 const PubSubProvider = ({ children }) => {
