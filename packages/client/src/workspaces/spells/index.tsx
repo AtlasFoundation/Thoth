@@ -157,7 +157,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
         case 'greetingsManager':
           return <GreetingsManagerWindow />
         case 'eventManager':
-          return <EventManagerWindow />
+          return <EventManagerWindow {...props} />
         case 'videoTranscription':
           return <VideoTranscription />
         case 'calendarTab':
