@@ -6,6 +6,7 @@ import PkgConfig from 'vite-plugin-package-config'
 import path from 'path'
 import inject from '@rollup/plugin-inject'
 import analyze from 'rollup-plugin-analyzer'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 // https://vitejs.dev/config/
 export default defineConfig(async command => {
@@ -33,6 +34,16 @@ export default defineConfig(async command => {
         '@thothai/thoth-core': path.resolve('../', 'core/index.ts'),
         '@components': path.resolve(__dirname, 'src/components'),
       },
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          global: 'globalThis'
+        },
+        plugins: [
+          NodeGlobalsPolyfillPlugin({ buffer: true })
+        ]
+      }
     },
     build: {
       target: 'esnext',
