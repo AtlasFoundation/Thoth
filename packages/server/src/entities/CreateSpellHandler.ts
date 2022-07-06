@@ -9,7 +9,7 @@ import { Graph, ModuleComponent } from '../routes/spells/types'
 import {
   initSharedEngine,
   getComponents,
-} from '@thothai/thoth-core/dist/server'
+} from '@thothai/thoth-core/server'
 import { Module } from '../routes/spells/module'
 import { ModuleType } from '@thothai/thoth-core/types'
 import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'

@@ -3,14 +3,13 @@ import { useEffect, useState } from 'react'
 import { useModal } from '@/contexts/ModalProvider';
 import { VscWand, VscTrash, VscSave } from 'react-icons/vsc'
 import axios from 'axios'
-import { useModal } from '@/contexts/ModalProvider';
 import { useSnackbar } from 'notistack';
 
 const ContentObject = ({ content, getContentObjects }) => {
   const { id: objId, ..._content } = content
   const [contentObj, setContentObj] = useState({
     objId,
-    ... _content
+    ..._content
   })
   const { openModal } = useModal()
   const { enqueueSnackbar } = useSnackbar()
