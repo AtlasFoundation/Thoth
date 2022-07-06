@@ -43,7 +43,7 @@ export class Code extends ThothComponent<unknown> {
     }
     this.category = 'Logic'
     this.info = info
-    this.display = true
+    this.display = false
   }
 
   builder(node: ThothNode) {
@@ -104,7 +104,6 @@ export class Code extends ThothComponent<unknown> {
       // const value = runCodeWithArguments(node.data.code)
       const value = processCode(node.data.code, inputs, data, state)
 
-      if (!silent) node.display(`${JSON.stringify(value)}`)
       if (value.state) updateCurrentGameState(value.state)
 
       return value
