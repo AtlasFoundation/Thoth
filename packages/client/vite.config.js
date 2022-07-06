@@ -30,7 +30,7 @@ export default defineConfig(async command => {
         handlebars: 'handlebars/dist/handlebars.min.js',
         '@': path.resolve(__dirname, 'src'),
         '@thoth': path.resolve(__dirname, 'src/screens/Thoth'),
-        '@thothai/thoth-core': path.resolve(__dirname, 'packages/core'),
+        '@thothai/thoth-core': path.resolve('../', 'core/index.ts'),
         '@components': path.resolve(__dirname, 'src/components'),
       },
     },
