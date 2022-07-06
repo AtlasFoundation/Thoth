@@ -13,7 +13,6 @@ export default defineConfig(async command => {
     path: './.env',
   })
 
-  
   const returned = {
     plugins: [PkgConfig(), react()],
     server: {
@@ -31,6 +30,7 @@ export default defineConfig(async command => {
         handlebars: 'handlebars/dist/handlebars.min.js',
         '@': path.resolve(__dirname, 'src'),
         '@thoth': path.resolve(__dirname, 'src/screens/Thoth'),
+        '@thothai/thoth-core': path.resolve(__dirname, 'packages/core'),
         '@components': path.resolve(__dirname, 'src/components'),
       },
     },
