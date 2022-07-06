@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "noImplicitAny": false,
     "strictNullChecks": true,
-    "outDir": "build",
+    "outDir": "./build/",
     "strict": false,
     "composite": true,
     "sourceMap": true,
@@ -21,10 +21,10 @@
     }
   },
   "typeRoots": ["@types/@thothai", "@types"],
-  //   "references": [
-  //     {
-  //       "path": "../core"
-  //     }
-  //   ],
-  "include": ["src", "src/data/layouts/defaultLayout.json"]
+    "references": [
+      {
+        "path": "../core"
+      }
+    ],
+  "include": ["src", "src/data/layouts/defaultLayout.json", "vite.config.js"]
 }
