@@ -65,6 +65,20 @@ const ContentObject = ({ content, getContentObjects }) => {
         </div>
       </div>
       <div className="form-item">
+        <span className="form-item-label">Title</span>
+        <div className="d-flex justify-content-between align-items-center">
+          <input
+            type="text"
+            className="form-text-area"
+            value={contentObj.title}
+            onChange={e => setContentObj({
+              ...contentObj,
+              title: e.target.value
+            })}
+          ></input>
+        </div>
+      </div>
+      <div className="form-item">
         <span className="form-item-label">Description</span>
         <div className="d-flex justify-content-between align-items-center">
           <input

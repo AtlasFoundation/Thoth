@@ -93,6 +93,13 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [reddit_spell_handler_incoming, setRedditSpellHandlerIncoming] =
     useState('')
 
+  const [zoom_enabled, setZoomEnabled] = useState('')
+  const [zoom_invitation_link, setZoomInvitationLink] = useState('')
+  const [zoom_password, setZoomPassword] = useState('')
+  const [zoom_bot_name, setZoomBotName] = useState('')
+  const [zoom_spell_handler_incoming, setZoomSpellHandlerIncoming] =
+    useState('')
+
   const [playingAudio, setPlayingAudio] = useState(false)
 
   // const [twilio_client_enable, setTwilioClientEnable] = useState(false)
@@ -202,10 +209,11 @@ const EntityWindow = ({ id, updateCallback }) => {
         setRedditBotNameRegex(res.data.reddit_bot_name_regex)
         setRedditSpellHandlerIncoming(res.data.reddit_spell_handler_incoming)
 
-        // setTwilioClientEnable(res.data.twilio_client_enable === true)
-        // setTwilioSid(res.data.twilio_sid)
-        // setTwilioAuthToken(res.data.twilio_auth_token)
-        // setTwilioPhoneNumber(res.data.twilio_phone_number)
+        setZoomEnabled(res.data.zoom_enabled === true)
+        setZoomInvitationLink(res.data.zoom_invitation_link)
+        setZoomPassword(res.data.zoom_password)
+        setZoomBotName(res.data.zoom_bot_name)
+        setZoomSpellHandlerIncoming(res.data.zoom_spell_handler_incoming)
 
         setLoaded(true)
       })()
@@ -293,10 +301,11 @@ const EntityWindow = ({ id, updateCallback }) => {
       reddit_bot_name,
       reddit_bot_name_regex,
       reddit_spell_handler_incoming,
-      // twilio_client_enable,
-      // twilio_sid,
-      // twilio_auth_token,
-      // twilio_phone_number
+      zoom_enabled,
+      zoom_invitation_link,
+      zoom_password,
+      zoom_bot_name,
+      zoom_spell_handler_incoming,
     }
     axios
       .post(`${process.env.REACT_APP_API_ROOT_URL}/entity`, {
@@ -371,10 +380,11 @@ const EntityWindow = ({ id, updateCallback }) => {
             responseData.reddit_spell_handler_incoming
           )
 
-          // setTwilioClientEnable(responseData.twilio_client_enable)
-          // setTwilioSid(responseData.twilio_sid)
-          // setTwilioAuthToken(responseData.twilio_auth_token)
-          // setTwilioPhoneNumber(responseData.twilio_phone_number)
+          setZoomEnabled(responseData.zoom_enabled)
+          setZoomInvitationLink(responseData.zoom_invitation_link)
+          setZoomPassword(responseData.zoom_password)
+          setZoomBotName(responseData.zoom_bot_name)
+          setZoomSpellHandlerIncoming(responseData.zoom_spell_handler_incoming)
 
           updateCallback()
         }
@@ -432,10 +442,11 @@ const EntityWindow = ({ id, updateCallback }) => {
       reddit_bot_name,
       reddit_bot_name_regex,
       reddit_spell_handler_incoming,
-      // twilio_client_enable,
-      // twilio_sid,
-      // twilio_auth_token,
-      // twilio_phone_number
+      zoom_enabled,
+      zoom_invitation_link,
+      zoom_password,
+      zoom_bot_name,
+      zoom_spell_handler_incoming,
     }
     const fileName = uniqueNamesGenerator({
       dictionaries: [adjectives, colors],
@@ -1162,54 +1173,72 @@ const EntityWindow = ({ id, updateCallback }) => {
             </>
           )}
 
-          {/* <div className="form-item">
-            <span className="form-item-label">Twilio Client Enabled</span>
+          <div className="form-item">
+            <span className="form-item-label">Zoom Client Enabled</span>
             <input
               type="checkbox"
-              value={twilio_client_enable}
-              defaultChecked={twilio_client_enable || twilio_client_enable === 'true'}
+              value={zoom_enabled}
+              defaultChecked={zoom_enabled || zoom_enabled === 'true'}
               onChange={e => {
-                setTwilioClientEnable(e.target.checked)
+                setZoomEnabled(e.target.checked)
               }}
             />
-          </div> */}
+          </div>
 
-          {/* {twilio_client_enable &&
-            (
-              <>
-                <div className="form-item">
-                  <span className="form-item-label">Twilio Account SID</span>
-                  <input
-                    type="text"
-                    defaultValue={twilio_sid}
-                    onChange={e => {
-                      setTwilioSid(e.target.value)
-                    }}
-                  />
-                </div>
-                <div className="form-item">
-                  <span className="form-item-label">Twilio Auth Token</span>
-                  <input
-                    type="text"
-                    defaultValue={twilio_auth_token}
-                    onChange={e => {
-                      setTwilioAuthToken(e.target.value)
-                    }}
-                  />
-                </div>
-                <div className="form-item">
-                  <span className="form-item-label">Twilio Phone Number</span>
-                  <input
-                    type="text"
-                    defaultValue={twilio_phone_number}
-                    onChange={e => {
-                      setTwilioPhoneNumber(e.target.value)
-                    }}
-                  />
-                </div>
-              </>
-            )
-          } */}
+          {zoom_enabled && (
+            <>
+              <div className="form-item">
+                <span className="form-item-label">Zoom Invitation Link</span>
+                <input
+                  type="text"
+                  defaultValue={zoom_invitation_link}
+                  onChange={e => {
+                    setZoomInvitationLink(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Zoom Password</span>
+                <input
+                  type="text"
+                  defaultValue={zoom_password}
+                  onChange={e => {
+                    setZoomPassword(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Bot Name</span>
+                <input
+                  type="text"
+                  defaultValue={zoom_bot_name}
+                  onChange={e => {
+                    setZoomBotName(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Incoming Message Handler)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={zoom_spell_handler_incoming}
+                  onChange={event => {
+                    setZoomSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </>
+          )}
         </>
       )}
       <div className="form-item entBtns">

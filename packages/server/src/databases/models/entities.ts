@@ -52,6 +52,11 @@ export interface entitiesAttributes {
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  zoom_enabled?: boolean
+  zoom_invitation_link?: string
+  zoom_password?: string
+  zoom_bot_name?: string
+  zoom_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -99,6 +104,11 @@ export type entitiesOptionalAttributes =
   | 'reddit_bot_name'
   | 'reddit_bot_name_regex'
   | 'reddit_spell_handler_incoming'
+  | 'zoom_enabled'
+  | 'zoom_invitation_link'
+  | 'zoom_password'
+  | 'zoom_bot_name'
+  | 'zoom_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -159,6 +169,11 @@ export class entities
   reddit_bot_name?: string
   reddit_bot_name_regex?: string
   reddit_spell_handler_incoming?: string
+  zoom_enabled?: boolean
+  zoom_invitation_link?: string
+  zoom_password?: string
+  zoom_bot_name?: string
+  zoom_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -358,6 +373,26 @@ export class entities
           allowNull: true,
         },
         reddit_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        zoom_invitation_link: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
