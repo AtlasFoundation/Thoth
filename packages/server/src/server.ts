@@ -20,10 +20,9 @@ import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
-import { convertToMp4 } from './systems/videoConverter'
 import { auth } from './routes/middleware/auth'
-import { initWeaviateClient, search } from './systems/weaviateClient'
-import { tts_tiktalknet } from './systems/tiktalknet'
+import { initWeaviateClient } from './systems/weaviateClient'
+import cors_server from './cors-server'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -31,7 +30,6 @@ const router: Router = new Router()
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 async function init() {
-  await tts_tiktalknet('hi how are you', '1_ztAbe5YArCMwyyQ_G9lUiz74ym5xJKC')
   // async function initLoop() {
   //   new roomManager()
   //   const expectedServerDelta = 1000 / 60
@@ -67,7 +65,8 @@ async function init() {
   await initTextToSpeech()
   new cacheManager()
   await initWeaviateClient(
-    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true'
+    process.env.WEAVIATE_IMPORT_DATA?.toLowerCase().trim() === 'true',
+    process.env.CLASSIFIER_IMPORT_DATA?.toLowerCase().trim() === 'true'
   )
 
   if (process.env.RUN_PYTHON_SERVER === 'true') {
@@ -91,7 +90,14 @@ async function init() {
   }
   app.use(cors(options))
 
-  // new cors_server(process.env.CORS_PORT, '0.0.0.0')
+  new cors_server(
+    parseInt(process.env.CORS_PORT as string),
+    '0.0.0.0',
+    process.env.USESSL === 'true' &&
+      fs.existsSync('certs/') &&
+      fs.existsSync('certs/key.pem') &&
+      fs.existsSync('certs/cert.pem')
+  )
 
   process.on('unhandledRejection', (err: Error) => {
     console.error('Unhandled Rejection:' + err + ' - ' + err.stack)

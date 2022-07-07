@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/no-inferrable-types */

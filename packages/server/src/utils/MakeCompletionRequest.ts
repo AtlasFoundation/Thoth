@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-nocheck
 import axios from 'axios'
@@ -5,11 +7,11 @@ import axios from 'axios'
 // TODO: Refactor and remove this, replace with Thoth completion node
 
 export async function MakeCompletionRequest(
-  data,
-  speaker,
-  agent,
-  type,
-  engine
+  data: any,
+  speaker: any,
+  agent: any,
+  type: any,
+  engine: any
 ) {
   // if ((await database.instance.getConfig())['use_gptj']) {
   //   const params = {
@@ -39,7 +41,13 @@ export async function MakeCompletionRequest(
   // }
 }
 const useDebug = false
-async function makeOpenAIGPT3Request(data, speaker, agent, type, engine) {
+async function makeOpenAIGPT3Request(
+  data: any,
+  speaker: any,
+  agent: any,
+  type: any,
+  engine: any
+) {
   if (useDebug) return { success: true, choice: { text: 'Default response' } }
   const API_KEY = process.env.OPENAI_API_KEY
   const headers = {
@@ -76,15 +84,14 @@ export async function makeCompletion(
     stop: string[]
   }
 ): Promise<any> {
-  const API_KEY =
-    process.env.OPENAI_API_KEY
+  const API_KEY = process.env.OPENAI_API_KEY
 
   const headers = {
     'Content-Type': 'application/json',
     Authorization: 'Bearer ' + API_KEY,
   }
 
-  const _data = {}
+  const _data: any = {}
   _data.prompt = data.prompt
   if (data.temperature && data.temperature !== undefined) {
     _data.temperature = data.temperature

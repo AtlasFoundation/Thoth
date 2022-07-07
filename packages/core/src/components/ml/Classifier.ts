@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -85,9 +87,10 @@ export class Classifier extends ThothComponent<Promise<InputReturn>> {
     const _parameters = { candidate_labels: parameters }
 
     const resp = await axios.post(
-      `${process.env.REACT_APP_API_URL ??
-      process.env.API_URL ??
-      'https://localhost:8001'
+      `${
+        process.env.REACT_APP_API_URL ??
+        process.env.API_URL ??
+        'https://localhost:8001'
       }/hf_request`,
       {
         inputs: inputData as string,

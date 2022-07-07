@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 /* eslint-disable require-await */
@@ -25,9 +27,10 @@ async function getEvent(
   maxCount = 10
 ) {
   const response = await axios.get(
-    `${process.env.REACT_APP_API_ROOT_URL ??
-    process.env.API_ROOT_URL ??
-    'https://localhost:8001'
+    `${
+      process.env.REACT_APP_API_ROOT_URL ??
+      process.env.API_ROOT_URL ??
+      'https://localhost:8001'
     }/event`,
     {
       params: {

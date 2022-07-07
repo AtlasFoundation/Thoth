@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
@@ -143,9 +145,10 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     console.log('filteredStop is', filteredStop)
 
     const resp = await axios.post(
-      `${process.env.REACT_APP_API_URL ??
-      process.env.API_URL ??
-      'https://localhost:8001'
+      `${
+        process.env.REACT_APP_API_URL ??
+        process.env.API_URL ??
+        'https://localhost:8001'
       }/text_completion`,
       {
         prompt: prompt,

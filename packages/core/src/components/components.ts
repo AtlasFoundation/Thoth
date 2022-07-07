@@ -67,6 +67,8 @@ import { BooleanVariable } from './variable/BooleanVariable'
 import { FewshotVariable } from './variable/FewshotVariable'
 import { NumberVariable } from './variable/NumberVariable'
 import { StringVariable } from './variable/StringVariable'
+import { DocumentSetMass } from './search/DocumentSetMass'
+import { RSSGet } from './search/RSSGet'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -106,6 +108,8 @@ export const components = {
   documentDelete: () => new DocumentDelete(),
   documentSet: () => new DocumentSet(),
   documentStoreGet: () => new DocumentStoreGet(),
+  documentSetMass: () => new DocumentSetMass(),
+  rssGet: () => new RSSGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
   cacheManagerGet: () => new CacheManagerGet(),

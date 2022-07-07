@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from 'axios'
 import Rete from 'rete'

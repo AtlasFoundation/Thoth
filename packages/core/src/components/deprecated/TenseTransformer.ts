@@ -1,12 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
 import Rete from 'rete'
 
 import { FewshotControl } from '../../dataControls/FewshotControl'
 import { stringSocket, triggerSocket } from '../../sockets'
-import { ThothComponent } from '../../thoth-component'
 import {
   EngineContext,
   NodeData,
@@ -14,9 +12,6 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { FewshotControl } from '../../dataControls/FewshotControl'
-import { EngineContext } from '../../../types'
-import { stringSocket, triggerSocket } from '../../sockets'
 // @seang todo: convert data controls to typescript to remove this
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -149,14 +144,14 @@ export class TenseTransformer extends ThothComponent<Promise<WorkerReturn>> {
       model: 'vanilla-davinci',
     }
 
-    const { success, choice } = resp.data
+    //const { success, choice } = resp.data
 
-    const result = success ? choice?.trim() : ''
+    //const result = success ? choice?.trim() : ''
 
-    if (!silent) node.display(result)
+    //if (!silent) node.display(result)
 
     return {
-      action: result,
+      action: '', //result,
     }
   }
 }

@@ -344,6 +344,7 @@ export class database {
   }
 
   async addDocument(
+    title: any,
     description: any,
     is_included: any,
     store_id: any
@@ -356,8 +357,8 @@ export class database {
     console.log('document store id:', id)
 
     const query =
-      'INSERT INTO documents(id, description, is_included, store_id) VALUES($1, $2, $3, $4)'
-    const values = [id, description, is_included, store_id]
+      'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
+    const values = [id, title, description, is_included, store_id]
 
     await this.client.query(query, values)
     return id
