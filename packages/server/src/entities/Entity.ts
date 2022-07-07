@@ -14,6 +14,7 @@ import { cacheManager } from '../cacheManager'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
+import { tts_tiktalknet } from '../systems/tiktalknet'
 
 export class Entity {
   name = ''
@@ -309,12 +310,14 @@ export class Entity {
               data.voice_character,
               filtered[i]
             )
-          } else {
+          } else if (data.voice_provider === 'google') {
             url = await tts(
               filtered[i],
               data.voice_character,
               data.voice_language_code
             )
+          } else {
+            url = await tts_tiktalknet(filtered[i], data.voice_character)
           }
 
           if (url && url.length > 0 && stringIsAValidUrl(url)) {

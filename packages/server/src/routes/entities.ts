@@ -14,6 +14,7 @@ import { makeCompletion } from '../utils/MakeCompletionRequest'
 import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
+import { tts_tiktalknet } from '../systems/tiktalknet'
 import fs from 'fs'
 import path from 'path'
 
@@ -286,13 +287,15 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
         voice_character as string,
         text as string
       )
-    } else {
+    } else if (voice_provider === 'google') {
       url = await tts(
         text,
         voice_provider,
         voice_character,
         voice_language_code
       )
+    } else {
+      url = await tts_tiktalknet(text, voice_character)
     }
   }
 

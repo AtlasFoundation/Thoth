@@ -117,7 +117,10 @@ const EntityWindow = ({ id, updateCallback }) => {
         }
       )
 
-      const url = resp.data
+      const url =
+        voice_provider === 'google' || voice_provider === 'tiktalknet'
+          ? process.env.REACT_APP_SEARCH_FILE_URL + '/' + resp.data
+          : resp.data
       if (url && url.length > 0) {
         setPlayingAudio(true)
         console.log('url:', url)
@@ -494,6 +497,7 @@ const EntityWindow = ({ id, updateCallback }) => {
             >
               <option value={'google'}>Google</option>
               <option value={'uberduck'}>Uberduck</option>
+              <option value={'tiktalknet'}>Tiktalknet</option>
             </select>
           </div>
 
@@ -508,6 +512,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
+                <option defaultValue hidden></option>
                 <option value={'en-US-Standard-A'}>en-US-Standard-A</option>
                 <option value={'en-US-Standard-B'}>en-US-Standard-B</option>
                 <option value={'en-US-Standard-C'}>en-US-Standard-C</option>
@@ -529,7 +534,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                 <option value={'en-US-Wavenet-I'}>en-US-Wavenet-I</option>
                 <option value={'en-US-Wavenet-J'}>en-US-Wavenet-J</option>
               </select>
-            ) : (
+            ) : voice_provider === 'uberduck' ? (
               <select
                 name="voice_provider"
                 id="voice_provider"
@@ -538,6 +543,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
+                <option defaultValue hidden></option>
                 <option value={'101-dalmatians-lucky'}>
                   101-dalmatians-lucky
                 </option>
@@ -573,6 +579,23 @@ const EntityWindow = ({ id, updateCallback }) => {
                 <option value={'zoog-disney'}>zoog-disney</option>
                 <option value={'zro'}>zro</option>
               </select>
+            ) : (
+              <select
+                name="voice_provider"
+                id="voice_provider"
+                value={voice_character}
+                onChange={event => {
+                  setVoiceCharacter(event.target.value)
+                }}
+              >
+                <option defaultValue hidden></option>
+                <option value={'1_ztAbe5YArCMwyyQ_G9lUiz74ym5xJKC'}>
+                  test voice 1
+                </option>
+                <option value={'1_ztAbe5YArCMwyyQ_G9lUiz74ym5xJKC'}>
+                  text voice 2
+                </option>
+              </select>
             )}
           </div>
 
@@ -586,7 +609,8 @@ const EntityWindow = ({ id, updateCallback }) => {
                 setVoiceLanguageCode(event.target.value)
               }}
             >
-              <option value={'en-US'}>en-US</option>
+              <option value={'en-US'}>none</option>
+              <option value={'en-US'}>en-GB</option>
             </select>
           </div>
 

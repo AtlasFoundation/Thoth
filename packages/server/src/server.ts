@@ -23,6 +23,7 @@ import spawnPythonServer from './systems/pythonServer'
 import { convertToMp4 } from './systems/videoConverter'
 import { auth } from './routes/middleware/auth'
 import { initWeaviateClient, search } from './systems/weaviateClient'
+import { tts_tiktalknet } from './systems/tiktalknet'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -30,10 +31,7 @@ const router: Router = new Router()
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 async function init() {
-  /*await convertToMp4(
-    'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
-    'test.mp4'
-  )*/
+  await tts_tiktalknet('hi how are you', '1_ztAbe5YArCMwyyQ_G9lUiz74ym5xJKC')
   // async function initLoop() {
   //   new roomManager()
   //   const expectedServerDelta = 1000 / 60

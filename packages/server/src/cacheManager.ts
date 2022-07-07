@@ -1,8 +1,4 @@
-import axios from 'axios'
 import { createClient } from 'redis'
-
-//@ts-ignore
-import similarity from 'similarity'
 
 export class cacheManager {
   static instance: cacheManager
