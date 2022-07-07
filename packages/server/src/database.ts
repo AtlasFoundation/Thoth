@@ -371,13 +371,14 @@ export class database {
   }
   async updateDocument(
     document_id: any,
+    title: string,
     description: any,
     is_included: any,
     store_id: any
   ) {
     const query =
-      'UPDATE documents SET description=$1, is_included=$2, store_id=$3 WHERE id=$4'
-    const values = [description, is_included, store_id, document_id]
+      'UPDATE documents SET title=$1, description=$2, is_included=$3, store_id=$4 WHERE id=$5'
+    const values = [title, description, is_included, store_id, document_id]
 
     await this.client.query(query, values)
   }
@@ -385,7 +386,7 @@ export class database {
     storeId: string | string[] | undefined
   ): Promise<any> {
     const query =
-      'SELECT id, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
+      'SELECT id, title, description, is_included AS "isIncluded", store_id AS "storeId" FROM documents WHERE store_id=$1 ORDER BY id DESC'
     const values = [storeId]
 
     const rows = await this.client.query(query, values)
@@ -458,6 +459,7 @@ export class database {
   }
 
   async addContentObj(
+    title: string,
     description: any,
     is_included: any,
     document_id: any
@@ -468,28 +470,29 @@ export class database {
     }
 
     const query =
-      'INSERT INTO content_objects(id, description, is_included, document_id) VALUES($1, $2, $3, $4)'
-    const values = [id, description, is_included, document_id]
+      'INSERT INTO content_objects(id, title, description, is_included, document_id) VALUES($1, $2, $3, $4, $5)'
+    const values = [id, title, description, is_included, document_id]
 
     await this.client.query(query, values)
     return id
   }
   async editContentObj(
     obj_id: any,
+    title: string,
     description: any,
     is_included: any,
     document_id: any
   ) {
     const query =
-      'UPDATE content_objects SET description = $1, is_included = $2, document_id = $3 WHERE id = $4'
-    const values = [description, is_included, document_id, obj_id]
+      'UPDATE content_objects SET title=$1, description = $2, is_included = $3, document_id = $4 WHERE id = $5'
+    const values = [title, description, is_included, document_id, obj_id]
     await this.client.query(query, values)
   }
   async getContentObjOfDocument(
     documentId: string | string[] | undefined
   ): Promise<any> {
     const query =
-      'SELECT id, description, is_included AS "isIncluded", document_id AS "documentId" FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
+      'SELECT id, title, description, is_included AS "isIncluded", document_id AS "documentId" FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
     const values = [documentId]
 
     const rows = await this.client.query(query, values)
