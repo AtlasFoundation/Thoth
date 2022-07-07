@@ -6,6 +6,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from 'axios'
 import Rete from 'rete'
+//@ts-ignore
+import xmldoc from 'xmldoc'
 
 import {
   EngineContext,
@@ -82,21 +84,42 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
       resp = await axios.get(process.env.REACT_APP_CORS_URL + '/' + feed_url)
     }
 
+    console.log('resp.data:', resp.data)
     const data: any[] = []
-    if (to_document === true || to_document === 'true') {
-      for (let i = 0; i < resp.data.items.length; i++) {
-        const object = {
-          title: resp.data.items[i].title,
-          description: resp.data.items[i].content_html
-            .replace('<br>', '\\n')
-            .replace('</p>', '\\n')
-            .replace(/<[^>]*>?/gm, ''),
+    if (isJson(resp.data)) {
+      if (to_document === true || to_document === 'true') {
+        for (let i = 0; i < resp.data.items.length; i++) {
+          const object = {
+            title: resp.data.items[i].title,
+            description: resp.data.items[i].content_html
+              .replace('<br>', '\\n')
+              .replace('</p>', '\\n')
+              .replace(/<[^>]*>?/gm, ''),
+          }
+          data.push(object)
         }
-        data.push(object)
+      } else {
+        for (let i = 0; i < resp.data.items.length; i++) {
+          data.push(resp.data.items[i])
+        }
       }
     } else {
-      for (let i = 0; i < resp.data.items.length; i++) {
-        data.push(resp.data.items[i])
+      const doc = new xmldoc.XmlDocument(resp.data)
+      const _data = doc.children[0].children
+      for (let i = 0; i < _data.length; i++) {
+        let title = ''
+        let description = ''
+        for (let j = 0; j < _data[i].children.length; j++) {
+          if (_data[i].children[j]?.name === 'title') {
+            title = _data[i].children[j].val
+          } else if (_data[i].children[j]?.name === 'description') {
+            description = _data[i].children[j].val
+          }
+        }
+
+        if (title?.length > 0 && description?.length > 0) {
+          data.push({ title: title, description: description })
+        }
       }
     }
 
@@ -104,4 +127,13 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
       output: data,
     }
   }
+}
+
+function isJson(str: any) {
+  try {
+    JSON.parse(str)
+  } catch (e) {
+    return false
+  }
+  return true
 }
