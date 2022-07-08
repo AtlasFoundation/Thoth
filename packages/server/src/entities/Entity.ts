@@ -264,6 +264,49 @@ export class Entity {
     }
   }
 
+  async startZoom(
+    zoom_invitation_link: string,
+    zoom_password: string,
+    zoom_bot_name: string,
+    zoom_spell_handler_incoming: string,
+    voice_provider: string,
+    voice_character: string,
+    voice_language_code: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if (this.zoom) {
+      throw new Error('Zoom already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: zoom_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.zoom = new zoom_client()
+    this.zoom.createZoomClient(
+      spellHandler,
+      {
+        zoom_invitation_link,
+        zoom_password,
+        zoom_bot_name,
+        zoom_spell_handler_incoming,
+        voice_provider,
+        voice_character,
+        voice_language_code,
+      },
+      entity
+    )
+  }
+
+  stopZoom() {
+    if (this.zoom) {
+      this.zoom.destroy()
+      this.zoom = null
+    }
+  }
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -407,6 +450,21 @@ export class Entity {
         data.spell_version
       )
     }
+
+    if (data.zoom_enabled) {
+      this.startZoom(
+        data.zoom_invitation_link,
+        data.zoom_password,
+        data.zoom_bot_name,
+        data.zoom_spell_handler_incoming,
+        data.voice_provider,
+        data.voice_character,
+        data.voice_language_code,
+        data.spell_version,
+        data
+      )
+    }
+
   }
 
   // TODO: Fix me
