@@ -22,7 +22,7 @@ const info =
   'Search is used to do neural search in the search corpus and return a document'
 
 type Document = {
-  keywords: string
+  title: string
   description: string
 }
 
@@ -95,7 +95,7 @@ export class Search extends ThothComponent<Promise<WorkerReturn>> {
     )
     if (typeof resp.data === 'object') {
       documents.push({
-        keywords: resp.data.keywords,
+        title: resp.data.title,
         description: resp.data.description,
       })
     }
