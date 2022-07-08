@@ -497,6 +497,30 @@ export class discord_client {
       }
     }
 
+    if (this.discord_echo_slack && this.entity && this.entity.slack) {
+      let msg = this.discord_echo_format
+      if (!msg || msg?.length <= 0) {
+        msg = content
+      } else {
+        if (msg.includes('$client')) {
+          msg = msg.replace('$client', 'discord')
+        } else if (msg.includes('$author')) {
+          msg = msg.replace('$author', author.username)
+        } else if (msg.includes('$channel')) {
+          msg = msg.replace('$channel', channel.name)
+        } else if (msg.includes('$message')) {
+          msg = msg.replace('$message', content)
+        }
+      }
+
+      if (msg && msg?.length > 0) {
+        await this.entity.slack.sendMessage(
+          this.entity.slack.settings.slack_echo_channel,
+          msg
+        )
+      }
+    }
+
     //if the message is empty it is ignored
     if (content === '') {
       console.log('empty content')
@@ -1636,6 +1660,8 @@ export class discord_client {
   voice_provider: string
   voice_character: string
   voice_language_code: string
+  discord_echo_slack: boolean
+  discord_echo_format: string
   createDiscordClient = async (
     entity: any,
     discord_api_token: string | undefined,
@@ -1660,7 +1686,9 @@ export class discord_client {
     use_voice,
     voice_provider,
     voice_character,
-    voice_language_code
+    voice_language_code,
+    discord_echo_slack: boolean,
+    discord_echo_format: string
   ) => {
     console.log('creating discord client')
     this.entity = entity
@@ -1669,6 +1697,8 @@ export class discord_client {
     this.voice_provider = voice_provider
     this.voice_character = voice_character
     this.voice_language_code = voice_language_code
+    this.discord_echo_slack = discord_echo_slack
+    this.discord_echo_format = discord_echo_format
     if (!discord_starting_words || discord_starting_words?.length <= 0) {
       this.discord_starting_words = ['hi', 'hey']
     } else {

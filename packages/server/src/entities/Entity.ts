@@ -15,6 +15,7 @@ import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
 import { tts_tiktalknet } from '../systems/tiktalknet'
+import { slack_client } from './connectors/slack'
 
 export class Entity {
   name = ''
@@ -28,8 +29,8 @@ export class Entity {
   messenger: messenger_client | null
   whatsapp: whatsapp_client | null
   twilio: twilio_client | null
-  //harmony: any
   xrengine: xrengine_client | null
+  slack: slack_client | null
   id: any
 
   loopHandler: any
@@ -45,7 +46,9 @@ export class Entity {
     use_voice: boolean,
     voice_provider: string,
     voice_character: string,
-    voice_language_code: string
+    voice_language_code: string,
+    discord_echo_slack: boolean,
+    discord_echo_format: string
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -69,7 +72,9 @@ export class Entity {
       use_voice,
       voice_provider,
       voice_character,
-      voice_language_code
+      voice_language_code,
+      discord_echo_slack,
+      discord_echo_format
     )
     console.log('Started discord client for agent ' + this.name)
     // const response = await spellHandler(
@@ -351,6 +356,41 @@ export class Entity {
     }
   }
 
+  async startSlack(
+    slack_token: any,
+    slack_signing_secret: any,
+    slack_bot_token: any,
+    slack_bot_name: any,
+    slack_port: any,
+    slack_spell_handler_incoming: any,
+    spell_version: any,
+    slack_echo_channel: any
+  ) {
+    if (this.slack) {
+      throw new Error('Slack already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: slack_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.slack = new slack_client()
+    this.slack.createSlackClient(
+      spellHandler,
+      {
+        slack_token,
+        slack_signing_secret,
+        slack_bot_token,
+        slack_bot_name,
+        slack_port,
+        slack_echo_channel,
+      },
+      this
+    )
+  }
+  async stopSlack() {}
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -361,6 +401,7 @@ export class Entity {
     if (this.twitter) this.stopTwitter()
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
+    if (this.slack) this.stopSlack()
   }
 
   async generateVoices(data: any) {
@@ -457,7 +498,9 @@ export class Entity {
         data.use_voice,
         data.voice_provider,
         data.voice_character,
-        data.voice_language_code
+        data.voice_language_code,
+        data.discord_echo_slack,
+        data.discord_echo_format
       )
     }
 
@@ -515,6 +558,19 @@ export class Entity {
         data.voice_language_code,
         data.spell_version,
         data
+      )
+    }
+
+    if (data.slack_enabled) {
+      this.startSlack(
+        data.slack_token,
+        data.slack_signing_secret,
+        data.slack_bot_token,
+        data.slack_bot_name,
+        data.slack_port,
+        data.slack_spell_handler_incoming,
+        data.spell_version,
+        data.slack_echo_channel
       )
     }
   }
