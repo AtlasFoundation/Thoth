@@ -167,7 +167,11 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
 
     if (!success)
       return {
-        output: 'Sorry, I had a completion error:' + error,
+        output:
+          'Sorry, I had a completion error:' +
+          JSON.stringify(resp.data) +
+          ' prompt:' +
+          prompt,
       }
 
     const res =

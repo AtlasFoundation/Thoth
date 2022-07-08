@@ -57,6 +57,10 @@ export interface entitiesAttributes {
   zoom_password?: string
   zoom_bot_name?: string
   zoom_spell_handler_incoming?: string
+  loop_enabled?: boolean
+  loop_interval?: string
+  loop_agent_name?: string
+  loop_spell_handler?: string
 }
 
 export type entitiesPk = 'id'
@@ -109,6 +113,10 @@ export type entitiesOptionalAttributes =
   | 'zoom_password'
   | 'zoom_bot_name'
   | 'zoom_spell_handler_incoming'
+  | 'loop_enabled'
+  | 'loop_interval'
+  | 'loop_agent_name'
+  | 'loop_spell_handler'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -174,6 +182,10 @@ export class entities
   zoom_password?: string
   zoom_bot_name?: string
   zoom_spell_handler_incoming?: string
+  loop_enabled?: boolean
+  loop_interval?: string
+  loop_agent_name?: string
+  loop_spell_handler?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -393,6 +405,22 @@ export class entities
           allowNull: true,
         },
         zoom_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        loop_interval: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_agent_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_spell_handler: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

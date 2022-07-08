@@ -32,6 +32,8 @@ export class Entity {
   xrengine: xrengine_client | null
   id: any
 
+  loopHandler: any
+
   async startDiscord(
     discord_api_token: string,
     discord_starting_words: string,
@@ -307,6 +309,48 @@ export class Entity {
     }
   }
 
+  async startLoop(
+    loop_interval: string,
+    loop_spell_handler: string,
+    spell_version: string,
+    agent_name: string
+  ) {
+    if (this.loopHandler) {
+      throw new Error('Loop already running for this client on this instance')
+    }
+
+    const loopInterval = parseInt(loop_interval)
+    if (typeof loopInterval === 'number' && loopInterval > 0) {
+      const spellHandler = await CreateSpellHandler({
+        spell: loop_spell_handler,
+        version: spell_version,
+      })
+
+      this.loopHandler = setInterval(async () => {
+        const resp = await spellHandler(
+          'loop',
+          'loop',
+          agent_name,
+          'loop',
+          'loop',
+          this,
+          []
+        )
+        if (resp && (resp as string)?.length > 0) {
+          console.log('Loop Response:', resp)
+        }
+      }, loopInterval)
+    } else {
+      throw new Error('Loop Interval must be a number greater than 0')
+    }
+  }
+  async stopLoop() {
+    if (this.loopHandler && this.loopHandler !== undefined) {
+      clearInterval(this.loopHandler)
+      this.loopHandler = null
+    }
+  }
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -392,6 +436,15 @@ export class Entity {
 
     this.generateVoices(data)
 
+    if (data.loop_enabled) {
+      this.startLoop(
+        data.loop_interval,
+        data.loop_spell_handler,
+        data.spell_version,
+        data.loop_agent_name
+      )
+    }
+
     if (data.discord_enabled) {
       this.startDiscord(
         data.discord_api_key,
@@ -464,7 +517,6 @@ export class Entity {
         data
       )
     }
-
   }
 
   // TODO: Fix me
