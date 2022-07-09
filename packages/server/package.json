@@ -76,7 +76,8 @@
     "stripe": "^8.191.0",
     "ts-node": "^10.2.1",
     "uuid": "^8.3.2",
-    "verify-apple-id-token": "^2.1.0"
+    "verify-apple-id-token": "^2.1.0",
+    "vm2": "^3.9.10"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",

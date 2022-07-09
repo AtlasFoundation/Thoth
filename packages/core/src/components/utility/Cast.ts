@@ -17,7 +17,8 @@ export class Cast extends ThothComponent<void> {
 
     this.task = {
       outputs: {
-        trigger: 'option'
+        trigger: 'option',
+        output: 'output'
       },
     } as TaskOptions
     this.category = 'Utility'
@@ -25,10 +26,9 @@ export class Cast extends ThothComponent<void> {
   }
 
   addSocket(node: ThothNode, name: sockets.SocketNameType) {
-    console.log('adding socket', name)
     const key = sockets.socketNameMap[name]
     const output = sockets[key]
-    const socket = new Rete.Output(key, name, output)
+    const socket = new Rete.Output('output', name, output)
     const oldOutputKey = Array.from(node.outputs.keys())[0];
     const oldOutput = node.outputs.get(oldOutputKey)
     node.data.name = name
@@ -45,8 +45,6 @@ export class Cast extends ThothComponent<void> {
       node.outputs.clear()
     }
 
-    this.task.outputs = {}
-    this.task.outputs[key] = 'output'
     node.addOutput(socket)
   }
 
@@ -86,8 +84,12 @@ export class Cast extends ThothComponent<void> {
     const value = inputs.input[0]
     const key = sockets.socketNameMap[node.data.socketType as SocketNameType]
 
-    return {
+    console.log('returnign cast', {
       [key as string]: value
+    })
+
+    return {
+      output: value
     }
   }
 }

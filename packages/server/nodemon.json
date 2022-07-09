@@ -5,7 +5,7 @@
     ".eslintrc.json",
     ".prettierrc",
     "src/",
-    "node_modules/@thothai/"
+    "../core/dist/"
   ],
   "execMap": {
     "ts": "node -r ts-node/register"

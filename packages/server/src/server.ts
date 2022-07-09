@@ -77,6 +77,19 @@ async function init() {
     spawnPythonServer()
   }
 
+  // generic error handling
+  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
+    try {
+      await next()
+    } catch (error) {
+      ctx.status =
+        error.statusCode || error.status || HttpStatus.INTERNAL_SERVER_ERROR
+      error.status = ctx.status
+      ctx.body = { error }
+      ctx.app.emit('error', error, ctx)
+    }
+  })
+
   const options = {
     origin: '*',
   }
@@ -173,19 +186,6 @@ async function init() {
 
   app.use(router.routes()).use(router.allowedMethods())
 
-  // generic error handling
-  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
-    try {
-      await next()
-    } catch (error) {
-      ctx.status =
-        error.statusCode || error.status || HttpStatus.INTERNAL_SERVER_ERROR
-      error.status = ctx.status
-      ctx.body = { error }
-      ctx.app.emit('error', error, ctx)
-    }
-  })
-
   const PORT: number = Number(process.env.PORT) || 8001
   const useSSL =
     process.env.USESSL === 'true' &&
@@ -208,4 +208,5 @@ async function init() {
     })
   // await initLoop()
 }
+
 init()

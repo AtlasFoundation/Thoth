@@ -2,7 +2,7 @@
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
+// require('isomorphic-fetch');
 import Rete from 'rete'
 
 import {
@@ -16,34 +16,6 @@ import {
 import { InputControl } from '../../dataControls/InputControl'
 import { triggerSocket, anySocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
-
-async function getEvent(
-  type: string,
-  agent: string,
-  speaker: null | string,
-  client: string,
-  channel: string,
-  maxCount = 10
-) {
-  const response = await axios.get(
-    `${process.env.REACT_APP_API_ROOT_URL ??
-    process.env.API_ROOT_URL ??
-    'https://localhost:8001'
-    }/event`,
-    {
-      params: {
-        type: type,
-        agent: agent,
-        speaker: speaker,
-        client: client,
-        channel: channel,
-        maxCount: maxCount,
-      },
-    }
-  )
-  console.log('response.data:', response.data)
-  return response.data
-}
 
 const info = 'Event Recall is used to get conversation for an agent and user'
 
@@ -105,6 +77,8 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
+    const { getEvent } = thoth
+
     const agentObj = inputs['agent'] && (inputs['agent'][0] as Agent)
 
     const { speaker, client, channel, agent } = agentObj

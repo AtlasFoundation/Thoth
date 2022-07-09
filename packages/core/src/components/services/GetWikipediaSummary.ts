@@ -1,20 +1,11 @@
-import axios from 'axios'
 import Rete from 'rete'
 
-import { NodeData, ThothNode, ThothWorkerInputs, ThothWorkerOutputs } from '../../../types'
+import { EngineContext, NodeData, ThothNode, ThothWorkerInputs, ThothWorkerOutputs } from '../../../types'
 import { TaskOptions } from '../../plugins/taskPlugin/task'
 import { anySocket, stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = `Given a keyword pull in relevant information of the wevaiate wikipedia instance.`
-
-const getWikipediaSummary = async (keyword: string) => {
-  const _resp = await axios.get(
-    `${process.env.REACT_APP_API_URL}/wikipediaSummary?keyword=${keyword}`
-  )
-
-  return _resp
-}
 
 export class GetWikipediaSummary extends ThothComponent<void> {
   constructor() {
@@ -52,15 +43,16 @@ export class GetWikipediaSummary extends ThothComponent<void> {
   // to the outputs to be consumed by any connected components
   async worker(node: NodeData,
     inputs: ThothWorkerInputs,
-    outputs: ThothWorkerOutputs,) {
+    outputs: ThothWorkerOutputs,
+    { silent, thoth }: { silent: boolean; thoth: EngineContext }) {
     this._task.closed = ['success', 'error']
+    const { getWikipediaSummary } = thoth
     try {
-      console.log("keyword", node.data.keyword)
       const result = await getWikipediaSummary(inputs.keyword[0] as string) as any
       console.log('result', result)
       this._task.closed = ['error']
       return {
-        result: result.data.result.extract
+        result: result.extract
       }
     } catch (err) {
       console.warn('Error getting wikipedia summary', err)

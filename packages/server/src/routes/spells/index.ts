@@ -6,15 +6,19 @@ import { noAuth } from '../../middleware/auth'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 import {
-  buildThothInterface,
+  SpellRunner,
   extractModuleInputKeys,
+} from '@thothai/thoth-core/dist/server'
+import {
   runSpell,
 } from './runSpell'
+import { buildThothInterface } from './buildThothInterface'
 import { getTestSpell } from './testSpells'
 import { Graph, Module } from './types'
 
 import otJson0 from 'ot-json0'
 import { Op } from 'sequelize'
+import { GraphData, Spell as SpellType } from '@thothai/thoth-core/types'
 
 export const modules: Record<string, unknown> = {}
 
@@ -22,21 +26,9 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   const { spell, version } = ctx.params
   const { isTest, userGameState = {} } = ctx.request.body
 
-  let rootSpell
-
-  if (process.env.USE_LATITUDE_API === 'true') {
-    const response = await axios({
-      method: 'GET',
-      url: process.env.API_URL + '/game/spells/' + spell,
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-    rootSpell = response.data
-  } else {
-    rootSpell = await creatorToolsDatabase.spells.findOne({
-      where: { name: spell },
-    })
-  }
+  const rootSpell = await creatorToolsDatabase.spells.findOne({
+    where: { name: spell },
+  })
 
   // eslint-disable-next-line functional/no-let
   let activeSpell
@@ -48,21 +40,9 @@ const runSpellHandler = async (ctx: Koa.Context) => {
     console.log('latest')
     activeSpell = rootSpell
   } else {
-    if (process.env.USE_LATITUDE_API === 'true') {
-      console.log('checking the api')
-      const response = await axios({
-        method: 'GET',
-        url: process.env.API_URL + `/game/spells/deployed/${spell}/${version}`,
-        headers: ctx.headers as any,
-        data: ctx.request.body,
-      })
-      activeSpell = response.data
-    } else {
-      console.log('getting active spell')
-      activeSpell = await creatorToolsDatabase.deployedSpells.findOne({
-        where: { name: spell, version },
-      })
-    }
+    activeSpell = await creatorToolsDatabase.deployedSpells.findOne({
+      where: { name: spell, version },
+    })
   }
 
   //todo validate spell has an input trigger?
@@ -76,23 +56,56 @@ const runSpellHandler = async (ctx: Koa.Context) => {
 
   // TODO use test spells if body option is given
   // const activeSpell = getTestSpell(spell)
-  const graph = activeSpell.graph as Graph
-  const modules = activeSpell.modules as Module[]
+  const graph = activeSpell.graph as GraphData
+  // const modules = activeSpell.modules as Module[]
 
-  const gameState = {
-    ...rootSpell?.gameState,
-    ...userGameState,
-  }
+  // Build the interface
+  const thothInterface = buildThothInterface(ctx, userGameState)
 
-  const thoth = buildThothInterface(ctx, gameState)
-
+  // Extract any keys from the graphs inputs
   const inputKeys = extractModuleInputKeys(graph) as string[]
 
-  const outputs = await runSpell(graph, inputKeys as any, thoth, modules)
+  // We should report on them here
+  const inputs = inputKeys.reduce(
+    (acc: { [x: string]: any[] }, input: string) => {
+      const requestInput = ctx.request.body[input]
 
-  const newGameState = thoth.getCurrentGameState()
-  const body = { spell: activeSpell.name, outputs, gameState: newGameState }
-  ctx.body = body
+      if (requestInput) {
+        acc[input] = requestInput
+      } else {
+        throw new CustomError('input-failed', `Missing required input ${input}`)
+      }
+      return acc
+    },
+    {} as Record<string, unknown>
+  )
+
+  const spellToRun = {
+    // TOTAL HACK HERE
+    ...(activeSpell as any).toJSON(),
+    gameState: userGameState,
+  }
+
+  // Initialize the spell runner
+  const spellRunner = new SpellRunner({ thothInterface })
+
+  // Load the spell in to the spell runner
+  await spellRunner.loadSpell(spellToRun as SpellType)
+
+  try {
+    // Get the outputs from running the spell
+    const outputs = await spellRunner.defaultRun(inputs)
+
+    // Get the updated state
+    const state = thothInterface.getCurrentGameState()
+
+    // Return the response
+    ctx.body = { spell: activeSpell.name, outputs, state }
+  } catch (err) {
+    // return any errors
+    console.error(err)
+    throw new CustomError('server-error', err.message)
+  }
 }
 
 // Should we use the Latitude API or run independently?

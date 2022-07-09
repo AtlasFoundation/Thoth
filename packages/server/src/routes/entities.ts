@@ -16,6 +16,7 @@ import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
 import fs from 'fs'
 import path from 'path'
+import { CustomError } from '../utils/CustomError'
 
 export const modules: Record<string, unknown> = {}
 
@@ -209,9 +210,13 @@ const getEvent = async (ctx: Koa.Context) => {
     maxCount
   )
 
+  if (!event) throw new CustomError('not-found', 'Event not found')
+
   console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = event)
+  return (ctx.body = {
+    event
+  })
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {

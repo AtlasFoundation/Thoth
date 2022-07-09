@@ -34,7 +34,8 @@
   "dependencies": {
     "@green-api/whatsapp-bot": "0.2.5",
     "@types/deep-equal": "^1.0.1",
-    "axios": "0.24.0",
+    "axios": "0.27.0",
+    "cross-fetch": "^3.1.5",
     "deep-equal": "^2.0.5",
     "discord.js": "^13.6.0",
     "dotenv-flow": "3.2.0",
@@ -46,6 +47,7 @@
     "handlebars": "^4.7.7",
     "inquirer": "^8.2.0",
     "instagram-private-api": "1.45.3",
+    "isomorphic-fetch": "^3.0.0",
     "jsdom": "^17.0.0",
     "keyword-extractor": "^0.0.20",
     "license-webpack-plugin": "^4.0.2",

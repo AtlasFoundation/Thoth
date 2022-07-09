@@ -37,6 +37,15 @@ export type ImageCacheResponse = {
   images: ImageType[]
 }
 
+export type CreateEventArgs = {
+  type: string,
+  agent: string,
+  speaker: string,
+  text: string,
+  client: string,
+  channel: string
+}
+
 export type EngineContext = {
   completion: (
     body: ModelCompletionOpts
@@ -68,6 +77,15 @@ export type EngineContext = {
     data: Record<string, any>,
     state: Record<string, any>
   ) => any | void
+  getEvent: (type: string,
+    agent: string,
+    speaker: null | string,
+    client: string,
+    channel: string,
+    maxCount: number) => Promise<string>
+  storeEvent: (args: CreateEventArgs) => Promise<any>
+  getWikipediaSummary: (keyword: string) => Promise<Record<string, any>>
+
 }
 
 export type EventPayload = Record<string, any>

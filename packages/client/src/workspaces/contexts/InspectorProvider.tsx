@@ -28,7 +28,6 @@ const InspectorProvider = ({ children, tab }) => {
 
   const SET_INSPECTOR = events.$INSPECTOR_SET(tab.id)
 
-  // inspector subscription
   useEffect(() => {
     return subscribe(SET_INSPECTOR, (_, data: InspectorData) => {
       // If the incoming data and existing data are at odds, clear inspector data

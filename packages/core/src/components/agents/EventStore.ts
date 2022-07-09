@@ -2,7 +2,6 @@
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-import axios from 'axios'
 import Rete from 'rete'
 
 import {
@@ -18,41 +17,6 @@ import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Event Store is used to store events for an agent and user'
-
-type CreateEventArgs = {
-  type: string,
-  agent: string,
-  speaker: string,
-  text: string,
-  client: string,
-  channel: string
-}
-
-export async function createEvent(
-  { type,
-    agent,
-    speaker,
-    text,
-    client,
-    channel }: CreateEventArgs
-) {
-  const response = await axios.post(
-    `${process.env.REACT_APP_API_ROOT_URL ??
-    process.env.API_ROOT_URL ??
-    'https://localhost:8001'
-    }/event`,
-    {
-      type,
-      agent,
-      speaker,
-      text,
-      client,
-      channel,
-    }
-  )
-  console.log('Created event', response.data)
-  return response.data
-}
 
 export class EventStore extends ThothComponent<Promise<void>> {
   constructor() {
@@ -109,6 +73,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
+    const { storeEvent } = thoth
     const agent = (inputs['agent'][0] as Agent)
     const primary = ((inputs['primary'] && inputs['primary'][0]) ||
       inputs['primary']) as string
@@ -129,7 +94,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
     const { speaker, client, channel } = agent
 
     if (primary) {
-      respUser = await createEvent(
+      respUser = await storeEvent(
         {
           type,
           agent: agent.agent,
@@ -142,7 +107,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
     }
 
     if (secondary) {
-      respAgent = await createEvent(
+      respAgent = await storeEvent(
         {
           type,
           agent: agent.agent,
