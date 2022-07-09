@@ -8,6 +8,7 @@ import { database } from '../database'
 import axios from 'axios'
 import { ClassifierSchema } from '../types'
 
+const DOCUMENTS_CLASS_NAME = 'DataStore'
 const saved_docs: SearchSchema[] = []
 let client: weaviate.client
 
@@ -96,15 +97,10 @@ async function train(data: SearchSchema[]) {
       continue
     }
 
-    const topic = await classifyText(data[i].description)
-    if (!topic || topic === undefined || topic.length <= 0) {
-      continue
-    }
-
     saved_docs.push(object)
     const res = await client.data
       .creator()
-      .withClassName(topic)
+      .withClassName(DOCUMENTS_CLASS_NAME)
       .withProperties(object)
       .do()
 
@@ -122,15 +118,10 @@ async function train(data: SearchSchema[]) {
         continue
       }
 
-      const topic = await classifyText(documents[i].description)
-      if (!topic || topic === undefined || topic.length <= 0) {
-        continue
-      }
-
       saved_docs.push(object)
       const res = await client.data
         .creator()
-        .withClassName(topic)
+        .withClassName(DOCUMENTS_CLASS_NAME)
         .withProperties(object)
         .do()
       console.log(res)
@@ -188,15 +179,10 @@ export async function singleTrain(data: SearchSchema) {
     return
   }
 
-  const topic = await classifyText(object.description)
-  if (!topic || topic === undefined || topic.length <= 0) {
-    return
-  }
-
   saved_docs.push(object)
   const res = await client.data
     .creator()
-    .withClassName(topic)
+    .withClassName(DOCUMENTS_CLASS_NAME)
     .withProperties(object)
     .do()
 
@@ -205,18 +191,16 @@ export async function singleTrain(data: SearchSchema) {
 
 export async function search(query: string): SearchSchema {
   if (!client || client === undefined) {
-    return { title: '', description: '' }
+    await initWeaviateClient(false, false)
   }
-
-  const topic = await classifyText(query)
 
   const info = await client.graphql
     .get()
-    .withClassName(topic)
-    .withFields(['title', 'description'])
+    .withClassName(DOCUMENTS_CLASS_NAME)
+    .withFields('title description')
     .withNearText({
       concepts: [query],
-      certainty: 0.7,
+      certainty: 0.6,
     })
     .do()
 
@@ -228,10 +212,10 @@ export async function search(query: string): SearchSchema {
   if (
     info['data'] &&
     info['data']['Get'] &&
-    info['data']['Get'][topic] &&
-    info['data']['Get'][topic].length > 0
+    info['data']['Get'][DOCUMENTS_CLASS_NAME] &&
+    info['data']['Get'][DOCUMENTS_CLASS_NAME].length > 0
   ) {
-    const data = info['data']['Get'][topic][0]
+    const data = info['data']['Get'][DOCUMENTS_CLASS_NAME][0]
 
     return {
       title: data.title,
