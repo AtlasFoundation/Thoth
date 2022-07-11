@@ -72,6 +72,7 @@ import { FewshotVariable } from './variable/FewshotVariable'
 import { NumberVariable } from './variable/NumberVariable'
 import { StringVariable } from './variable/StringVariable'
 import { Destructure } from './utility/Destructure'
+import { Log } from './utility/Log'
 import { Merge } from './utility/Merge'
 import { WeaviateWikipedia } from './search/WeaviateWikipedia'
 import { GetWikipediaSummary } from './services/GetWikipediaSummary'
@@ -161,7 +162,8 @@ export const components = {
   weaviateWikipedia: () => new WeaviateWikipedia(),
   getWikipediaSummary: () => new GetWikipediaSummary(),
   merge: () => new Merge(),
-  orGate: () => new OrGate()
+  orGate: () => new OrGate(),
+  log: () => new Log()
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {
