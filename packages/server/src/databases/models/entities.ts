@@ -71,6 +71,25 @@ export interface entitiesAttributes {
   slack_port?: string
   slack_echo_channel?: string
   slack_spell_handler_incoming?: string
+  instagram_enabled?: boolean
+  instagram_username?: string
+  instagram_password?: string
+  instagram_bot_name?: string
+  instagram_bot_name_regex?: string
+  instagram_spell_handler_incoming?: string
+  messenger_enabled?: boolean
+  messenger_page_access_token?: string
+  messenger_verify_token?: string
+  messenger_bot_name?: string
+  messenger_bot_name_regex?: string
+  messenger_spell_handler_incoming?: string
+  twilio_enabled?: boolean
+  twilio_account_sid?: string
+  twilio_auth_token?: string
+  twilio_phone_number?: string
+  twilio_bot_name?: string
+  twilio_empty_responses?: string
+  twilio_spell_handler_incoming?: string
 }
 
 export type entitiesPk = 'id'
@@ -137,6 +156,25 @@ export type entitiesOptionalAttributes =
   | 'slack_port'
   | 'slack_echo_channel'
   | 'slack_spell_handler_incoming'
+  | 'instagram_enabled'
+  | 'instagram_username'
+  | 'instagram_password'
+  | 'instagram_bot_name'
+  | 'instagram_bot_name_regex'
+  | 'instagram_spell_handler_incoming'
+  | 'messenger_enabled'
+  | 'messenger_page_access_token'
+  | 'messenger_verify_token'
+  | 'messenger_bot_name'
+  | 'messenger_bot_name_regex'
+  | 'messenger_spell_handler_incoming'
+  | 'twilio_enabled'
+  | 'twilio_account_sid'
+  | 'twilio_auth_token'
+  | 'twilio_phone_number'
+  | 'twilio_bot_name'
+  | 'twilio_empty_responses'
+  | 'twilio_spell_handler_incoming'
   | 'enabled'
   | 'updated_at'
 export type entitiesCreationAttributes = Optional<
@@ -216,6 +254,25 @@ export class entities
   slack_port?: string
   slack_echo_channel?: string
   slack_spell_handler_incoming?: string
+  instagram_enabled?: boolean
+  instagram_username?: string
+  instagram_password?: string
+  instagram_bot_name?: string
+  instagram_bot_name_regex?: string
+  instagram_spell_handler_incoming?: string
+  messenger_enabled?: boolean
+  messenger_page_access_token?: string
+  messenger_verify_token?: string
+  messenger_bot_name?: string
+  messenger_bot_name_regex?: string
+  messenger_spell_handler_incoming?: string
+  twilio_enabled?: boolean
+  twilio_account_sid?: string
+  twilio_auth_token?: string
+  twilio_phone_number?: string
+  twilio_bot_name?: string
+  twilio_empty_responses?: string
+  twilio_spell_handler_incoming?: string
 
   static initModel(sequelize: Sequelize.Sequelize): typeof entities {
     return entities.init(
@@ -491,6 +548,82 @@ export class entities
           allowNull: true,
         },
         slack_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        instagram_username: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        messenger_page_access_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_verify_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        twilio_account_sid: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_auth_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_phone_number: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_empty_responses: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_spell_handler_incoming: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

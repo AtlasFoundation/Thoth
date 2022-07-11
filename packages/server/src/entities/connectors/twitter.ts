@@ -57,12 +57,16 @@ export class twitter_client {
   spellHandler
   settings
   entity
+  haveCustomCommands
+  custom_commands
 
   createTwitterClient = async (spellHandler, settings, entity) => {
     console.log('TWITTER SETTINGS:', settings)
     this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
+    this.haveCustomCommands = settings.haveCustomCommands
+    this.custom_commands = settings.custom_commands
 
     const bearerToken = settings['twitter_token']
     const twitterUser = settings['twitter_id']
@@ -71,7 +75,14 @@ export class twitter_client {
     const twitterAccessToken = settings['twitter_access_token']
     const twitterAccessTokenSecret = settings['twitter_access_token_secret']
 
-    if ((!bearerToken && !twitterAppToken && !twitterAppTokenSecret && !twitterAccessToken && !twitterAccessTokenSecret) || !twitterUser)
+    if (
+      (!bearerToken &&
+        !twitterAppToken &&
+        !twitterAppTokenSecret &&
+        !twitterAccessToken &&
+        !twitterAccessTokenSecret) ||
+      !twitterUser
+    )
       return console.warn('No API token for Whatsapp bot, skipping')
 
     let twitter = createTwitterClient(
@@ -81,8 +92,11 @@ export class twitter_client {
       twitterAccessToken,
       twitterAccessTokenSecret
     )
+    console.log('created twitter client')
     const client = twitter.readWrite
+    console.log('getting username')
     const localUser = await twitter.v2.userByUsername(twitterUser)
+    console.log('created twitter local user')
 
     setInterval(async () => {
       const tv1 = createTwitterClient(
@@ -104,8 +118,39 @@ export class twitter_client {
           let authorName = 'unknown'
           const author = await twitter.v2.user(event.message_create.sender_id)
           if (author) authorName = author.data.username
-          
+
           const body = event.message_create.message_data.text
+
+          if (this.haveCustomCommands) {
+            for (let i = 0; i < this.custom_commands[i].length; i++) {
+              if (body.startsWith(this.custom_commands[i].command_name)) {
+                const _content = body.replace(
+                  this.custom_commands[i].command_name,
+                  ''
+                )
+
+                const response = await this.custom_commands[i].spell_handler(
+                  _content,
+                  authorName,
+                  this.settings.twitter_bot_name ?? 'Agent',
+                  'twitter',
+                  event.id,
+                  settings.entity,
+                  []
+                )
+
+                await this.handleMessage(
+                  response,
+                  event.id,
+                  'DM',
+                  twitter,
+                  tv1,
+                  localUser
+                )
+                return
+              }
+            }
+          }
 
           const resp = this.spellHandler(
             body,
@@ -116,7 +161,14 @@ export class twitter_client {
             settings.entity,
             []
           )
-          await this.handleMessage(resp, event.id, 'DM', twitter, tv1, localUser)
+          await this.handleMessage(
+            resp,
+            event.id,
+            'DM',
+            twitter,
+            tv1,
+            localUser
+          )
         }
       }
     }, 25000)

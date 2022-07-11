@@ -33,6 +33,8 @@ export class Entity {
   slack: slack_client | null
   id: any
 
+  router: any
+  app: any
   loopHandler: any
 
   async startDiscord(
@@ -391,6 +393,123 @@ export class Entity {
   }
   async stopSlack() {}
 
+  async startInstagram(
+    instagram_username: string,
+    instagram_password: string,
+    instagram_bot_name: string,
+    instagram_bot_name_regex: string,
+    instagram_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if (this.instagram) {
+      throw new Error(
+        'Instagram already running for this client on this instance'
+      )
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: instagram_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.instagram = new instagram_client()
+    this.instagram.createInstagramClient(
+      spellHandler,
+      {
+        instagram_username,
+        instagram_password,
+        instagram_bot_name,
+        instagram_bot_name_regex,
+        instagram_spell_handler_incoming,
+      },
+      entity
+    )
+  }
+
+  stopInstagram() {
+    if (!this.instagram)
+      throw new Error("Instagram isn't running, can't stop it")
+    this.instagram = null
+  }
+
+  async startMessenger(
+    messenger_page_access_token: string,
+    messenger_verify_token: string,
+    messenger_bot_name: string,
+    messenger_bot_name_regex: string,
+    messenger_spell_handler_incoming: string,
+    spell_version: string,
+    entity: any
+  ) {
+    if (this.messenger) {
+      throw new Error(
+        'Messenger already running for this client on this instance'
+      )
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: messenger_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.messenger = new messenger_client()
+    this.messenger.createMessengerClient(
+      this.app,
+      this.router,
+      spellHandler,
+      {
+        messenger_page_access_token,
+        messenger_verify_token,
+        messenger_bot_name,
+        messenger_bot_name_regex,
+      },
+      entity
+    )
+  }
+
+  stopMessenger() {
+    if (!this.messenger)
+      throw new Error("Messenger isn't running, can't stop it")
+    this.messenger = null
+  }
+
+  async startTwilio(
+    twilio_account_sid: any,
+    twilio_auth_token: any,
+    twilio_phone_number: any,
+    twilio_bot_name: any,
+    twilio_empty_responses: any,
+    twilio_spell_handler_incoming: any,
+    spell_version: any
+  ) {
+    if (this.twilio) {
+      throw new Error('Twlio already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: twilio_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.twilio = new twilio_client()
+    this.twilio.createTwilioClient(
+      this.app,
+      this.router,
+      {
+        twilio_account_sid,
+        twilio_auth_token,
+        twilio_phone_number,
+        twilio_bot_name,
+        twilio_empty_responses,
+        twilio_spell_handler_incoming,
+        entity: this,
+      },
+      spellHandler
+    )
+  }
+  async stopTwlio() {}
+
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
@@ -402,6 +521,9 @@ export class Entity {
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
     if (this.slack) this.stopSlack()
+    if (this.instagram) this.stopInstagram()
+    if (this.messenger) this.stopMessenger()
+    if (this.twilio) this.stopTwlio()
   }
 
   async generateVoices(data: any) {
@@ -573,45 +695,43 @@ export class Entity {
         data.slack_echo_channel
       )
     }
+
+    if (data.instagram_enabled) {
+      this.startInstagram(
+        data.instagram_username,
+        data.instagram_password,
+        data.instagram_bot_name,
+        data.instagram_bot_name_regex,
+        data.instagram_spell_handler_incoming,
+        data.spell_version,
+        data
+      )
+    }
+
+    if (data.messenger_enabled) {
+      this.startMessenger(
+        data.messenger_page_access_token,
+        data.messenger_verify_token,
+        data.messenger_bot_name,
+        data.messenger_bot_name_regex,
+        data.messenger_spell_handler_incoming,
+        data.spell_version,
+        data
+      )
+    }
+
+    if (data.twilio_enabled) {
+      this.startTwilio(
+        data.twilio_account_sid,
+        data.twilio_auth_token,
+        data.twilio_phone_number,
+        data.twilio_bot_name,
+        data.twilio_empty_responses,
+        data.twilio_spell_handler_incoming,
+        data.spell_version
+      )
+    }
   }
-
-  // TODO: Fix me
-
-  // for (let i = 0; i < clients.length; i++) {
-  //   if (clients[i].enabled === 'true') {
-  //     if (clients[i].client === 'discord') {
-  //       this.discord = new discord_client()
-  //       this.discord.createDiscordClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'telegram') {
-  //       this.telegram = new telegram_client()
-  //       this.telegram.createTelegramClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'zoom') {
-  //       this.zoom = new zoom_client()
-  //       this.zoom.createZoomClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'twitter') {
-  //       this.twitter = new twitter_client()
-  //       this.twitter.createTwitterClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'reddit') {
-  //       this.reddit = new reddit_client()
-  //       this.reddit.createRedditClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'instagram') {
-  //       this.instagram = new instagram_client()
-  //       this.instagram.createInstagramClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'messenger') {
-  //       this.messenger = new messenger_client()
-  //       this.messenger.createMessengerClient(app, this, clients[i].settings)
-  //     } else if (clients[i].client === 'whatsapp') {
-  //       this.whatsapp = new whatsapp_client()
-  //       this.whatsapp.createWhatsappClient(this, clients[i].settings)
-  //     } else if (clients[i].client === 'twilio') {
-  //       this.twilio = new twilio_client()
-  //       this.twilio.createTwilioClient(app, router, this, clients[i].settings)
-  //     } else if (clients[i].client === 'harmony') {
-  //       //this.harmony = new harmony_client();
-  //       //this.harmony.createHarmonyClient(this, clients[i].settings);
-  //     }
-  //   }
-  // }
 }
 
 export default Entity

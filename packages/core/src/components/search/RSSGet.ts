@@ -21,7 +21,8 @@ import { InputControl } from '../../dataControls/InputControl'
 import { triggerSocket, arraySocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
-const info = 'RSS Get is used to get a json array from an RSS feed'
+const info =
+  'RSS Get is used to get a json array from an RSS feed, you can use RSS1|RSS2|...|RSSN to use more links, also the Fetch Way can be left to empty to get the data from all RSS feeds or rnd/random to get randomly from one from the list'
 
 type WorkerReturn = {
   output: any[]
@@ -56,8 +57,12 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
       dataKey: 'to_document',
       name: 'To Document',
     })
+    const fetchWay = new BooleanControl({
+      dataKey: 'fetch_way',
+      name: 'Fetch Way',
+    })
 
-    node.inspector.add(feedUrl).add(toDocument)
+    node.inspector.add(feedUrl).add(toDocument).add(fetchWay)
 
     return node.addInput(dataInput).addOutput(dataOutput).addOutput(output)
   }
@@ -70,6 +75,7 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
   ) {
     const feed_url = node?.data?.feed_url as string
     const to_document = node?.data?.to_document
+    const fetch_way = node?.data?.fetch_way as string
 
     if (feed_url === undefined || !feed_url || feed_url?.length <= 0) {
       return {
@@ -77,48 +83,63 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
       }
     }
 
-    let resp: any = undefined
-    try {
-      resp = await axios.get(feed_url)
-    } catch (e) {
-      resp = await axios.get(process.env.REACT_APP_CORS_URL + '/' + feed_url)
+    const url = feed_url.split('|')
+    let urls: any[] = []
+
+    if (url.length === 1) {
+      urls.push(url[0])
+    } else {
+      if (fetch_way === 'random' || fetch_way === 'rnd') {
+        urls.push(url[Math.floor(Math.random() * url.length)])
+      } else {
+        urls = url
+      }
     }
 
-    console.log('resp.data:', resp.data)
     const data: any[] = []
-    if (isJson(resp.data)) {
-      if (to_document === true || to_document === 'true') {
-        for (let i = 0; i < resp.data.items.length; i++) {
-          const object = {
-            title: resp.data.items[i].title,
-            description: resp.data.items[i].content_html
-              .replace('<br>', '\\n')
-              .replace('</p>', '\\n')
-              .replace(/<[^>]*>?/gm, ''),
+    for (let i = 0; i < urls.length; i++) {
+      let resp: any = undefined
+      try {
+        resp = await axios.get(urls[i])
+      } catch (e) {
+        resp = await axios.get(process.env.REACT_APP_CORS_URL + '/' + urls[i])
+      }
+
+      console.log('resp.data:', resp.data)
+      if (isJson(resp.data)) {
+        if (to_document === true || to_document === 'true') {
+          for (let i = 0; i < resp.data.items.length; i++) {
+            const object = {
+              title: resp.data.items[i].title,
+              description: resp.data.items[i].content_html
+                .replace('<br>', '\\n')
+                .replace('</p>', '\\n')
+                .replace(/<[^>]*>?/gm, ''),
+            }
+            data.push(object)
           }
-          data.push(object)
+        } else {
+          for (let i = 0; i < resp.data.items.length; i++) {
+            data.push(resp.data.items[i])
+          }
         }
       } else {
-        for (let i = 0; i < resp.data.items.length; i++) {
-          data.push(resp.data.items[i])
-        }
-      }
-    } else {
-      const doc = new xmldoc.XmlDocument(resp.data)
-      const _data = doc.children[0].children
-      for (let i = 0; i < _data.length; i++) {
-        let title = ''
-        let description = ''
-        for (let j = 0; j < _data[i].children.length; j++) {
-          if (_data[i].children[j]?.name === 'title') {
-            title = _data[i].children[j].val
-          } else if (_data[i].children[j]?.name === 'description') {
-            description = _data[i].children[j].val
+        const doc = new xmldoc.XmlDocument(resp.data)
+        const _data = doc.children[0].children
+        for (let i = 0; i < _data.length; i++) {
+          let title = ''
+          let description = ''
+          for (let j = 0; j < _data[i].children.length; j++) {
+            if (_data[i].children[j]?.name === 'title') {
+              title = _data[i].children[j].val
+            } else if (_data[i].children[j]?.name === 'description') {
+              description = _data[i].children[j].val
+            }
           }
-        }
 
-        if (title?.length > 0 && description?.length > 0) {
-          data.push({ title: title, description: description })
+          if (title?.length > 0 && description?.length > 0) {
+            data.push({ title: title, description: description })
+          }
         }
       }
     }
