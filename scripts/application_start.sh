@@ -12,11 +12,11 @@ cd /opt/thoth
 # install node modules
 yarn install
 
-cp /etc/letsencrypt/live/thoth.superreality.com/privkey.pem /opt/thoth/client/certs/key.pem
-cp /etc/letsencrypt/live/thoth.superreality.com/cert.pem /opt/thoth/client/certs/cert.pem
+cp /etc/letsencrypt/live/thoth.superreality.com/privkey.pem /opt/thoth/packages/client/certs/key.pem
+cp /etc/letsencrypt/live/thoth.superreality.com/cert.pem /opt/thoth/packages/client/certs/cert.pem
 
-cp /etc/letsencrypt/live/thoth.superreality.com/privkey.pem /opt/thoth/server/certs/key.pem
-cp /etc/letsencrypt/live/thoth.superreality.com/cert.pem /opt/thoth/server/certs/cert.pem
+cp /etc/letsencrypt/live/thoth.superreality.com/privkey.pem /opt/thoth/packages/server/certs/key.pem
+cp /etc/letsencrypt/live/thoth.superreality.com/cert.pem /opt/thoth/packages/server/certs/cert.pem
 
 # cp /opt/thoth_env/server/.env /opt/thoth/server/.env
 # cp /opt/thoth_env/client/.env /opt/thoth/client/.env
