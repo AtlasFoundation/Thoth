@@ -117,7 +117,6 @@ export class Task {
 
         We assume here that his nodes worker does not need to access ALL values simultaneously, but is only interested in one. There is a task option which enables this functionality just in case we have use cases that don't want this behaviour.
       */
-      console.log("Getting connected outputs", this.component.name, this.getInputs('output'))
 
       await Promise.all(
         this.getInputs('output').map(async key => {

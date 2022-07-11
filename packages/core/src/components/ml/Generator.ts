@@ -174,7 +174,9 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       topP
     }
     try {
+      console.log('Sending completion!')
       const raw = (await completion(body)) as string
+      console.log('completion result', raw)
       const result = raw
       const composed = `${prompt}${result}`
 

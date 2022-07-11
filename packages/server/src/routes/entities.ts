@@ -17,6 +17,7 @@ import { getAudioUrl } from './getAudioUrl'
 import fs from 'fs'
 import path from 'path'
 import { CustomError } from '../utils/CustomError'
+import * as events from '../services/events'
 
 export const modules: Record<string, unknown> = {}
 
@@ -200,15 +201,15 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const event = await database.instance.getEvents(
+
+  const event = await events.getEvents({
     type,
     agent,
     speaker,
     client,
     channel,
-    true,
     maxCount
-  )
+  })
 
   if (!event) throw new CustomError('not-found', 'Event not found')
 
@@ -303,14 +304,16 @@ const createEvent = async (ctx: Koa.Context) => {
   const text = ctx.request.body.text
   const type = ctx.request.body.type
   console.log('Creating event:', agent, speaker, client, channel, text, type)
-  await database.instance.createEvent(
+
+  // Todo needs error handling
+  await events.createEvent({
     type,
     agent,
     client,
     channel,
     speaker,
     text
-  )
+  })
 
   return (ctx.body = 'ok')
 }

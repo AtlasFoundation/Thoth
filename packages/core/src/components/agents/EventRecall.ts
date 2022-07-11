@@ -92,7 +92,7 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     const maxCountData = node.data?.max_count as string
     const maxCount = maxCountData ? parseInt(maxCountData) : 10
 
-    const event = await getEvent(type, agent, speaker, client, channel, maxCount)
+    const event = await getEvent({ type, agent, speaker, client, channel, maxCount })
     if (!silent) node.display(`Event ${type} found` || 'Not found')
 
     return {

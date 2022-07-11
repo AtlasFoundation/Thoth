@@ -227,14 +227,14 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     publish($SAVE_SPELL_DIFF(tab.id), update)
   }
 
-  const getEvent = async (
-    type: string,
-    agent: string,
-    speaker: null | string,
-    client: string,
-    channel: string,
-    maxCount = 10
-  ) => {
+  const getEvent = async ({
+    type,
+    agent,
+    speaker,
+    client,
+    channel,
+    maxCount = 10,
+  }) => {
     const urlString = `${
       process.env.REACT_APP_API_ROOT_URL ??
       process.env.API_ROOT_URL ??

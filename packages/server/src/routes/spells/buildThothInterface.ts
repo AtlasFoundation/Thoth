@@ -3,6 +3,10 @@ import { EngineContext, ThothWorkerInputs } from '@thothai/thoth-core/types'
 import Koa from 'koa'
 import vm2 from 'vm2'
 import { CompletionRequest, completionsParser } from '../completions'
+import * as events from '../../services/events'
+import { CreateEventArgs, GetEventArgs } from '../../services/events'
+import { searchWikipedia } from '../wikipedia/helpers';
+import { makeCompletion } from '../../utils/MakeCompletionRequest'
 
 export const buildThothInterface = (
   ctx: Koa.Context,
@@ -13,12 +17,30 @@ export const buildThothInterface = (
 
   return {
     completion: async (request: CompletionRequest) => {
-      const response = await completionsParser({
-        ...request,
-        prompt: request.prompt?.trim(),
-        stop: request.stop,
+      const {
+        model,
+        prompt,
+        stop,
+        maxTokens,
+        temperature,
+        frequencyPenalty,
+        presencePenalty,
+        topP
+      } = request
+
+      const { success, choice } = await makeCompletion(model, {
+        prompt: prompt.trim(),
+        temperature: temperature,
+        max_tokens: maxTokens,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
+        stop: stop,
       })
-      return response?.result || ''
+
+      if (!success) throw new Error('Error sending generation request')
+
+      return choice.text
     },
     runSpell: () => {
       return {}
@@ -35,23 +57,26 @@ export const buildThothInterface = (
       const { VM } = vm2
       const vm = new VM()
 
-      const flattenInputs = Object.entries(
-        inputs as ThothWorkerInputs
-      ).reduce((acc, [key, value]) => {
-        acc[key as string] = value[0]
-        return acc
-      }, {} as Record<string, any>)
+      // Inputs are flattened before we inject them for a better code experience
+      const flattenInputs = Object.entries(inputs)
+        .reduce((acc, [key, value]: [string, any]) => {
+          acc[key] = value[0]
+          return acc
+        }, {} as Record<string, any>)
 
 
+      // Freeze the variables we are injecting into the VM
       vm.freeze(data, 'data')
       vm.freeze(flattenInputs, 'input')
       vm.protect(state, 'state')
 
-
-      const runCode = `"use strict"; function runFn(input,data,state){ return (${code})(input,data,state)}; runFn(input,data,state);`
+      // run the code
+      const codeToRun = `"use strict"; function runFn(input,data,state){ return (${code})(input,data,state)}; runFn(input,data,state);`
 
       try {
-        return vm.run(runCode)
+        const codeResult = vm.run(codeToRun)
+        console.log("CODE RESULT", codeResult)
+        return codeResult
       } catch (err) {
         console.log({ err })
         throw new CustomError('server-error', 'Error in spell runner: processCode component.')
@@ -78,8 +103,24 @@ export const buildThothInterface = (
 
       gameState = newState
     },
-    getEvent: () => Promise.resolve(''),
-    storeEvent: () => Promise.resolve(''),
-    getWikipediaSummary: () => Promise.resolve({})
+    // IMPLEMENT THESE INTERFACES FOR THE SERVER
+    getEvent: async (args: GetEventArgs) => {
+      return await events.getEvents(args)
+    },
+    storeEvent: async (args: CreateEventArgs) => {
+      return await events.createEvent(args)
+    },
+    getWikipediaSummary: async (keyword: string) => {
+      let out = null
+      try {
+        out = await searchWikipedia(keyword as string) as any
+      } catch (err) {
+        throw new Error('Error getting wikipedia summary')
+      }
+
+      console.log("WIKIPEDIA SEARCH", out)
+
+      return out
+    }
   }
 }
