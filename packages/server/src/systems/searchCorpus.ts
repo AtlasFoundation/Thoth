@@ -92,8 +92,16 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
     let id = -1
     try {
-      id = await database.instance.addDocument(title, description, isIncluded, storeId)
-      await singleTrain({ title: title ?? 'Document', description: description })
+      id = await database.instance.addDocument(
+        title,
+        description,
+        isIncluded,
+        storeId
+      )
+      await singleTrain({
+        title: title ?? 'Document',
+        description: description,
+      })
       /*const resp = await axios.get(
         `${process.env.PYTHON_SERVER_URL}/update_search_model`
       )
@@ -118,7 +126,6 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const documents = body?.documents
     const store_name = body?.store_name
 
-    console.log('GOT STORE ID:', storeId, 'DOCUMENTS:', documents)
     if (!storeId || storeId === undefined) {
       storeId = await database.instance.getSingleDocumentStore(
         store_name && store_name?.length > 0 ? store_name : 'rss_feed'

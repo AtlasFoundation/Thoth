@@ -1350,18 +1350,6 @@ const EntityWindow = ({ id, updateCallback }) => {
           )}
 
           <div className="form-item">
-            <span className="form-item-label">Loop Enabled</span>
-            <input
-              type="checkbox"
-              value={loop_enabled}
-              defaultChecked={loop_enabled || loop_enabled === 'true'}
-              onChange={e => {
-                setLoopEnabled(e.target.checked)
-              }}
-            />
-          </div>
-
-          <div className="form-item">
             <span className="form-item-label">Slack Client Enabled</span>
             <input
               type="checkbox"
@@ -1457,6 +1445,18 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
             </>
           )}
+
+          <div className="form-item">
+            <span className="form-item-label">Loop Enabled</span>
+            <input
+              type="checkbox"
+              value={loop_enabled}
+              defaultChecked={loop_enabled || loop_enabled === 'true'}
+              onChange={e => {
+                setLoopEnabled(e.target.checked)
+              }}
+            />
+          </div>
 
           {loop_enabled && (
             <>
