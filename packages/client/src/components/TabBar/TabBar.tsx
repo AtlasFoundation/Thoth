@@ -1,7 +1,7 @@
-import { closeTab } from '@/state/tabs'
+import { closeTab, selectAllTabs } from '@/state/tabs'
 import classnames from 'classnames'
 import { VscClose } from 'react-icons/vsc'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 import Icon from '../Icon/Icon'
@@ -9,10 +9,13 @@ import MenuBar from '../MenuBar/MenuBar'
 import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
 import { PlugWallet } from '../PlugWallet/PlugWallet'
+import { changeActive } from '@/state/tabs'
+import { RootState } from '@/state/store'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const tabs = useSelector((state: RootState) => selectAllTabs(state.tabs))
   const active = tab.id === activeTab?.id
 
   const title = `${tab.type}- ${tab.name.split('--')[0]}`
@@ -23,7 +26,21 @@ const Tab = ({ tab, activeTab }) => {
   })
 
   const onClick = () => {
-    navigate(`/thoth/${tab.spellId}`)
+    const updatedTabs = tabs.map(t => t.id === tab.id ? {
+      id: t.id,
+      changes: {
+        active: true
+      }
+    } : {
+      id: t.id,
+      changes: {
+        active: false
+      }
+    })
+    dispatch(
+      changeActive(updatedTabs)
+    )
+    navigate('/thoth')
   }
 
   // Handle selecting the next tab down is none are active.
