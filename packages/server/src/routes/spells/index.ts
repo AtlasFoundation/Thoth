@@ -303,14 +303,7 @@ const getSpellHandler = async (ctx: Koa.Context) => {
     })
 
     if (!spell) {
-      const newSpell = await creatorToolsDatabase.spells.create({
-        userId: ctx.state.user?.id ?? ctx.query.userId,
-        name,
-        graph: { id: 'demo@0.1.0', nodes: {} },
-        gameState: {},
-        modules: [],
-      })
-      ctx.body = newSpell
+      throw new Error('Spell not found')
     } else {
       let userId = ctx.state.user?.id ?? ctx.query.userId
       if (spell?.userId !== userId) throw new Error('spell not found')
