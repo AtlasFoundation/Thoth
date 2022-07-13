@@ -96,12 +96,13 @@ export const tabSlice = createSlice({
     closeTab: tabAdapater.removeOne,
     switchTab: tabAdapater.updateOne,
     clearTabs: tabAdapater.removeAll,
+    changeActive: tabAdapater.updateMany,
     saveTabLayout: (state, action) => {},
   },
 })
 
 // actions
-export const { openTab, closeTab, switchTab, clearTabs, saveTabLayout } =
+export const { openTab, closeTab, switchTab, clearTabs, saveTabLayout, changeActive } =
   tabSlice.actions
 
 // selectors
