@@ -14,6 +14,7 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
+import { BooleanControl } from '../../dataControls/BooleanControl'
 import { SwitchControl } from '../../dataControls/SwitchControl'
 import { triggerSocket, anySocket, stringSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
@@ -68,7 +69,12 @@ export class Search extends ThothComponent<Promise<WorkerReturn>> {
       defaultValue: node.data.sendToPlaytest || false,
     })
 
-    node.inspector.add(switchControl)
+    const isPrompt = new BooleanControl({
+      dataKey: 'isPrompt',
+      name: 'Is Prompt'
+    })
+
+    node.inspector.add(switchControl).add(isPrompt)
 
     return node
       .addInput(searchStrInput)
@@ -85,11 +91,13 @@ export class Search extends ThothComponent<Promise<WorkerReturn>> {
   ) {
     const searchStr = inputs['searchStr'][0] as string
     const documents: Document[] = []
+    const isPrompt = node?.data?.isPrompt
     const resp = await axios.get(
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/search`,
       {
         params: {
           question: searchStr,
+          isPrompt
         },
       }
     )
@@ -99,7 +107,8 @@ export class Search extends ThothComponent<Promise<WorkerReturn>> {
         description: resp.data.description,
       })
     }
-    node.display(documents)
+
+    if(node?.data?.sendToPlaytest) node.display(documents)
 
     return {
       output: documents,

@@ -9,6 +9,7 @@ import axios from 'axios'
 import { ClassifierSchema } from '../types'
 
 const DOCUMENTS_CLASS_NAME = 'DataStore'
+const CONTEXT_CLASS_NAME = 'ContextPrompt'
 const saved_docs: SearchSchema[] = []
 let client: weaviate.client
 
@@ -33,8 +34,17 @@ export async function initWeaviateClient(
         'utf-8'
       )
     )
+    const data3 = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '..', '..', '/weaviate/context_prompt_data.json'),
+        'utf-8'
+      )
+    )
     for (let i = 0; i < data2.length; i++) {
       data.push(data2[i])
+    }
+    for (let i = 0; i < data3.length; i++) {
+      data.push(data3[i])
     }
 
     await train(data)
@@ -100,7 +110,7 @@ async function train(data: SearchSchema[]) {
     saved_docs.push(object)
     const res = await client.data
       .creator()
-      .withClassName(DOCUMENTS_CLASS_NAME)
+      .withClassName(data[i].class ?? DOCUMENTS_CLASS_NAME)
       .withProperties(object)
       .do()
 
@@ -189,14 +199,14 @@ export async function singleTrain(data: SearchSchema) {
   console.log(res)
 }
 
-export async function search(query: string): SearchSchema {
+export async function search(query: string, isPrompt: boolean): SearchSchema {
   if (!client || client === undefined) {
     await initWeaviateClient(false, false)
   }
-
+  const className = isPrompt ? CONTEXT_CLASS_NAME : DOCUMENTS_CLASS_NAME
   const info = await client.graphql
     .get()
-    .withClassName(DOCUMENTS_CLASS_NAME)
+    .withClassName(className)
     .withFields('title description')
     .withNearText({
       concepts: [query],
@@ -212,10 +222,10 @@ export async function search(query: string): SearchSchema {
   if (
     info['data'] &&
     info['data']['Get'] &&
-    info['data']['Get'][DOCUMENTS_CLASS_NAME] &&
-    info['data']['Get'][DOCUMENTS_CLASS_NAME].length > 0
+    info['data']['Get'][className] &&
+    info['data']['Get'][className].length > 0
   ) {
-    const data = info['data']['Get'][DOCUMENTS_CLASS_NAME][0]
+    const data = info['data']['Get'][className][0]
 
     return {
       title: data.title,

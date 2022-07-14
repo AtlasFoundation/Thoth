@@ -262,8 +262,8 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
   router.get('/search', async function (ctx: Koa.Context) {
     const question = ctx.request.query?.question as string
-
-    const searchResult = await search(question)
+    const isPrompt = ctx.request.query?.isPrompt === 'true' ? true : false
+    const searchResult = await search(question, isPrompt)
     return (ctx.body = searchResult)
   })
   router.post('/vector_search', async function (ctx: Koa.Context) {
