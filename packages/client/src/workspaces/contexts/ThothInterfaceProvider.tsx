@@ -28,7 +28,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   const [fetchFromImageCache] = useFetchFromImageCacheMutation()
   const { user } = useAuth()
   const [_runSpell] = useRunSpellMutation()
-  const { data: _spell, isError } = useGetSpellQuery(
+  const { data: _spell, isError: _isSpellError } = useGetSpellQuery(
     {
       spellId: tab.spellId,
       userId: user?.id as string,
@@ -39,14 +39,16 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   )
 
   useEffect(() => {
-    if (!_spell && isError) {
+    console.log();
+    
+    if (!_spell && _isSpellError) {
       dispatch(closeTab(tab.id))
       navigate('/home')
       return
     }
     if (!_spell) return
     spellRef.current = _spell
-  }, [_spell, isError])
+  }, [_spell, _isSpellError])
 
   const {
     $PLAYTEST_INPUT,
