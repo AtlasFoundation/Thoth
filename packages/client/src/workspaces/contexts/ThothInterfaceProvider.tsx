@@ -12,18 +12,23 @@ import { usePubSub } from '../../contexts/PubSubProvider'
 import { useFetchFromImageCacheMutation } from '@/state/api/visualGenerationsApi'
 import { useGetSpellQuery, useRunSpellMutation } from '@/state/api/spells'
 import { useAuth } from '@/contexts/AuthProvider'
+import { useDispatch } from 'react-redux'
+import { closeTab } from '@/state/tabs'
+import { useNavigate } from 'react-router'
 
 const Context = createContext<EditorContext>(undefined!)
 
 export const useThothInterface = () => useContext(Context)
 
 const ThothInterfaceProvider = ({ children, tab }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { events, publish, subscribe } = usePubSub()
   const spellRef = useRef<Spell | null>(null)
   const [fetchFromImageCache] = useFetchFromImageCacheMutation()
   const { user } = useAuth()
   const [_runSpell] = useRunSpellMutation()
-  const { data: _spell } = useGetSpellQuery(
+  const { data: _spell, isError: _isSpellError } = useGetSpellQuery(
     {
       spellId: tab.spellId,
       userId: user?.id as string,
@@ -34,9 +39,16 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   )
 
   useEffect(() => {
+    console.log();
+    
+    if (!_spell && _isSpellError) {
+      dispatch(closeTab(tab.id))
+      navigate('/home')
+      return
+    }
     if (!_spell) return
     spellRef.current = _spell
-  }, [_spell])
+  }, [_spell, _isSpellError])
 
   const {
     $PLAYTEST_INPUT,
