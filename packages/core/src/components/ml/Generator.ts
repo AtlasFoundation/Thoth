@@ -140,7 +140,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     const fewshot = node.data.fewshot ? (node.data.fewshot as string).replace('\r\n', '\n') : ''
     const stopSequence = node.data.stop as string
     const topPData = node?.data?.topP as string
-    const topP = topPData ? parseFloat(topPData) : 0
+    const topP = topPData ? parseFloat(topPData) : 1
     const template = Handlebars.compile(fewshot, { noEscape: true })
     const prompt = template(inputs)
 

@@ -39,9 +39,9 @@ export const completion = async ({ modelName,
   presencePenalty
 }: CompletionBody) => {
   try {
-    const filteredStop = stop.filter(function (el: any) {
+    const filteredStop = stop.filter ? stop.filter(function (el: any) {
       return el != null && el !== undefined && el.length > 0
-    })
+    }) : stop
 
     const resp = await axios.post(
       `${process.env.REACT_APP_API_URL ??
