@@ -18,9 +18,9 @@ cp /etc/letsencrypt/live/thoth.superreality.com/cert.pem /opt/thoth/packages/cli
 cp /etc/letsencrypt/live/thoth.superreality.com/privkey.pem /opt/thoth/packages/server/certs/key.pem
 cp /etc/letsencrypt/live/thoth.superreality.com/cert.pem /opt/thoth/packages/server/certs/cert.pem
 
-# cp /opt/thoth_env/server/.env /opt/thoth/server/.env
-# cp /opt/thoth_env/client/.env /opt/thoth/client/.env
-# cp /opt/thoth_env/core/.env /opt/thoth/core/.env
+cp /opt/thoth_env/server/.env /opt/thoth/packages/server/.env
+cp /opt/thoth_env/client/.env /opt/thoth/packages/client/.env
+cp /opt/thoth_env/core/.env /opt/thoth/packages/core/.env
 
 #start our node app in the background using PM2
 # pm2 --name thoth start "yarn run dev"
