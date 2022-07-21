@@ -38,8 +38,6 @@ export const buildThothInterface = (
         stop: stop,
       })
 
-      if (!success) throw new Error('Error sending generation request')
-
       return choice.text
     },
     runSpell: () => {

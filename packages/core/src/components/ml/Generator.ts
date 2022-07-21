@@ -68,6 +68,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       dataKey: 'modelName',
       name: 'Model Name',
       icon: 'moon',
+      defaultValue: node.data.modelName || 'text-davinci-002'
     })
 
     const inputGenerator = new SocketGeneratorControl({
@@ -133,7 +134,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       return acc
     }, {} as Record<string, unknown>)
 
-    const model = (node.data.modelName as string) || 'vanilla-jumbo'
+    const model = (node.data.modelName as string) || 'text-davinci-002'
     // const model = node.data.model || 'davinci'
 
     // Replace carriage returns with newlines because that's what the language models expect
