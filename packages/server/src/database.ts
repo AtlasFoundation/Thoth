@@ -110,7 +110,7 @@ export class database {
       values = [agent, client, channel, type]
     } else {
       query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 OR sender=$1 AND channel=$4 AND type=$5 ORDER BY id desc'
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
       values = [agent, client, sender, channel, type]
     }
     const row = await this.client.query(query, values)
