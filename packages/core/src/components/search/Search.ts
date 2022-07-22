@@ -14,7 +14,6 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { SwitchControl } from '../../dataControls/SwitchControl'
 import { triggerSocket, anySocket, stringSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
@@ -61,15 +60,6 @@ export class Search extends ThothComponent<Promise<WorkerReturn>> {
     const dataOutput = new Rete.Output('trigger', 'Trigger Out', triggerSocket)
     const output = new Rete.Output('output', 'Output', anySocket)
 
-    const switchControl = new SwitchControl({
-      dataKey: 'sendToPlaytest',
-      name: 'Send to Playtest',
-      label: 'Playtest',
-      defaultValue: node.data.sendToPlaytest || false,
-    })
-
-    node.inspector.add(switchControl)
-
     return node
       .addInput(searchStrInput)
       .addInput(dataInput)
@@ -84,6 +74,7 @@ export class Search extends ThothComponent<Promise<WorkerReturn>> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const searchStr = inputs['searchStr'][0] as string
+    console.log('SEARCHING FOR:', searchStr)
     const documents: Document[] = []
     const resp = await axios.get(
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/search`,

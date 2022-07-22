@@ -513,12 +513,16 @@ export class xrengine_client {
             const url = await getAudioUrl(
               process.env.UBER_DUCK_KEY as string,
               process.env.UBER_DUCK_SECRET_KEY as string,
-              voiceCharacter,
+              this.settings.voice_character,
               response as string
             )
             response = url
           } else {
-            const fileId = await tts_tiktalknet(response, voiceCharacter)
+            const fileId = await tts_tiktalknet(
+              response,
+              this.settings.voice_character,
+              this.settings.tiktalknet_url
+            )
             const url =
               (process.env.FILE_SERVER_URL?.endsWith('/')
                 ? process.env.FILE_SERVER_URL

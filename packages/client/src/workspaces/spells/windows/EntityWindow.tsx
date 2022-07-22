@@ -40,6 +40,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [voice_character, setVoiceCharacter] = useState('')
   const [voice_language_code, setVoiceLanguageCode] = useState('')
   const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
+  const [tiktalknet_url, setTikTalkNetUrl] = useState('')
 
   const [discord_starting_words, setDiscordStartingWords] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
@@ -156,6 +157,10 @@ const EntityWindow = ({ id, updateCallback }) => {
       (voice_provider && voice_character && voice_language_code) ||
       playingAudio
     ) {
+      if (voice_provider === 'tiktalknet' && tiktalknet_url?.length <= 0) {
+        return
+      }
+
       const resp = await axios.get(
         `${process.env.REACT_APP_API_URL}/text_to_speech`,
         {
@@ -164,6 +169,7 @@ const EntityWindow = ({ id, updateCallback }) => {
             voice_provider: voice_provider,
             voice_character: voice_character,
             voice_language_code: voice_language_code,
+            tiktalknet_url: tiktalknet_url,
           },
         }
       )
@@ -206,6 +212,8 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceCharacter(res.data.voice_character)
         setVoiceLanguageCode(res.data.voice_language_code)
         setVoiceDefaultPhrases(res.data.voice_default_phrases)
+        setTikTalkNetUrl(res.data.tiktalknet_url)
+
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
@@ -359,6 +367,7 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_character,
       voice_language_code,
       voice_default_phrases,
+      tiktalknet_url,
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -579,6 +588,8 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_provider,
       voice_character,
       voice_language_code,
+      voice_default_phrases,
+      tiktalknet_url,
       xrengine_enabled,
       xrengine_url,
       xrengine_spell_handler_incoming,
@@ -804,6 +815,12 @@ const EntityWindow = ({ id, updateCallback }) => {
                 <option value={'1_ztAbe5YArCMwyyQ_G9lUiz74ym5xJKC'}>
                   text voice 2
                 </option>
+                <option value={'17PEym3KJs4mXLEjQC9kZvtG17plEcCM4'}>
+                  jarad
+                </option>
+                <option value={'1QnOliOAmerMUNuo2wXoH-YoainoSjZen'}>
+                  twilight sparkle
+                </option>
               </select>
             )}
           </div>
@@ -833,6 +850,19 @@ const EntityWindow = ({ id, updateCallback }) => {
               }}
             />
           </div>
+
+          {voice_provider === 'tiktalknet' && (
+            <div className="form-item">
+              <span className="form-item-label">Tiktalknet URL</span>
+              <input
+                type="text"
+                defaultValue={tiktalknet_url}
+                onChange={e => {
+                  setTikTalkNetUrl(e.target.value)
+                }}
+              />
+            </div>
+          )}
 
           <div className="form-item">
             <button onClick={() => testVoice()} style={{ marginRight: '10px' }}>

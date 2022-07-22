@@ -95,7 +95,6 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
         urls = url
       }
     }
-
     const data: any[] = []
     for (let i = 0; i < urls.length; i++) {
       let resp: any = undefined
@@ -105,7 +104,16 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
         resp = await axios.get(process.env.REACT_APP_CORS_URL + '/' + urls[i])
       }
 
-      console.log('resp.data:', resp.data)
+      if (
+        !resp ||
+        resp === undefined ||
+        resp?.data === undefined ||
+        !resp.data ||
+        resp.data?.length <= 0
+      ) {
+        continue
+      }
+
       if (isJson(resp.data)) {
         if (to_document === true || to_document === 'true') {
           for (let i = 0; i < resp.data.items.length; i++) {
@@ -126,6 +134,10 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
       } else {
         const doc = new xmldoc.XmlDocument(resp.data)
         const _data = doc.children[0].children
+        if (!_data) {
+          continue
+        }
+
         for (let i = 0; i < _data.length; i++) {
           let title = ''
           let description = ''

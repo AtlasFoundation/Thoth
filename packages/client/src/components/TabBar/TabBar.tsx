@@ -4,13 +4,13 @@ import { VscClose } from 'react-icons/vsc'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import Icon from '../Icon/Icon'
 import MenuBar from '../MenuBar/MenuBar'
 import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
 import { PlugWallet } from '../PlugWallet/PlugWallet'
 import { changeActive } from '@/state/tabs'
 import { RootState } from '@/state/store'
+import { LoginTab } from './LoginTab'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
@@ -26,20 +26,22 @@ const Tab = ({ tab, activeTab }) => {
   })
 
   const onClick = () => {
-    const updatedTabs = tabs.map(t => t.id === tab.id ? {
-      id: t.id,
-      changes: {
-        active: true
-      }
-    } : {
-      id: t.id,
-      changes: {
-        active: false
-      }
-    })
-    dispatch(
-      changeActive(updatedTabs)
+    const updatedTabs = tabs.map(t =>
+      t.id === tab.id
+        ? {
+            id: t.id,
+            changes: {
+              active: true,
+            },
+          }
+        : {
+            id: t.id,
+            changes: {
+              active: false,
+            },
+          }
     )
+    dispatch(changeActive(updatedTabs))
     navigate('/thoth')
   }
 
@@ -76,7 +78,7 @@ const TabBar = ({ tabs, activeTab }) => {
 
       <div className={css['tabbar-user']}>
         <PlugWallet />
-        {<Icon name="account" size={24} style={{ top: 14 }} />}
+        <LoginTab />
       </div>
     </div>
   )

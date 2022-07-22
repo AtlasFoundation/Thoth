@@ -130,6 +130,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       storeId = await database.instance.getSingleDocumentStore(
         store_name && store_name?.length > 0 ? store_name : 'rss_feed'
       )
+      console.log('generated store id:', storeId)
       if (storeId?.length <= 0 || storeId === undefined || !storeId) {
         storeId = await database.instance.addDocumentStore(
           store_name && store_name?.length > 0 ? store_name : 'rss_feed'
@@ -148,6 +149,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     let id = -1
     try {
       for (let i = 0; i < documents.length; i++) {
+        console.log('saving document:', documents[i])
         if (
           saved_docs.includes({
             title: documents[i].title,

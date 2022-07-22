@@ -122,7 +122,7 @@ export class Task {
           const inputPromises = this.inputs[key]
             .filter((con: ThothReteInput) => {
               // only filter inputs to remove ones that are not the origin if a task option is true
-              console.log('HAS TRIGGER', fromTask && hasTrigger(fromTask))
+              //console.log('HAS TRIGGER', fromTask && hasTrigger(fromTask))
               if (!this.component.task.runOneInput || !fromNode) return true
               // if (fromTask.)
               return con.task.node.id === fromNode.id

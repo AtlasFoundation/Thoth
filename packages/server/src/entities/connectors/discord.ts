@@ -442,6 +442,29 @@ export class discord_client {
     message.channel.stopTyping()
   }
 
+  getUserFromMention(mention) {
+    if (!mention) return mention
+
+    if (mention.startsWith('<@') && mention.endsWith('>')) {
+      mention = mention.slice(2, -1)
+      console.log('found mention:', mention)
+
+      if (mention.startsWith('!')) {
+        mention = mention.slice(1)
+      }
+
+      const user = this.client.users.cache.get(mention)
+      console.log('user mention:', user?.username)
+      if (user && user !== undefined) {
+        return user.username
+      } else {
+        return mention
+      }
+    }
+
+    return mention
+  }
+
   //Event that is trigger when a new message is created (sent)
   messageCreate = async (
     client: string | boolean,
@@ -466,36 +489,12 @@ export class discord_client {
     let { author, channel, content, mentions, id } = message
 
     //replaces the discord specific mentions (<!@id>) to the actual mention
-    if (
-      mentions !== null &&
-      mentions.members !== null &&
-      mentions.members.size > 0
-    ) {
-      const data = content.split(' ')
-      for (let i = 0; i < data.length; i++) {
-        if (
-          data[i].startsWith('<@!') &&
-          data[i].charAt(data[i].length - 1) === '>'
-        ) {
-          try {
-            const x = data[i].replace('<@!', '').replace('>', '')
-            const user = await this.client.users.cache.find(
-              (user: { id: any }) => user.id == x
-            )
-            if (user !== undefined) {
-              //const u = '@' + user.username + '#' + user.discriminator
-              const u =
-                user.id == this.client.user
-                  ? this.discord_bot_name
-                  : user.username
-              content = content.replace(data[i], u)
-            }
-          } catch (err) {
-            error(err)
-          }
-        }
-      }
+    content = content.split(' ')
+    for (let i = 0; i < content.length; i++) {
+      content[i] = this.getUserFromMention(content[i])
+      console.log('content:', content[i])
     }
+    content = content.join(' ')
 
     if (this.discord_echo_slack && this.entity && this.entity.slack) {
       let msg = this.discord_echo_format
@@ -738,8 +737,12 @@ export class discord_client {
       })
     }
 
+    if (content.startsWith('!ping ')) {
+      content = content.replace('!ping ', '')
+    }
+
     const response = await this.handleInput(
-      message.content,
+      content,
       message.author.username,
       this.discord_bot_name,
       'discord',
@@ -1660,6 +1663,7 @@ export class discord_client {
   voice_provider: string
   voice_character: string
   voice_language_code: string
+  tiktalknet_url: string
   discord_echo_slack: boolean
   discord_echo_format: string
   createDiscordClient = async (
@@ -1687,6 +1691,7 @@ export class discord_client {
     voice_provider,
     voice_character,
     voice_language_code,
+    tiktalknet_url,
     discord_echo_slack: boolean,
     discord_echo_format: string
   ) => {
@@ -1697,6 +1702,7 @@ export class discord_client {
     this.voice_provider = voice_provider
     this.voice_character = voice_character
     this.voice_language_code = voice_language_code
+    this.tiktalknet_url = tiktalknet_url
     this.discord_echo_slack = discord_echo_slack
     this.discord_echo_format = discord_echo_format
     if (!discord_starting_words || discord_starting_words?.length <= 0) {
@@ -1766,7 +1772,8 @@ export class discord_client {
         this.handleInput,
         this.voice_provider,
         this.voice_character,
-        this.voice_language_code
+        this.voice_language_code,
+        this.tiktalknet_url
       )
     }
 

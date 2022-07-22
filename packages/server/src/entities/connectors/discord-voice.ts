@@ -20,7 +20,8 @@ export function initSpeechClient(
   handleInput,
   voiceProvider,
   voiceCharacter,
-  languageCode
+  languageCode,
+  tiktalknet_url
 ) {
   addSpeechEvent(client)
 
@@ -80,7 +81,7 @@ export function initSpeechClient(
           'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response
         )
 
-        if (!url) {
+        if (!url || url === undefined || url?.length <= 0) {
           if (voiceProvider === 'uberduck') {
             url = await getAudioUrl(
               process.env.UBER_DUCK_KEY as string,
@@ -93,7 +94,7 @@ export function initSpeechClient(
             // google tts
             url = await tts(response, voiceCharacter, languageCode)
           } else {
-            url = await tts_tiktalknet(response, voiceCharacter)
+            url = await tts_tiktalknet(response, voiceCharacter, tiktalknet_url)
           }
 
           cacheManager.instance.set(

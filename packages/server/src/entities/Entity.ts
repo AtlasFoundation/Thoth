@@ -49,6 +49,7 @@ export class Entity {
     voice_provider: string,
     voice_character: string,
     voice_language_code: string,
+    tiktalknet_url: string,
     discord_echo_slack: boolean,
     discord_echo_format: string
   ) {
@@ -75,6 +76,7 @@ export class Entity {
       voice_provider,
       voice_character,
       voice_language_code,
+      tiktalknet_url,
       discord_echo_slack,
       discord_echo_format
     )
@@ -111,6 +113,7 @@ export class Entity {
     voice_provider: string
     voice_character: string
     voice_language_code: string
+    tiktalknet_url: string
   }) {
     if (this.xrengine)
       throw new Error(
@@ -281,6 +284,7 @@ export class Entity {
     voice_provider: string,
     voice_character: string,
     voice_language_code: string,
+    tiktalknet_url: string,
     spell_version: string,
     entity: any
   ) {
@@ -304,6 +308,7 @@ export class Entity {
         voice_provider,
         voice_character,
         voice_language_code,
+        tiktalknet_url,
       },
       entity
     )
@@ -567,7 +572,11 @@ export class Entity {
               data.voice_language_code
             )
           } else {
-            url = await tts_tiktalknet(filtered[i], data.voice_character)
+            url = await tts_tiktalknet(
+              filtered[i],
+              data.voice_character,
+              data.tiktalknet_url
+            )
           }
 
           if (url && url.length > 0 && stringIsAValidUrl(url)) {
@@ -621,6 +630,7 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
+        data.tiktalknet_url,
         data.discord_echo_slack,
         data.discord_echo_format
       )
@@ -640,6 +650,7 @@ export class Entity {
         voice_provider: data.voice_provider,
         voice_character: data.voice_character,
         voice_language_code: data.voice_language_code,
+        tiktalknet_url: data.tiktalknet_url,
       })
     }
 
@@ -678,6 +689,7 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
+        data.tiktalknet_url,
         data.spell_version,
         data
       )

@@ -24,6 +24,7 @@ export interface entitiesAttributes {
   voice_character?: string
   voice_language_code?: string
   voice_default_phrases?: string
+  tiktalknet_url?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
   xrengine_spell_handler_incoming?: string
@@ -111,6 +112,7 @@ export type entitiesOptionalAttributes =
   | 'voice_character'
   | 'voice_language_code'
   | 'voice_default_phrases'
+  | 'tiktalknet_url'
   | 'xrengine_enabled'
   | 'xrengine_url'
   | 'xrengine_spell_handler_incoming'
@@ -207,6 +209,7 @@ export class entities
   voice_character?: string
   voice_language_code?: string
   voice_default_phrases?: string
+  tiktalknet_url?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
   xrengine_spell_handler_incoming?: string
@@ -352,6 +355,10 @@ export class entities
           allowNull: true,
         },
         voice_default_phrases: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        tiktalknet_url: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

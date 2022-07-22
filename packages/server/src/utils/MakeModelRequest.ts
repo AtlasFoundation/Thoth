@@ -23,7 +23,7 @@ export async function MakeModelRequest(
         },
       }
     )
-    return await response.data
+    return await { sucess: true, data: response.data }
   } catch (err) {
     console.error(err)
     return { success: false }

@@ -2,9 +2,14 @@ import axios from 'axios'
 import * as fs from 'fs'
 import { createWriteStream } from 'fs'
 
-export async function tts_tiktalknet(text: string, voice: string) {
-  console.log('making request at:', process.env.TIKTALKNET_URL as string)
-  const resp = await axios.get(process.env.TIKTALKNET_URL as string, {
+export async function tts_tiktalknet(
+  text: string,
+  voice: string,
+  tiktalknet_url: string
+) {
+  if (!tiktalknet_url || tiktalknet_url?.length <= 0) return ''
+
+  const resp = await axios.get(tiktalknet_url, {
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
     },

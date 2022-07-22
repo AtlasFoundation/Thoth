@@ -24,6 +24,10 @@ export class cacheManager {
     }
   }
   async set(key: string, value: any) {
+    if (!key || key === undefined || !value || value === undefined) {
+      return
+    }
+
     await this.client.set(key, value)
   }
 

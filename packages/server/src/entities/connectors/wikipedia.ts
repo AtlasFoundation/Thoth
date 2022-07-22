@@ -7,7 +7,7 @@ import glob from 'glob'
 import weaviate from 'weaviate-client'
 import wiki from 'wikipedia'
 
-import { makeCompletionRequest } from '../../utils/MakeCompletionRequest'
+import { MakeCompletionRequest } from '../../utils/MakeCompletionRequest'
 import { database } from '../../database'
 
 const client = weaviate.client({
@@ -17,6 +17,10 @@ const client = weaviate.client({
 
 //Creates a new agent based on its Wikipedia article
 export async function createWikipediaEntity(speaker, name, personality, facts) {
+  if (!database.instance) {
+    new database()
+  }
+
   try {
     let start = Date.now()
     //gets the info from the wikipedia article, if the agent name can't be found it returns null, in order to send the default agent
@@ -68,7 +72,7 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
       stop: ['"""', `${speaker}:`, '\n'],
     }
 
-    let res = await makeCompletionRequest(
+    let res = await MakeCompletionRequest(
       data,
       speaker,
       name,
@@ -107,7 +111,7 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
       stop: ['"""', `${speaker}:`, '\n'],
     }
 
-    res = makeCompletionRequest(
+    res = MakeCompletionRequest(
       data,
       speaker,
       name,
@@ -126,14 +130,6 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
     console.log('res.choice.text (2)')
     console.log(res)
 
-    await database.instance.createAgent(name)
-
-    await database.instance.updateAgent(name, {
-      dialog: dialogPrompt + (await res).choice?.text,
-      personality:
-        personalitySourcePrompt + '\n' + personality + '\n' + res.choice?.text,
-      facts: factPrompt,
-    })
     stop = Date.now()
     console.log(
       `Time Taken to execute save data = ${(stop - start) / 1000} seconds`
@@ -159,7 +155,7 @@ export const searchWikipedia = async keyword => {
       stop: ['\n'],
     }
 
-    const { success, choice } = await makeCompletionRequest(
+    const { success, choice } = await MakeCompletionRequest(
       data,
       null,
       null,

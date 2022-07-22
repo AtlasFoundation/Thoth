@@ -20,7 +20,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth } from './routes/middleware/auth'
+import { auth, IAuth } from './routes/middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -110,7 +110,7 @@ export class database {
       values = [agent, client, channel, type]
     } else {
       query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 OR sender=$1 AND channel=$4 AND type=$5 ORDER BY id desc'
       values = [agent, client, sender, channel, type]
     }
     const row = await this.client.query(query, values)
@@ -141,9 +141,15 @@ export class database {
       //   break
       // }
       data +=
-        (type === 'conversation' ? row.rows[i].sender + ': ' : '') +
+        (type === 'conversation' || 'history'
+          ? row.rows[i].sender + ': '
+          : '') +
         row.rows[i].text +
-        (type === 'conversation' ? '\n' : type === 'facts' ? '. ' : '')
+        (type === 'conversation' || 'history'
+          ? '\n'
+          : type === 'facts'
+          ? '. '
+          : '')
       count++
       if (count >= max_length) {
         break
@@ -201,25 +207,36 @@ export class database {
   }
 
   async addWikipediaData(agent: any, data: any) {
-    const query = 'INSERT INTO events(agent, data) VALUES($1, $2)'
-    const values = [agent, data]
+    const query =
+      'INSERT INTO events(type, agent, client, channel, sender, text, date) VALUES($1, $2, $3, $4, $5, $6, $7)'
+    const values = [
+      'agent_data',
+      agent,
+      'wikipedia',
+      'wikipedia',
+      'wikipedia',
+      data,
+      new Date().toUTCString(),
+    ]
 
     await this.client.query(query, values)
   }
   async getWikipediaData(agent: any) {
-    const query = 'SELECT * FROM events WHERE agent=$1'
-    const values = [agent]
+    const query =
+      'SELECT * FROM events WHERE type=$1 AND agent=$2 AND client=$3 AND channel=$4 AND sender=$5'
+    const values = ['agent_data', agent, 'wikipedia', 'wikipedia', 'wikipedia']
 
     const rows = await this.client.query(query, values)
     if (rows && rows.rows && rows.rows.length > 0) {
-      return rows.rows[0].data
+      return rows.rows[0].text
     } else {
       return ''
     }
   }
   async wikipediaDataExists(agent: any) {
-    const query = 'SELECT * FROM events WHERE agent=$1'
-    const values = [agent]
+    const query =
+      'SELECT * FROM events WHERE type=$1 AND agent=$2 AND client=$3 AND channel=$4 AND sender=$5'
+    const values = ['agent_data', agent, 'wikipedia', 'wikipedia', 'wikipedia']
 
     const rows = await this.client.query(query, values)
     return rows && rows.rows && rows.rows.length > 0
@@ -1369,8 +1386,9 @@ export class database {
         }
       }
 
-      const query2 = 'INSERT INTO auth_users(token, user_id) VALUES($1, $2)'
-      const values2: any = [newToken, user_id]
+      const query2 =
+        'INSERT INTO auth_users(token, user_id, email, username, password) VALUES($1, $2, $3, $4, $5)'
+      const values2: any = [newToken, user_id, null, null, null]
 
       const res2 = await this.client.query(query2, values2)
       const { command, rowCount } = res2
@@ -1415,6 +1433,104 @@ export class database {
     } catch (error) {
       console.log('Error => getAuthuser => ', error)
       return { success: false, data: {}, isAlreadyExists: false }
+    }
+  }
+
+  async login(username: string, password: string) {
+    if (
+      !username ||
+      !password ||
+      username?.length <= 0 ||
+      password?.length <= 0
+    ) {
+      return false
+    }
+
+    const query =
+      'SELECT * FROM auth_users WHERE username=$1 AND password=$2 AND is_deleted=false'
+    const values = [username, password]
+
+    const rows = await this.client.query(query, values)
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return rows.rows[0].user_id
+    } else {
+      return undefined
+    }
+  }
+
+  async usernameExists(username: string) {
+    if (!username || username?.length <= 0) {
+      return false
+    }
+
+    const query =
+      'SELECT * FROM auth_users WHERE username=$1 AND is_deleted=false'
+    const values = [username]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? true : false
+  }
+
+  async emailExists(email: string) {
+    if (!email || email?.length <= 0) {
+      return false
+    }
+
+    const query = 'SELECT * FROM auth_users WHERE email=$1 AND is_deleted=false'
+    const values = [email]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? true : false
+  }
+
+  async register(
+    email: string,
+    username: string,
+    password: string,
+    user_id: string
+  ) {
+    console.log('credentials:', email, username, password, user_id)
+    if (
+      !email ||
+      !username ||
+      !password ||
+      !user_id ||
+      email?.length <= 0 ||
+      username?.length <= 0 ||
+      password?.length <= 0 ||
+      user_id?.length <= 0
+    ) {
+      return 'invalid credentials'
+    }
+    let query = 'SELECT * FROM auth_users WHERE user_id=$1 AND is_deleted=false'
+    const values = [user_id]
+
+    const rows = await this.client.query(query, values)
+    console.log('rows.rows.length:', rows.rows.length)
+    if (rows && rows.rows && rows.rows.length > 0 && !rows.rows[0].email) {
+      if (
+        rows.rows[0].username ||
+        rows.rows[0].email ||
+        rows.rows[0].username.length > 0 ||
+        rows.rows[0].email.length > 0
+      ) {
+        return 'account already registered!'
+      }
+
+      query =
+        'UPDATE auth_users SET email=$1, username=$2, password=$3 WHERE user_id=$4 AND is_deleted=false'
+      const values = [email, username, password, user_id]
+
+      await this.client.query(query, values)
+      return 'ok'
+    } else {
+      const token: any = (auth as IAuth).generate(user_id)
+      query =
+        'INSERT INTO auth_users(token, user_id, email, username, password) VALUES($1, $2, $3, $4, $5)'
+      const values = [token, user_id, email, username, password]
+
+      await this.client.query(query, values)
+      return 'ok'
     }
   }
 }

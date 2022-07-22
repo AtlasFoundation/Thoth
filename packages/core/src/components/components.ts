@@ -69,6 +69,8 @@ import { NumberVariable } from './variable/NumberVariable'
 import { StringVariable } from './variable/StringVariable'
 import { DocumentSetMass } from './search/DocumentSetMass'
 import { RSSGet } from './search/RSSGet'
+import { CustomTextCompletion } from './entities/CustomTextCompletion'
+import { IsQuery } from './logic/IsQuery'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -92,11 +94,13 @@ export const components = {
   SummarizeFacts: () => new SummarizeFacts(),
   textToSpeech: () => new TextToSpeech(),
   agentTextCompletion: () => new AgentTextCompletion(),
+  customTextCompletion: () => new CustomTextCompletion(),
   keywordExtractor: () => new KeywordExtractor(),
   namedEntityRecognition: () => new NamedEntityRecognition(),
   createOrGetAgent: () => new CreateOrGetAgent(),
   Classifier: () => new Classifier(),
   isNullOrUndefined: () => new IsNullOrUndefined(),
+  isQuery: () => new IsQuery(),
   isVariableTrue: () => new IsVariableTrue(),
   conversationStore: () => new EventStore(),
   conversationRecall: () => new EventRecall(),

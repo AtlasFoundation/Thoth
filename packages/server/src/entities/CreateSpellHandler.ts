@@ -6,10 +6,7 @@ import {
 import { creatorToolsDatabase } from '../databases/creatorTools'
 import { CustomError } from '../utils/CustomError'
 import { Graph, ModuleComponent } from '../routes/spells/types'
-import {
-  initSharedEngine,
-  getComponents,
-} from '@thothai/thoth-core/server'
+import { initSharedEngine, getComponents } from '@thothai/thoth-core/server'
 import { Module } from '../routes/spells/module'
 import { ModuleType } from '@thothai/thoth-core/types'
 import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
@@ -152,9 +149,6 @@ export const CreateSpellHandler = async (props: {
       Entity: entity,
       RoomInfo: roomInfo,
     } as any
-
-    console.log('********** spellInputs are')
-    console.log(spellInputs)
 
     // TODO: Remove this line
     // TEST CASE: Chatting with agent on Discord doesn't get same response over and over
