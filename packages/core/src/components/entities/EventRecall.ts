@@ -24,7 +24,8 @@ async function getEvent(
   speaker: null | string,
   client: string,
   channel: string,
-  maxCount = 10
+  maxCount = 10,
+  target_count: string | any = 'single'
 ) {
   const response = await axios.get(
     `${
@@ -40,6 +41,7 @@ async function getEvent(
         client: client,
         channel: channel,
         maxCount: maxCount,
+        target_count: target_count,
       },
     }
   )
@@ -95,7 +97,13 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
       icon: 'moon',
     })
 
-    node.inspector.add(nameInput).add(max_count).add(type)
+    const target_count = new InputControl({
+      dataKey: 'target_count',
+      name: 'Target Count',
+      icon: 'moon',
+    })
+
+    node.inspector.add(nameInput).add(max_count).add(type).add(target_count)
 
     return node
       .addInput(agentInput)
@@ -125,8 +133,17 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
 
     const maxCountData = node.data?.max_count as string
     const maxCount = maxCountData ? parseInt(maxCountData) : 10
+    const target_count = node.data?.target_count as string
 
-    const conv = await getEvent(type, agent, speaker, client, channel, maxCount)
+    const conv = await getEvent(
+      type,
+      agent,
+      speaker,
+      client,
+      channel,
+      maxCount,
+      target_count
+    )
     if (!silent) node.display(type + ' | :' + conv || 'Not found')
 
     return {

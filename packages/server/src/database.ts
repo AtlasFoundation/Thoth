@@ -96,7 +96,8 @@ export class database {
     client: any,
     channel: any,
     asString: boolean = true,
-    maxCount: number = 10
+    maxCount: number = 10,
+    target_count: string | null
   ) {
     // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
     let query, values
@@ -109,8 +110,13 @@ export class database {
         'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
       values = [agent, client, channel, type]
     } else {
-      query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+      if (target_count === 'single') {
+        query =
+          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+      } else {
+        query =
+          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 OR sender=$1 AND channel=$4 AND type=$5 ORDER BY id desc'
+      }
       values = [agent, client, sender, channel, type]
     }
     const row = await this.client.query(query, values)
