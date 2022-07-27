@@ -4,6 +4,7 @@ import {
   createAudioPlayer,
   createAudioResource,
   StreamType,
+  VoiceConnectionStatus,
 } from '@discordjs/voice'
 import { tts } from '../../systems/googleTextToSpeech'
 import { getAudioUrl } from '../../routes/getAudioUrl'
@@ -23,7 +24,7 @@ export function initSpeechClient(
   languageCode,
   tiktalknet_url
 ) {
-  addSpeechEvent(client)
+  addSpeechEvent(client, { group: 'default_' + entity.id })
 
   client.on('speech', async msg => {
     console.log('msg is ', msg)
@@ -80,6 +81,7 @@ export function initSpeechClient(
         let url = await cacheManager.instance.get(
           'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response
         )
+        console.log('retrievied url from cache', url)
 
         if (!url || url === undefined || url?.length <= 0) {
           if (voiceProvider === 'uberduck') {
@@ -130,7 +132,7 @@ export async function recognizeSpeech(textChannel, clientId) {
       guildId: textChannel.guild.id,
       adapterCreator: textChannel.guild.voiceAdapterCreator,
       selfDeaf: false,
-      group: clientId,
+      group: 'default_' + clientId,
     })
   }
 }
