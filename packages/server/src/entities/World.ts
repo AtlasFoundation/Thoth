@@ -138,7 +138,7 @@ export class World {
 
   async removeEntity(id: number) {
     if (this.objectExists(id)) {
-      await this.objects[id]?.terminate()
+      await this.objects[id]?.onDestroy()
       this.objects[id] = null
       delete this.objects[id]
       console.log('Removed ', id)
