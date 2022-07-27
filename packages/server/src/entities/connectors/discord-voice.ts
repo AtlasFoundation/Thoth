@@ -122,7 +122,7 @@ export function initSpeechClient(
  * @param {Discord.Receiver} receiver
  * @param {Discord.TextChannel} textChannel
  */
-export async function recognizeSpeech(textChannel) {
+export async function recognizeSpeech(textChannel, clientId) {
   console.log('recognizeStream')
   if (textChannel) {
     joinVoiceChannel({
@@ -130,6 +130,7 @@ export async function recognizeSpeech(textChannel) {
       guildId: textChannel.guild.id,
       adapterCreator: textChannel.guild.voiceAdapterCreator,
       selfDeaf: false,
+      group: clientId,
     })
   }
 }

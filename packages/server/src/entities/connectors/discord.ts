@@ -141,307 +141,6 @@ export class discord_client {
     // MessageClient.instance.sendMessageReactionAdd('Discord', message.channel.id, message.id, message.content, user.username, emojiName, utcStr)
   }
 
-  async agents(
-    client: any,
-    message: { channel: { id: string | boolean } },
-    args: any,
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    log('Discord', message.channel.id)
-    // TODO: Replace me with direct message handler
-    // MessageClient.instance.sendGetAgents('Discord', message.channel.id)
-  }
-
-  //ban command, it is used to ban a user from the agent so the agent doesn't respon to this user
-  async ban(
-    client: any,
-    message: { channel?: any; mentions?: any },
-    args: { parsed_words: any },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    const pw = args.parsed_words
-    if (pw === undefined || pw.length !== 1) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-
-    const { mentions } = message
-    log(JSON.stringify(mentions))
-    if (
-      mentions === undefined ||
-      mentions.users === undefined ||
-      mentions.users.size !== 1
-    ) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-    const user = mentions.users.first().id
-    await database.instance.banUser(user, 'discord')
-    message.channel.send('banned user: ' + `<@!${user}>`)
-    message.channel.stopTyping()
-  }
-
-  //returns all the current commands for the bot
-  async commands(
-    client: any,
-    message: {
-      channel: { send: (arg0: string) => void; stopTyping: () => void }
-    },
-    args: any,
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    let str = ''
-    this.client.helpFields[0].commands.forEach(function (
-      item: string[],
-      index: any
-    ) {
-      if (item[3].length <= 2000 && item[3].length > 0) {
-        str += '!' + item[0] + ' - ' + item[3] + '\n'
-      }
-    })
-    if (str.length === 0) this.client.embed.description = 'empty response'
-    message.channel.send(str)
-    message.channel.stopTyping()
-  }
-
-  //ping is used to send a message directly to the agent
-  async ping(
-    client: { embed: any },
-    message: {
-      channel: { send: (arg0: any) => void; stopTyping: () => void }
-      id: string | boolean
-    },
-    args: {
-      grpc_args: { [x: string]: string | boolean; message: string | undefined }
-    },
-    author: { username: string | boolean },
-    addPing: string | boolean,
-    channel: any
-  ) {
-    if (
-      args.grpc_args.message === undefined ||
-      args.grpc_args.message === '' ||
-      args.grpc_args.message.replace(/\s/g, '').length === 0
-    ) {
-      this.client.embed.description = 'Wrong format, !ping message'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-
-    args.grpc_args['client_name'] = 'discord'
-    args.grpc_args['chat_id'] = channel
-
-    const date = new Date()
-    const utc = new Date(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate(),
-      date.getUTCHours(),
-      date.getUTCMinutes(),
-      date.getUTCSeconds()
-    )
-    const utcStr =
-      date.getDate() +
-      '/' +
-      (date.getMonth() + 1) +
-      '/' +
-      date.getFullYear() +
-      ' ' +
-      utc.getHours() +
-      ':' +
-      utc.getMinutes() +
-      ':' +
-      utc.getSeconds()
-    args.grpc_args['createdAt'] = utcStr
-
-    let parentId = ''
-    if (args.grpc_args['isThread'] === true) {
-      parentId = args.grpc_args['parentId']
-    }
-
-    // TODO: Replace me with direct message handler
-    // MessageClient.instance.sendMessage(args.grpc_args['message'], message.id, 'Discord', args.grpc_args['chat_id'], utcStr, addPing, author.username, 'parentId:' + parentId)
-    log(
-      args.grpc_args['message'],
-      message.id,
-      'Discord',
-      args.grpc_args['chat_id'],
-      utcStr,
-      addPing,
-      author.username,
-      'parentId:' + parentId
-    )
-  }
-
-  //ping agent is used to ping a specific agent directly
-  async pingagent(
-    client: { embed: any },
-    message: {
-      channel: {
-        send: (arg0: any) => void
-        stopTyping: () => void
-        id: string | boolean
-      }
-      id: string | boolean
-    },
-    args: {
-      grpc_args: {
-        [x: string]: string | boolean
-        message: string | undefined
-        agent: string | undefined
-      }
-    },
-    author: { username: string | boolean },
-    addPing: string | boolean,
-    channel: any
-  ) {
-    if (
-      args.grpc_args.message === undefined ||
-      args.grpc_args.message === '' ||
-      args.grpc_args.message.replace(/\s/g, '').length === 0 ||
-      args.grpc_args.message.includes('agent=') ||
-      args.grpc_args.agent === undefined ||
-      args.grpc_args.agent === '' ||
-      args.grpc_args.agent.replace(/\s/g, '').length === 0
-    ) {
-      this.client.embed.description =
-        'Wrong format, !pingagent agent=agent message=value'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-
-    // TODO: Replace me with direct message handler
-    log(
-      'Discord',
-      message.channel.id,
-      message.id,
-      args.grpc_args['message'],
-      args.grpc_args['agent'],
-      addPing,
-      author.username
-    )
-    // MessageClient.instance.sendPingSoloAgent('Discord', message.channel.id, message.id, args.grpc_args['message'], args.grpc_args['agent'], addPing, author.username)
-  }
-
-  //setagent is used to update an agent
-  async setagent(
-    client: { embed: any },
-    message: {
-      channel: {
-        send: (arg0: any) => void
-        stopTyping: () => void
-        id: string | boolean
-      }
-    },
-    args: {
-      grpc_args: { [x: string]: string | boolean; message: string | undefined }
-    },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    if (args.grpc_args.message === undefined || args.grpc_args.message === '') {
-      this.client.embed.description =
-        'Wrong format, !setagent agent=agent context=value'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-    if (
-      args.grpc_args['name'] === undefined ||
-      args.grpc_args['name'] === '' ||
-      args.grpc_args['context'] === undefined ||
-      args.grpc_args['context'] === ''
-    ) {
-      this.client.embed.description =
-        'Wrong format, !setagent agent=agent context=value'
-      message.channel.send(client.embed)
-      this.client.embed.desscription = ''
-      message.channel.stopTyping()
-      return
-    }
-
-    // TODO: Replace me with direct message handler
-    log(
-      'Discord',
-      message.channel.id,
-      args.grpc_args['name'],
-      args.grpc_args['context']
-    )
-    // MessageClient.instance.sendSetAgentsFields('Discord', message.channel.id, args.grpc_args['name'], args.grpc_args['context'])
-  }
-
-  //sets the name for an agent to respond for it
-  async setname(
-    client: { bot_name: string },
-    message: {
-      channel: { send: (arg0: string) => void; stopTyping: () => void }
-    },
-    args: { parsed_words: string | any[] | undefined },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    if (args.parsed_words === undefined || args.parsed_words.length !== 1) {
-      message.channel.send('Invalid format, !setname name')
-      message.channel.stopTyping()
-      return
-    }
-
-    const name = args.parsed_words[0]
-    this.bot_name = name
-    this.client.name_regex = new RegExp(name, 'ig')
-    log(client.bot_name + ' - ' + this.client.name_regex)
-    message.channel.send('Updated bot name to: ' + name)
-    message.channel.stopTyping()
-  }
-
-  //unbans a user from the agent's ban list
-  async unban(
-    client: any,
-    message: { channel?: any; mentions?: any },
-    args: { parsed_words: any },
-    author: any,
-    addPing: any,
-    channel: any
-  ) {
-    const pw = args.parsed_words
-    if (pw === undefined || pw.length !== 1) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-
-    const { mentions } = message
-    log(JSON.stringify(mentions))
-    if (
-      mentions === undefined ||
-      mentions.users === undefined ||
-      mentions.users.size !== 1
-    ) {
-      message.channel.send('invalid command structure!')
-      message.channel.stopTyping()
-      return
-    }
-    const user = mentions.users.first().id
-    await database.instance.unbanUser(user, 'discord')
-    message.channel.send('unbanned user: ' + `<@!${user}>`)
-    message.channel.stopTyping()
-  }
-
   getUserFromMention(mention) {
     if (!mention) return mention
 
@@ -634,27 +333,12 @@ export class discord_client {
       if (!content.startsWith('!ping')) {
         const msgs = await channel.messages.fetch({ limit: 10 })
         if (msgs && msgs.size > 0) {
-          let values = ''
-          let agentTalked = false
           for (const [key, value] of msgs.entries()) {
             values += value.content
             if (value.author.bot) {
               agentTalked = true
             }
           }
-
-          // if (agentTalked) {
-          //   const context = await classifyText(values)
-          //   const ncontext = await classifyText(content)
-          //   log('c1: ' + context + ' c2: ' + ncontext)
-
-          //   if (context == ncontext) {
-          //     /*roomManager.instance.userTalkedSameTopic(author.id, 'discord')
-          //     if (roomManager.instance.agentCanResponse(author.id, 'discord')) {
-          //       content = '!ping ' + content
-          //     }*/
-          //   }
-          // }
         }
       }
     }
@@ -671,6 +355,12 @@ export class discord_client {
         const d = content.split(' ')
         const index = d.indexOf('join') + 1
         console.log('d:', d)
+        console.log(
+          'joining channel:',
+          d[index],
+          'bot name:',
+          this.discord_bot_name
+        )
         if (d.length > index) {
           const channelName = d[index]
           await message.guild.channels.cache.forEach(
@@ -685,7 +375,7 @@ export class discord_client {
                 channel.type === channelTypes['voice'] &&
                 channel.name === channelName
               ) {
-                recognizeSpeech(channel)
+                recognizeSpeech(channel, this.entity.id)
                 return false
               }
             }
@@ -1244,30 +934,6 @@ export class discord_client {
     log('handleUserUpdateEvent: ' + response)
   }
 
-  async handleGetAgents(chat_id: any, response: any) {
-    this.client.channels
-      .fetch(chat_id)
-      .then(
-        (channel: { send: (arg0: any) => void; stopTyping: () => void }) => {
-          channel.send(response)
-          channel.stopTyping()
-        }
-      )
-      .catch((err: string | boolean) => log(err))
-  }
-
-  async handleSetAgentsFields(chat_id: any, response: any) {
-    this.client.channels
-      .fetch(chat_id)
-      .then(
-        (channel: { send: (arg0: any) => void; stopTyping: () => void }) => {
-          channel.send(response)
-          channel.stopTyping()
-        }
-      )
-      .catch((err: string | boolean) => log(err))
-  }
-
   async handlePingSoloAgent(
     chat_id: any,
     message_id: any,
@@ -1610,31 +1276,12 @@ export class discord_client {
       this.conversation[user].timeOutFinished = true
       this.conversation[user].isInConversation = false
       delete this.conversation[user]
-      //   roomManager.instance.removeUser(user, 'discord')
     }
   }
 
   getResponse(channel: string | number, message: string | number) {
     if (this.messageResponses[channel] === undefined) return undefined
     return this.messageResponses[channel][message]
-  }
-
-  async wasHandled(
-    chatId: any,
-    messageId: any,
-    sender: any,
-    content: any,
-    timestamp: any
-  ) {
-    if (!database || !database.instance) return // log("Postgres not inited");
-    return await database.instance.messageExists(
-      'discord',
-      chatId,
-      messageId,
-      sender,
-      content,
-      timestamp
-    )
   }
 
   moreThanOneInConversation() {
