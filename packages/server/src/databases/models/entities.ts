@@ -41,6 +41,11 @@ export interface entitiesAttributes {
   twitter_app_token_secret?: string
   twitter_access_token?: string
   twitter_access_token_secret?: string
+  twitter_enable_twits?: boolean
+  twitter_tweet_rules?: string
+  twitter_auto_tweet_interval_min?: string
+  twitter_auto_tweet_interval_max?: string
+  twitter_auto_tweet_start_phrases?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
   twitter_spell_handler_incoming?: string
@@ -127,6 +132,11 @@ export type entitiesOptionalAttributes =
   | 'twitter_app_token_secret'
   | 'twitter_access_token'
   | 'twitter_access_token_secret'
+  | 'twitter_enable_twits'
+  | 'twitter_tweet_rules'
+  | 'twitter_auto_tweet_interval_min'
+  | 'twitter_auto_tweet_interval_max'
+  | 'twitter_auto_tweet_start_phrases'
   | 'twitter_bot_name'
   | 'twitter_bot_name_regex'
   | 'twitter_spell_handler_incoming'
@@ -226,6 +236,11 @@ export class entities
   twitter_app_token_secret?: string
   twitter_access_token?: string
   twitter_access_token_secret?: string
+  twitter_enable_twits?: boolean
+  twitter_tweet_rules?: string
+  twitter_auto_tweet_interval_min?: string
+  twitter_auto_tweet_interval_max?: string
+  twitter_auto_tweet_start_phrases?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
   twitter_spell_handler_incoming?: string
@@ -431,6 +446,26 @@ export class entities
           allowNull: true,
         },
         twitter_access_token_secret: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_enable_twits: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_tweet_rules: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_auto_tweet_interval_min: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_auto_tweet_interval_max: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_auto_tweet_start_phrases: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

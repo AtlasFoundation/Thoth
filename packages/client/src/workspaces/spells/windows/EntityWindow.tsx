@@ -82,6 +82,14 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [twitter_access_token, setTwitterAccessToken] = useState('')
   const [twitter_access_token_secret, setTwitterAccessTokenSecret] =
     useState('')
+  const [twitter_enable_twits, setTwitterEnableTwits] = useState(false)
+  const [twitter_tweet_rules, setTwitterTweetRules] = useState('')
+  const [twitter_auto_tweet_interval_min, setTwitterAutoTweetIntervalMin] =
+    useState('')
+  const [twitter_auto_tweet_interval_max, setTwitterAutoTweetIntervalMax] =
+    useState('')
+  const [twitter_auto_tweet_start_phrases, setTwitterAutoTweetStartPhrases] =
+    useState('')
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
   const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] =
@@ -244,6 +252,13 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwitterAppTokenSecret(res.data.twitter_app_token_secret)
         setTwitterAccessToken(res.data.twitter_access_token)
         setTwitterAccessTokenSecret(res.data.twitter_access_token_secret)
+        setTwitterEnableTwits(res.data.twitter_enable_twits === true)
+        setTwitterTweetRules(res.data.twitter_tweet_rules)
+        setTwitterAutoTweetIntervalMin(res.data.twitter_auto_tweet_interval_min)
+        setTwitterAutoTweetIntervalMax(res.data.twitter_auto_tweet_interval_max)
+        setTwitterAutoTweetStartPhrases(
+          res.data.twitter_auto_tweet_start_phrases
+        )
         setTwitterBotName(res.data.twitter_bot_name)
         setTwitterBotNameRegex(res.data.twitter_bot_name_regex)
         setTwitterSpellHandlerIncoming(res.data.twitter_spell_handler_incoming)
@@ -384,6 +399,11 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_app_token_secret,
       twitter_access_token,
       twitter_access_token_secret,
+      twitter_enable_twits,
+      twitter_tweet_rules,
+      twitter_auto_tweet_interval_min,
+      twitter_auto_tweet_interval_max,
+      twitter_auto_tweet_start_phrases,
       twitter_bot_name,
       twitter_bot_name_regex,
       twitter_spell_handler_incoming,
@@ -487,6 +507,17 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterAppTokenSecret(responseData.twitter_app_token_secret)
           setTwitterAccessToken(responseData.twitter_access_token)
           setTwitterAccessTokenSecret(responseData.twitter_access_token_secret)
+          setTwitterEnableTwits(responseData.twitter_enable_twits)
+          setTwitterTweetRules(responseData.twitter_tweet_rules)
+          setTwitterAutoTweetIntervalMin(
+            responseData.twitter_auto_tweet_interval_min
+          )
+          setTwitterAutoTweetIntervalMax(
+            responseData.twitter_auto_tweet_interval_max
+          )
+          setTwitterAutoTweetStartPhrases(
+            responseData.twitter_auto_tweet_start_phrases
+          )
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
           setTwitterSpellHandlerIncoming(
@@ -606,6 +637,11 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_app_token_secret,
       twitter_access_token,
       twitter_access_token_secret,
+      twitter_enable_twits,
+      twitter_tweet_rules,
+      twitter_auto_tweet_interval_min,
+      twitter_auto_tweet_interval_max,
+      twitter_auto_tweet_start_phrases,
       twitter_bot_name,
       twitter_bot_name_regex,
       twitter_spell_handler_incoming,
@@ -1235,6 +1271,65 @@ const EntityWindow = ({ id, updateCallback }) => {
                   defaultValue={twitter_access_token_secret}
                   onChange={e => {
                     setTwitterAccessTokenSecret(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Twitter Enable Twits</span>
+                <input
+                  type="checkbox"
+                  value={twitter_enable_twits}
+                  defaultChecked={
+                    twitter_enable_twits || twitter_enable_twits === 'true'
+                  }
+                  onChange={e => {
+                    setTwitterEnableTwits(e.target.checked)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">Twitter Tweet Rules</span>
+                <input
+                  type="text"
+                  defaultValue={twitter_tweet_rules}
+                  onChange={e => {
+                    setTwitterTweetRules(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">
+                  Twitter Random Interval Min
+                </span>
+                <input
+                  type="text"
+                  defaultValue={twitter_auto_tweet_interval_min}
+                  onChange={e => {
+                    setTwitterAutoTweetIntervalMin(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">
+                  Twitter Random Interval Max
+                </span>
+                <input
+                  type="text"
+                  defaultValue={twitter_auto_tweet_interval_max}
+                  onChange={e => {
+                    setTwitterAutoTweetIntervalMax(e.target.value)
+                  }}
+                />
+              </div>
+              <div className="form-item">
+                <span className="form-item-label">
+                  Twitter Auto Start Phrases
+                </span>
+                <input
+                  type="text"
+                  defaultValue={twitter_auto_tweet_start_phrases}
+                  onChange={e => {
+                    setTwitterAutoTweetStartPhrases(e.target.value)
                   }}
                 />
               </div>

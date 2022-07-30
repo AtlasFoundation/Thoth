@@ -50,6 +50,10 @@ import type {
   authUsersAttributesCreationAttributes,
 } from './authUsers'
 import { authUsers as _authUsers } from './authUsers'
+import {
+  handled_history as _handled_history,
+  handled_historyAttributes,
+} from './handled_history'
 
 export {
   _entities as entities,
@@ -64,6 +68,7 @@ export {
   _scopeSettings as scopeSettings,
   _calendarEvents as calendarEvents,
   _authUsers as authUsers,
+  _handled_history as handled_history,
 }
 
 export type {
@@ -90,6 +95,7 @@ export type {
   calendarEventsAttributes,
   calendarEventsCreationAttributes,
   authUsersAttributes,
+  handled_historyAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -105,6 +111,7 @@ export function initModels(sequelize: Sequelize) {
   const scopeSettings = _scopeSettings.initModel(sequelize)
   const calendarEvents = _calendarEvents.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
+  const handled_history = _handled_history.initModel(sequelize)
 
   return {
     entities: entities,
@@ -119,5 +126,6 @@ export function initModels(sequelize: Sequelize) {
     scopeSettings: scopeSettings,
     calendarEvents: calendarEvents,
     authUsers: authUsers,
+    handled_history: handled_history,
   }
 }

@@ -191,7 +191,6 @@ export class discord_client {
     content = content.split(' ')
     for (let i = 0; i < content.length; i++) {
       content[i] = this.getUserFromMention(content[i])
-      console.log('content:', content[i])
     }
     content = content.join(' ')
 
@@ -315,11 +314,7 @@ export class discord_client {
       } else if (isInDiscussion || startConv) content = '!ping ' + content
     }
 
-    if (otherMention) {
-      //roomManager.instance.userPingedSomeoneElse(author.id, 'discord')
-    } else if (content.startsWith('!ping')) {
-      //roomManager.instance.userGotInConversationFromAgent(author.id), 'discord'
-    } else if (!content.startsWith('!ping')) {
+    if (!content.startsWith('!ping')) {
       if (
         this.discussionChannels[channel.id] !== undefined &&
         this.discussionChannels[channel.id]
@@ -331,12 +326,15 @@ export class discord_client {
       }
 
       if (!content.startsWith('!ping')) {
+        let values = ''
         const msgs = await channel.messages.fetch({ limit: 10 })
         if (msgs && msgs.size > 0) {
           for (const [key, value] of msgs.entries()) {
-            values += value.content
-            if (value.author.bot) {
-              agentTalked = true
+            if (value && value !== undefined) {
+              values += value.content
+              if (value.author.bot) {
+                agentTalked = true
+              }
             }
           }
         }

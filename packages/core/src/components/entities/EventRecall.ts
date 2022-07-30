@@ -25,7 +25,8 @@ async function getEvent(
   client: string,
   channel: string,
   maxCount = 10,
-  target_count: string | any = 'single'
+  target_count: string | any = 'single',
+  max_time_diff: number = -1
 ) {
   const response = await axios.get(
     `${
@@ -42,6 +43,7 @@ async function getEvent(
         channel: channel,
         maxCount: maxCount,
         target_count: target_count,
+        max_time_diff: max_time_diff,
       },
     }
   )
@@ -51,6 +53,7 @@ async function getEvent(
 
 const info = 'Event Recall is used to get conversation for an agent and user'
 
+//add option to get only events from max time difference (time diff, if set to 0 or -1, will get all events, otherwise will count in minutes)
 type InputReturn = {
   output: unknown
 }
@@ -103,7 +106,18 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
       icon: 'moon',
     })
 
-    node.inspector.add(nameInput).add(max_count).add(type).add(target_count)
+    const max_time_diff = new InputControl({
+      dataKey: 'max_time_diff',
+      name: 'Max Time Difference',
+      icon: 'moon',
+    })
+
+    node.inspector
+      .add(nameInput)
+      .add(max_count)
+      .add(type)
+      .add(target_count)
+      .add(max_time_diff)
 
     return node
       .addInput(agentInput)
@@ -134,6 +148,8 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     const maxCountData = node.data?.max_count as string
     const maxCount = maxCountData ? parseInt(maxCountData) : 10
     const target_count = node.data?.target_count as string
+    const max_time_diffData = node.data?.max_time_diff as string
+    const max_time_diff = max_time_diffData ? parseInt(max_time_diffData) : -1
 
     const conv = await getEvent(
       type,
@@ -142,7 +158,8 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
       client,
       channel,
       maxCount,
-      target_count
+      target_count,
+      max_time_diff
     )
     if (!silent) node.display(type + ' | :' + conv || 'Not found')
 

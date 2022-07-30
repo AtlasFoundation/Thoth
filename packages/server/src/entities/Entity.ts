@@ -151,6 +151,11 @@ export class Entity {
     twitter_app_token_secret: any,
     twitter_access_token: any,
     twitter_access_token_secret: any,
+    twitter_enable_twits: any,
+    twitter_tweet_rules: any,
+    twitter_auto_tweet_interval_min: any,
+    twitter_auto_tweet_interval_max: any,
+    twitter_auto_tweet_start_phrases: any,
     twitter_bot_name: any,
     twitter_bot_name_regex: any,
     twitter_spell_handler_incoming: any,
@@ -163,7 +168,7 @@ export class Entity {
         'Twitter already running for this entity on this instance'
       )
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: twitter_spell_handler_incoming,
       version: spell_version,
     })
@@ -179,22 +184,17 @@ export class Entity {
         twitter_app_token_secret,
         twitter_access_token,
         twitter_access_token_secret,
+        twitter_enable_twits,
+        twitter_tweet_rules,
+        twitter_auto_tweet_interval_min,
+        twitter_auto_tweet_interval_max,
+        twitter_auto_tweet_start_phrases,
         twitter_bot_name,
         twitter_bot_name_regex,
         twitter_spell_handler_incoming,
       },
       entity
     )
-    console.log('Started twitter client for agent ' + this)
-    // const response = await spellHandler(
-    //   'testmessage',
-    //   'testsender',
-    //   'testbot',
-    //   'discord',
-    //   "0",
-    //   this.id
-    // )
-    // console.log("response is ", response)
   }
 
   stopTwitter() {
@@ -662,6 +662,11 @@ export class Entity {
         data.twitter_app_token_secret,
         data.twitter_access_token,
         data.twitter_access_token_secret,
+        data.twitter_enable_twits,
+        data.twitter_tweet_rules,
+        data.twitter_auto_tweet_interval_min,
+        data.twitter_auto_tweet_interval_max,
+        data.twitter_auto_tweet_start_phrases,
         data.twitter_bot_name,
         data.twitter_bot_name_regex,
         data.twitter_spell_handler_incoming,

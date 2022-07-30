@@ -58,7 +58,8 @@ export class IsQuery extends ThothComponent<void> {
     }
 
     let is = false
-
+    this._task.closed = is ? ['false'] : ['true']
+    /*
     const resp = await axios.post(
       `${process.env.API_URL ?? 'https://localhost:8001'}/hf_request`,
       {
@@ -148,6 +149,6 @@ export class IsQuery extends ThothComponent<void> {
     }
 
     console.log('is:', is)
-    this._task.closed = is ? ['false'] : ['true']
+    this._task.closed = is ? ['false'] : ['true']*/
   }
 }

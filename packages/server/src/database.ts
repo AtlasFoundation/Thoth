@@ -97,7 +97,8 @@ export class database {
     channel: any,
     asString: boolean = true,
     maxCount: number = 10,
-    target_count: string | null
+    target_count: string | null,
+    max_time_diff: number
   ) {
     // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
     let query, values
@@ -140,12 +141,15 @@ export class database {
     let count = 0
     for (let i = 0; i < row.rows.length; i++) {
       if (!row.rows[i].text || row.rows[i].text.length <= 0) continue
-      // const messageDate = new Date(row.rows[i].date)
-      // const diffMs = now - messageDate
-      // const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000)
-      // if (diffMins > 15) {
-      //   break
-      // }
+      if (max_time_diff > 0) {
+        const messageDate = new Date(row.rows[i].date)
+        const diffMs = now.getTime() - messageDate.getTime()
+        const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000)
+        if (diffMins > 15) {
+          break
+        }
+      }
+
       data +=
         (type === 'conversation' || 'history'
           ? row.rows[i].sender + ': '
@@ -1538,6 +1542,25 @@ export class database {
       await this.client.query(query, values)
       return 'ok'
     }
+  }
+
+  async dataIsHandled(id: string, client: string): Promise<boolean> {
+    const query = 'SELECT * FROM handled_history WHERE _id=$1 AND client=$2'
+    const values = [id, client]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? true : false
+  }
+  async setDataHandled(
+    id: string,
+    client: string,
+    data: string
+  ): Promise<void> {
+    const query =
+      'INSERT INTO handled_history(_id, client, data) VALUES($1, $2, $3)'
+    const values = [id, client, data]
+
+    await this.client.query(query, values)
   }
 }
 
