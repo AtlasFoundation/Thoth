@@ -877,7 +877,9 @@ const EntityWindow = ({ id, updateCallback }) => {
           </div>
 
           <div className="form-item">
-            <span className="form-item-label">Voice Default Phrases</span>
+            <span className="form-item-label">
+              Voice Default Phrases - Separate using | (n1|n2|...|nN)
+            </span>
             <input
               type="text"
               defaultValue={voice_default_phrases}
@@ -889,7 +891,10 @@ const EntityWindow = ({ id, updateCallback }) => {
 
           {voice_provider === 'tiktalknet' && (
             <div className="form-item">
-              <span className="form-item-label">Tiktalknet URL</span>
+              <span className="form-item-label">
+                Tiktalknet URL - URL where Tiktalknet is hosted and the requests
+                will be sent there
+              </span>
               <input
                 type="text"
                 defaultValue={tiktalknet_url}
@@ -936,7 +941,9 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
 
               <div className="form-item">
-                <span className="form-item-label">Discord Starting Words</span>
+                <span className="form-item-label">
+                  Discord Starting Words - Separated by ,
+                </span>
                 <input
                   type="text"
                   defaultValue={discord_starting_words}
@@ -969,7 +976,9 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
 
               <div className="form-item">
-                <span className="form-item-label">Discord Empty Responses</span>
+                <span className="form-item-label">
+                  Discord Empty Responses - Separated by |
+                </span>
                 <input
                   type="text"
                   defaultValue={discord_empty_responses}
@@ -1123,7 +1132,9 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
 
               <div className="form-item">
-                <span className="form-item-label">Empty Responses</span>
+                <span className="form-item-label">
+                  Empty Responses - Separated by |
+                </span>
                 <input
                   type="text"
                   defaultValue={xrengine_empty_responses}
@@ -1275,7 +1286,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                 />
               </div>
               <div className="form-item">
-                <span className="form-item-label">Twitter Enable Twits</span>
+                <span className="form-item-label">Twitter Enable Tweets</span>
                 <input
                   type="checkbox"
                   value={twitter_enable_twits}
@@ -1288,7 +1299,10 @@ const EntityWindow = ({ id, updateCallback }) => {
                 />
               </div>
               <div className="form-item">
-                <span className="form-item-label">Twitter Tweet Rules</span>
+                <span className="form-item-label">
+                  Twitter Tweet Rules - Regex rules for tweets to answer
+                  automatically, Separated by ,
+                </span>
                 <input
                   type="text"
                   defaultValue={twitter_tweet_rules}
@@ -1323,7 +1337,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               </div>
               <div className="form-item">
                 <span className="form-item-label">
-                  Twitter Auto Start Phrases
+                  Twitter Auto Start Phrases - Separated by |
                 </span>
                 <input
                   type="text"
@@ -1894,7 +1908,9 @@ const EntityWindow = ({ id, updateCallback }) => {
                 />
               </div>
               <div className="form-item">
-                <span className="form-item-label">Empty Responses</span>
+                <span className="form-item-label">
+                  Empty Responses - Separated by |
+                </span>
                 <input
                   type="text"
                   defaultValue={twilio_empty_responses}
