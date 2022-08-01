@@ -39,11 +39,11 @@ const createTwitterClientV2 = (bearerKey: string) => {
 
 export class twitter_client {
   automatic_tweet = async spellHandler => {
-    const interval = 6000
-    /*randomInt(
+    const interval =
+      randomInt(
         this.twitter_auto_tweet_interval_min,
         this.twitter_auto_tweet_interval_max
-      ) * 60000*/
+      ) * 60000
     console.log('await interval:', interval)
     await sleep(interval)
 
@@ -59,8 +59,8 @@ export class twitter_client {
     )
     console.log('generated automatic tweet:', resp)
 
-    //this.twitterv1.v1.tweet(resp)
-    //this.automatic_tweet(spellHandler)
+    this.twitterv1.v1.tweet(resp)
+    this.automatic_tweet(spellHandler)
   }
 
   async handleMessage(response, chat_id, args) {
@@ -214,7 +214,6 @@ export class twitter_client {
       this.automatic_tweet(spellHandlerAuto)
     }
 
-    this.twitter_enable_twits = false
     if (this.twitter_enable_twits) {
       const client = this.twitterv2
       const rules = await client.v2.streamRules()
