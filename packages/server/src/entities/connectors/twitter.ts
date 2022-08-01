@@ -162,13 +162,13 @@ export class twitter_client {
     this.twitterv2 = createTwitterClientV2(bearerToken)
     const localUser = await this.twitterv2.v2.userByUsername(twitterUser)
     /*setInterval(async () => {
-      const tv1 = this.twitterv1
       try {
         console.log('requesting events')
-        const eventsPaginator = await this.twitterv1.v1.listDmEvents()
+        const eventsPaginator = await this.twitterv2.v1.listDmEvents()
         console.log('events:', eventsPaginator)
         for await (const event of eventsPaginator) {
-          log(p
+          log(
+            p,
             'Event: ' + JSON.stringify(event.message_create.message_data.text)
           )
           if (event.type == 'message_create') {
@@ -193,11 +193,7 @@ export class twitter_client {
               [],
               'dm'
             )
-            /* await this.handleMessage(
-              resp,
-              event.id,
-              'DM',
-            )
+            await this.handleMessage(resp, event.id, 'DM')
           }
         }
       } catch (e) {
@@ -251,7 +247,7 @@ export class twitter_client {
           if (!this.regexMatch(regex, twit.data.text)) {
           } else {
             let authorName = 'unknown'
-            const author = await this.twitter.v2.user(twit.data.author_id)
+            const author = await this.twitterv2.v2.user(twit.data.author_id)
             if (author) authorName = author.data.username
             let date = new Date()
             if (twit.data.created_at) date = new Date(twit.data.created_at)
@@ -264,9 +260,7 @@ export class twitter_client {
             if (!handled) {
               const resp = await this.spellHandler(
                 twit.data.text,
-                twit.data.in_reply_to_user_id
-                  ? twit.data.in_reply_to_user_id
-                  : twit.data.id,
+                author.data.name,
                 this.settings.twitter_bot_name ?? 'Agent',
                 'twitter',
                 twit.data.id,
@@ -274,6 +268,7 @@ export class twitter_client {
                 [],
                 'tweet'
               )
+
               await this.handleMessage(resp, twit.data.id, 'Twit')
 
               database.instance.setDataHandled(twit.data.id, 'twitter')
