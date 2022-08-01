@@ -436,7 +436,8 @@ export class discord_client {
       'discord',
       message.channel.id,
       this.entity,
-      roomInfo
+      roomInfo,
+      'msg'
     )
 
     this.handlePingSoloAgent(message.channel.id, message.id, response, false)
@@ -1330,7 +1331,8 @@ export class discord_client {
         inConversation: boolean
         isBot: boolean
         info3d: string
-      }[]
+      }[],
+      channel: string
     ) => Promise<unknown>,
     use_voice,
     voice_provider,

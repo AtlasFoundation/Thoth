@@ -155,10 +155,10 @@ export class Entity {
     twitter_tweet_rules: any,
     twitter_auto_tweet_interval_min: any,
     twitter_auto_tweet_interval_max: any,
-    twitter_auto_tweet_start_phrases: any,
     twitter_bot_name: any,
     twitter_bot_name_regex: any,
     twitter_spell_handler_incoming: any,
+    twitter_spell_handler_auto: any,
     spell_version: string,
     entity: any
   ) {
@@ -172,11 +172,16 @@ export class Entity {
       spell: twitter_spell_handler_incoming,
       version: spell_version,
     })
+    const spellHandlerAuto = await CreateSpellHandler({
+      spell: twitter_spell_handler_auto,
+      version: spell_version,
+    })
 
     this.twitter = new twitter_client()
     console.log('createTwitterClient')
     await this.twitter.createTwitterClient(
       spellHandler,
+      spellHandlerAuto,
       {
         twitter_token,
         twitter_id,
@@ -188,10 +193,10 @@ export class Entity {
         twitter_tweet_rules,
         twitter_auto_tweet_interval_min,
         twitter_auto_tweet_interval_max,
-        twitter_auto_tweet_start_phrases,
         twitter_bot_name,
         twitter_bot_name_regex,
         twitter_spell_handler_incoming,
+        twitter_spell_handler_auto,
       },
       entity
     )
@@ -346,7 +351,8 @@ export class Entity {
           'loop',
           'loop',
           this,
-          []
+          [],
+          'auto'
         )
         if (resp && (resp as string)?.length > 0) {
           console.log('Loop Response:', resp)
@@ -666,10 +672,10 @@ export class Entity {
         data.twitter_tweet_rules,
         data.twitter_auto_tweet_interval_min,
         data.twitter_auto_tweet_interval_max,
-        data.twitter_auto_tweet_start_phrases,
         data.twitter_bot_name,
         data.twitter_bot_name_regex,
         data.twitter_spell_handler_incoming,
+        data.twitter_spell_handler_auto,
         data.spell_version,
         data
       )

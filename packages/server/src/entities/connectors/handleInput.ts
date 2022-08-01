@@ -12,7 +12,8 @@ export async function handleInput(
   channelId: string,
   entity: number,
   spell_handler: string,
-  spell_version: string = 'latest'
+  spell_version: string = 'latest',
+  channel: string = 'msg'
 ) {
   if (spell_handler === undefined) {
     spell_handler = 'default'
@@ -33,6 +34,7 @@ export async function handleInput(
       Client: client,
       ChannelID: channelId,
       Entity: entity,
+      Channel: channel,
     },
   })
   let index = undefined

@@ -89,7 +89,8 @@ export class slack_client {
         'slack',
         channel,
         this.entity,
-        []
+        [],
+        'msg'
       )
       say(response)
     })

@@ -426,8 +426,7 @@ export class xrengine_client {
           channelId,
           this.entity,
           roomInfo,
-          this.settings.xrengine_spell_handler_incoming,
-          this.spell_version
+          'msg'
         )
 
         console.log('got response:', response)

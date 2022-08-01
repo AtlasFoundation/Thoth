@@ -88,12 +88,11 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [twitter_auto_tweet_interval_max, setTwitterAutoTweetIntervalMax] =
     useState('')
-  const [twitter_auto_tweet_start_phrases, setTwitterAutoTweetStartPhrases] =
-    useState('')
   const [twitter_bot_name, setTwitterBotName] = useState('')
   const [twitter_bot_name_regex, setTwitterBotNameRegex] = useState('')
   const [twitter_spell_handler_incoming, setTwitterSpellHandlerIncoming] =
     useState('')
+  const [twitter_spell_handler_auto, setTwitterSpellHandlerAuto] = useState('')
 
   const [telegram_enabled, setTelegramEnabled] = useState('')
   const [telegram_bot_token, setTelegramBotToken] = useState('')
@@ -256,12 +255,10 @@ const EntityWindow = ({ id, updateCallback }) => {
         setTwitterTweetRules(res.data.twitter_tweet_rules)
         setTwitterAutoTweetIntervalMin(res.data.twitter_auto_tweet_interval_min)
         setTwitterAutoTweetIntervalMax(res.data.twitter_auto_tweet_interval_max)
-        setTwitterAutoTweetStartPhrases(
-          res.data.twitter_auto_tweet_start_phrases
-        )
         setTwitterBotName(res.data.twitter_bot_name)
         setTwitterBotNameRegex(res.data.twitter_bot_name_regex)
         setTwitterSpellHandlerIncoming(res.data.twitter_spell_handler_incoming)
+        setTwitterSpellHandlerAuto(res.data.twitter_spell_handler_auto)
 
         setTelegramEnabled(res.data.telegram_enabled === true)
         setTelegramBotToken(res.data.telegram_bot_token)
@@ -403,10 +400,10 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_tweet_rules,
       twitter_auto_tweet_interval_min,
       twitter_auto_tweet_interval_max,
-      twitter_auto_tweet_start_phrases,
       twitter_bot_name,
       twitter_bot_name_regex,
       twitter_spell_handler_incoming,
+      twitter_spell_handler_auto,
       telegram_enabled,
       telegram_bot_token,
       telegram_bot_name,
@@ -515,14 +512,12 @@ const EntityWindow = ({ id, updateCallback }) => {
           setTwitterAutoTweetIntervalMax(
             responseData.twitter_auto_tweet_interval_max
           )
-          setTwitterAutoTweetStartPhrases(
-            responseData.twitter_auto_tweet_start_phrases
-          )
           setTwitterBotName(responseData.twitter_bot_name)
           setTwitterBotNameRegex(responseData.twitter_bot_name_regex)
           setTwitterSpellHandlerIncoming(
             responseData.twitter_spell_handler_incoming
           )
+          setTwitterSpellHandlerAuto(responseData.twitter_spell_handler_auto)
 
           setTelegramEnabled(responseData.telegram_enabled)
           setTelegramBotToken(responseData.telegram_bot_token)
@@ -641,10 +636,10 @@ const EntityWindow = ({ id, updateCallback }) => {
       twitter_tweet_rules,
       twitter_auto_tweet_interval_min,
       twitter_auto_tweet_interval_max,
-      twitter_auto_tweet_start_phrases,
       twitter_bot_name,
       twitter_bot_name_regex,
       twitter_spell_handler_incoming,
+      twitter_spell_handler_auto,
       telegram_enabled,
       telegram_bot_token,
       telegram_bot_name,
@@ -1336,18 +1331,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                 />
               </div>
               <div className="form-item">
-                <span className="form-item-label">
-                  Twitter Auto Start Phrases - Separated by |
-                </span>
-                <input
-                  type="text"
-                  defaultValue={twitter_auto_tweet_start_phrases}
-                  onChange={e => {
-                    setTwitterAutoTweetStartPhrases(e.target.value)
-                  }}
-                />
-              </div>
-              <div className="form-item">
                 <span className="form-item-label">Bot Name</span>
                 <input
                   type="text"
@@ -1377,6 +1360,26 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={twitter_spell_handler_incoming}
                   onChange={event => {
                     setTwitterSpellHandlerIncoming(event.target.value)
+                  }}
+                >
+                  {spellList.length > 0 &&
+                    spellList.map((spell, idx) => (
+                      <option value={spell.name} key={idx}>
+                        {spell.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="form-item agent-select">
+                <span className="form-item-label">
+                  Spell Handler (Auto tweets)
+                </span>
+                <select
+                  name="spellHandlerIncoming"
+                  id="spellHandlerIncoming"
+                  value={twitter_spell_handler_auto}
+                  onChange={event => {
+                    setTwitterSpellHandlerAuto(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&

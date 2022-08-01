@@ -71,6 +71,7 @@ import { DocumentSetMass } from './search/DocumentSetMass'
 import { RSSGet } from './search/RSSGet'
 import { CustomTextCompletion } from './entities/CustomTextCompletion'
 import { IsQuery } from './logic/IsQuery'
+import { VariableReplacer } from './utility/VariableReplacer'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -91,6 +92,7 @@ export const components = {
   entityDetector: () => new EntityDetector(),
   complexStringMatcher: () => new ComplexStringMatcher(),
   echo: () => new Echo(),
+  variableReplacer: () => new VariableReplacer(),
   SummarizeFacts: () => new SummarizeFacts(),
   textToSpeech: () => new TextToSpeech(),
   agentTextCompletion: () => new AgentTextCompletion(),
