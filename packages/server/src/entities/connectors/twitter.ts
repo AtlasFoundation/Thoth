@@ -7,7 +7,6 @@
 import { database } from '../../database'
 import { TwitterApi, ETwitterStreamEvent } from 'twitter-api-v2'
 
-import { handleInput } from './handleInput'
 import { randomInt } from './utils'
 
 function log(...s: (string | boolean)[]) {
@@ -45,21 +44,18 @@ export class twitter_client {
         this.twitter_auto_tweet_interval_min,
         this.twitter_auto_tweet_interval_max
       ) * 60000
-    sleep(interval)
-
-    const input =
-      this.twitter_auto_tweet_start_phrases[
-        randomInt(0, this.twitter_auto_tweet_start_phrases.length - 1)
-      ]
+    console.log('await interval:', interval)
+    await sleep(interval)
 
     const resp = await spellHandler(
-      input,
+      '',
       'user',
       this.settings.twitter_bot_name ?? 'Agent',
       'twitter',
       'auto_tweet',
       this.settings.entity,
-      []
+      [],
+      'auto'
     )
     console.log('generated automatic tweet:', resp)
 
@@ -67,9 +63,9 @@ export class twitter_client {
     this.automatic_tweet(spellHandler)
   }
 
-  async handleMessage(response, chat_id, args, twitter, twitterV1, localUser) {
+  async handleMessage(response, chat_id, args) {
     if (args === 'DM') {
-      const dmSent = await twitterV1.v1.sendDm({
+      const dmSent = await this.twitterV1.v1.sendDm({
         recipient_id: chat_id,
         text: response,
       })
@@ -96,17 +92,23 @@ export class twitter_client {
   twitterv1: TwitterApi
   twitterv2: TwitterApi
   spellHandler
+  spellHandlerAuto
   settings
   entity
   twitter_enable_twits: boolean = false
   twitter_tweet_rules: string = ''
   twitter_auto_tweet_interval_min: number = 0
   twitter_auto_tweet_interval_max: number = 0
-  twitter_auto_tweet_start_phrases: string[] = []
 
-  createTwitterClient = async (spellHandler, settings, entity) => {
+  createTwitterClient = async (
+    spellHandler,
+    spellHandlerAuto,
+    settings,
+    entity
+  ) => {
     console.log('TWITTER SETTINGS:', settings)
     this.spellHandler = spellHandler
+    this.spellHandlerAuto = spellHandlerAuto
     this.settings = settings
     this.entity = entity
     this.twitter_enable_twits =
@@ -127,14 +129,6 @@ export class twitter_client {
     }
     if (temp_max && temp_max.length > 0) {
       this.twitter_auto_tweet_interval_max = parseInt(temp_max)
-    }
-
-    if (
-      settings.twitter_auto_tweet_start_phrases &&
-      settings.twitter_auto_tweet_start_phrases?.length > 0
-    ) {
-      this.twitter_auto_tweet_start_phrases =
-        settings.twitter_auto_tweet_start_phrases.split('|')
     }
 
     const bearerToken = settings.twitter_token
@@ -164,17 +158,17 @@ export class twitter_client {
       twitterAccessTokenSecret
     )
     console.log('creating v2')
-    /*
+
     this.twitterv2 = createTwitterClientV2(bearerToken)
     const localUser = await this.twitterv2.v2.userByUsername(twitterUser)
-    setInterval(async () => {
+    /*setInterval(async () => {
       const tv1 = this.twitterv1
       try {
         console.log('requesting events')
         const eventsPaginator = await this.twitterv1.v1.listDmEvents()
         console.log('events:', eventsPaginator)
         for await (const event of eventsPaginator) {
-          log(
+          log(p
             'Event: ' + JSON.stringify(event.message_create.message_data.text)
           )
           if (event.type == 'message_create') {
@@ -196,15 +190,13 @@ export class twitter_client {
               'twitter',
               event.id,
               settings.entity,
-              []
+              [],
+              'dm'
             )
             /* await this.handleMessage(
               resp,
               event.id,
               'DM',
-              twitter,
-              tv1,
-              localUser
             )
           }
         }
@@ -216,11 +208,10 @@ export class twitter_client {
     if (
       this.twitter_auto_tweet_interval_min > 0 &&
       this.twitter_auto_tweet_interval_max > 0 &&
-      this.twitter_auto_tweet_start_phrases.length > 0 &&
       this.twitter_auto_tweet_interval_min <
         this.twitter_auto_tweet_interval_max
     ) {
-      this.automatic_tweet(spellHandler)
+      this.automatic_tweet(spellHandlerAuto)
     }
 
     if (this.twitter_enable_twits) {
@@ -231,7 +222,7 @@ export class twitter_client {
           delete: { ids: rules.data.map(rule => rule.id) },
         })
       }
-      const tweetRules = 'digital,being,digital being'.split(',')
+      const tweetRules = this.twitter_tweet_rules.split(',')
       const _rules = []
       const regex = []
       for (let x in tweetRules) {
@@ -280,16 +271,10 @@ export class twitter_client {
                 'twitter',
                 twit.data.id,
                 settings.entity,
-                []
+                [],
+                'tweet'
               )
-              await this.handleMessage(
-                resp,
-                twit.data.id,
-                'Twit',
-                this.twitter,
-                null,
-                localUser
-              )
+              await this.handleMessage(resp, twit.data.id, 'Twit')
 
               database.instance.setDataHandled(twit.data.id, 'twitter')
             }

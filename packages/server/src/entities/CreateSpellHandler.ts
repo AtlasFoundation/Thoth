@@ -138,7 +138,8 @@ export const CreateSpellHandler = async (props: {
       inConversation: boolean
       isBot: boolean
       info3d: string
-    }[]
+    }[],
+    channel: string
   ) {
     const spellInputs = {
       Input: message,
@@ -148,6 +149,7 @@ export const CreateSpellHandler = async (props: {
       ChannelID: channelId,
       Entity: entity,
       RoomInfo: roomInfo,
+      Channel: channel,
     } as any
 
     // TODO: Remove this line

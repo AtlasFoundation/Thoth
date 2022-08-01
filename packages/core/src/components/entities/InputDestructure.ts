@@ -32,6 +32,7 @@ type InputReturn = {
     isBot: boolean
     info3d: string
   }[]
+  channel_type: string
 }
 
 export class InputDestructureComponent extends ThothComponent<
@@ -52,6 +53,7 @@ export class InputDestructureComponent extends ThothComponent<
         channel: 'output',
         entity: 'output',
         roomInfo: 'output',
+        channel_type: 'output',
         trigger: 'option',
       },
       init: (task = {} as Task, node: ThothNode) => {
@@ -78,6 +80,11 @@ export class InputDestructureComponent extends ThothComponent<
     const channelId = new Rete.Output('channel', 'channel', stringSocket)
     const entity = new Rete.Output('entity', 'entity', stringSocket)
     const roomInfo = new Rete.Output('roomInfo', 'roomInfo', arraySocket)
+    const channel_type = new Rete.Output(
+      'channel_type',
+      'channel_type',
+      stringSocket
+    )
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
     return node
@@ -89,6 +96,7 @@ export class InputDestructureComponent extends ThothComponent<
       .addOutput(channelId)
       .addOutput(entity)
       .addOutput(roomInfo)
+      .addOutput(channel_type)
       .addOutput(out)
       .addOutput(dataOutput)
   }
@@ -115,6 +123,7 @@ export class InputDestructureComponent extends ThothComponent<
       channel: (input as any)['ChannelID'] ?? 'TestChannel',
       entity: (input as any)['Entity'],
       roomInfo: (input as any)['RoomInfo'],
+      channel_type: (input as any)['Channel'],
     }
   }
 }

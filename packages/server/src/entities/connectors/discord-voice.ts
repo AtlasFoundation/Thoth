@@ -62,7 +62,8 @@ export function initSpeechClient(
           'discord',
           channel.id,
           entity,
-          roomInfo
+          roomInfo,
+          'voice'
         )
       )
       if (response === undefined || !response || response.length <= 0) {

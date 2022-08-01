@@ -44,7 +44,8 @@ export class twilio_client {
       'twilio',
       req.body.From,
       this.settings.entity,
-      []
+      [],
+      'msg'
     )
     await this.handleTwilioMsg(req.body.From, resp)
   }

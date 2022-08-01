@@ -43,7 +43,8 @@ export class instagram_client {
             'instagram',
             thread_v2_id,
             settings.entity,
-            []
+            [],
+            'msg'
           )
           console.log('resp of spellHandler ::: ', resp)
           const thread = ig.entity.directThread(userIds)

@@ -191,7 +191,8 @@ export class zoom {
             'zoom',
             this.settings.zoom_invitation_link,
             this.entity,
-            []
+            [],
+            'msg'
           )
           const tempResp = response
           console.log('RESP:', response)

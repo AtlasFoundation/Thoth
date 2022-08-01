@@ -45,10 +45,10 @@ export interface entitiesAttributes {
   twitter_tweet_rules?: string
   twitter_auto_tweet_interval_min?: string
   twitter_auto_tweet_interval_max?: string
-  twitter_auto_tweet_start_phrases?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
   twitter_spell_handler_incoming?: string
+  twitter_spell_handler_auto?: string
   telegram_enabled?: boolean
   telegram_bot_token?: string
   telegram_bot_name?: string
@@ -136,10 +136,10 @@ export type entitiesOptionalAttributes =
   | 'twitter_tweet_rules'
   | 'twitter_auto_tweet_interval_min'
   | 'twitter_auto_tweet_interval_max'
-  | 'twitter_auto_tweet_start_phrases'
   | 'twitter_bot_name'
   | 'twitter_bot_name_regex'
   | 'twitter_spell_handler_incoming'
+  | 'twitter_spell_handler_auto'
   | 'telegram_enabled'
   | 'telegram_bot_token'
   | 'telegram_bot_name'
@@ -240,10 +240,10 @@ export class entities
   twitter_tweet_rules?: string
   twitter_auto_tweet_interval_min?: string
   twitter_auto_tweet_interval_max?: string
-  twitter_auto_tweet_start_phrases?: string
   twitter_bot_name?: string
   twitter_bot_name_regex?: string
   twitter_spell_handler_incoming?: string
+  twitter_spell_handler_auto?: string
   telegram_enabled?: boolean
   telegram_bot_token?: string
   telegram_bot_name?: string
@@ -465,10 +465,6 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
-        twitter_auto_tweet_start_phrases: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
         twitter_bot_name: {
           type: DataTypes.TEXT,
           allowNull: true,
@@ -478,6 +474,10 @@ export class entities
           allowNull: true,
         },
         twitter_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_spell_handler_auto: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

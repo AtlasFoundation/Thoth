@@ -158,12 +158,6 @@ export class CustomTextCompletion extends ThothComponent<
     data += (inputs['Static Chat'] as string) ?? '' + '\n'
     data += inputs['Chat']
     data += '\n' + agent + ':'
-    data = data
-      .replace(/ai/g, agent)
-      .replace(/agent/g, agent)
-      .replace(/human/g, speaker)
-      .replace(/speaker/g, speaker)
-      .replace(/\n/g, '\n')
 
     const settings = ((rawInputs.settings && rawInputs.settings[0]) ??
       {}) as any
