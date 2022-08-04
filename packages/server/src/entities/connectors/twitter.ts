@@ -155,6 +155,36 @@ export class twitter_client {
 
     this.twitterv2 = createTwitterClientV2(bearerToken)
     const localUser = await this.twitterv2.v2.userByUsername(twitterUser)
+
+    setInterval(async () => {
+      console.log('fetch')
+      const homeTimeline = await this.twitterv1.v1.homeTimeline({
+        exclude_replies: false,
+        count: 99,
+      })
+
+      for await (const tweet of homeTimeline) {
+        if (
+          tweet.in_reply_to_status_id &&
+          tweet.in_reply_to_user_id === localUser.data.id
+        ) {
+          const user = await this.twitterv2.v2.user(tweet.user.id)
+
+          const resp = await this.spellHandler(
+            tweet.text,
+            user ? user.data.username : '',
+            tweet.user.screen_name,
+            'twitter',
+            tweet.in_reply_to_status_id,
+            this.settings.entity,
+            [],
+            'tweet'
+          )
+
+          await this.handleMessage(resp, tweet.in_reply_to_status_id, 'Twit')
+        }
+      }
+    }, 6000)
     setInterval(async () => {
       try {
         const eventsPaginator = await this.twitterv1.v1.listDmEvents()
@@ -228,7 +258,6 @@ export class twitter_client {
         const _rules = []
         const regex = []
         for (let x in tweetRules) {
-          console.log('rule: ' + tweetRules[x])
           _rules.push({ value: tweetRules[x] })
           regex.push(tweetRules[x])
         }
@@ -256,8 +285,6 @@ export class twitter_client {
               let authorName = 'unknown'
               const author = await this.twitterv2.v2.user(twit.data.author_id)
               if (author) authorName = author.data.username
-              let date = new Date()
-              if (twit.data.created_at) date = new Date(twit.data.created_at)
 
               const handled: boolean = await database.instance.dataIsHandled(
                 twit.data.id,
