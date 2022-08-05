@@ -90,6 +90,7 @@ export class twitter_client {
 
   twitterv1: TwitterApi
   twitterv2: TwitterApi
+  twitterv2_replies: TwitterApi
   spellHandler
   spellHandlerAuto
   settings
@@ -113,7 +114,6 @@ export class twitter_client {
       settings.twitter_enable_twits === true ||
       settings.twitter_enable_twits === 'true'
 
-    console.log(this.spellHandler)
     this.twitter_tweet_rules = settings.twitter_tweet_rules
     if (!this.twitter_tweet_rules || this.twitter_tweet_rules?.length === 0) {
       this.twitter_enable_twits = false
@@ -154,83 +154,55 @@ export class twitter_client {
     )
 
     this.twitterv2 = createTwitterClientV2(bearerToken)
+    this.twitterv2_replies = createTwitterClientV2(bearerToken)
     const localUser = await this.twitterv2.v2.userByUsername(twitterUser)
 
-    setInterval(async () => {
-      console.log('fetch')
-      const homeTimeline = await this.twitterv1.v1.homeTimeline({
-        exclude_replies: false,
-        count: 99,
-      })
+    const stream = await this.twitterv2_replies.v2.searchStream({
+      'tweet.fields': ['referenced_tweets', 'author_id'],
+      expansions: ['referenced_tweets.id'],
+    })
+    stream.autoReconnect = true
+    stream.on(ETwitterStreamEvent.Data, async twit => {
+      if (
+        twit.data.referenced_tweets &&
+        twit.includes &&
+        twit.data.referenced_tweets !== undefined &&
+        twit.includes !== undefined &&
+        twit.includes.tweets.length > 0 &&
+        twit.includes.tweets[0].author_id == localUser.data.id &&
+        twit.data.author_id !== localUser.data.id &&
+        twit.data.text.startsWith('@' + localUser.data.username)
+      ) {
+        console.log(twit.data)
+        console.log(twit.includes)
+        const handled: boolean = await database.instance.dataIsHandled(
+          twit.data.id,
+          'twitter'
+        )
+        if (!handled) {
+          const author = await this.twitterv2.v2.user(twit.data.author_id)
 
-      for await (const tweet of homeTimeline) {
-        if (
-          tweet.in_reply_to_status_id &&
-          tweet.in_reply_to_user_id === localUser.data.id
-        ) {
-          const user = await this.twitterv2.v2.user(tweet.user.id)
-
+          const input = twit.data.text.replace(
+            '@' + localUser.data.username,
+            ''
+          )
           const resp = await this.spellHandler(
-            tweet.text,
-            user ? user.data.username : '',
-            tweet.user.screen_name,
+            input,
+            author.data.name,
+            this.settings.twitter_bot_name ?? 'Agent',
             'twitter',
-            tweet.in_reply_to_status_id,
-            this.settings.entity,
+            twit.data.id,
+            settings.entity,
             [],
             'tweet'
           )
 
-          await this.handleMessage(resp, tweet.in_reply_to_status_id, 'Twit')
+          await this.handleMessage(resp, twit.data.id, 'Twit')
+
+          database.instance.setDataHandled(twit.data.id, 'twitter')
         }
       }
-    }, 6000)
-    setInterval(async () => {
-      try {
-        const eventsPaginator = await this.twitterv1.v1.listDmEvents()
-        for await (const event of eventsPaginator) {
-          if (event.type == 'message_create') {
-            if (event.message_create.sender_id == localUser.data.id) {
-              return
-            }
-            const handled: boolean = await database.instance.dataIsHandled(
-              event.id,
-              'twitter_dm'
-            )
-
-            if (!handled) {
-              let authorName = 'Sender'
-              const author = await this.twitterv2.v2.user(
-                event.message_create.sender_id
-              )
-              if (author) authorName = author.data.username
-
-              const body = event.message_create.message_data.text
-
-              if (authorName === 'alextitonis') {
-                const resp = await this.spellHandler(
-                  body,
-                  authorName,
-                  this.settings.twitter_bot_name ?? 'Agent',
-                  'twitter',
-                  event.id,
-                  settings.entity,
-                  [],
-                  'dm'
-                )
-                if (resp && resp?.length > 0) {
-                  await this.handleMessage(resp, author.data.id, 'DM')
-                }
-
-                await database.instance.setDataHandled(event.id, 'twitter_dm')
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    }, 25000)
+    })
 
     if (
       this.twitter_auto_tweet_interval_min > 0 &&
@@ -274,8 +246,17 @@ export class twitter_client {
             twit.data.referenced_tweets?.some(
               twit => twit.type === 'retweeted'
             ) ?? false
+          const isReply =
+            twit.data.referenced_tweets &&
+            twit.includes &&
+            twit.data.referenced_tweets !== undefined &&
+            twit.includes !== undefined &&
+            twit.includes.tweets.length > 0 &&
+            twit.includes.tweets[0].author_id == localUser.data.id
+
           if (
             isARt ||
+            isReply ||
             (localUser !== undefined &&
               twit.data.author_id == localUser.data.id)
           ) {
