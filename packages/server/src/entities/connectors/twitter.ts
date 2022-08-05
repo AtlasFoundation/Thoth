@@ -197,7 +197,15 @@ export class twitter_client {
             'tweet'
           )
 
-          await this.handleMessage(resp, twit.data.id, 'Twit')
+          if (resp && resp !== undefined && resp?.length > 0) {
+            if (resp === 'like' || resp === 'heart') {
+              await this.twitterv2.v2.like(localUser.data.id, twit.data.id)
+            } else if (resp !== 'ignore') {
+              await this.handleMessage(resp, twit.data.id, 'Twit')
+            } else if (resp === 'retweet') {
+              await this.twitterv2.v2.retweet(localUser.data.id, twit.data.id)
+            }
+          }
 
           database.instance.setDataHandled(twit.data.id, 'twitter')
         }
@@ -284,7 +292,21 @@ export class twitter_client {
                   'tweet'
                 )
 
-                await this.handleMessage(resp, twit.data.id, 'Twit')
+                if (resp && resp !== undefined && resp?.length > 0) {
+                  if (resp === 'like' || resp === 'heart') {
+                    await this.twitterv2.v2.like(
+                      localUser.data.id,
+                      twit.data.id
+                    )
+                  } else if (resp !== 'ignore') {
+                    await this.handleMessage(resp, twit.data.id, 'Twit')
+                  } else if (resp === 'retweet') {
+                    await this.twitterv2.v2.retweet(
+                      localUser.data.id,
+                      twit.data.id
+                    )
+                  }
+                }
 
                 database.instance.setDataHandled(twit.data.id, 'twitter')
               }
