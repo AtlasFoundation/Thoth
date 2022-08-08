@@ -1,540 +1,360 @@
-//@ts-ignore
-import cors from '@koa/cors'
-//@ts-ignore
+//@ts-nocheck
+import { SearchSchema } from 'src/types'
 import weaviate from 'weaviate-client'
-import { config } from 'dotenv-flow'
-import HttpStatus from 'http-status-codes'
-import Koa from 'koa'
-import koaBody from 'koa-body'
-import Router from '@koa/router'
-import axios from 'axios'
-import {
-  includeInFields,
-  removePunctuation,
-  simplifyWords,
-} from '../utils/utils'
-import { database } from '../database'
-import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
-import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'
-import https from 'https'
-import {
-  deleteDocument,
-  search,
-  singleTrain,
-  updateDocument,
-} from './weaviateClient'
+import { classifyText } from '../../../core/src/utils/textClassifier'
+import path from 'path'
+import { database } from '../database'
+import axios from 'axios'
+import { ClassifierSchema } from '../types'
 
-config({ path: '.env' })
-const searchEngine = 'davinci'
-const client = weaviate.client({
-  scheme: 'http',
-  host: 'semantic-search-wikipedia-with-weaviate.api.vectors.network:8080/',
-})
-const saved_docs: any[] = []
+const DOCUMENTS_CLASS_NAME = 'DataStore'
+const saved_docs: SearchSchema[] = []
+let client: weaviate.client
 
-export async function initSearchCorpus(ignoreDotEnv: boolean) {
-  if (ignoreDotEnv === false && process.env.ENABLE_SEARCH_CORPUS === 'false') {
+export async function initWeaviateClient(
+  _train: boolean,
+  _trainClassifier: boolean
+) {
+  client = weaviate.client({
+    scheme: process.env.WEAVIATE_CLIENT_SCHEME,
+    host: process.env.WEAVIATE_CLIENT_HOST,
+  })
+
+  if (_train) {
+    console.time('train')
+
+    const data = await trainFromUrl(
+      'https://www.toptal.com/developers/feed2json/convert?url=https%3A%2F%2Ffeeds.simplecast.com%2F54nAGcIl'
+    )
+    const data2 = JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '..', '..', '/weaviate/test_data.json'),
+        'utf-8'
+      )
+    )
+    for (let i = 0; i < data2.length; i++) {
+      data.push(data2[i])
+    }
+
+    await train(data)
+    console.timeEnd('train')
+  }
+
+  if (_trainClassifier) {
+    await trainClassifier(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(__dirname, '..', '..', '/weaviate/classifier_data.json'),
+          'utf-8'
+        )
+      )
+    )
+  }
+}
+
+async function trainClassifier(data: ClassifierSchema[]) {
+  if (!client) {
+    initWeaviateClient(false)
+  }
+
+  if (!data || data === undefined) {
     return
   }
 
-  if (!database.instance || database.instance === undefined) {
-    new database().connect()
-    await initClassifier()
+  for (let i = 0; i < data.length; i++) {
+    if (Array.isArray(data[i].examples)) {
+      data[i].examples = (data[i].examples as string[]).join(', ')
+    }
+
+    console.log(typeof data[i].examples, data[i].examples)
+
+    const res = await client.data
+      .creator()
+      .withClassName('Emotion')
+      .withProperties(data[i])
+      .do()
+
+    console.log(res)
   }
-
-  const app: Koa = new Koa()
-  const router: Router = new Router()
-
-  const options = {
-    origin: '*',
-  }
-  app.use(cors(options))
-  app.use(koaBody({ multipart: true }))
-
-  router.get('/document-store', async function (ctx: Koa.Context) {
-    const stores = await database.instance.getDocumentStores()
-    return (ctx.body = stores.sort((a, b) => a.id - b.id))
-  })
-  router.get('/document', async function (ctx: Koa.Context) {
-    const storeId = ctx.query.storeId
-    if (!storeId || storeId === undefined) {
-      ctx.response.status = 400
-      return (ctx.body = [])
-    }
-
-    const documents: any = await database.instance.getDocumentsOfStore(storeId)
-    return (ctx.body = documents)
-  })
-  router.get('/document/:docId', async function (ctx: Koa.Context) {
-    const docId = ctx.params.docId
-    if (!docId || docId === undefined) {
-      ctx.response.status = 400
-      return (ctx.body = {})
-    }
-    const doc = await database.instance.getSingleDocument(docId)
-    return (ctx.body = doc)
-  })
-  router.post('/document', async function (ctx: Koa.Context) {
-    const { body } = ctx.request
-    const description = body?.description || ''
-    const title = body?.title || ''
-    const isIncluded = body?.isIncluded && true
-    const storeId = body?.storeId
-
-    if (!storeId || storeId === undefined) {
-      ctx.response.status = 400
-      return (ctx.body = {
-        error: 'You need to create a Document Store first',
-      })
-    }
-
-    let id = -1
-    try {
-      id = await database.instance.addDocument(
-        title,
-        description,
-        isIncluded,
-        storeId
-      )
-      await singleTrain({
-        title: title ?? 'Document',
-        description: description,
-      })
-      /*const resp = await axios.get(
-        `${process.env.PYTHON_SERVER_URL}/update_search_model`
-      )
-      if (resp.data.status != 'ok') {
-        ctx.response.status = 400
-        return (ctx.body = 'internal error')
-      }*/
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-
-    if (id === -1) {
-      return (ctx.body = 'internal error')
-    }
-
-    return (ctx.body = { documentId: id })
-  })
-  router.post('/document_mass', async function (ctx: Koa.Context) {
-    const { body } = ctx.request
-    let storeId = body?.storeId
-    const documents = body?.documents
-    const store_name = body?.store_name
-
-    console.log('GOT STORE ID:', storeId, 'DOCUMENTS:', documents)
-    if (!storeId || storeId === undefined) {
-      storeId = await database.instance.getSingleDocumentStore(
-        store_name && store_name?.length > 0 ? store_name : 'rss_feed'
-      )
-      if (storeId?.length <= 0 || storeId === undefined || !storeId) {
-        storeId = await database.instance.addDocumentStore(
-          store_name && store_name?.length > 0 ? store_name : 'rss_feed'
-        )
-      } else {
-        if (storeId[0] && storeId[0] !== undefined) {
-          storeId = storeId[0].id
-        } else {
-          storeId = await database.instance.addDocumentStore(
-            store_name && store_name?.length > 0 ? store_name : 'rss_feed'
-          )
-        }
-      }
-    }
-
-    let id = -1
-    try {
-      for (let i = 0; i < documents.length; i++) {
-        if (
-          saved_docs.includes({
-            title: documents[i].title,
-            description: documents[i].description,
-          })
-        ) {
-          continue
-        }
-
-        id = await database.instance.addDocument(
-          documents[i].title,
-          documents[i].description,
-          true,
-          storeId
-        )
-        saved_docs.push({
-          title: documents[i].title,
-          description: documents[i].description,
-        })
-        await singleTrain({
-          title: documents[i].title ?? 'Document',
-          description: documents[i].description,
-        })
-      }
-      /*const resp = await axios.get(
-        `${process.env.PYTHON_SERVER_URL}/update_search_model`
-      )
-      if (resp.data.status != 'ok') {
-        ctx.response.status = 400
-        return (ctx.body = 'internal error')
-      }*/
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-
-    if (id === -1) {
-      return (ctx.body = 'internal error')
-    }
-
-    return (ctx.body = { documentId: id })
-  })
-  router.delete('/document', async function (ctx: Koa.Context) {
-    const documentId = ctx.query.documentId
-    const doc = await database.instance.getSingleDocument(documentId)
-
-    try {
-      await database.instance.removeDocument(documentId)
-      if (doc) {
-        await deleteDocument(doc.title ?? 'Document', doc.description)
-      }
-      /*const resp = await axios.get(
-        `${process.env.PYTHON_SERVER_URL}/update_search_model`
-      )
-      await deleteDocument()
-      if (resp.data.status != 'ok') {
-        return (ctx.body = 'internal error')
-      }*/
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-
-    return (ctx.body = 'ok')
-  })
-  router.post('/update_document', async function (ctx: Koa.Context) {
-    const { body } = ctx.request
-    const documentId = body?.documentId
-    const description = body?.description || ''
-    const title = body?.title || ''
-    const isIncluded = body?.isIncluded && true
-    const storeId = body?.storeId
-    const doc = await database.instance.getSingleDocument(documentId)
-
-    if (!storeId || storeId === undefined) {
-      ctx.response.status = 400
-      return (ctx.body = {
-        error: 'You need to create a Document Store first',
-      })
-    }
-
-    try {
-      await database.instance.updateDocument(
-        documentId,
-        title,
-        description,
-        isIncluded,
-        storeId
-      )
-      if (doc) {
-        await updateDocument(
-          doc.title ?? 'Document',
-          title ?? 'Document',
-          doc.description,
-          description
-        )
-      }
-      /*const resp = await axios.get(
-        `${process.env.PYTHON_SERVER_URL}/update_search_model`
-      )
-      await updateDocument()
-      if (resp.data.status != 'ok') {
-        return (ctx.body = 'internal error')
-      }*/
-      //update document
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-
-    return (ctx.body = 'ok')
-  })
-  router.get('/search', async function (ctx: Koa.Context) {
-    const question = ctx.request.query?.question as string
-
-    const searchResult = await search(question)
-
-    return (ctx.body = searchResult.description)
-  })
-  router.post('/vector_search', async function (ctx: Koa.Context) {
-    const question = ctx.request.body?.question as string
-    console.log('question:', question)
-    const cleanQuestion = removePunctuation(question)
-
-    const resp = await axios.post(`${process.env.PYTHON_SERVER_URL}/search`, {
-      isKeywords: false,
-      query: cleanQuestion,
-    })
-
-    return (ctx.body =
-      resp.data.status == 'ok' && resp.data.data.length > 0
-        ? resp.data.data
-        : 'No documents where found to search from!')
-  })
-
-  router.post('/content-object', async function (ctx: Koa.Context) {
-    const { body } = ctx.request
-    const description = body?.description || ''
-    const title = body?.title || 'Title'
-    const isIncluded = body?.isIncluded && true
-    const documentId = body?.documentId
-
-    let id = -1
-    try {
-      id = await database.instance.addContentObj(
-        title,
-        description,
-        isIncluded,
-        documentId
-      )
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-
-    if (id === -1) {
-      return (ctx.body = 'internal error')
-    }
-
-    return (ctx.body = { contentObjId: id })
-  })
-  router.put('/content-object', async function (ctx: Koa.Context) {
-    const { body } = ctx.request
-    const objId = body.objId
-    const description = body?.description || ''
-    const title = body?.title || 'Title'
-    const isIncluded = body?.isIncluded && true
-    const documentId = body?.documentId
-
-    try {
-      await database.instance.editContentObj(
-        objId,
-        title,
-        description,
-        isIncluded,
-        documentId
-      )
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-
-    return (ctx.body = 'ok')
-  })
-  router.get('/content-object', async function (ctx: Koa.Context) {
-    const documentId = ctx.query.documentId
-    const contentObjects: any = await database.instance.getContentObjOfDocument(
-      documentId
-    )
-
-    return (ctx.body = contentObjects)
-  })
-  router.delete('/content-object', async function (ctx: Koa.Context) {
-    const objId = ctx.query.objId
-    try {
-      await database.instance.removeContentObject(objId)
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-    return (ctx.body = 'ok')
-  })
-
-  router.get('/document-store', async function (ctx: Koa.Context) {
-    const stores = await database.instance.getDocumentStores()
-    return (ctx.body = stores)
-  })
-  router.get('/document-store/:name', async function (ctx: Koa.Context) {
-    const name = ctx.params.name
-    const store = await database.instance.getSingleDocumentStore(name)
-    return (ctx.body = store)
-  })
-  router.post('/document-store', async function (ctx: Koa.Context) {
-    const name = ctx.request.body?.name || ''
-    let id = -1
-    try {
-      id = await database.instance.addDocumentStore(name)
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-    if (id === -1) return (ctx.body = 'internal error')
-    return (ctx.body = { documentStoreId: id })
-  })
-  router.put('/document-store', async function (ctx: Koa.Context) {
-    const storeId = ctx.request.body?.id
-    const name = ctx.request.body?.name || ''
-    try {
-      await database.instance.updateDocumentStore(storeId, name)
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-    return (ctx.body = 'ok')
-  })
-  router.delete('/document-store', async function (ctx: Koa.Context) {
-    const storeId = ctx.query.storeId
-    try {
-      const documents = await database.instance.getDocumentsOfStore(storeId)
-      if (documents && documents.length > 0) {
-        for (let i = 0; i < documents.length; i++) {
-          await deleteDocument(
-            documents[i].title ?? 'Document',
-            documents[i].description
-          )
-        }
-      }
-
-      await database.instance.removeDocumentStore(storeId)
-    } catch (e) {
-      console.log(e)
-      return (ctx.body = 'internal error')
-    }
-    return (ctx.body = 'ok')
-  })
-
-  app.use(router.routes()).use(router.allowedMethods())
-
-  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
-    try {
-      await next()
-    } catch (error) {
-      ctx.status =
-        error.statusCode || error.status || HttpStatus.INTERNAL_SERVER_ERROR
-      error.status = ctx.status
-      ctx.body = { error }
-      ctx.app.emit('error', error, ctx)
-    }
-  })
-
-  const PORT: number = Number(process.env.SEARCH_CORPUS_PORT) || 65531
-  const useSSL =
-    process.env.USESSL === 'true' &&
-    fs.existsSync('certs/') &&
-    fs.existsSync('certs/key.pem') &&
-    fs.existsSync('certs/cert.pem')
-
-  let sslOptions = {
-    rejectUnauthorized: false,
-    key: useSSL ? fs.readFileSync('certs/key.pem') : '',
-    cert: useSSL ? fs.readFileSync('certs/cert.pem') : '',
-  }
-
-  useSSL
-    ? https
-      .createServer(sslOptions, app.callback())
-      .listen(PORT, '0.0.0.0', () => {
-        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-      })
-    : https
-      .createServer({ rejectUnauthorized: false }, app.callback())
-      .listen(PORT, '0.0.0.0', () => {
-        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-      })
 }
 
-export async function extractKeywords(input: string): Promise<string[]> {
-  const keywords: string[] = []
+async function train(data: SearchSchema[]) {
+  if (!client) {
+    initWeaviateClient(false)
+  }
 
-  const res = keyword_extractor.extract(input, {
-    language: 'english',
-    remove_digits: true,
-    return_changed_case: true,
-    remove_duplicates: true,
-  })
+  if (!data || data === undefined) {
+    return
+  }
 
-  if (res.length == 0) {
+  for (let i = 0; i < data.length; i++) {
+    const object: SearchSchema = {
+      title: data[i].title,
+      description: data[i].description,
+    }
+    if (saved_docs.includes(object)) {
+      continue
+    }
+
+    saved_docs.push(object)
+    const res = await client.data
+      .creator()
+      .withClassName(DOCUMENTS_CLASS_NAME)
+      .withProperties(object)
+      .do()
+
+    console.log(res)
+  }
+
+  const documents = await database.instance.getAllDocuments()
+  if (documents && documents.length > 0) {
+    for (let i = 0; i < documents.length; i++) {
+      const object = {
+        title: 'Document',
+        description: documents[i].description,
+      }
+      if (saved_docs.includes(object)) {
+        continue
+      }
+
+      saved_docs.push(object)
+      const res = await client.data
+        .creator()
+        .withClassName(DOCUMENTS_CLASS_NAME)
+        .withProperties(object)
+        .do()
+      console.log(res)
+    }
+  }
+
+  console.log('trained client')
+}
+
+async function trainFromUrl(url: string): Promise<SearchSchema[]> {
+  if (!url || url.length <= 0) {
     return []
   }
 
-  const result: any = await MakeModelRequest(input, 'flair/pos-english')
-
-  for (let i = 0; i < res.length; i++) {
-    for (let j = 0; j < result.length; j++) {
-      if (result[j].word === res[i]) {
-        if (
-          result[j].entity_group === 'NN' ||
-          result[j].entity_group === 'NNS'
-        ) {
-          keywords.push(res[i])
-          break
-        }
-      }
-    }
-  }
-  if (keywords.length === 0) {
+  const res = await axios.get(url)
+  const data = res.data
+  if (!data || data === undefined) {
     return []
   }
 
-  let totalLength = 0
-  const respp: string[] = []
-  for (let i = 0; i < keywords.length; i++) {
-    const weaviateResponse: any = await makeWeaviateRequest(keywords[i])
+  const items = data.items
+  if (!items || items === undefined) {
+    return []
+  }
 
-    if (weaviateResponse.Paragraph.length > 0) {
-      const sum: any = await MakeModelRequest(
-        weaviateResponse.Paragraph[0].content,
-        'facebook/bart-large-cnn'
-      )
-      if (sum && sum.length > 0) {
-        totalLength += sum[0].summary_text.length
-        if (totalLength > 1000) {
-          return keywords
-        }
-        respp.push(keywords[i])
-      }
+  const _data: SearchSchema[] = []
+  for (let i = 0; i < items.length; i++) {
+    const object: SearchSchema = {
+      title: items[i].title,
+      description: items[i].content_html
+        .replace('<br>', '\\n')
+        .replace('</p>', '\\n')
+        .replace(/<[^>]*>?/gm, ''),
     }
+    _data.push(object)
   }
-  return respp
+
+  return _data
 }
 
-export async function MakeModelRequest(
-  inputs: any,
-  model: string,
-  parameters = {},
-  options = { use_cache: false, wait_for_model: true }
-) {
-  try {
-    const response = await axios.post(
-      `https://api-inference.huggingface.co/models/${model}`,
-      { inputs, parameters, options },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`,
-        },
-      }
-    )
-    return await response.data
-  } catch (err) {
-    console.error(err)
-    return { success: false }
+export async function singleTrain(data: SearchSchema) {
+  if (!client) {
+    initWeaviateClient(false)
   }
-}
-export const makeWeaviateRequest = async (keyword: string) => {
-  const res = await client.graphql
-    .get()
-    .withNearText({
-      concepts: [keyword],
-      certainty: 0.75,
-    })
-    .withClassName('Paragraph')
-    .withFields('title content inArticle { ... on Article {  title } }')
-    .withLimit(3)
+
+  if (!data || data === undefined) {
+    return
+  }
+
+  const object: SearchSchema = {
+    title: data.title,
+    description: data.description,
+  }
+  if (saved_docs.includes(object)) {
+    return
+  }
+
+  saved_docs.push(object)
+  const res = await client.data
+    .creator()
+    .withClassName(DOCUMENTS_CLASS_NAME)
+    .withProperties(object)
     .do()
 
-  if (res.data.Get !== undefined) {
-    return res.data.Get
+  console.log(res)
+}
+
+export async function search(query: string): SearchSchema {
+  if (!client || client === undefined) {
+    await initWeaviateClient(false, false)
   }
-  return
+
+  const info = await client.graphql
+    .get()
+    .withClassName(DOCUMENTS_CLASS_NAME)
+    .withFields('title description')
+    .withNearText({
+      concepts: [query],
+      certainty: 0.6,
+    })
+    .do()
+
+  if (info.errors) {
+    console.log(info.errors)
+    return { title: '', description: '' }
+  }
+
+  if (
+    info['data'] &&
+    info['data']['Get'] &&
+    info['data']['Get'][DOCUMENTS_CLASS_NAME] &&
+    info['data']['Get'][DOCUMENTS_CLASS_NAME].length > 0
+  ) {
+    const data = info['data']['Get'][DOCUMENTS_CLASS_NAME][0]
+
+    return {
+      title: data.title,
+      description: data.description,
+    }
+  } else {
+    return { title: '', description: '' }
+  }
+}
+export async function classify(query: string): Promise<string> {
+  if (!client || client === undefined) {
+    return ''
+  }
+
+  const info = await client.graphql
+    .get()
+    .withClassName('Emotion')
+    .withFields(['type', 'examples'])
+    .withNearText({
+      concepts: [query],
+      certainty: 0.7,
+    })
+    .do()
+
+  if (info.errors) {
+    console.log(info.errors)
+    return ''
+  }
+
+  if (
+    info['data'] &&
+    info['data']['Get'] &&
+    info['data']['Get']['Emotion'] &&
+    info['data']['Get']['Emotion'].length > 0
+  ) {
+    const data = info['data']['Get']['Emotion'][0]
+
+    return data.type
+  } else {
+    return ''
+  }
+}
+
+async function getDocumentId(
+  title: string,
+  description: string
+): Promise<string> {
+  if (!client) {
+    await initWeaviateClient(false)
+  }
+
+  const docs = await client.data.getter().do()
+  for (let i = 0; i < docs.objects.length; i++) {
+    if (
+      docs.objects[i].properties.title == title &&
+      docs.objects[i].properties.description == description
+    ) {
+      return docs.objects[i].id
+    }
+  }
+
+  return ''
+}
+
+export async function updateDocument(
+  oldTitle: string,
+  newTitle: string,
+  oldDescription: string,
+  newDescription: string
+) {
+  if (!client) {
+    await initWeaviateClient(false)
+  }
+
+  if (
+    !oldTitle ||
+    oldTitle.length <= 0 ||
+    !newTitle ||
+    newTitle.length <= 0 ||
+    !oldDescription ||
+    oldDescription.length <= 0 ||
+    !newDescription ||
+    newDescription.length <= 0
+  ) {
+    return
+  }
+
+  if (oldTitle === newTitle && oldDescription === newDescription) {
+    return
+  }
+
+  const id = await getDocumentId(oldTitle, oldDescription)
+  if (id && id.length > 0) {
+    client.data
+      .getterById()
+      .withId(id)
+      .do()
+      .then(res => {
+        console.log('RES:', res)
+        const _class = res.class
+        const schema = res.properties
+        schema.title = newTitle
+        schema.description = newDescription
+
+        return client.data
+          .updater()
+          .withId(id)
+          .withClassName(_class)
+          .withProperties(schema)
+          .do()
+      })
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+}
+export async function deleteDocument(title: string, description: string) {
+  if (!client) {
+    await initWeaviateClient(false)
+  }
+
+  if (!title || title.length <= 0 || !description || description.length <= 0) {
+    return
+  }
+
+  const id = await getDocumentId(title, description)
+  if (id && id.length > 0) {
+    client.data
+      .deleter()
+      .withId(id)
+      .do()
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        console.error(err)
+      })
+  }
 }
