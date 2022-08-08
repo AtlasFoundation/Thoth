@@ -10,7 +10,7 @@
   ],
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=development yarn build:vendor && NODE_ENV=development webpack serve --config webpack.dev.js",
+    "start": "NODE_ENV=development vite",
     "stop": "pid=$(lsof -ti tcp:3003) && [[ $pid ]] && kill -9 $pid fi",
     "clean": "rimraf ../build",
     "lint": "eslint . --ignore-path ../.eslintignore --ext ts --ext tsx --ext js --ext jsx",
@@ -94,7 +94,8 @@
     "uuid": "^8.3.2",
     "vite-plugin-env-compatible": "^1.1.1",
     "vite-plugin-react": "^4.0.1",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "webpack-cli": "^4.10.0"
   },
   "devDependencies": {
     "@babel/plugin-external-helpers": "^7.14.5",
