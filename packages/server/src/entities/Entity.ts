@@ -682,7 +682,7 @@ export class Entity {
       new cacheManager()
     }
 
-    const custom_commands = JSON.parse(data.custom_commands)
+    const custom_commands = data.custom_commands && data.custom_commands?.length > 0 ? JSON.parse(data.custom_commands) : []
     const haveCustomCommands =
       data.use_custom_commands &&
       custom_commands?.length > 0 &&
