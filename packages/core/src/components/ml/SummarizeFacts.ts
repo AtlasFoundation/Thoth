@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -40,7 +42,7 @@ export class SummarizeFacts extends ThothComponent<Promise<InputReturn>> {
   }
 
   builder(node: ThothNode) {
-    if(!node.data.fewshot) node.data.fewshot = fewshot
+    if (!node.data.fewshot) node.data.fewshot = fewshot
 
     const inp = new Rete.Input('string', 'Input', stringSocket)
     const factsOut = new Rete.Output('output', 'Facts', stringSocket)

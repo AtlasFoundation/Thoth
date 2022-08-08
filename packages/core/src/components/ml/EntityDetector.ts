@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -12,7 +14,6 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { FewshotControl } from '../../dataControls/FewshotControl'
-import { EngineContext } from '../../../types'
 import { TaskOptions } from '../../plugins/taskPlugin/task'
 import { stringSocket, triggerSocket, arraySocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'

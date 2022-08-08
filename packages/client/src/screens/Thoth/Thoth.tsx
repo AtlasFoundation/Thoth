@@ -34,7 +34,7 @@ const Thoth = ({ empty = false }) => {
     // We should do better at this.  Probably with some kind of tab ordering.
     // Could fit in well with drag and drop for tabs
     if (tabs.length > 0 && !activeTab && !spellName)
-      navigate(`/thoth/${tabs[0].spellId}`)
+      navigate(`/thoth`)
 
     if (tabs.length === 0 && !activeTab && !spellName) navigate('/home')
   }, [tabs])

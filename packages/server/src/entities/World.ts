@@ -157,9 +157,9 @@ export class World {
     }
   }
 
-  async onDestroy() {}
+  async onDestroy() { }
 
-  async addEntity(obj: Entity) {
+  async addEntity(obj: any) {
     console.log('adding object', obj.id)
     if (this.objects[obj.id] === undefined) {
       this.objects[obj.id] = obj
@@ -170,7 +170,7 @@ export class World {
 
   async removeEntity(id: number) {
     if (this.objectExists(id)) {
-      await (this.objects[id] as Entity)?.onDestroy()
+      await this.objects[id]?.onDestroy()
       this.objects[id] = null
       delete this.objects[id]
       console.log('Removed ', id)

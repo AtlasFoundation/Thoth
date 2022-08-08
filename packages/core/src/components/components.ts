@@ -77,6 +77,9 @@ import { Merge } from './utility/Merge'
 import { WeaviateWikipedia } from './search/WeaviateWikipedia'
 import { GetWikipediaSummary } from './services/GetWikipediaSummary'
 import { OrGate } from './logic/OrGate'
+import { IsQuery } from './logic/IsQuery'
+import { VariableReplacer } from './utility/VariableReplacer'
+import { CustomTextCompletion } from './agents/CustomTextCompletion'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -100,14 +103,17 @@ export const components = {
   entityDetector: () => new EntityDetector(),
   complexStringMatcher: () => new ComplexStringMatcher(),
   echo: () => new Echo(),
+  variableReplacer: () => new VariableReplacer(),
   SummarizeFacts: () => new SummarizeFacts(),
   textToSpeech: () => new TextToSpeech(),
   agentTextCompletion: () => new AgentTextCompletion(),
+  customTextCompletion: () => new CustomTextCompletion(),
   keywordExtractor: () => new KeywordExtractor(),
   namedEntityRecognition: () => new NamedEntityRecognition(),
   createOrGetAgent: () => new CreateOrGetAgent(),
   Classifier: () => new Classifier(),
   isNullOrUndefined: () => new IsNullOrUndefined(),
+  isQuery: () => new IsQuery(),
   isVariableTrue: () => new IsVariableTrue(),
   conversationStore: () => new EventStore(),
   conversationRecall: () => new EventRecall(),
@@ -120,9 +126,9 @@ export const components = {
   documentSet: () => new DocumentSet(),
   documentSetMass: () => new DocumentSetMass(),
   documentStoreGet: () => new DocumentStoreGet(),
+  rssGet: () => new RSSGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
-  rssGet: () => new RSSGet(),
   cacheManagerGet: () => new CacheManagerGet(),
   cacheManagerDelete: () => new CacheManagerDelete(),
   cacheManagerSet: () => new CacheManagerSet(),

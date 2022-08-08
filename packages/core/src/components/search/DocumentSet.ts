@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable no-console */
 /* eslint-disable require-await */
@@ -41,6 +43,7 @@ export class DocumentSet extends ThothComponent<void> {
 
   builder(node: ThothNode) {
     const storeIdInput = new Rete.Input('storeId', 'Store ID', numSocket)
+    const titleInput = new Rete.Input('title', 'title', stringSocket)
     const descriptionInput = new Rete.Input(
       'description',
       'Description',
@@ -57,6 +60,7 @@ export class DocumentSet extends ThothComponent<void> {
 
     return node
       .addInput(storeIdInput)
+      .addInput(titleInput)
       .addInput(descriptionInput)
       .addInput(isIncludedInput)
       .addInput(dataInput)
@@ -71,16 +75,18 @@ export class DocumentSet extends ThothComponent<void> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const storeId = inputs['storeId'][0]
+    const title = inputs['title'] ? (inputs['title'][0] as string) : ''
     const description = inputs['description']
       ? (inputs['description'][0] as string)
       : ''
-    const is_included = inputs['isIncluded'][0] as string
+    const isIncluded = inputs['isIncluded'][0] as string
 
     const resp = await axios.post(
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/document`,
       {
+        title,
         description,
-        is_included,
+        isIncluded,
         storeId,
       }
     )

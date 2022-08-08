@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable no-console */
 /* eslint-disable require-await */
@@ -11,7 +13,7 @@ import {
   NodeData,
   ThothNode,
   ThothWorkerInputs,
-  ThothWorkerOutputs
+  ThothWorkerOutputs,
 } from '../../../types'
 import { agentSocket, stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'

@@ -1,6 +1,4 @@
 import buffer from 'buffer'
-;(window as any).buffer = buffer
-
 import './wdyr'
 import 'regenerator-runtime/runtime'
 import { render } from 'react-dom'

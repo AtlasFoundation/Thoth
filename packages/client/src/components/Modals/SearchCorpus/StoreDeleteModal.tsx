@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 //@ts-nocheck
 import Modal from '../../Modal/Modal'
 import css from '../modalForms.module.css'
@@ -6,7 +8,7 @@ import { useSnackbar } from 'notistack'
 
 const StoreDeleteModal = ({ closeModal, store, getDocumentsStores }) => {
   const { enqueueSnackbar } = useSnackbar()
-  
+
   const deleteStore = async () => {
     await axios.delete(
       `${process.env.REACT_APP_SEARCH_SERVER_URL}/document-store`,
@@ -20,7 +22,7 @@ const StoreDeleteModal = ({ closeModal, store, getDocumentsStores }) => {
     enqueueSnackbar('Document Store removed', { variant: 'success' })
     closeModal()
   }
-  
+
   const options = [
     {
       className: `${css['loginButton']} secondary`,
@@ -30,10 +32,12 @@ const StoreDeleteModal = ({ closeModal, store, getDocumentsStores }) => {
   ]
 
   return (
-    <Modal title='Warning' icon='warn' options={options}>
-      <p style={{ whiteSpace: 'pre-line' }}>Are you sure to delete store `{store.name}`?</p>
+    <Modal title="Warning" icon="warn" options={options}>
+      <p style={{ whiteSpace: 'pre-line' }}>
+        Are you sure to delete store `{store.name}`?
+      </p>
     </Modal>
-  );
+  )
 }
 
-export default StoreDeleteModal;
+export default StoreDeleteModal

@@ -3,6 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize'
 
 export interface contentObjAttributes {
   id: number
+  title: string
   description: string
   is_included: boolean
   documentId: number
@@ -19,6 +20,7 @@ export class contentObj
   implements contentObjAttributes
 {
   id: number
+  title: string
   description: string
   is_included: boolean
   documentId: number
@@ -31,6 +33,10 @@ export class contentObj
           allowNull: false,
           autoIncrement: false,
           primaryKey: true,
+        },
+        title: {
+          type: DataTypes.TEXT,
+          allowNull: false,
         },
         description: {
           type: DataTypes.TEXT,

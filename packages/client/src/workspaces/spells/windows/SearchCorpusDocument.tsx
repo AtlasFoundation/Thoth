@@ -100,6 +100,19 @@ const SearchCorpusDocument = ({ document, getDoc }) => {
         </div>
       </div>
       <div className="form-item">
+        <span className="form-item-label">Title</span>
+        <div className="d-flex justify-content-between align-items-center">
+          <input
+            type="text"
+            className="form-text-area"
+            style={{ width: '96%' }}
+            value={document.title}
+            readOnly
+          ></input>
+          <VscWand size={20} color='#A0A0A0' onClick={() => openEditModal('title')}/>  
+        </div>
+      </div>
+      <div className="form-item">
         <span className="form-item-label">Description</span>
         <div className="d-flex justify-content-between align-items-center">
           <input

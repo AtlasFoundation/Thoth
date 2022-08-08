@@ -1,4 +1,5 @@
-import thothCore from '@thothai/thoth-core/dist/server'
+import thothCore from '@thothai/thoth-core/server'
+import { ThothWorkerInputs } from '@thothai/thoth-core/types'
 import Koa from 'koa'
 import { CompletionRequest, completionsParser } from '../completions'
 import { Module } from './module'
@@ -45,6 +46,28 @@ export const buildThothInterface = (
       }
 
       gameState = newState
+    },
+    processCode: (
+      code: string,
+      inputs: ThothWorkerInputs,
+      data: any,
+      state: Record<string, unknown>
+    ) => {
+      const flattenedInputs = Object.entries(inputs).reduce(
+        (acc, [key, value]) => {
+          // @ts-ignore
+          acc[key as string] = value[0] as any
+          return acc
+        },
+        {} as Record<string, any>
+      )
+      // eslint-disable-next-line no-new-func
+      const result = new Function('"use strict";return (' + code + ')')()(
+        flattenedInputs,
+        data,
+        state
+      )
+      return result
     },
   }
 }

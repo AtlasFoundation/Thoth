@@ -29,10 +29,6 @@ const router: Router = new Router()
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 async function init() {
-  /*await convertToMp4(
-    'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
-    'test.mp4'
-  )*/
   // async function initLoop() {
   //   new roomManager()
   //   const expectedServerDelta = 1000 / 60

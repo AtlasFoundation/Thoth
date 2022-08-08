@@ -4,6 +4,7 @@
 // @ts-nocheck
 
 import { IgApiClient } from 'instagram-private-api'
+import { createWikipediaEntity } from './wikipedia'
 
 export class instagram_client {
   spellHandler
@@ -15,7 +16,7 @@ export class instagram_client {
   createInstagramClient = async (spellHandler, settings, entity) => {
     this.spellHandler = spellHandler
     this.settings = settings
-    this.entity = entity
+    this.entity = createWikipediaEntity
     this.haveCustomCommands = settings.haveCustomCommands
     this.custom_commands = settings.custom_commands
 
@@ -72,7 +73,8 @@ export class instagram_client {
             'instagram',
             thread_v2_id,
             settings.entity,
-            []
+            [],
+            'msg'
           )
           console.log('resp of spellHandler ::: ', resp)
           const thread = ig.entity.directThread(userIds)

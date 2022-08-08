@@ -21,6 +21,6 @@
     "rootDir": ".",
     "noEmit": true
   },
-  "exclude": ["node_modules", "*.d.ts"]
-  //   "typeRoots": ["@types/@thothai"]
+  "exclude": ["node_modules", "dist", "*.d.ts"],
+  "typeRoots": ["@types/@thothai"]
 }

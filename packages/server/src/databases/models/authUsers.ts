@@ -5,12 +5,18 @@ export interface authUsersAttributes {
   id: number
   userId: string
   token?: string
+  email?: string
+  username?: string
+  password?: string
   createdAt?: Date
   updatedAt?: Date
   isDeleted?: Boolean
 }
 
 export type authUsersAttributesOptionalAttributes =
+  | 'email'
+  | 'username'
+  | 'password'
   | 'isDeleted'
   | 'createdAt'
   | 'updatedAt'
@@ -27,6 +33,9 @@ export class authUsers
   id: number
   userId: string
   token?: string
+  email?: string
+  username?: string
+  password?: string
   createdAt?: Date
   updatedAt?: Date
   isDeleted?: Boolean
@@ -67,6 +76,24 @@ export class authUsers
           allowNull: false,
           field: 'is_deleted',
           defaultValue: false,
+        },
+        email: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          field: 'email',
+          defaultValue: null,
+        },
+        username: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          field: 'username',
+          defaultValue: null,
+        },
+        password: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          field: 'password',
+          defaultValue: null,
         },
       },
       {

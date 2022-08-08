@@ -165,7 +165,8 @@ export class telegram_client {
       'telegram',
       msg.chat.id,
       this.entity,
-      []
+      [],
+      'msg'
     )
     this.handleEditMessage(
       msg.chat.id,
@@ -328,7 +329,8 @@ export class telegram_client {
       'telegram',
       msg.chat.id,
       this.entity,
-      []
+      [],
+      'msg'
     )
     console.log('GOT RESPONSE:', resp)
     this.handleEditMessage(

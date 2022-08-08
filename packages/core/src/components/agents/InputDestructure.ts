@@ -33,6 +33,7 @@ type InputReturn = {
     isBot: boolean
     info3d: string
   }[]
+  channel_type: string
 }
 
 export class InputDestructureComponent extends ThothComponent<
@@ -53,6 +54,7 @@ export class InputDestructureComponent extends ThothComponent<
         channel: 'output',
         entity: 'output',
         roomInfo: 'output',
+        channel_type: 'output',
         trigger: 'option',
       },
       init: (task = {} as Task, node: ThothNode) => {
@@ -80,6 +82,11 @@ export class InputDestructureComponent extends ThothComponent<
     const channelId = new Rete.Output('channel', 'channel', stringSocket)
     const entity = new Rete.Output('entity', 'entity', stringSocket)
     const roomInfo = new Rete.Output('roomInfo', 'roomInfo', arraySocket)
+    const channel_type = new Rete.Output(
+      'channel_type',
+      'channel_type',
+      stringSocket
+    )
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
     return node
@@ -91,6 +98,7 @@ export class InputDestructureComponent extends ThothComponent<
       .addOutput(channelId)
       .addOutput(entity)
       .addOutput(roomInfo)
+      .addOutput(channel_type)
       .addOutput(out)
       .addOutput(dataOutput)
   }
@@ -110,13 +118,14 @@ export class InputDestructureComponent extends ThothComponent<
     if (!silent) node.display(agent)
     // If there are outputs, we are running as a module input and we use that value
     return {
-      output: (agent as Agent) ?? agent,
-      speaker: (agent as Agent)['speaker'] ?? 'Speaker',
-      agent: (agent as Agent)['agent'] ?? 'Agent',
-      client: (agent as Agent)['client'] ?? 'Playtest',
-      channel: (agent as Agent)['channel'] ?? 'TestChannel',
-      entity: (agent as Agent)['entity'],
-      roomInfo: (agent as Agent)['roomInfo'],
+      output: (agent as any).Input ?? agent,
+      speaker: (agent as any)['Speaker'] ?? 'Speaker',
+      agent: (agent as any)['Agent'] ?? 'Agent',
+      client: (agent as any)['Client'] ?? 'Playtest',
+      channel: (agent as any)['ChannelID'] ?? 'TestChannel',
+      entity: (agent as any)['Entity'],
+      roomInfo: (agent as any)['RoomInfo'],
+      channel_type: (agent as any)['Channel'],
     }
   }
 }

@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -18,7 +20,11 @@ import { ThothComponent } from '../../thoth-component'
 
 const info = 'Create Or GetAgent is used to generate or get an existing agent'
 
-export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
+type WorkerReturn = {
+  output: string
+}
+
+export class CreateOrGetAgent extends ThothComponent<Promise<WorkerReturn>> {
   constructor() {
     super('Create Or Get Agent')
 
@@ -40,6 +46,7 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const agentOut = new Rete.Output('agent', 'Agent', agentSocket)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
+    const outp = new Rete.Output('output', 'output', stringSocket)
 
     return node
       .addInput(agentInput)
@@ -47,6 +54,7 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
       .addInput(dataInput)
       .addOutput(dataOutput)
       .addOutput(agentOut)
+      .addOutput(outp)
   }
 
   async worker(
@@ -59,7 +67,7 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
     const speaker = inputs['speaker'][0] as string
 
     const resp = await axios.post(
-      `${process.env.REACT_APP_API_ROOT_URL}/createWikipediaEntity`,
+      `${process.env.API_URL}/createWikipediaEntity`,
       {
         speaker: speaker,
         agentName,
@@ -67,5 +75,9 @@ export class CreateOrGetAgent extends ThothComponent<Promise<void>> {
     )
 
     console.log(resp.data)
+
+    return {
+      output: resp.data?.result?.extract,
+    }
   }
 }

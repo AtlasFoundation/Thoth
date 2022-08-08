@@ -18,6 +18,7 @@ import { urlencoded, json } from 'express'
 import express from 'express'
 import { slack_client } from './connectors/slack'
 import { database } from '../database'
+import { tts_tiktalknet } from '../systems/tiktalknet'
 
 export class Entity {
   name = ''
@@ -31,7 +32,6 @@ export class Entity {
   messenger: messenger_client | null
   whatsapp: whatsapp_client | null
   twilio: twilio_client | null
-  //harmony: any
   xrengine: xrengine_client | null
   slack: slack_client | null
   id: any
@@ -59,7 +59,8 @@ export class Entity {
     discord_echo_slack: boolean,
     discord_echo_format: string,
     haveCustomCommands: boolean,
-    custom_commands: any[]
+    custom_commands: any[],
+    tiktalknet_url: string,
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -71,21 +72,21 @@ export class Entity {
     })
     const updateSpellHandler = spell_handler_update
       ? await CreateSpellHandler({
-          spell: spell_handler_update,
-          version: spell_version,
-        })
+        spell: spell_handler_update,
+        version: spell_version,
+      })
       : null
     const metadataSpellHandler = spell_handler_metadata
       ? await CreateSpellHandler({
-          spell: spell_handler_metadata,
-          version: spell_version,
-        })
+        spell: spell_handler_metadata,
+        version: spell_version,
+      })
       : null
     const slashCommandSpellHandler = spell_handler_slash_command
       ? await CreateSpellHandler({
-          spell: spell_handler_slash_command,
-          version: spell_version,
-        })
+        spell: spell_handler_slash_command,
+        version: spell_version,
+      })
       : null
     this.discord = new discord_client()
     console.log('createDiscordClient')
@@ -105,10 +106,11 @@ export class Entity {
       voice_provider,
       voice_character,
       voice_language_code,
-      discord_echo_slack,
-      discord_echo_format,
       haveCustomCommands,
-      custom_commands
+      custom_commands,
+      tiktalknet_url,
+      discord_echo_slack,
+      discord_echo_format
     )
     console.log('Started discord client for agent ' + this.name)
   }
@@ -135,7 +137,8 @@ export class Entity {
     voice_character: string
     voice_language_code: string
     haveCustomCommands: boolean
-    custom_commands: any[]
+    custom_commands: any[],
+    tiktalknet_url: string
   }) {
     if (this.xrengine)
       throw new Error(
@@ -162,7 +165,7 @@ export class Entity {
   stopXREngine() {
     if (!this.xrengine) throw new Error("XREngine isn't running, can't stop it")
     this.xrengine.destroy()
-    ;(this.xrengine as any) = null
+      ; (this.xrengine as any) = null
     console.log('Stopped xrengine client for agent ' + this.name)
   }
 
@@ -173,9 +176,14 @@ export class Entity {
     twitter_app_token_secret: any,
     twitter_access_token: any,
     twitter_access_token_secret: any,
+    twitter_enable_twits: any,
+    twitter_tweet_rules: any,
+    twitter_auto_tweet_interval_min: any,
+    twitter_auto_tweet_interval_max: any,
     twitter_bot_name: any,
     twitter_bot_name_regex: any,
     twitter_spell_handler_incoming: any,
+    twitter_spell_handler_auto: any,
     spell_version: string,
     entity: any,
     haveCustomCommands: boolean,
@@ -187,8 +195,12 @@ export class Entity {
         'Twitter already running for this entity on this instance'
       )
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: twitter_spell_handler_incoming,
+      version: spell_version,
+    })
+    const spellHandlerAuto = await CreateSpellHandler({
+      spell: twitter_spell_handler_auto,
       version: spell_version,
     })
 
@@ -196,6 +208,7 @@ export class Entity {
     console.log('createTwitterClient')
     await this.twitter.createTwitterClient(
       spellHandler,
+      spellHandlerAuto,
       {
         twitter_token,
         twitter_id,
@@ -203,15 +216,17 @@ export class Entity {
         twitter_app_token_secret,
         twitter_access_token,
         twitter_access_token_secret,
+        twitter_enable_twits,
+        twitter_tweet_rules,
+        twitter_auto_tweet_interval_min,
+        twitter_auto_tweet_interval_max,
         twitter_bot_name,
         twitter_bot_name_regex,
         twitter_spell_handler_incoming,
-        haveCustomCommands,
-        custom_commands,
+        twitter_spell_handler_auto,
       },
       entity
     )
-    console.log('Started twitter client for agent ' + this)
   }
 
   stopTwitter() {
@@ -306,6 +321,10 @@ export class Entity {
     zoom_password: string,
     zoom_bot_name: string,
     zoom_spell_handler_incoming: string,
+    voice_provider: string,
+    voice_character: string,
+    voice_language_code: string,
+    tiktalknet_url: string,
     spell_version: string,
     entity: any
   ) {
@@ -326,6 +345,10 @@ export class Entity {
         zoom_password,
         zoom_bot_name,
         zoom_spell_handler_incoming,
+        voice_provider,
+        voice_character,
+        voice_language_code,
+        tiktalknet_url,
       },
       entity
     )
@@ -465,7 +488,7 @@ export class Entity {
       spellHandler
     )
   }
-  async stopTwlio() {}
+  async stopTwlio() { }
 
   async startSlack(
     slack_token: any,
@@ -508,7 +531,7 @@ export class Entity {
       this
     )
   }
-  async stopSlack() {}
+  async stopSlack() { }
 
   async startLoop(
     loop_interval: string,
@@ -535,7 +558,8 @@ export class Entity {
           'loop',
           'loop',
           this,
-          []
+          [],
+          'auto'
         )
         if (resp && (resp as string)?.length > 0) {
           console.log('Loop Response:', resp)
@@ -545,7 +569,14 @@ export class Entity {
       throw new Error('Loop Interval must be a number greater than 0')
     }
   }
-  async stopLoop() {}
+  async stopLoop() {
+    if (this.loopHandler && this.loopHandler !== undefined) {
+      clearInterval(this.loopHandler)
+      this.loopHandler = null
+    }
+  }
+
+
 
   async onDestroy() {
     console.log(
@@ -562,6 +593,10 @@ export class Entity {
     if (this.messenger) this.stopMessenger()
     if (this.twilio) this.stopTwlio()
     if (this.slack) this.stopSlack()
+    if (this.slack) this.stopSlack()
+    if (this.instagram) this.stopInstagram()
+    if (this.messenger) this.stopMessenger()
+    if (this.twilio) this.stopTwlio()
   }
 
   async generateVoices(data: any) {
@@ -580,11 +615,11 @@ export class Entity {
           if (
             await cacheManager.instance.has(
               'voice_' +
-                data.voice_provider +
-                '_' +
-                data.voice_character +
-                '_' +
-                filtered[i]
+              data.voice_provider +
+              '_' +
+              data.voice_character +
+              '_' +
+              filtered[i]
             )
           ) {
             continue
@@ -598,22 +633,28 @@ export class Entity {
               data.voice_character,
               filtered[i]
             )
-          } else {
+          } else if (data.voice_provider === 'google') {
             url = await tts(
               filtered[i],
               data.voice_character,
               data.voice_language_code
+            )
+          } else {
+            url = await tts_tiktalknet(
+              filtered[i],
+              data.voice_character,
+              data.tiktalknet_url
             )
           }
 
           if (url && url.length > 0 && stringIsAValidUrl(url)) {
             await cacheManager.instance.set(
               'voice_' +
-                data.voice_provider +
-                '_' +
-                data.voice_character +
-                '_' +
-                filtered[i],
+              data.voice_provider +
+              '_' +
+              data.voice_character +
+              '_' +
+              filtered[i],
               url
             )
           }
@@ -695,10 +736,11 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
-        data.discord_echo_slack,
-        data.discord_echo_format,
         haveCustomCommands,
-        custom_commands
+        custom_commands,
+        data.tiktalknet_url,
+        data.discord_echo_slack,
+        data.discord_echo_format
       )
     }
 
@@ -718,6 +760,7 @@ export class Entity {
         voice_language_code: data.voice_language_code,
         haveCustomCommands,
         custom_commands,
+        tiktalknet_url: data.tiktalknet_url,
       })
     }
 
@@ -729,9 +772,14 @@ export class Entity {
         data.twitter_app_token_secret,
         data.twitter_access_token,
         data.twitter_access_token_secret,
+        data.twitter_enable_twits,
+        data.twitter_tweet_rules,
+        data.twitter_auto_tweet_interval_min,
+        data.twitter_auto_tweet_interval_max,
         data.twitter_bot_name,
         data.twitter_bot_name_regex,
         data.twitter_spell_handler_incoming,
+        data.twitter_spell_handler_auto,
         data.spell_version,
         data,
         haveCustomCommands,
@@ -799,6 +847,45 @@ export class Entity {
         data.zoom_password,
         data.zoom_bot_name,
         data.zoom_spell_handler_incoming,
+        data.voice_provider,
+        data.voice_character,
+        data.voice_language_code,
+        data.tiktalknet_url,
+        data.spell_version,
+        data
+      )
+    }
+
+    if (data.slack_enabled) {
+      const [greeting] = await database.instance.getGreeting(
+        data.slack_greeting_id
+      )
+      this.startSlack(
+        data.slack_token,
+        data.slack_signing_secret,
+        data.slack_bot_token,
+        data.slack_bot_name,
+        data.slack_port,
+        data.slack_verification_token,
+        greeting,
+        data.slack_echo_channel,
+        data.slack_spell_handler_incoming,
+        data.spell_version,
+        haveCustomCommands,
+        custom_commands
+      )
+    }
+
+    if (data.zoom_enabled) {
+      this.startZoom(
+        data.zoom_invitation_link,
+        data.zoom_password,
+        data.zoom_bot_name,
+        data.zoom_spell_handler_incoming,
+        data.voice_provider,
+        data.voice_character,
+        data.voice_language_code,
+        data.tiktalknet_url,
         data.spell_version,
         data
       )

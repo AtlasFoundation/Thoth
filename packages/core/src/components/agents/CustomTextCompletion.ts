@@ -17,18 +17,21 @@ import {
   EngineContext,
 } from '../../../types'
 import { InputControl } from '../../dataControls/InputControl'
+import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { triggerSocket, stringSocket, anySocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
-const info = 'Agent Text Completion is using OpenAI for the agent to respond.'
+const info = 'Custom Text Completion is using OpenAI for the agent to respond.'
 
 type WorkerReturn = {
   output: string
 }
 
-export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
+export class CustomTextCompletion extends ThothComponent<
+  Promise<WorkerReturn>
+> {
   constructor() {
-    super('Agent Text Completion')
+    super('Custom Text Completion')
 
     this.task = {
       outputs: {
@@ -43,11 +46,18 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
   }
 
   builder(node: ThothNode) {
-    const inp = new Rete.Input('string', 'Text', stringSocket)
     const settings = new Rete.Input('settings', 'Settings', anySocket)
+    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const outp = new Rete.Output('output', 'output', stringSocket)
+
+    const inputGenerator = new SocketGeneratorControl({
+      connectionType: 'input',
+      name: 'Input Sockets',
+      ignored: ['trigger'],
+    })
 
     const modelName = new InputControl({
       dataKey: 'modelName',
@@ -92,6 +102,7 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     })
 
     node.inspector
+      .add(inputGenerator)
       .add(modelName)
       .add(temperature)
       .add(maxTokens)
@@ -101,7 +112,8 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
       .add(stop)
 
     return node
-      .addInput(inp)
+      .addInput(agentInput)
+      .addInput(speakerInput)
       .addInput(settings)
       .addInput(dataInput)
       .addOutput(dataOutput)
@@ -110,12 +122,45 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
 
   async worker(
     node: NodeData,
-    inputs: ThothWorkerInputs,
+    rawInputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const prompt = inputs['string'][0]
-    const settings = ((inputs.settings && inputs.settings[0]) ?? {}) as any
+    const agent = rawInputs['agent'][0] as string
+    const speaker = rawInputs['speaker'][0] as string
+    const inputs: any = Object.entries(rawInputs).reduce(
+      (acc, [key, value]) => {
+        console.log('key:', key, 'value:', value)
+        acc[key] = value[0]
+        return acc
+      },
+      {} as Record<string, unknown>
+    )
+
+    let data = ''
+    for (const key in inputs) {
+      if (
+        key === 'Chat' ||
+        key === 'agent' ||
+        key === 'speaker' ||
+        key === 'Static Chat' ||
+        key === 'settings'
+      ) {
+        continue
+      }
+      if (key === 'Facts') {
+        data += `The following are facts about ${agent}\n` + inputs[key] + '\n'
+      } else {
+        data += inputs[key] + '\n'
+      }
+    }
+    data += `The following is a conversation with ${agent} and ${speaker}.\n`
+    data += (inputs['Static Chat'] as string) ?? '' + '\n'
+    data += inputs['Chat']
+    data += '\n' + agent + ':'
+
+    const settings = ((rawInputs.settings && rawInputs.settings[0]) ??
+      {}) as any
     const modelName = settings.modelName ?? (node?.data?.modelName as string)
     const temperatureData =
       settings.temperature ?? (node?.data?.temperature as string)
@@ -138,10 +183,16 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
         stop[i] = '\n'
       }
     }
+    stop.push('\n\n')
+    stop.push('\n\n\n')
+
     const filteredStop = stop.filter(function (el: any) {
       return el != null && el !== undefined && el.length > 0
     })
 
+    console.log('---------------------------')
+    console.log('created prompt:', data)
+    console.log('---------------------------')
     console.log('filteredStop is', filteredStop)
 
     const resp = await axios.post(
@@ -151,7 +202,7 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
         'https://localhost:8001'
       }/text_completion`,
       {
-        prompt: prompt,
+        prompt: data,
         modelName: modelName,
         temperature: temperature,
         maxTokens: maxTokens,
@@ -159,6 +210,8 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
         frequencyPenalty: frequencyPenalty,
         presencePenalty: presencePenalty,
         stop: filteredStop,
+        agent: agent,
+        sender: speaker,
       }
     )
     console.log('resp.data is ', resp.data)
@@ -167,11 +220,7 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
 
     if (!success)
       return {
-        output:
-          'Sorry, I had a completion error:' +
-          JSON.stringify(resp.data) +
-          ' prompt:' +
-          JSON.stringify(prompt),
+        output: 'Sorry, I had a completion error:' + JSON.stringify(resp.data),
       }
 
     const res =

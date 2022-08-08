@@ -6,10 +6,7 @@ import {
 import { creatorToolsDatabase } from '../databases/creatorTools'
 import { CustomError } from '../utils/CustomError'
 import { Graph, ModuleComponent } from '../routes/spells/types'
-import {
-  initSharedEngine,
-  getComponents,
-} from '@thothai/thoth-core/dist/server'
+import { initSharedEngine, getComponents } from '@thothai/thoth-core/server'
 import { Module } from '../routes/spells/module'
 import { ModuleType } from '@thothai/thoth-core/types'
 import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
@@ -141,7 +138,8 @@ export const CreateSpellHandler = async (props: {
       inConversation: boolean
       isBot: boolean
       info3d: string
-    }[]
+    }[],
+    channel: string
   ) {
     const spellInputs = {
       Input: message,
@@ -151,11 +149,8 @@ export const CreateSpellHandler = async (props: {
       ChannelID: channelId,
       Entity: entity,
       RoomInfo: roomInfo,
+      Channel: channel,
     } as any
-
-    console.log('********** spellInputs are')
-    // console.log(spellInputs)
-
     // TODO: Remove this line
     // TEST CASE: Chatting with agent on Discord doesn't get same response over and over
     // This resets everything and makes it work, BUT it is very slow

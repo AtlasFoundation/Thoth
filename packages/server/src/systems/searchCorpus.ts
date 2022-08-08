@@ -9,9 +9,7 @@ import koaBody from 'koa-body'
 import Router from '@koa/router'
 import axios from 'axios'
 import {
-  includeInFields,
   removePunctuation,
-  simplifyWords,
 } from '../utils/utils'
 import { database } from '../database'
 import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
@@ -77,8 +75,8 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   })
   router.post('/document', async function (ctx: Koa.Context) {
     const { body } = ctx.request
-    const description = body?.description || ''
     const title = body?.title || ''
+    const description = body?.description || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
 
@@ -126,10 +124,14 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const store_name = body?.store_name
 
     console.log('GOT STORE ID:', storeId, 'DOCUMENTS:', documents)
+
     if (!storeId || storeId === undefined) {
       storeId = await database.instance.getSingleDocumentStore(
         store_name && store_name?.length > 0 ? store_name : 'rss_feed'
       )
+
+      console.log('generated store id:', storeId)
+
       if (storeId?.length <= 0 || storeId === undefined || !storeId) {
         storeId = await database.instance.addDocumentStore(
           store_name && store_name?.length > 0 ? store_name : 'rss_feed'
@@ -148,6 +150,8 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     let id = -1
     try {
       for (let i = 0; i < documents.length; i++) {
+        console.log('saving document:', documents[i])
+
         if (
           saved_docs.includes({
             title: documents[i].title,
@@ -216,8 +220,8 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.post('/update_document', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const documentId = body?.documentId
-    const description = body?.description || ''
     const title = body?.title || ''
+    const description = body?.description || ''
     const isIncluded = body?.isIncluded && true
     const storeId = body?.storeId
     const doc = await database.instance.getSingleDocument(documentId)
@@ -264,8 +268,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     const question = ctx.request.query?.question as string
 
     const searchResult = await search(question)
-
-    return (ctx.body = searchResult.description)
+    return (ctx.body = searchResult)
   })
   router.post('/vector_search', async function (ctx: Koa.Context) {
     const question = ctx.request.body?.question as string
@@ -285,6 +288,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
   router.post('/content-object', async function (ctx: Koa.Context) {
     const { body } = ctx.request
+    const title = body?.title || ''
     const description = body?.description || ''
     const isIncluded = body?.isIncluded && true
     const documentId = body?.documentId
@@ -292,6 +296,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     let id = -1
     try {
       id = await database.instance.addContentObj(
+        title,
         description,
         isIncluded,
         documentId
@@ -310,6 +315,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.put('/content-object', async function (ctx: Koa.Context) {
     const { body } = ctx.request
     const objId = body.objId
+    const title = body?.title || ''
     const description = body?.description || ''
     const isIncluded = body?.isIncluded && true
     const documentId = body?.documentId
@@ -317,6 +323,7 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     try {
       await database.instance.editContentObj(
         objId,
+        title,
         description,
         isIncluded,
         documentId
@@ -429,15 +436,15 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
   useSSL
     ? https
-        .createServer(sslOptions, app.callback())
-        .listen(PORT, '0.0.0.0', () => {
-          console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-        })
+      .createServer(sslOptions, app.callback())
+      .listen(PORT, '0.0.0.0', () => {
+        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+      })
     : https
-        .createServer({ rejectUnauthorized: false }, app.callback())
-        .listen(PORT, '0.0.0.0', () => {
-          console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-        })
+      .createServer({ rejectUnauthorized: false }, app.callback())
+      .listen(PORT, '0.0.0.0', () => {
+        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+      })
 }
 
 export async function extractKeywords(input: string): Promise<string[]> {

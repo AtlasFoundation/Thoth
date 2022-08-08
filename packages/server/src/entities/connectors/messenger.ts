@@ -51,7 +51,8 @@ export class messenger_client {
         'messenger',
         senderPsid,
         null,
-        []
+        [],
+        'msg'
       )
       this.callSendAPI(senderPsid, { text: resp }, resp)
     }

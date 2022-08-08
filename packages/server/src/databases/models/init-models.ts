@@ -47,7 +47,6 @@ import type {
 import { calendarEvents as _calendarEvents } from './calendarEvents'
 import type {
   authUsersAttributes,
-  authUsersAttributesCreationAttributes,
 } from './authUsers'
 import { authUsers as _authUsers } from './authUsers'
 import type {
@@ -60,6 +59,10 @@ import {
   messageReactionsAttributes,
   messageReactionCreationAttributes,
 } from './message_reactions'
+import {
+  handled_history as _handled_history,
+  handled_historyAttributes,
+} from './handled_history'
 
 export {
   _entities as entities,
@@ -76,6 +79,7 @@ export {
   _authUsers as authUsers,
   _greetings as greetings,
   _message_reactions as messageReactions,
+  _handled_history as handled_history,
 }
 
 export type {
@@ -106,6 +110,7 @@ export type {
   greetingsCreationAttributes,
   messageReactionsAttributes,
   messageReactionCreationAttributes,
+  handled_historyAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -123,6 +128,7 @@ export function initModels(sequelize: Sequelize) {
   const calendarEvents = _calendarEvents.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
   const messageReactions = _message_reactions.initModel(sequelize)
+  const handled_history = _handled_history.initModel(sequelize)
 
   return {
     entities: entities,
@@ -139,5 +145,6 @@ export function initModels(sequelize: Sequelize) {
     authUsers: authUsers,
     greetings,
     messageReactions,
+    handled_history: handled_history,
   }
 }

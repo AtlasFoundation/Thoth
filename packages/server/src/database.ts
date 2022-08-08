@@ -20,8 +20,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth } from './middleware/auth'
-
+import { auth, IAuth } from './middleware/auth'
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
@@ -48,8 +47,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-            rejectUnauthorized: false,
-          }
+          rejectUnauthorized: false,
+        }
         : false,
     })
     this.client.connect()
@@ -96,7 +95,9 @@ export class database {
     client: any,
     channel: any,
     asString: boolean = true,
-    maxCount: number = 10
+    maxCount: number = 10,
+    target_count: string | null,
+    max_time_diff: number
   ) {
     // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
     let query, values
@@ -109,8 +110,13 @@ export class database {
         'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
       values = [agent, client, channel, type]
     } else {
-      query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+      if (target_count === 'single') {
+        query =
+          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+      } else {
+        query =
+          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 OR sender=$1 AND channel=$4 AND type=$5 ORDER BY id desc'
+      }
       values = [agent, client, sender, channel, type]
     }
     const row = await this.client.query(query, values)
@@ -134,16 +140,25 @@ export class database {
     let count = 0
     for (let i = 0; i < row.rows.length; i++) {
       if (!row.rows[i].text || row.rows[i].text.length <= 0) continue
-      // const messageDate = new Date(row.rows[i].date)
-      // const diffMs = now - messageDate
-      // const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000)
-      // if (diffMins > 15) {
-      //   break
-      // }
+      if (max_time_diff > 0) {
+        const messageDate = new Date(row.rows[i].date)
+        const diffMs = now.getTime() - messageDate.getTime()
+        const diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000)
+        if (diffMins > 15) {
+          break
+        }
+      }
+
       data +=
-        (type === 'conversation' ? row.rows[i].sender + ': ' : '') +
+        (type === 'conversation' || 'history'
+          ? row.rows[i].sender + ': '
+          : '') +
         row.rows[i].text +
-        (type === 'conversation' ? '\n' : type === 'facts' ? '. ' : '')
+        (type === 'conversation' || 'history'
+          ? '\n'
+          : type === 'facts'
+            ? '. '
+            : '')
       count++
       if (count >= max_length) {
         break
@@ -201,25 +216,36 @@ export class database {
   }
 
   async addWikipediaData(agent: any, data: any) {
-    const query = 'INSERT INTO events(agent, data) VALUES($1, $2)'
-    const values = [agent, data]
+    const query =
+      'INSERT INTO events(type, agent, client, channel, sender, text, date) VALUES($1, $2, $3, $4, $5, $6, $7)'
+    const values = [
+      'agent_data',
+      agent,
+      'wikipedia',
+      'wikipedia',
+      'wikipedia',
+      data,
+      new Date().toUTCString(),
+    ]
 
     await this.client.query(query, values)
   }
   async getWikipediaData(agent: any) {
-    const query = 'SELECT * FROM events WHERE agent=$1'
-    const values = [agent]
+    const query =
+      'SELECT * FROM events WHERE type=$1 AND agent=$2 AND client=$3 AND channel=$4 AND sender=$5'
+    const values = ['agent_data', agent, 'wikipedia', 'wikipedia', 'wikipedia']
 
     const rows = await this.client.query(query, values)
     if (rows && rows.rows && rows.rows.length > 0) {
-      return rows.rows[0].data
+      return rows.rows[0].text
     } else {
       return ''
     }
   }
   async wikipediaDataExists(agent: any) {
-    const query = 'SELECT * FROM events WHERE agent=$1'
-    const values = [agent]
+    const query =
+      'SELECT * FROM events WHERE type=$1 AND agent=$2 AND client=$3 AND channel=$4 AND sender=$5'
+    const values = ['agent_data', agent, 'wikipedia', 'wikipedia', 'wikipedia']
 
     const rows = await this.client.query(query, values)
     return rows && rows.rows && rows.rows.length > 0
@@ -345,9 +371,8 @@ export class database {
 
   async getGreetings(enabled: boolean) {
     const whereClause = 'WHERE enabled = true'
-    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${
-      enabled ? whereClause : ''
-    } ORDER BY id ASC`
+    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${enabled ? whereClause : ''
+      } ORDER BY id ASC`
     const rows = await this.client.query(query)
     return rows.rows
   }
@@ -433,8 +458,8 @@ export class database {
     store_id: any
   ) {
     const query =
-      'UPDATE documents SET title=$5, description=$1, is_included=$2, store_id=$3 WHERE id=$4'
-    const values = [description, is_included, store_id, document_id, title]
+      'UPDATE documents SET title=$1, description=$2, is_included=$3, store_id=$4 WHERE id=$5'
+    const values = [title, description, is_included, store_id, document_id]
 
     await this.client.query(query, values)
   }
@@ -515,6 +540,7 @@ export class database {
   }
 
   async addContentObj(
+    title: string,
     description: any,
     is_included: any,
     document_id: any
@@ -525,28 +551,29 @@ export class database {
     }
 
     const query =
-      'INSERT INTO content_objects(id, description, is_included, document_id) VALUES($1, $2, $3, $4)'
-    const values = [id, description, is_included, document_id]
+      'INSERT INTO content_objects(id, title, description, is_included, document_id) VALUES($1, $2, $3, $4, $5)'
+    const values = [id, title, description, is_included, document_id]
 
     await this.client.query(query, values)
     return id
   }
   async editContentObj(
     obj_id: any,
+    title: string,
     description: any,
     is_included: any,
     document_id: any
   ) {
     const query =
-      'UPDATE content_objects SET description = $1, is_included = $2, document_id = $3 WHERE id = $4'
-    const values = [description, is_included, document_id, obj_id]
+      'UPDATE content_objects SET title=$1, description = $2, is_included = $3, document_id = $4 WHERE id = $5'
+    const values = [title, description, is_included, document_id, obj_id]
     await this.client.query(query, values)
   }
   async getContentObjOfDocument(
     documentId: string | string[] | undefined
   ): Promise<any> {
     const query =
-      'SELECT id, description, is_included AS "isIncluded", document_id AS "documentId" FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
+      'SELECT id, title, description, is_included AS "isIncluded", document_id AS "documentId" FROM content_objects WHERE document_id = $1 ORDER BY id DESC'
     const values = [documentId]
 
     const rows = await this.client.query(query, values)
@@ -1458,8 +1485,9 @@ export class database {
         }
       }
 
-      const query2 = 'INSERT INTO auth_users(token, user_id) VALUES($1, $2)'
-      const values2: any = [newToken, user_id]
+      const query2 =
+        'INSERT INTO auth_users(token, user_id, email, username, password) VALUES($1, $2, $3, $4, $5)'
+      const values2: any = [newToken, user_id, null, null, null]
 
       const res2 = await this.client.query(query2, values2)
       const { command, rowCount } = res2
@@ -1552,6 +1580,123 @@ export class database {
     } catch (e) {
       throw new Error(e)
     }
+  }
+
+  async login(username: string, password: string) {
+    if (
+      !username ||
+      !password ||
+      username?.length <= 0 ||
+      password?.length <= 0
+    ) {
+      return false
+    }
+
+    const query =
+      'SELECT * FROM auth_users WHERE username=$1 AND password=$2 AND is_deleted=false'
+    const values = [username, password]
+
+    const rows = await this.client.query(query, values)
+    if (rows && rows.rows && rows.rows.length > 0) {
+      return rows.rows[0].user_id
+    } else {
+      return undefined
+    }
+  }
+
+  async usernameExists(username: string) {
+    if (!username || username?.length <= 0) {
+      return false
+    }
+
+    const query =
+      'SELECT * FROM auth_users WHERE username=$1 AND is_deleted=false'
+    const values = [username]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? true : false
+  }
+
+  async emailExists(email: string) {
+    if (!email || email?.length <= 0) {
+      return false
+    }
+
+    const query = 'SELECT * FROM auth_users WHERE email=$1 AND is_deleted=false'
+    const values = [email]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? true : false
+  }
+
+  async register(
+    email: string,
+    username: string,
+    password: string,
+    user_id: string
+  ) {
+    console.log('credentials:', email, username, password, user_id)
+    if (
+      !email ||
+      !username ||
+      !password ||
+      !user_id ||
+      email?.length <= 0 ||
+      username?.length <= 0 ||
+      password?.length <= 0 ||
+      user_id?.length <= 0
+    ) {
+      return 'invalid credentials'
+    }
+    let query = 'SELECT * FROM auth_users WHERE user_id=$1 AND is_deleted=false'
+    const values = [user_id]
+
+    const rows = await this.client.query(query, values)
+    console.log('rows.rows.length:', rows.rows.length)
+    if (rows && rows.rows && rows.rows.length > 0 && !rows.rows[0].email) {
+      if (
+        rows.rows[0].username ||
+        rows.rows[0].email ||
+        rows.rows[0].username.length > 0 ||
+        rows.rows[0].email.length > 0
+      ) {
+        return 'account already registered!'
+      }
+
+      query =
+        'UPDATE auth_users SET email=$1, username=$2, password=$3 WHERE user_id=$4 AND is_deleted=false'
+      const values = [email, username, password, user_id]
+
+      await this.client.query(query, values)
+      return 'ok'
+    } else {
+      const token: any = (auth as IAuth).generate(user_id)
+      query =
+        'INSERT INTO auth_users(token, user_id, email, username, password) VALUES($1, $2, $3, $4, $5)'
+      const values = [token, user_id, email, username, password]
+
+      await this.client.query(query, values)
+      return 'ok'
+    }
+  }
+
+  async dataIsHandled(id: string, client: string): Promise<boolean> {
+    const query = 'SELECT * FROM handled_history WHERE _id=$1 AND client=$2'
+    const values = [id, client]
+
+    const rows = await this.client.query(query, values)
+    return rows && rows.rows && rows.rows.length > 0 ? true : false
+  }
+  async setDataHandled(
+    id: string,
+    client: string,
+    data: string
+  ): Promise<void> {
+    const query =
+      'INSERT INTO handled_history(_id, client, data) VALUES($1, $2, $3)'
+    const values = [id, client, data]
+
+    await this.client.query(query, values)
   }
 }
 
