@@ -23,7 +23,9 @@ export const getEvents = async ({
     client,
     channel,
     true,
-    maxCount
+    maxCount,
+    null,
+    -1
   )
 
   console.log("EVENT FOUND", event)
