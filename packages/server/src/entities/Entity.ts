@@ -738,9 +738,9 @@ export class Entity {
         data.voice_language_code,
         haveCustomCommands,
         custom_commands,
-        data.tiktalknet_url,
         data.discord_echo_slack,
-        data.discord_echo_format
+        data.discord_echo_format,
+        data.tiktalknet_url,
       )
     }
 

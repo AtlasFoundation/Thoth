@@ -7,6 +7,7 @@ export async function tts_tiktalknet(
   voice: string,
   tiktalknet_url: string
 ) {
+  console.log('tiktalknet url:', tiktalknet_url)
   if (!tiktalknet_url || tiktalknet_url?.length <= 0) return ''
 
   const resp = await axios.get(tiktalknet_url, {

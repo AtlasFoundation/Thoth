@@ -51,7 +51,7 @@ export function initSpeechClient(
             info3d: '',
           })
         }
-      } catch (e) {}
+      } catch (e) { }
 
       console.log(roomInfo)
       const response = removeEmojisFromString(
@@ -85,6 +85,7 @@ export function initSpeechClient(
         console.log('retrievied url from cache', url)
 
         if (!url || url === undefined || url?.length <= 0) {
+          console.log('generating voice')
           if (voiceProvider === 'uberduck') {
             url = await getAudioUrl(
               process.env.UBER_DUCK_KEY as string,
@@ -97,6 +98,7 @@ export function initSpeechClient(
             // google tts
             url = await tts(response, voiceCharacter, languageCode)
           } else {
+            console.log('generating tiktalk voice')
             url = await tts_tiktalknet(response, voiceCharacter, tiktalknet_url)
           }
 

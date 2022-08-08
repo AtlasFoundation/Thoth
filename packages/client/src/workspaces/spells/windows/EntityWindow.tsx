@@ -165,23 +165,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [twilio_spell_handler_incoming, setTwilioSpellHandlerIncoming] =
     useState('')
 
-  const [slack_enabled, setSlackEnabled] = useState(false)
-  const [slack_token, setSlackToken] = useState('')
-  const [slack_signing_secret, setSlackSigningSecret] = useState('')
-  const [slack_bot_token, setSlackBotToken] = useState('')
-  const [slack_bot_name, setSlackBotName] = useState('')
-  const [slack_port, setSlackPort] = useState('')
-  const [slack_verification_token, setSlackVerificationToken] = useState('')
-  const [slack_greeting_id, setSlackGreetingId] = useState('')
-  const [slack_echo_channel, setSlackEchoChannel] = useState('')
-  const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
-    useState('')
-
-  const [loop_enabled, setLoopEnabled] = useState(false)
-  const [loop_interval, setLoopInterval] = useState('')
-  const [loop_agent_name, setLoopAgentName] = useState('')
-  const [loop_spell_handler, setLoopSpellHandler] = useState('')
-
   const testVoice = async () => {
     if (
       (voice_provider && voice_character && voice_language_code) ||
@@ -2016,17 +1999,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
               </div>
             </>
           )}
-
-          <div className="form-item">
-            <span className="form-item-label">Twilio Client Enabled</span>
-            <input
-              type="checkbox"
-              value={twilio_client_enable}
-              defaultChecked={
-                twilio_client_enable || twilio_client_enable === 'true'
-              }
-            />
-          </div>
 
           <div className="form-item">
             <span className="form-item-label">Zoom Client Enabled</span>
