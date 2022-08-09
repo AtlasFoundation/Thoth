@@ -19,6 +19,7 @@ import express from 'express'
 import { slack_client } from './connectors/slack'
 import { database } from '../database'
 import { tts_tiktalknet } from '../systems/tiktalknet'
+import shutdownManager, { GracefulShutdownManager } from '@moebius/http-graceful-shutdown'
 
 export class Entity {
   name = ''
@@ -36,8 +37,10 @@ export class Entity {
   slack: slack_client | null
   id: any
 
-  router: any
+  port: number
+  router: express.Router | null
   app: any
+  shutdownManager: GracefulShutdownManager | null
   loopHandler: any
 
   async startDiscord(
@@ -473,7 +476,7 @@ export class Entity {
     this.twilio = new twilio_client()
     this.twilio.createTwilioClient(
       this.app,
-      this.router,
+      this.router as any,
       {
         twilio_account_sid,
         twilio_auth_token,
@@ -579,6 +582,13 @@ export class Entity {
 
 
   async onDestroy() {
+    if (this.app) {
+      if (!this.shutdownManager) {
+        this.shutdownManager = new GracefulShutdownManager(this.app)
+      }
+      this.shutdownManager.terminate(() => { console.log("Express server (" + this.port + ") terminated") })
+    }
+
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
       this.discord === null || this.discord === undefined
@@ -664,6 +674,7 @@ export class Entity {
   }
 
   constructor(data: any, port: number) {
+    this.port = port
     this.init(data, port)
   }
 
@@ -671,12 +682,13 @@ export class Entity {
     if (!this.router && !this.app) {
       this.router = express.Router()
       this.router.use(urlencoded({ extended: false }))
-      this.app = express()
-      this.app.use(json())
+      const app = express()
+      app.use(json())
+      this.app = app.listen(port, () => {
+        console.log(`Entity Web Server listening on http://localhost:${port}`)
+      })
+      this.shutdownManager = new GracefulShutdownManager(this.app)
     }
-    this.app.listen(port, () => {
-      console.log(`Entity Web Server listening on http://localhost:${port}`)
-    })
 
     if (!cacheManager.instance) {
       new cacheManager()

@@ -2,6 +2,7 @@ import { randomInt } from './connectors/utils'
 import { database } from '../database'
 import Entity from './Entity'
 import { cacheManager } from '../cacheManager'
+import net from 'net'
 
 const maxMSDiff = 5000
 let interval = 3000
@@ -108,6 +109,7 @@ export class World {
     }
 
     const cachedPorts = await cacheManager.instance.get('CACHED_FREE_PORTS')
+    console.log('creating world with available ports:', cachedPorts)
     if (cachedPorts && cachedPorts !== undefined && cachedPorts?.length > 0) {
       const ports = cachedPorts.split(',')
       for (let i = 0; i < ports.length; i++) {
@@ -128,6 +130,7 @@ export class World {
         this.availablePorts.push(i)
       }
     }
+    console.log('added ' + this.availablePorts.length + ' ports')
 
     initEntityLoop(
       async (id: number) => {
@@ -170,6 +173,7 @@ export class World {
 
   async removeEntity(id: number) {
     if (this.objectExists(id)) {
+      this.freePort(this.objects[id]?.port)
       await this.objects[id]?.onDestroy()
       this.objects[id] = null
       delete this.objects[id]
@@ -202,14 +206,41 @@ export class World {
   }
 
   getAvailablePort(): number {
+    console.log('GETTING AVAILABLE PORTS FROM:', this.availablePorts)
     const port = this.availablePorts.pop()
     if (port === undefined) {
       throw new Error('No available ports')
     }
+    if (this.checkIfPortIsUsed(port)) {
+      if (this.availablePorts.length > 1) {
+        return this.getAvailablePort();
+      }
+      else {
+        throw new Error('No available ports')
+      }
+    }
+
     cacheManager.instance.set(
       'CACHED_FREE_PORTS',
       this.availablePorts.join(',')
     )
     return port
+  }
+
+  freePort(port: number): void {
+    if (port && port > 0) {
+      if (!this.availablePorts.includes(port)) {
+        this.availablePorts.push(port)
+      }
+    }
+  }
+
+  checkIfPortIsUsed(port: number): boolean {
+    const tester = net.createServer()
+    try {
+      tester.listen(port)
+    } catch (e) { return true; }
+    tester.close()
+    return false
   }
 }
