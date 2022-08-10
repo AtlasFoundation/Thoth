@@ -63,6 +63,7 @@ export class CreateOrGetAgent extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
+    console.log('inputs:', inputs)
     const agentName = inputs['agentName'][0] as Agent
     const speaker = inputs['speaker'][0] as string
 
@@ -70,7 +71,7 @@ export class CreateOrGetAgent extends ThothComponent<Promise<WorkerReturn>> {
       `${process.env.API_URL}/createWikipediaEntity`,
       {
         speaker: speaker,
-        agentName,
+        agent: agentName,
       }
     )
 

@@ -76,6 +76,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const { storeEvent } = thoth
+    console.log('store event function:', storeEvent, thoth.getEvent, thoth)
     const agent = (inputs['agent'][0] as Agent)
     const primary = ((inputs['primary'] && inputs['primary'][0]) ||
       inputs['primary']) as string

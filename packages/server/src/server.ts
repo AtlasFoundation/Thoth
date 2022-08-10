@@ -22,6 +22,7 @@ import spawnPythonServer from './systems/pythonServer'
 import { auth } from './middleware/auth'
 import { initWeaviateClient } from './systems/weaviateClient'
 import cors_server from './cors-server'
+import { initExitHandler } from './exitHandler'
 
 const app: Koa = new Koa()
 const router: Router = new Router()
@@ -29,6 +30,7 @@ const router: Router = new Router()
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 async function init() {
+  initExitHandler()
   // async function initLoop() {
   //   new roomManager()
   //   const expectedServerDelta = 1000 / 60

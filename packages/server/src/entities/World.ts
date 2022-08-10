@@ -109,27 +109,33 @@ export class World {
     }
 
     const cachedPorts = await cacheManager.instance.get('CACHED_FREE_PORTS')
-    console.log('creating world with available ports:', cachedPorts)
-    if (cachedPorts && cachedPorts !== undefined && cachedPorts?.length > 0) {
-      const ports = cachedPorts.split(',')
-      for (let i = 0; i < ports.length; i++) {
-        this.availablePorts.push(parseInt(ports[i]))
+    console.log('creating world with available ports:', cachedPorts, '.env ports:', process.env.ENTITY_WEBSERVER_PORT_RANGE)
+    const cp = cachedPorts.split(',')
+    const ports: string[] = process.env.ENTITY_WEBSERVER_PORT_RANGE?.split(
+      '-'
+    ) as any
+    let portStart: number = parseInt(ports[0])
+    let portEnd: number = parseInt(ports[1])
+    if (portStart > portEnd) {
+      const temp = portStart
+      portStart = portEnd
+      portEnd = temp
+    }
+    let found = false
+    for (let i = portStart; i <= portEnd; i++) {
+      found = false
+      for (let j = 0; j < cp.length; j++) {
+        if (cp[j] === i) {
+          found = true
+          break;
+        }
       }
-    } else {
-      const ports: string[] = process.env.ENTITY_WEBSERVER_PORT_RANGE?.split(
-        '-'
-      ) as any
-      let portStart: number = parseInt(ports[0])
-      let portEnd: number = parseInt(ports[1])
-      if (portStart > portEnd) {
-        const temp = portStart
-        portStart = portEnd
-        portEnd = temp
-      }
-      for (let i = portStart; i <= portEnd; i++) {
+
+      if (!found) {
         this.availablePorts.push(i)
       }
     }
+
     console.log('added ' + this.availablePorts.length + ' ports')
 
     initEntityLoop(
