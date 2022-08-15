@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { Layout } from '@/workspaces/contexts/LayoutProvider'
-import { useLazyGetSpellQuery, useSaveDiffMutation } from '@/state/api/spells'
+import { useLazyGetSpellQuery } from '@/state/api/spells'
 import { debounce } from '@/utils/debounce'
 import EditorWindow from './windows/EditorWindow/'
 import EventHandler from '@/screens/Thoth/components/EventHandler'
@@ -20,6 +20,7 @@ import { ThothComponent } from '@thothai/thoth-core/types'
 import { useAuth } from '@/contexts/AuthProvider'
 import { CalendarApp } from '@/screens/Calendar/Calendar'
 import EntityManagerWindow from './windows/EntityManagerWindow'
+import GreetingsManagerWindow from './windows/GreetingsManagerWindow'
 import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import VideoTranscription from './windows/VideoTranscription'
@@ -27,8 +28,8 @@ import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
-import { diff } from '@/utils/json0'
-import { useSnackbar } from 'notistack'
+import MessageReactionEditor from './windows/MessageReactionEditor'
+import WysiwygEditor from './windows/WysiwygEditor'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -36,15 +37,12 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   const { getSpellDoc } = useSharedb()
   const { user } = useAuth()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
-  const [saveDiff] = useSaveDiffMutation()
-  const { editor } = useEditor()
+  const { editor, serialize } = useEditor()
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
   const preferences = useSelector((state: RootState) => state.preferences)
 
   const [docLoaded, setDocLoaded] = useState<boolean>(false)
-
-  const { enqueueSnackbar } = useSnackbar()
 
   // Set up autosave for the workspaces
   useEffect(() => {
@@ -54,24 +52,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
-          const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
-          console.log('Saving diff', jsonDiff)
-          if (jsonDiff == [] || !jsonDiff) return
-
-          const response = await saveDiff({
-            name: spellRef.current.name,
-            diff: jsonDiff,
-          })
-          loadSpell({
-            spellId: tab.spellId,
-            userId: user?.id as string,
-          })
-
-          if ('error' in response) {
-            enqueueSnackbar('Error saving spell', {
-              variant: 'error',
-            })
-          }
+          publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
         }
       }, 2000)
     )
@@ -163,6 +144,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <Inspector {...props} />
         case 'textEditor':
           return <TextEditor {...props} />
+        case 'wysiwygEditor':
+          return <WysiwygEditor {...props} />
         case 'editorWindow':
           return <EditorWindow {...props} />
         case 'debugConsole':
@@ -171,14 +154,18 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <SearchCorpus />
         case 'entityManager':
           return <EntityManagerWindow />
+        case 'greetingsManager':
+          return <GreetingsManagerWindow />
         case 'eventManager':
-          return <EventManagerWindow />
+          return <EventManagerWindow {...props} />
         case 'videoTranscription':
           return <VideoTranscription />
         case 'calendarTab':
           return <CalendarApp />
         case 'settings':
           return <SettingsWindow {...props} />
+        case 'messageReactionEditor':
+          return <MessageReactionEditor />
         default:
           return <p></p>
       }

@@ -36,10 +36,13 @@ const MenuBar = () => {
     $SAVE_SPELL,
     $CREATE_STATE_MANAGER,
     $CREATE_ENT_MANAGER,
+    $CREATE_GREETINGS_MANAGER,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_SEARCH_CORPUS,
+    $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_TEXT_EDITOR,
+    $CREATE_WYSIWYG_EDITOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
     $CREATE_VIDEO_TRANSCRIPTION,
@@ -104,8 +107,20 @@ const MenuBar = () => {
     publish($CREATE_SEARCH_CORPUS(activeTabRef.current?.id))
   }
 
+  const onCreateWYSIWYGEditor = () => {
+    publish($CREATE_WYSIWYG_EDITOR(activeTabRef.current?.id))
+  }
+
   const onEntityManagerCreate = () => {
     publish($CREATE_ENT_MANAGER(activeTabRef.current?.id))
+  }
+  
+  const onGreetingsManagerCreate = () => {
+    publish($CREATE_GREETINGS_MANAGER(activeTabRef.current?.id))
+  }
+
+  const onMessageReactionEditorCreate = () => {
+    publish($CREATE_MESSAGE_REACTION_EDITOR(activeTabRef.current?.id))
   }
 
   const onPlaytestCreate = () => {
@@ -251,6 +266,15 @@ const MenuBar = () => {
         },
         ent_manager: {
           onClick: onEntityManagerCreate,
+        },
+        greetings_manager: {
+          onClick: onGreetingsManagerCreate,
+        },
+        wysiwyg_editor: {
+          onClick: onCreateWYSIWYGEditor,
+        },
+        message_reaction_editor: {
+          onClick: onMessageReactionEditorCreate,
         },
         playtest: {
           onClick: onPlaytestCreate,

@@ -1,10 +1,6 @@
 import Koa from 'koa'
 import jwt, { SignOptions } from 'jsonwebtoken'
-import {
-  isAuthentication,
-  isValidEndPoint,
-  makeResponse,
-} from '../../utils/utils'
+import { isAuthentication, isValidEndPoint, makeResponse } from '../utils/utils'
 
 // TODO: Handle these
 

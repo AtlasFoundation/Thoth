@@ -13,9 +13,6 @@ export const rootApi = createApi({
       return headers
     },
   }),
-  tagTypes: ['Spell', 'Spells', 'Version'],
+  tagTypes: ['Spell', 'Spells', 'Version', 'Greetings'],
   endpoints: () => ({}),
 })
-
-console.log("rootApi is")
-console.log(rootApi)

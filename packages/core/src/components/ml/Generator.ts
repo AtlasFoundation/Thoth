@@ -10,7 +10,7 @@ import {
 } from '../../../types'
 import { FewshotControl } from '../../dataControls/FewshotControl'
 import { InputControl } from '../../dataControls/InputControl'
-import { ModelControl } from '../../dataControls/ModelControl'
+// import { ModelControl } from '../../dataControls/ModelControl'
 import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
@@ -38,7 +38,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     }
     this.category = 'AI/ML'
     this.info = info
-    this.display = true
+    this.display = false
   }
 
   builder(node: ThothNode) {
@@ -58,10 +58,17 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       name: 'Component Name',
     })
 
-    const modelControl = new ModelControl({
-      dataKey: 'model',
-      name: 'Model',
-      defaultValue: (node.data?.model as string) || 'vanilla-jumbo',
+    // const modelControl = new ModelControl({
+    //   dataKey: 'model',
+    //   name: 'Model',
+    //   defaultValue: (node.data?.model as string) || 'vanilla-jumbo',
+    // })
+
+    const modelName = new InputControl({
+      dataKey: 'modelName',
+      name: 'Model Name',
+      icon: 'moon',
+      defaultValue: node.data.modelName || 'text-davinci-002'
     })
 
     const inputGenerator = new SocketGeneratorControl({
@@ -103,7 +110,8 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
 
     node.inspector
       .add(nameControl)
-      .add(modelControl)
+      // .add(modelControl)
+      .add(modelName)
       .add(inputGenerator)
       .add(fewshotControl)
       .add(stopControl)
@@ -126,21 +134,22 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       return acc
     }, {} as Record<string, unknown>)
 
-    const model = (node.data.model as string) || 'vanilla-jumbo'
+    const model = (node.data.modelName as string) || 'text-davinci-002'
     // const model = node.data.model || 'davinci'
 
     // Replace carriage returns with newlines because that's what the language models expect
-    const fewshot = (node.data.fewshot as string).replace('\r\n', '\n') || ''
+    const fewshot = node.data.fewshot ? (node.data.fewshot as string).replace('\r\n', '\n') : ''
     const stopSequence = node.data.stop as string
-
+    const topPData = node?.data?.topP as string
+    const topP = topPData ? parseFloat(topPData) : 1
     const template = Handlebars.compile(fewshot, { noEscape: true })
     const prompt = template(inputs)
 
     const stop = node?.data?.stop
       ? stopSequence.split(',').map(i => {
-          if (i.includes('\\n')) return '\n'
-          return i.trim()
-        })
+        if (i.includes('\\n')) return '\n'
+        return i.trim()
+      })
       : ''
 
     const tempData = node.data.temp as string
@@ -152,7 +161,8 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       ? parseFloat(frequencyPenaltyData)
       : 0
 
-    console.log({ model })
+    const presencePenaltyData = node?.data?.presencePenalty as string
+    const presencePenalty = presencePenaltyData ? parseFloat(presencePenaltyData) : 0
 
     const body = {
       model,
@@ -161,13 +171,17 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       maxTokens,
       temperature,
       frequencyPenalty,
+      presencePenalty,
+      topP
     }
     try {
+      console.log('Sending completion!')
       const raw = (await completion(body)) as string
+      console.log('completion result', raw)
       const result = raw
       const composed = `${prompt}${result}`
 
-      if (!silent) node.display(result)
+      // if (!silent) node.display(result)
 
       return {
         result,

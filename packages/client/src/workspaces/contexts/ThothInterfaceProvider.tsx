@@ -1,9 +1,11 @@
 import {
+  CreateEventArgs,
   EditorContext,
   Spell,
   ThothWorkerInputs,
 } from '@thothai/thoth-core/types'
 import { useContext, createContext, useRef, useEffect } from 'react'
+import axios from 'axios'
 
 import { postEnkiCompletion } from '../../services/game-api/enki'
 import { completion as _completion } from '../../services/game-api/text'
@@ -52,6 +54,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     $SUBSPELL_UPDATED,
     $PROCESS,
     $TRIGGER,
+    $REFRESH_EVENT_TABLE,
   } = events
 
   const onTrigger = (node, callback) => {
@@ -62,6 +65,10 @@ const ThothInterfaceProvider = ({ children, tab }) => {
       // No super elegant, but we need a better more centralised way to run the engine than these callbacks.
       setTimeout(() => callback(data), 0)
     })
+  }
+
+  const refreshEventTable = () => {
+    return publish($REFRESH_EVENT_TABLE(tab.id))
   }
 
   const onInspector = (node, callback) => {
@@ -220,6 +227,82 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     publish($SAVE_SPELL_DIFF(tab.id), update)
   }
 
+  const getEvent = async ({
+    type,
+    agent,
+    speaker,
+    client,
+    channel,
+    maxCount = 10,
+  }) => {
+    const urlString = `${
+      process.env.REACT_APP_API_ROOT_URL ??
+      process.env.API_ROOT_URL ??
+      'https://localhost:8001'
+    }/event`
+
+    const params = {
+      type: type,
+      agent: agent,
+      speaker: speaker,
+      client: client,
+      channel: channel,
+      maxCount: maxCount,
+    } as Record<string, any>
+
+    const url = new URL(urlString)
+    for (let p in params) {
+      url.searchParams.append(p, params[p])
+    }
+
+    const response = await fetch(url.toString())
+    if (response.status !== 200) return null
+    const json = await response.json()
+    return json.event
+  }
+
+  const storeEvent = async ({
+    type,
+    agent,
+    speaker,
+    text,
+    client,
+    channel,
+  }: CreateEventArgs) => {
+    const response = await axios.post(
+      `${
+        process.env.REACT_APP_API_ROOT_URL ??
+        process.env.API_ROOT_URL ??
+        'https://localhost:8001'
+      }/event`,
+      {
+        type,
+        agent,
+        speaker,
+        text,
+        client,
+        channel,
+      }
+    )
+    console.log('Created event', response.data)
+    return response.data
+  }
+
+  const getWikipediaSummary = async (keyword: string) => {
+    console.log('NODE ENV', process.env.NODE_ENV)
+    const isProd = process.env.NODE_ENV === 'production'
+    const root = isProd
+      ? 'https://thoth.supereality.com'
+      : 'https://localhost:8001'
+    const url = `${root}/wikipediaSummary?keyword=${keyword}`
+
+    console.log('FETCHOING FROM URL', url)
+
+    const response = await fetch(url)
+
+    return await response.json()
+  }
+
   const publicInterface = {
     onTrigger,
     onInspector,
@@ -242,6 +325,10 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     updateCurrentGameState,
     processCode,
     runSpell,
+    refreshEventTable,
+    getEvent,
+    storeEvent,
+    getWikipediaSummary,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>

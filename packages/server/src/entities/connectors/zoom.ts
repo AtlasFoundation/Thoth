@@ -11,46 +11,24 @@ import { detectOsOption } from './utils'
 import { removeEmojisFromString } from '../../utils/utils'
 import { cacheManager } from '../../cacheManager'
 import { tts } from '../../systems/googleTextToSpeech'
-import { getAudioUrl } from '../../routes/getAudioUrl'
-import { tts_tiktalknet } from '../../systems/tiktalknet'
 
 export class zoom_client {
-  ent = null
-
   async createZoomClient(spellHandler, settings, entity) {
-    try {
-      const ent = {}
-      ent.xvfb = new Xvfb()
-      this.ent = ent
-      await ent.xvfb.start(async function (err, xvfbProcess) {
-        if (err) {
-          console.log(err)
-          ent.xvfb.stop(function (_err) {
-            if (_err) console.log(_err)
-          })
-        }
-
-        console.log('started virtual window')
-        ent.zoomObj = new zoom(spellHandler, settings, entity)
-        await ent.zoomObj.init()
-      })
-    } catch (e) {
-      console.log('createZoomClient error:', e)
-    }
-  }
-  destroy() {
-    if (this.ent) {
-      if (this.ent.zoomObject && this.ent.zoomObject !== undefined) {
-        this.ent.zoomObject.destroy()
-        this.ent.zoomObject = null
+    const xvfb = new Xvfb()
+    await xvfb.start(async function (err, xvfbProcess) {
+      if (err) {
+        console.log(err)
+        xvfb.stop(function (_err) {
+          if (_err) console.log(_err)
+        })
       }
 
-      if (this.ent.xvfb && this.ent.xvfb !== undefined) {
-        this.ent.xvfb.stop()
-        this.ent.xvfb = null
-      }
-    }
+      console.log('started virtual window')
+      const zoomObj = new zoom(spellHandler, settings, entity)
+      await zoomObj.init()
+    })
   }
+  destroy() {}
 }
 
 export class zoom {
@@ -147,130 +125,92 @@ export class zoom {
     const participantsDiv = await this.page.$x(
       "//a[contains(text(), 'Participants')]"
     )
-    if (participantsDiv.length > 0)
-      await participantsDiv[0].evaluate(b => b.click())
+    if(participantsDiv.length > 0) await participantsDiv[0].evaluate(b => b.click())
     let meetingHost = await this.page.evaluate(async () => {
       // Get the element containing the details of the host of the meeting
       const el = document.getElementById('participants-list-1')
       const displayName = el?.querySelector('.participants-item__display-name')
       return displayName?.textContent
     })
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    await new Promise((resolve) => setTimeout(resolve, 5000))
     setInterval(async () => {
-      try {
-        let text = await this.page.evaluate(async () => {
-          const el = document.getElementById('live-transcription-subtitle')
-          return el?.textContent
-        })
-        console.log('TRANSCRIPTION VALUE:', text)
-        console.log('lastMessage:', this.lastMessage)
-        console.log('lastResponse:', this.lastResponse)
+      //live-transcription-subtitle
+      let text = await this.page.evaluate(async () => {
+        const el = document.getElementById('live-transcription-subtitle')
+        return el?.textContent
+      })
+      console.log('TRANSCRIPTION VALUE:', text)
+      console.log('lastMessage:', this.lastMessage)
+      console.log('lastResponse:', this.lastResponse)
 
-        text = text?.toLowerCase()?.trim()
-        if ((text && text !== undefined) || text?.length <= 0) {
-          if (
-            (this.lastResponse && text.includes(this.lastResponse)) ||
-            (this.lastMessage && text.includes(this.lastMessage))
-          ) {
+      text = text?.toLowerCase()?.trim()
+      if ((text && text !== undefined) || text?.length <= 0) {
+        if ((this.lastResponse && text.includes(this.lastResponse)) || (this.lastMessage && text.includes(this.lastMessage))) {
+          return
+        }
+
+        if (text.includes(this.lastMessage)) {
+          text = text.replace(this.lastMessage, '')
+          if (text.length <= 0) {
             return
           }
-
-          if (text.includes(this.lastMessage)) {
-            text = text.replace(this.lastMessage, '')
-            if (text.length <= 0) {
-              return
-            }
-          }
-
-          this.lastMessage = text
-          console.log('spellHandler:', this.spellHandler)
-          let response = await this.spellHandler(
-            text,
-            meetingHost ?? 'User',
-            this.settings.zoom_bot_name ?? 'Agent',
-            'zoom',
-            this.settings.zoom_invitation_link,
-            this.entity,
-            [],
-            'msg'
-          )
-          const tempResp = response
-          console.log('RESP:', response)
-          response = removeEmojisFromString(response)
-          const temp = response
-          if (!cacheManager.instance) {
-            new cacheManager()
-          }
-
-          const cache = await cacheManager.instance.get('voice_' + temp)
-          if (cache) {
-            response = cache
-            console.log('got from cache:', cache)
-          } else {
-            if (this.settings.voice_provider === 'google') {
-              const fileId = await tts(response as string)
-              const url =
-                (process.env.FILE_SERVER_URL?.endsWith('/')
-                  ? process.env.FILE_SERVER_URL
-                  : process.env.FILE_SERVER_URL + '/') + fileId
-              response = url
-            } else if (this.settings.voice_provider === 'uberduck') {
-              const url = await getAudioUrl(
-                process.env.UBER_DUCK_KEY as string,
-                process.env.UBER_DUCK_SECRET_KEY as string,
-                this.settings.voice_character,
-                response as string
-              )
-              response = url
-            } else {
-              const fileId = await tts_tiktalknet(
-                response,
-                this.settings.voice_character,
-                this.settings.tiktalknet_url
-              )
-              const url =
-                (process.env.FILE_SERVER_URL?.endsWith('/')
-                  ? process.env.FILE_SERVER_URL
-                  : process.env.FILE_SERVER_URL + '/') + fileId
-              response = url
-            }
-          }
-          try {
-            await this.playAudio(response)
-            cacheManager.instance.set('voice_' + temp, response)
-            this.lastResponse = tempResp.toLowerCase()
-
-            await new Promise(resolve => setTimeout(resolve, 4000))
-            await this.clickElementById('button', 'audioOptionMenu')
-            await this.catchScreenshot()
-            const linkHandlers1 = await this.page.$x(
-              "//a[contains(text(), 'Same as System')]"
-            )
-            if (linkHandlers1.length > 0) {
-              await linkHandlers1[0].evaluate(btn => btn.click())
-              await linkHandlers1[1].evaluate(btn => btn.click())
-            } else {
-              console.log('Link not found')
-            }
-          } catch (e) {
-            console.log('error in init ::: ', e)
-          }
         }
-      } catch (e) {
-        console.log('voice error:', e)
+
+        this.lastMessage = text
+        console.log('spellHandler:', this.spellHandler)
+        let response = await this.spellHandler(
+          text,
+          meetingHost ?? 'User',
+          this.settings.zoom_bot_name ?? 'Agent',
+          'zoom',
+          this.settings.zoom_invitation_link,
+          this.entity,
+          []
+        )
+        const tempResp = response
+        console.log('RESP:', response)
+        response = removeEmojisFromString(response)
+        const temp = response
+        if (!cacheManager.instance) {
+          new cacheManager()
+        }
+
+        const cache = await cacheManager.instance.get('voice_' + temp)
+        if (cache) {
+          response = cache
+          console.log('got from cache:', cache)
+        } else {
+          const fileId = await tts(response as string)
+          const url =
+            (process.env.FILE_SERVER_URL?.endsWith('/')
+              ? process.env.FILE_SERVER_URL
+              : process.env.FILE_SERVER_URL + '/') + fileId
+
+          console.log('url:', url)
+          response = url
+        }
+        try {
+          await this.playAudio(response)
+          cacheManager.instance.set('voice_' + temp, response)
+          this.lastResponse = tempResp.toLowerCase()
+
+          await new Promise((resolve) => setTimeout(resolve, 4000))
+          await this.clickElementById('button', 'audioOptionMenu')
+          await this.catchScreenshot()
+          const linkHandlers1 = await this.page.$x(
+            "//a[contains(text(), 'Same as System')]"
+          )
+          if (linkHandlers1.length > 0) {
+            await linkHandlers1[0].evaluate(btn => btn.click())
+            await linkHandlers1[1].evaluate(btn => btn.click())
+          } else {
+            console.log('Link not found')
+          }
+        } catch (e) {
+          console.log('error in init ::: ', e);
+        }
       }
     }, 5000)
-  }
-
-  destroy() {
-    if (this.page) {
-      this.page.close()
-      this.page = null
-    }
-    if (this.browser) {
-      this.browser.close()
-      this.browser = null
-    }
   }
 
   lastMessage = ''
@@ -324,7 +264,7 @@ export class zoom {
         console.log('Link not found')
       }
     } catch (e) {
-      console.log('error in playAudio ::: ', e)
+      console.log('error in playAudio ::: ', e);
     }
     this.catchScreenshot()
   }
@@ -383,27 +323,19 @@ export class zoom {
 
   async navigate(url, searchParams = undefined) {
     if (!this.browser) {
-      try {
-        await this.init()
-      } catch (e) {
-        console.log('error in init:', e)
-      }
+      await this.init()
     }
 
-    try {
-      const parsedUrl = new URL(url?.includes('https') ? url : `https://${url}`)
-      if (searchParams !== undefined) {
-        for (const x in searchParams) {
-          parsedUrl.searchParams.set(x, searchParams[x])
-        }
+    const parsedUrl = new URL(url?.includes('https') ? url : `https://${url}`)
+    if (searchParams !== undefined) {
+      for (const x in searchParams) {
+        parsedUrl.searchParams.set(x, searchParams[x])
       }
-      const context = this.browser.defaultBrowserContext()
-      context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
-      console.log('navigating to: ' + parsedUrl)
-      await this.page.goto(parsedUrl, { waitUntil: 'domcontentloaded' })
-    } catch (e) {
-      console.log('error in navigation:', e)
     }
+    const context = this.browser.defaultBrowserContext()
+    context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
+    console.log('navigating to: ' + parsedUrl)
+    await this.page.goto(parsedUrl, { waitUntil: 'domcontentloaded' })
   }
 
   async delay(timeout) {
@@ -428,10 +360,8 @@ export class zoom {
   }
 
   async typeMessage(input, message, clean) {
-    try {
-      if (clean)
-        await this.page.click(`input[name="${input}"]`, { clickCount: 3 })
-      await this.page.type(`input[name=${input}]`, message)
-    } catch (e) {}
+    if (clean)
+      await this.page.click(`input[name="${input}"]`, { clickCount: 3 })
+    await this.page.type(`input[name=${input}]`, message)
   }
 }

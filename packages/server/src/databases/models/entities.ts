@@ -14,16 +14,21 @@ export interface entitiesAttributes {
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
+  discord_greeting_id?: string
   discord_echo_slack?: boolean
   discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
-  discord_spell_handler_feed?: string
+  discord_spell_handler_metadata?: string
+  discord_spell_handler_slash_command?: string
   use_voice?: boolean
   voice_provider?: string
   voice_character?: string
   voice_language_code?: string
   voice_default_phrases?: string
+  use_custom_commands?: boolean
+  custom_command_starter?: string
+  custom_commands?: string
   tiktalknet_url?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
@@ -107,16 +112,21 @@ export type entitiesOptionalAttributes =
   | 'discord_bot_name_regex'
   | 'discord_bot_name'
   | 'discord_empty_responses'
+  | 'discord_greeting_id'
   | 'discord_echo_slack'
   | 'discord_echo_format'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
-  | 'discord_spell_handler_feed'
+  | 'discord_spell_handler_metadata'
+  | 'discord_spell_handler_slash_command'
   | 'use_voice'
   | 'voice_provider'
   | 'voice_character'
   | 'voice_language_code'
   | 'voice_default_phrases'
+  | 'use_custom_commands'
+  | 'custom_command_starter'
+  | 'custom_commands'
   | 'tiktalknet_url'
   | 'xrengine_enabled'
   | 'xrengine_url'
@@ -196,8 +206,7 @@ export type entitiesCreationAttributes = Optional<
 
 export class entities
   extends Model<entitiesAttributes, entitiesCreationAttributes>
-  implements entitiesAttributes
-{
+  implements entitiesAttributes {
   id?: number
   instanceId?: number
   personality?: string
@@ -209,16 +218,21 @@ export class entities
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
+  discord_greeting_id?: string
   discord_echo_slack?: boolean
   discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
-  discord_spell_handler_feed?: string
+  discord_spell_handler_metadata?: string
+  discord_spell_handler_slash_command?: string
   use_voice?: boolean
   voice_provider?: string
   voice_character?: string
   voice_language_code?: string
   voice_default_phrases?: string
+  use_custom_commands?: boolean
+  custom_command_starter?: string
+  custom_commands?: string
   tiktalknet_url?: string
   xrengine_enabled?: boolean
   xrengine_url?: string
@@ -341,6 +355,16 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        discord_greeting_id: {
+          type: DataTypes.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'greetings',
+            key: 'id',
+          },
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE',
+        },
         discord_echo_slack: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
@@ -373,6 +397,19 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        use_custom_commands: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        custom_command_starter: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+
+        custom_commands: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
         tiktalknet_url: {
           type: DataTypes.TEXT,
           allowNull: true,
@@ -381,7 +418,11 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
-        discord_spell_handler_feed: {
+        discord_spell_handler_metadata: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        discord_spell_handler_slash_command: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

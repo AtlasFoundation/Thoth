@@ -29,30 +29,33 @@ We will need to have a way for an individual app load the different pieces of it
 
 One proposed pattern, which reflect the data needs of each part of the application to function properly.
 
+```javascript
 {
-appName: 'myApp',
-icon: ".../path/to/icon",
-assets: "../path/to/assets",
-fileType: "\*.agent",
-core: {
-components: Record<string, ThothComponent>,
-inspectorControls: Record<string, InspectorControl>,
-plugins: ThothPlugin[],
-connectors: Recird<string, Connector>
-},
-client: {
-windows: Record<string, WindowComponent>
-events: Record<string, Event>
-inspectorComponents: Record<string, InspectorComponent>,
-interface: ThothInterface,
-menuBar: Record<string, MenuBar>
-// or maybe this, which would load in all the above itself ands expose a single component.
-// Perhaps our client library (or client-core) gives a provider that lets people load these things into thoth from their individual app.
-appRoot: MyAppThothRootComponent
+  appName: 'myApp',
+  icon: ".../path/to/icon",
+  assets: "../path/to/assets",
+  // file type used to determine what tab to type to open for this app
+  fileType: "\*.agent",
+  core: {
+    components: Record<string, ThothComponent>,
+    inspectorControls: Record<string, InspectorControl>,
+    plugins: ThothPlugin[],
+    connectors: Recird<string, Connector>
+  },
+  client: {
+    windows: Record<string, WindowComponent>
+    events: Record<string, Event>
+    inspectorComponents: Record<string, InspectorComponent>,
+    interface: ThothInterface,
+    menuBar: Record<string, MenuBar>
+    // or maybe this, which would load in all the above itself ands expose a single component.
+    // Perhaps our client library (or client-core) gives a provider that lets people load these things into thoth from their individual app.
+    appRoot: MyAppThothRootComponent
+  }
+  server: {
+    interface: ThothInterface,
+    // Good for custom routes for the app
+    routes: Record<string, RouteDefinition>
+  }
 }
-server: {
-interface: ThothInterface,
-// Good for custom routes for the app
-routes: Record<string, RouteDefinition>
-}
-}
+```

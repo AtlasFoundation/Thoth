@@ -102,8 +102,10 @@ export class Inspector {
       )
       // filter out any sockets which we have set to be ignored
       .filter(
-        existing =>
-          ignored.length === 0 || ignored.some(socket => socket !== existing)
+        existing => {
+          console.log("filtering out existing")
+          return ignored.length === 0 || !ignored.some(socket => socket === existing)
+        }
       )
       // iterate over each socket after this to remove is
       .forEach(key => {

@@ -34,8 +34,7 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
 
     let stop = Date.now()
     console.log(
-      `Time Taken to execute loaded data from wikipedia = ${
-        (stop - start) / 1000
+      `Time Taken to execute loaded data from wikipedia = ${(stop - start) / 1000
       } seconds`
     )
     start = Date.now()
@@ -122,8 +121,7 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
 
     stop = Date.now()
     console.log(
-      `Time Taken to execute openai request 2 = ${
-        (stop - start) / 1000
+      `Time Taken to execute openai request 2 = ${(stop - start) / 1000
       } seconds`
     )
     start = Date.now()
@@ -143,8 +141,9 @@ export async function createWikipediaEntity(speaker, name, personality, facts) {
 }
 
 export const searchWikipedia = async keyword => {
+  console.log('SEARCH WIKIPEDIA, KEYWORD:', keyword)
   // if keywords contains more than three words, summarize with GPT-3
-  if (keyword.trim().split(' ').length > 3) {
+  if (keyword && keyword !== undefined && keyword?.length > 0 && keyword?.trim()?.split(' ').length > 3) {
     const data = {
       prompt: keyword + '\n\nKeywords:',
       temperature: 0.3,
@@ -174,7 +173,7 @@ export const searchWikipedia = async keyword => {
     searchResults.results[0] &&
     (searchResults.results[0].title
       .toLowerCase()
-      .includes(keyword.toLowerCase()) ||
+      .includes(keyword?.toLowerCase()) ||
       keyword
         .toLowerCase()
         .includes(searchResults.results[0].title.toLowerCase()))

@@ -376,7 +376,6 @@ export const CalendarApp = () => {
       })
       return
     }
-
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
     axios
@@ -387,6 +386,7 @@ export const CalendarApp = () => {
         enqueueSnackbar('Event created successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not created', { variant: 'error' })
       })
@@ -407,6 +407,7 @@ export const CalendarApp = () => {
         enqueueSnackbar('Event updated successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not updated', { variant: 'error' })
       })
@@ -427,6 +428,7 @@ export const CalendarApp = () => {
         enqueueSnackbar('Event deleted successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not deleted', { variant: 'error' })
       })

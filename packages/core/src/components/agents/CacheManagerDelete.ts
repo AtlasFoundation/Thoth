@@ -1,35 +1,32 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
 import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { triggerSocket, stringSocket } from '../../sockets'
+import { agentSocket, stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
-const info = 'Create Or GetAgent is used to generate or get an existing agent'
+const info =
+  'Cache Manager Delete is used to delete data from the cache manager'
 
-type WorkerReturn = {
-  output: string
-}
-
-export class CreateOrGetAgent extends ThothComponent<Promise<WorkerReturn>> {
+export class CacheManagerDelete extends ThothComponent<void> {
   constructor() {
-    super('Create Or Get Agent')
+    super('Cache Manager Delete')
 
     this.task = {
       outputs: {
-        output: 'output',
         trigger: 'option',
       },
     }
@@ -40,18 +37,16 @@ export class CreateOrGetAgent extends ThothComponent<Promise<WorkerReturn>> {
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
-    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
+    const keyInput = new Rete.Input('key', 'Key', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
-    const outp = new Rete.Output('output', 'output', stringSocket)
 
     return node
+      .addInput(keyInput)
       .addInput(agentInput)
-      .addInput(speakerInput)
       .addInput(dataInput)
       .addOutput(dataOutput)
-      .addOutput(outp)
   }
 
   async worker(
@@ -60,21 +55,14 @@ export class CreateOrGetAgent extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const agent = inputs['agent'][0] as string
-    const speaker = inputs['speaker'][0] as string
+    const key = inputs['key'][0] as string
+    const agent = inputs['agent'][0] as Agent
 
-    const resp = await axios.post(
-      `${process.env.API_URL}/createWikipediaEntity`,
-      {
-        speaker: speaker,
-        agent: agent,
-      }
-    )
-
-    console.log(resp.data)
-
-    return {
-      output: resp.data?.result?.extract,
-    }
+    await axios.delete(`${process.env.REACT_APP_API_URL}/cache_manager`, {
+      params: {
+        key: key,
+        agent: agent.agent,
+      },
+    })
   }
 }

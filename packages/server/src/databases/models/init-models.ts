@@ -47,9 +47,18 @@ import type {
 import { calendarEvents as _calendarEvents } from './calendarEvents'
 import type {
   authUsersAttributes,
-  authUsersAttributesCreationAttributes,
 } from './authUsers'
 import { authUsers as _authUsers } from './authUsers'
+import type {
+  greetingsAttributes,
+  greetingsCreationAttributes,
+} from './greetings'
+import { greetings as _greetings } from './greetings'
+import {
+  message_reactions as _message_reactions,
+  messageReactionsAttributes,
+  messageReactionCreationAttributes,
+} from './message_reactions'
 import {
   handled_history as _handled_history,
   handled_historyAttributes,
@@ -68,6 +77,8 @@ export {
   _scopeSettings as scopeSettings,
   _calendarEvents as calendarEvents,
   _authUsers as authUsers,
+  _greetings as greetings,
+  _message_reactions as messageReactions,
   _handled_history as handled_history,
 }
 
@@ -95,10 +106,15 @@ export type {
   calendarEventsAttributes,
   calendarEventsCreationAttributes,
   authUsersAttributes,
+  greetingsAttributes,
+  greetingsCreationAttributes,
+  messageReactionsAttributes,
+  messageReactionCreationAttributes,
   handled_historyAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
+  const greetings = _greetings.initModel(sequelize)
   const entities = _entities.initModel(sequelize)
   const spells = _spells.initModel(sequelize)
   const events = _events.initModel(sequelize)
@@ -111,6 +127,7 @@ export function initModels(sequelize: Sequelize) {
   const scopeSettings = _scopeSettings.initModel(sequelize)
   const calendarEvents = _calendarEvents.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
+  const messageReactions = _message_reactions.initModel(sequelize)
   const handled_history = _handled_history.initModel(sequelize)
 
   return {
@@ -126,6 +143,8 @@ export function initModels(sequelize: Sequelize) {
     scopeSettings: scopeSettings,
     calendarEvents: calendarEvents,
     authUsers: authUsers,
+    greetings,
+    messageReactions,
     handled_history: handled_history,
   }
 }

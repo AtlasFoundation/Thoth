@@ -1,31 +1,31 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
+/* eslint-disable no-async-promise-executor */
+/* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { anySocket, stringSocket, triggerSocket } from '../../sockets'
+import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
-const info = 'Cache Manager Get is used to get data from the cache manager'
+const info = 'Agent Text Completion is using OpenAI for the agent to respond.'
 
 type WorkerReturn = {
   output: string
 }
 
-export class CacheManagerGet extends ThothComponent<Promise<WorkerReturn>> {
+export class AddAgent extends ThothComponent<Promise<WorkerReturn>> {
   constructor() {
-    super('Cache Manager Get')
+    super('Add Agent')
 
     this.task = {
       outputs: {
@@ -40,18 +40,18 @@ export class CacheManagerGet extends ThothComponent<Promise<WorkerReturn>> {
   }
 
   builder(node: ThothNode) {
-    const keyInput = new Rete.Input('key', 'Key', stringSocket)
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
+    const inp = new Rete.Input('string', 'Text', stringSocket)
+    const agent = new Rete.Input('agent', 'Agent', agentSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
-    const output = new Rete.Output('output', 'Output', anySocket)
+    const outp = new Rete.Output('output', 'output', stringSocket)
 
     return node
-      .addInput(keyInput)
-      .addInput(agentInput)
+      .addInput(inp)
+      .addInput(agent)
       .addInput(dataInput)
       .addOutput(dataOutput)
-      .addOutput(output)
+      .addOutput(outp)
   }
 
   async worker(
@@ -60,22 +60,11 @@ export class CacheManagerGet extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const key = inputs['key'][0] as string
-    const agent = inputs['agent'] ? (inputs['agent'][0] as string) : 'Global'
+    const action = inputs['string'][0] as string
+    const agent = inputs['agent'][0] as Agent
 
-    const resp = await axios.get(
-      `${process.env.REACT_APP_API_URL}/cache_manager`,
-      {
-        params: {
-          key: key,
-          agent: agent,
-        },
-      }
-    )
-
-    console.log('cache get, resp:', resp.data.data)
     return {
-      output: resp.data.data,
+      output: action + '\n' + agent.agent + ': ',
     }
   }
 }

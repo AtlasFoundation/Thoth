@@ -33,6 +33,8 @@ describe('SpellRunner', () => {
         )
       })
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         readFromImageCache: imageCacheMock,
@@ -55,6 +57,7 @@ describe('SpellRunner', () => {
       >
     })
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         completion: completionMock,
@@ -83,6 +86,7 @@ describe('SpellRunner', () => {
       >
     })
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         completion: completionMock,
@@ -111,6 +115,7 @@ describe('SpellRunner', () => {
       >
     })
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         completion: completionMock,
@@ -129,6 +134,8 @@ describe('SpellRunner', () => {
       .fn()
       .mockImplementation(thothInterfaceStub.processCode)
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
+      //@ts-ignore
       thothInterface: { ...thothInterfaceStub, processCode: codeMock },
     })
     await runnerInstance.loadSpell(codeSpell)
@@ -152,6 +159,8 @@ describe('SpellRunner', () => {
       .fn()
       .mockImplementation(thothInterfaceStub.processCode)
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         processCode: codeMock,
@@ -182,7 +191,9 @@ describe('SpellRunner', () => {
     })
   })
   it('Returns an Echo component result from a SubSpell one layer down', async () => {
+    //@ts-ignore
     const nestedRunnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
       },
@@ -204,6 +215,7 @@ describe('SpellRunner', () => {
         }
       )
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         runSpell: runSpellMock,
@@ -225,7 +237,9 @@ describe('SpellRunner', () => {
     })
   })
   it('Returns a Generator component result from a Boolean gate component', async () => {
+    //@ts-ignore
     const nestedRunnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
       },
@@ -238,6 +252,7 @@ describe('SpellRunner', () => {
     })
 
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         completion: completionMock,
@@ -253,7 +268,10 @@ describe('SpellRunner', () => {
     })
   })
   it('Returns a Code component result from a Boolean gate component', async () => {
+    //@ts-ignore
+    //@ts-ignore
     const nestedRunnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
       },
@@ -266,6 +284,7 @@ describe('SpellRunner', () => {
     })
 
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         completion: completionMock,
@@ -283,6 +302,7 @@ describe('SpellRunner', () => {
 
   it('Returns result from a Join List Component Spell', async () => {
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: { ...thothInterfaceStub },
     })
     await runnerInstance.loadSpell(joinListSpell)
@@ -296,6 +316,7 @@ describe('SpellRunner', () => {
 
   it('Returns result from a String Processor Component Spell', async () => {
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: { ...thothInterfaceStub },
     })
     await runnerInstance.loadSpell(stringProcessorSpell)
@@ -309,6 +330,7 @@ describe('SpellRunner', () => {
 
   it('Returns result from a Input Component Spell', async () => {
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: { ...thothInterfaceStub },
     })
     await runnerInstance.loadSpell(inputOutputSpell)
@@ -321,6 +343,7 @@ describe('SpellRunner', () => {
   })
   it('Returns result from a State Read Component Spell', async () => {
     const runnerInstance = new SpellRunner({
+      //@ts-ignore
       thothInterface: {
         ...thothInterfaceStub,
         getCurrentGameState: () => {

@@ -3,6 +3,7 @@ import Rete from 'rete'
 import { v4 as uuidv4 } from 'uuid'
 
 import {
+  Agent,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
@@ -10,7 +11,7 @@ import {
 } from '../../../types'
 import { Task } from '../../plugins/taskPlugin/task'
 import {
-  anySocket,
+  agentSocket,
   arraySocket,
   stringSocket,
   triggerSocket,
@@ -20,13 +21,13 @@ import { ThothComponent, ThothTask } from '../../thoth-component'
 const info = `The input component allows you to pass a single value to your graph.  You can set a default value to fall back to if no value is provided at runtime.  You can also turn the input on to receive data from the playtest input.`
 
 type InputReturn = {
-  output: unknown
+  output: Agent
   speaker: string
   agent: string
   client: string
   channel: string
   entity: number
-  roomInfo: {
+  roomInfo?: {
     user: string
     inConversation: boolean
     isBot: boolean
@@ -71,8 +72,9 @@ export class InputDestructureComponent extends ThothComponent<
     // todo add this somewhere automated? Maybe wrap the modules builder in the plugin
     node.data.socketKey = node?.data?.socketKey || uuidv4()
 
-    const inp = new Rete.Input('input', 'Input', anySocket)
+    const inp = new Rete.Input('agent', 'Agent', agentSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
+
     const out = new Rete.Output('output', 'output', stringSocket)
     const speaker = new Rete.Output('speaker', 'speaker', stringSocket)
     const agent = new Rete.Output('agent', 'agent', stringSocket)
@@ -109,21 +111,21 @@ export class InputDestructureComponent extends ThothComponent<
     { silent }: { silent: boolean }
   ) {
     // eslint-disable-next-line prettier/prettier
-    const input = inputs.input != null ? inputs.input[0] : inputs
+    const agent = inputs.agent != null ? inputs.agent[0] : inputs
 
     //console.log('destructuring ', inputs)
 
-    if (!silent) node.display(input)
+    if (!silent) node.display(agent)
     // If there are outputs, we are running as a module input and we use that value
     return {
-      output: (input as any).Input ?? input,
-      speaker: (input as any)['Speaker'] ?? 'Speaker',
-      agent: (input as any)['Agent'] ?? 'Agent',
-      client: (input as any)['Client'] ?? 'Playtest',
-      channel: (input as any)['ChannelID'] ?? 'TestChannel',
-      entity: (input as any)['Entity'],
-      roomInfo: (input as any)['RoomInfo'],
-      channel_type: (input as any)['Channel'],
+      output: (agent as any).Input ?? agent,
+      speaker: (agent as any)['Speaker'] ?? 'Speaker',
+      agent: (agent as any)['Agent'] ?? 'Agent',
+      client: (agent as any)['Client'] ?? 'Playtest',
+      channel: (agent as any)['ChannelID'] ?? 'TestChannel',
+      entity: (agent as any)['Entity'],
+      roomInfo: (agent as any)['RoomInfo'],
+      channel_type: (agent as any)['Channel'],
     }
   }
 }
