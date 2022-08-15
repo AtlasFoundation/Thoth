@@ -226,7 +226,7 @@ const getEvent = async (ctx: Koa.Context) => {
 
   console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = event)
+  return (ctx.body = { event })
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
