@@ -37,6 +37,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       },
     }
     this.category = 'AI/ML'
+    this.runFromCache = true
     this.info = info
     this.display = false
   }

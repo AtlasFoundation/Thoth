@@ -25,6 +25,7 @@ import { PubSubContext, ThothComponent } from './thoth-component'
 import SocketPlugin from './plugins/socketPlugin'
 // import SelectionPlugin from './plugins/selectionPlugin'
 import errorPlugin from './plugins/errorPlugin'
+import cachePlugin from './plugins/cachePlugin'
 
 interface ThothEngineClient extends ThothEngine {
   thoth: EditorContext
@@ -169,6 +170,7 @@ export const initEditor = function ({
     editor.use(SocketPlugin, { client })
   } else {
     // WARNING: ModulePlugin needs to be initialized before TaskPlugin during engine setup
+    editor.use(cachePlugin)
     editor.use(ModulePlugin, { engine, modules: {} } as unknown as void)
     editor.use(TaskPlugin)
   }
