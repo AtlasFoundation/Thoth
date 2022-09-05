@@ -10,7 +10,7 @@ For **Linux** and **MAC** users, **sleep** and **concurently** commands must be 
 First, clone and set up Thoth
 
 ```
-git clone https://github.com/TheNexusCity/thoth
+git clone https://github.com/AtlasFoundation/thoth
 ```
 
 Next, install dependencies
