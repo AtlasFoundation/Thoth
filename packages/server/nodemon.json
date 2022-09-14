@@ -14,5 +14,5 @@
   "restartable": "rs",
   "verbose": true,
   "ext": "js,json,ts",
-  "ignore": ["*.test.ts", "*.spec.ts"]
+  "ignore": ["*.test.ts", "*.spec.ts", "*.d.ts"]
 }
