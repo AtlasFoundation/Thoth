@@ -22,6 +22,9 @@ export const buildThothInterface = (
     setCurrentGameState: (state: Record<string, any>) => {
       gameState = state
     },
+    getEvent: () => new Promise(() => { }),
+    storeEvent: () => new Promise(() => { }),
+    getWikipediaSummary: () => new Promise(() => { }),
     updateCurrentGameState: (update: Record<string, unknown>) => {
       const newState = {
         ...gameState,

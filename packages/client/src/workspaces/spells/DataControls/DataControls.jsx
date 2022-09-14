@@ -1,6 +1,6 @@
 import { SimpleAccordion } from '../../../components/Accordion'
 import CodeControl from './CodeControl'
-import css from './datacontrols.module.css'
+import css from '../../components/windowMessage.module.css'
 import EnkiSelect from './EnkiSelect'
 import Info from './Info'
 import Input from './Input'

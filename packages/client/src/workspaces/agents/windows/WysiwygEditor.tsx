@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import JoditEditor from 'jodit-react'
 
-import WindowMessage from '../components/WindowMessage'
+import WindowMessage from '../../components/WindowMessage'
 
 import '../../../screens/Thoth/thoth.module.css'
 import {
