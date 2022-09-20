@@ -48,8 +48,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-            rejectUnauthorized: false,
-          }
+          rejectUnauthorized: false,
+        }
         : false,
     })
     this.client.connect()
@@ -345,9 +345,8 @@ export class database {
 
   async getGreetings(enabled: boolean) {
     const whereClause = 'WHERE enabled = true'
-    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${
-      enabled ? whereClause : ''
-    } ORDER BY id ASC`
+    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${enabled ? whereClause : ''
+      } ORDER BY id ASC`
     const rows = await this.client.query(query)
     return rows.rows
   }
