@@ -86,7 +86,7 @@ export type EngineContext = {
     data: Record<string, any>,
     state: Record<string, any>
   ) => any | void
-  getEvent: (args: GetEventArgs) => Promise<string | string[] | null>
+  getEvent: (args: GetEventArgs) => Promise<string | string[] | null | Record<string, any>>
   storeEvent: (args: CreateEventArgs) => Promise<any>
   getWikipediaSummary: (keyword: string) => Promise<Record<string, any> | null>
 

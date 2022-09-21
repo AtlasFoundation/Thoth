@@ -201,23 +201,19 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-
-  const event = await events.getEvents({
+  const event = await database.instance.getEvents(
     type,
     agent,
     speaker,
     client,
     channel,
+    true,
     maxCount
-  })
-
-  if (!event) throw new CustomError('not-found', 'Event not found')
+  )
 
   console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = {
-    event
-  })
+  return (ctx.body = { event })
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
