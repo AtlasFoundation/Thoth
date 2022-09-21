@@ -30,7 +30,7 @@ function install(editor: ThothEditor) {
       if (component.runFromCache) {
 
         // Run function runs the worker with old args and returns the result.
-        const run = async (node) => {
+        const run = async (node: NodeData) => {
           const cache = component.cache[node.id]
 
           if (!cache) return null
