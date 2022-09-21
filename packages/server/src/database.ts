@@ -110,9 +110,13 @@ export class database {
       values = [agent, client, channel, type]
     } else {
       query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
+        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND (sender=$3 OR sender=$1) AND channel=$4 AND type=$5 ORDER BY id desc'
       values = [agent, client, sender, channel, type]
     }
+    console.log('******************************************')
+    console.log('query', query)
+    console.log('******************************************')
+
     const row = await this.client.query(query, values)
     if (!row || !row.rows || row.rows.length === 0) {
       console.log('rows are null, returning')
@@ -127,6 +131,10 @@ export class database {
     // })
 
     console.log('got ' + row.rows.length + ' rows')
+
+    console.log('******************************************')
+    console.log('row.rows', row.rows)
+    console.log('******************************************')
 
     const now = new Date()
     const max_length = maxCount
