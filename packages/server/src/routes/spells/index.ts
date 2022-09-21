@@ -181,7 +181,7 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
     throw new CustomError('input-failed', 'No diff provided in request body')
 
   try {
-    const spellUpdate = otJson0.type.apply(spell, diff)
+    const spellUpdate = otJson0.type.apply(spell.toJSON(), diff)
 
     const updatedSpell = await creatorToolsDatabase.spells.update(spellUpdate,
       {
