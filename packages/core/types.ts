@@ -86,6 +86,7 @@ export type EngineContext = {
     data: Record<string, any>,
     state: Record<string, any>
   ) => any | void
+  queryGoogle: (query: string) => Promise<string>
   getEvent: (args: GetEventArgs) => Promise<string | string[] | null | Record<string, any>>
   storeEvent: (args: CreateEventArgs) => Promise<any>
   getWikipediaSummary: (keyword: string) => Promise<Record<string, any> | null>

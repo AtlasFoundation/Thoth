@@ -7,6 +7,7 @@ import * as events from '../../services/events'
 import { CreateEventArgs, GetEventArgs } from '../../services/events'
 import { searchWikipedia } from '../wikipedia/helpers';
 import { makeCompletion } from '../../utils/MakeCompletionRequest'
+import queryGoogle from '../utils/queryGoogle';
 
 export const buildThothInterface = (
   ctx: Koa.Context,
@@ -42,6 +43,10 @@ export const buildThothInterface = (
     },
     runSpell: () => {
       return {}
+    },
+    queryGoogle: async (query) => {
+      const response = await queryGoogle(query)
+      return response
     },
     readFromImageCache: async () => {
       return { images: [] }

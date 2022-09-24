@@ -15,6 +15,7 @@ import { usePubSub } from '../../contexts/PubSubProvider'
 import { postEnkiCompletion } from '../../services/game-api/enki'
 import { completion as _completion } from '../../services/game-api/text'
 import { invokeInference } from '../../utils/huggingfaceHelper'
+import { thothApiRootUrl } from '@/config'
 
 const Context = createContext<EditorContext>(undefined!)
 
@@ -290,7 +291,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   }
 
   const getWikipediaSummary = async (keyword: string) => {
-    console.log('NODE ENV', process.env.NODE_ENV)
     const isProd = process.env.NODE_ENV === 'production'
     const root = isProd
       ? 'https://thoth.supereality.com'
@@ -302,6 +302,15 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     const response = await fetch(url)
 
     return await response.json()
+  }
+
+  const queryGoogle = async (query: string) => {
+    const url = `${thothApiRootUrl}/query_google`
+    const response = await axios.post(url, {
+      query,
+    })
+
+    return await response.data
   }
 
   const publicInterface = {
@@ -330,6 +339,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     getEvent,
     storeEvent,
     getWikipediaSummary,
+    queryGoogle,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>
