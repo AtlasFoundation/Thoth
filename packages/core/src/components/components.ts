@@ -77,6 +77,7 @@ import { Merge } from './utility/Merge'
 import { WeaviateWikipedia } from './search/WeaviateWikipedia'
 import { GetWikipediaSummary } from './services/GetWikipediaSummary'
 import { OrGate } from './logic/OrGate'
+import { QueryGoogle } from './services/QueryGoogle'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -163,7 +164,8 @@ export const components = {
   getWikipediaSummary: () => new GetWikipediaSummary(),
   merge: () => new Merge(),
   orGate: () => new OrGate(),
-  log: () => new Log()
+  log: () => new Log(),
+  queryGoogle: () => new QueryGoogle()
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {

@@ -310,7 +310,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
       query,
     })
 
-    return await response.data
+    return await response.data.result
   }
 
   const publicInterface = {
