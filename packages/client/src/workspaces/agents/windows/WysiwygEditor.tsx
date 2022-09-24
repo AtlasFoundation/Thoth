@@ -50,7 +50,7 @@ const WysiwygEditor = props => {
       <JoditEditor
         ref={editorRef}
         value={content}
-        config={{ readonly: false, placeholder: 'Start typing' }}
+        config={{ readonly: false }}
         onBlur={newContent => setContent(newContent)}
         onChange={newContent => {}}
       />
