@@ -7,7 +7,7 @@ export function getAudioUrl(
   secretKey: string,
   character: string,
   text: string
-) {
+): Promise<string> {
   if (character === undefined)
     throw new Error('Define the character voice.');
   if (key === undefined)
@@ -47,7 +47,7 @@ export function getAudioUrl(
         while (jsonResponse.path === null)
           jsonResponse = await getJson(audioResponse);
 
-        resolve(jsonResponse.path);
+        resolve(jsonResponse.path as string);
       }
     );
   });

@@ -649,15 +649,14 @@ export class database {
   }
   async createCalendarEvent(
     name: string,
-    calendar_id: string,
     date: string,
     time: string,
     type: string,
     moreInfo: string
   ) {
     const query =
-      'INSERT INTO calendar_events(name, calendar_id, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5, $6)'
-    const values = [name, calendar_id, date, time, type, moreInfo]
+      'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
+    const values = [name, date, time, type, moreInfo]
     try {
       return await this.client.query(query, values)
     } catch (e) {

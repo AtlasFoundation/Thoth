@@ -17,7 +17,7 @@ import emojiRegex from 'emoji-regex'
 // import { classifyText } from '../utils/textClassifier'
 import { database } from '../../database'
 import { CreateSpellHandler } from '../CreateSpellHandler'
-import { initSpeechClient, recognizeSpeech } from './discord-voice'
+// import { initSpeechClient, recognizeSpeech } from './discord-voice'
 import {
   getRandomEmptyResponse,
   startsWithCapital,
@@ -451,7 +451,7 @@ export class discord_client {
                 channel.type === channelTypes['voice'] &&
                 channel.name === channelName
               ) {
-                recognizeSpeech(channel)
+                // recognizeSpeech(channel)
                 return false
               }
             }
@@ -557,7 +557,7 @@ export class discord_client {
 
     const oldResponse = this.getResponse(channel.id, id)
     if (oldResponse === undefined) {
-      await channel.messages.fetch(id).then(async (msg: any) => {})
+      await channel.messages.fetch(id).then(async (msg: any) => { })
       log('message not found')
       return
     }
@@ -746,8 +746,8 @@ export class discord_client {
               deleted: boolean
               permissionsFor: (arg0: any) => {
                 (): any
-                new (): any
-                has: { (arg0: string[]): any; new (): any }
+                new(): any
+                has: { (arg0: string[]): any; new(): any }
               }
               name: string | boolean
               id: string | boolean
@@ -1537,15 +1537,15 @@ export class discord_client {
     this.client.embed = embed
 
     if (this.use_voice) {
-      initSpeechClient(
-        this.client,
-        this.discord_bot_name,
-        this.entity,
-        this.handleInput,
-        this.voice_provider,
-        this.voice_character,
-        this.voice_language_code
-      )
+      // initSpeechClient(
+      //   this.client,
+      //   this.discord_bot_name,
+      //   this.entity,
+      //   this.handleInput,
+      //   this.voice_provider,
+      //   this.voice_character,
+      //   this.voice_language_code
+      // )
     }
 
     console.log('registering events')
