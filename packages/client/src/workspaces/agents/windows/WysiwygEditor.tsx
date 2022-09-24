@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import JoditEditor from 'jodit-react'
+// import JoditEditor from 'jodit-react'
 
 import WindowMessage from '../../components/WindowMessage'
 
@@ -9,11 +9,11 @@ import {
   WysiwygEditorData,
 } from '@/workspaces/contexts/WysiwygProvider'
 
-const WysiwygEditor = props => {
+const WysiwygEditor = () => {
   const [data, setData] = useState<WysiwygEditorData | null>(null)
 
   const { textEditorData, saveTextEditor } = useWysiwygInspector()
-  const editorRef = useRef(null)
+  // const editorRef = useRef(null)
   const [content, setContent] = useState('')
   const [exportTo, setExportTo] = useState('')
 
@@ -47,13 +47,13 @@ const WysiwygEditor = props => {
         </div>
         <button onClick={onSave}>SAVE</button>
       </>
-      <JoditEditor
+      {/* <JoditEditor
         ref={editorRef}
         value={content}
         config={{ readonly: false }}
         onBlur={newContent => setContent(newContent)}
         onChange={newContent => {}}
-      />
+      /> */}
       <div className="form-item agent-select">
         <span className="form-item-label">Export To</span>
         <select

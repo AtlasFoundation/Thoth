@@ -7,7 +7,6 @@ import GreetingsManagerWindow from './windows/GreetingsManagerWindow'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import VideoTranscription from './windows/VideoTranscription'
 import MessageReactionEditor from './windows/MessageReactionEditor'
-import WysiwygEditor from './windows/WysiwygEditor'
 
 const Workspace = ({ tab, pubSub }) => {
   const factory = tab => {
@@ -20,8 +19,6 @@ const Workspace = ({ tab, pubSub }) => {
       switch (component) {
         case 'stateManager':
           return <StateManager {...props} />
-        case 'wysiwygEditor':
-          return <WysiwygEditor {...props} />
         case 'searchCorpus':
           return <SearchCorpus />
         case 'entityManager':
