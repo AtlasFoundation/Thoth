@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createWikipediaEntity } from '../entities/connectors/wikipedia'
 import { database } from '../database'
 import { handleInput } from '../entities/connectors/handleInput'
@@ -16,8 +15,9 @@ import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
 import fs from 'fs'
 import path from 'path'
-import { CustomError } from '../utils/CustomError'
 import * as events from '../services/events'
+import queryGoogleSearch from './utils/queryGoogle'
+import { CustomError } from '../utils/CustomError'
 
 export const modules: Record<string, unknown> = {}
 
@@ -149,7 +149,7 @@ const deleteEntityHandler = async (ctx: Koa.Context) => {
 const getGreetings = async (ctx: Koa.Context) => {
   const { enabled } = ctx.request.query
   try {
-    const greetings = await database.instance.getGreetings(enabled)
+    const greetings = await database.instance.getGreetings(!!enabled)
     return (ctx.body = greetings)
   } catch (e) {
     console.log(e)
@@ -229,7 +229,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
-    const sortOrder = ctx.request.query.order as st
+    const sortOrder = ctx.request.query.order as string
     if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
@@ -315,11 +315,11 @@ const createEvent = async (ctx: Koa.Context) => {
 }
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
-  const text = ctx.request.query.text
-  const character = ctx.request.query.character ?? 'none'
+  const text = ctx.request.query.text as string
+  const character = (ctx.request.query.character ?? 'none')
   console.log('text and character are', text, character)
-  const voice_provider = ctx.request.query.voice_provider
-  const voice_character = ctx.request.query.voice_character
+  const voice_provider = ctx.request.query.voice_provider as string
+  const voice_character = ctx.request.query.voice_character as string
   const voice_language_code = ctx.request.query.voice_language_code
 
   console.log('text and character are', text, voice_character)
@@ -346,7 +346,6 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
         text,
         voice_provider,
         voice_character,
-        voice_language_code
       )
     }
   }
@@ -672,130 +671,6 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
   }
 }
 
-/**
- * @param {number} time - time in seconds format: new Date().getTime()
- * @param {string} date - format: MM-DD-YYYY
- * @param {string} name - calendar event summary name
- * @param {string} moreInfo - calendar event description name
- */
-
-const addCalendarEvents = async (ctx: Koa.Context) => {
-  const { name, date, time, type, moreInfo } = ctx.request.body
-  if (
-    !name ||
-    !date ||
-    !time ||
-    !type ||
-    !moreInfo ||
-    name?.length <= 0 ||
-    date?.length <= 0 ||
-    time?.length <= 0 ||
-    type?.length <= 0 ||
-    moreInfo?.length <= 0
-  ) {
-    return (ctx.body = { error: 'invalid event data' })
-  }
-
-  try {
-    const content = await initCalendar()
-    const auth = await authorize(content)
-
-    const currentTime = new Date(Number(time)).getHours()
-    const givenTime = new Date(Number(time)).getHours() + 1
-    const currentDate = new Date().getDate()
-    const givenDate = new Date(date).getDate()
-
-    if (
-      isNaN(currentTime) ||
-      isNaN(givenTime) ||
-      isNaN(currentDate) ||
-      isNaN(givenDate)
-    ) {
-      return (ctx.body = { error: 'invalid date or time' })
-    }
-
-    if (currentDate > givenDate) {
-      return (ctx.body = { error: 'invalid date' })
-    }
-
-    if (currentTime > givenTime) {
-      return (ctx.body = { error: 'invalid time' })
-    }
-
-    let startDateTime: Date = new Date()
-    startDateTime.setDate(currentDate)
-    startDateTime.setHours(currentTime)
-
-    let endDateTime: Date = new Date()
-    endDateTime.setDate(currentDate)
-    endDateTime.setHours(givenTime)
-
-    const addEvenetRes = await addCalendarEvent(auth, {
-      summary: name,
-      start: {
-        dateTime: startDateTime.toISOString(),
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      },
-      end: {
-        dateTime: endDateTime.toISOString(),
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      },
-      description: moreInfo,
-      location: '',
-      attendees: [],
-      reminders: {
-        useDefault: false,
-        overrides: [
-          {
-            method: 'email',
-            minutes: 24 * 60,
-          },
-          {
-            method: 'popup',
-            minutes: 10,
-          },
-        ],
-      },
-    })
-
-    if (isValidObject(addEvenetRes)) {
-      const { id: calendar_id } = addEvenetRes
-
-      const res = await database.instance.createCalendarEvent(
-        name,
-        calendar_id,
-        date,
-        time,
-        type,
-        JSON.stringify(addEvenetRes)
-      )
-
-      const { command, rowCount } = res
-
-      if (command === 'INSERT' && rowCount === 1) {
-        const event = await database.instance.getCalendarEventByCalId(
-          calendar_id
-        )
-
-        return (ctx.body = {
-          message: 'Inserting Calender event is success',
-          payload: event,
-        })
-      }
-    }
-
-    return (ctx.body = {
-      message: 'Inserting Calender event is failed',
-      payload: [],
-    })
-  } catch (e) {
-    console.log('addCalendarEvents:', e)
-
-    ctx.status = 500
-    return (ctx.body = { error: 'Invalid user credentials or Internal error' })
-  }
-}
-
 const editCalendarEvent = async (ctx: Koa.Context) => {
   const id = ctx.params.id
   const name = ctx.request.body.name
@@ -833,8 +708,8 @@ const deleteCalendarEvent = async (ctx: Koa.Context) => {
 
 const addVideo = async (ctx: Koa.Context) => {
   try {
-    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
-    const [type, subType] = mimeType.split('/')
+    let { path: videoPath, name, type: mimeType } = ctx.request?.files?.video as any
+    const [type] = mimeType.split('/')
     if (type !== 'video') {
       ctx.response.status = 400
       return (ctx.body = 'Only video can be uploaded')
@@ -906,6 +781,17 @@ const deleteMessageReaction = async (ctx: Koa.Context) => {
     console.log(e)
     ctx.status = 500
     return (ctx.body = 'internal error')
+  }
+}
+
+const queryGoogle = async (ctx: Koa.Context) => {
+  console.log("QUERY", ctx.request?.body?.query)
+  if (!ctx.request?.body?.query) throw new CustomError('input-failed', 'No query provided in request body')
+  const query = ctx.request.body?.query as string
+  const result = await queryGoogleSearch(query)
+
+  ctx.body = {
+    result
   }
 }
 
@@ -1060,5 +946,10 @@ export const entities: Route[] = [
     access: noAuth,
     put: createMessageReaction,
     delete: deleteMessageReaction,
+  },
+  {
+    path: '/query_google',
+    access: noAuth,
+    post: queryGoogle
   },
 ]
