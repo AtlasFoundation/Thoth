@@ -39,6 +39,7 @@ function install(editor: ThothEditor) {
 
           // Since running thos worker invokes the next plugin, task,
           // We have to grab that task, and run the original worker.
+          console.log("RUNNING FROM CACHE: ", component.name)
           const task = await component.worker.apply(component, [node, inputs, outputs, context])
 
           const value = await task.worker(node, inputs, outputs, context)

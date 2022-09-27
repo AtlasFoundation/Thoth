@@ -157,10 +157,14 @@ export class database {
         break
       }
     }
-    console.log('returning data', data)
-    return asString
-      ? data.split('\n').reverse().join('\n')
-      : data.split('\n').reverse()
+
+    if (type === 'conversation') {
+      return asString
+        ? data.split('\n').reverse().join('\n')
+        : data.split('\n').reverse()
+    }
+
+    return data
   }
   async getAllEvents() {
     const query = 'SELECT * FROM events'

@@ -44,6 +44,7 @@ export class Code extends ThothComponent<unknown> {
     this.category = 'Logic'
     this.info = info
     this.display = false
+    this.runFromCache = true
   }
 
   builder(node: ThothNode) {

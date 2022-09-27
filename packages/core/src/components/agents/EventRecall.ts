@@ -37,6 +37,7 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     this.category = 'Agents'
     this.display = true
     this.info = info
+    this.runFromCache = true
   }
 
   builder(node: ThothNode) {
