@@ -46,7 +46,7 @@ const TextEditor = props => {
         preview: language === 'javascript',
       },
       wordWrap: 'bounded',
-      fontSize: 14,
+
       // fontFamily: '"IBM Plex Mono", sans-serif !important',
     }
 
