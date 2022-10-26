@@ -8,7 +8,6 @@ import { database } from '../database'
 import axios from 'axios'
 import { ClassifierSchema } from '../types'
 
-const DOCUMENTS_CLASS_NAME = 'DataStore'
 const saved_docs: SearchSchema[] = []
 let client: weaviate.client
 
@@ -97,6 +96,11 @@ async function train(data: SearchSchema[]) {
       continue
     }
 
+    const topic = await classifyText(data[i].description)
+    if (!topic || topic === undefined || topic.length <= 0) {
+      continue
+    }
+
     saved_docs.push(object)
     const res = await client.data
       .creator()
@@ -115,6 +119,11 @@ async function train(data: SearchSchema[]) {
         description: documents[i].description,
       }
       if (saved_docs.includes(object)) {
+        continue
+      }
+
+      const topic = await classifyText(documents[i].description)
+      if (!topic || topic === undefined || topic.length <= 0) {
         continue
       }
 
@@ -176,6 +185,11 @@ export async function singleTrain(data: SearchSchema) {
     description: data.description,
   }
   if (saved_docs.includes(object)) {
+    return
+  }
+
+  const topic = await classifyText(object.description)
+  if (!topic || topic === undefined || topic.length <= 0) {
     return
   }
 

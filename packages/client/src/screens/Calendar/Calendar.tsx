@@ -89,9 +89,8 @@ const Navigation = ({ date, setDate, setShowingEventForm }) => {
 const MiniEvent = ({ event, setViewingEvent }) => {
   return (
     <div
-      className={`miniEvent ${
-        event.type ? event.type.toLowerCase() : 'standard'
-      }`}
+      className={`miniEvent ${event.type ? event.type.toLowerCase() : 'standard'
+        }`}
       onClick={() => setViewingEvent(event)}
     >
       {event.name}
@@ -303,11 +302,9 @@ const Grid = ({
         return (
           <div
             key={index}
-            className={`cell ${
-              date.date.getTime() == currentDate.getTime() ? 'current' : ''
-            } ${
-              date.date.getMonth() != actualDate.getMonth() ? 'otherMonth' : ''
-            }`}
+            className={`cell ${date.date.getTime() == currentDate.getTime() ? 'current' : ''
+              } ${date.date.getMonth() != actualDate.getMonth() ? 'otherMonth' : ''
+              }`}
           >
             <div className="date">
               <a
@@ -376,7 +373,6 @@ export const CalendarApp = () => {
       })
       return
     }
-
     setIsLoading(true)
     setShowingEventForm({ visible: false, withEvent: false })
     axios
@@ -387,6 +383,7 @@ export const CalendarApp = () => {
         enqueueSnackbar('Event created successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not created', { variant: 'error' })
       })
@@ -407,6 +404,7 @@ export const CalendarApp = () => {
         enqueueSnackbar('Event updated successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not updated', { variant: 'error' })
       })
@@ -427,6 +425,7 @@ export const CalendarApp = () => {
         enqueueSnackbar('Event deleted successfully', { variant: 'success' })
       })
       .catch(err => {
+        setIsLoading(false)
         console.log(err)
         enqueueSnackbar('Event not deleted', { variant: 'error' })
       })

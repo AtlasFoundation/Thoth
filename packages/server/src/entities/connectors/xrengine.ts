@@ -418,6 +418,34 @@ export class xrengine_client {
           }
         }
 
+        if (this.haveCustomCommands) {
+          for (let i = 0; i < this.custom_commands[i].length; i++) {
+            if (content.startsWith(this.custom_commands[i].command_name)) {
+              const _content = content.replace(
+                this.custom_commands[i].command_name
+              )
+              const response = await this.custom_commands[i].spell_handler(
+                _content,
+                sender,
+                this.settings.xrengine_bot_name ?? 'Agent',
+                'xr-engine',
+                channelId,
+                this.entity,
+                roomInfo
+              )
+
+              await this.handleXREngineResponse(
+                response,
+                addPing,
+                sender,
+                false,
+                true
+              )
+              return
+            }
+          }
+        }
+
         const response = await this.handleInput(
           content.replace('!ping', ''),
           sender,
@@ -470,7 +498,13 @@ export class xrengine_client {
     }
   }
 
-  async handleXREngineResponse(response, addPing, sender, isVoice) {
+  async handleXREngineResponse(
+    response,
+    addPing,
+    sender,
+    isVoice,
+    forceToChat = false
+  ) {
     if (response === undefined || !response || response.length <= 0) {
       return
     }
@@ -483,7 +517,7 @@ export class xrengine_client {
       isVoice = true
     }
 
-    if (!isVoice) {
+    if (!isVoice && !forceToChat) {
       await this.xrengineBot.sendMessage(response)
       if (!(response as string).startsWith('/')) {
         isVoice = true
@@ -678,6 +712,8 @@ class XREngineBot {
   agent
   settings
   handleInput
+  haveCustomCommands
+  custom_commands
   xrengineclient: xrengine_client
   constructor({
     name = 'Bot',
@@ -705,6 +741,8 @@ class XREngineBot {
     this.useVoice = settings.use_voice
     this.voiceProvider = settings.voice_provider
     this.voiceCharacter = settings.voice_character
+    this.haveCustomCommands = settings.haveCustomCommands
+    this.custom_commands = settings.custom_commands
     setInterval(() => this.instanceMessages(), 1000)
     this.messageLoop()
   }
@@ -736,21 +774,12 @@ class XREngineBot {
   async sendMessage(message, clean = false) {
     log('sending message: ' + message)
     if (!message || message === undefined) return
-    // TODO:
-    // Send message to google cloud speech
-    // Get response URL from google cloud speech
-
-    // await this.sendAudio(5)
 
     this.evaluate(msg => {
       try {
         globalThis.sendMessage(msg)
       } catch (e) {}
     }, message)
-    /*console.log('typing message')
-    await this.typeMessage('newMessage', message, false)
-    console.log('sending message!')
-    await this.pressKey('Enter')*/
   }
   async handleMessage(message, clean = false) {
     await this.typeMessage('newMessage', message, clean)

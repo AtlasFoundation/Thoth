@@ -14,7 +14,6 @@ import {
   simplifyWords,
 } from '../utils/utils'
 import { database } from '../database'
-// todo fix this import
 import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
 import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'
@@ -130,7 +129,6 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
       storeId = await database.instance.getSingleDocumentStore(
         store_name && store_name?.length > 0 ? store_name : 'rss_feed'
       )
-      console.log('generated store id:', storeId)
       if (storeId?.length <= 0 || storeId === undefined || !storeId) {
         storeId = await database.instance.addDocumentStore(
           store_name && store_name?.length > 0 ? store_name : 'rss_feed'
@@ -149,7 +147,6 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     let id = -1
     try {
       for (let i = 0; i < documents.length; i++) {
-        console.log('saving document:', documents[i])
         if (
           saved_docs.includes({
             title: documents[i].title,
@@ -387,6 +384,16 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
   router.delete('/document-store', async function (ctx: Koa.Context) {
     const storeId = ctx.query.storeId
     try {
+      const documents = await database.instance.getDocumentsOfStore(storeId)
+      if (documents && documents.length > 0) {
+        for (let i = 0; i < documents.length; i++) {
+          await deleteDocument(
+            documents[i].title ?? 'Document',
+            documents[i].description
+          )
+        }
+      }
+
       await database.instance.removeDocumentStore(storeId)
     } catch (e) {
       console.log(e)
@@ -417,17 +424,20 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
     fs.existsSync('certs/cert.pem')
 
   let sslOptions = {
+    rejectUnauthorized: false,
     key: useSSL ? fs.readFileSync('certs/key.pem') : '',
     cert: useSSL ? fs.readFileSync('certs/cert.pem') : '',
   }
 
   useSSL
     ? https
-        .createServer(sslOptions, app.callback())
-        .listen(PORT, '0.0.0.0', () => {
-          console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
-        })
-    : https.createServer(app.callback()).listen(PORT, '0.0.0.0', () => {
+      .createServer(sslOptions, app.callback())
+      .listen(PORT, '0.0.0.0', () => {
+        console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
+      })
+    : https
+      .createServer({ rejectUnauthorized: false }, app.callback())
+      .listen(PORT, '0.0.0.0', () => {
         console.log('Corpus Search Server listening on: 0.0.0.0:' + PORT)
       })
 }

@@ -1,6 +1,6 @@
 import { SimpleAccordion } from '../../../components/Accordion'
 import CodeControl from './CodeControl'
-import css from './datacontrols.module.css'
+import css from '../../components/windowMessage.module.css'
 import EnkiSelect from './EnkiSelect'
 import Info from './Info'
 import Input from './Input'
@@ -13,6 +13,7 @@ import SocketGenerator from './SocketGenerator'
 import PlaytestControl from './PlaytestControl'
 import SwitchControl from './SwitchControl'
 import SpellSelect from './SpellSelect'
+import WysiwygControl from './WysiwygControl'
 
 const StubComponent = props => <div>{props.name}</div>
 
@@ -32,10 +33,12 @@ const controlMap = {
   switch: SwitchControl,
   dropdownSelect: DropdownSelect,
   modelSelect: ModelSelect,
+  wysiwygControl: WysiwygControl,
 }
 
 const DataControls = ({
   dataControls,
+  // wysiwygControls,
   updateData,
   updateControl,
   width,

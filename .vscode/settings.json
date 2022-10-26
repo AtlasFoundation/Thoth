@@ -4,5 +4,8 @@
   "prettier.configPath": "./.prettierrc.json",
   "eslint.workingDirectories": ["./client", "./core", "./server"],
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-  "cSpell.enabled": false
+"cSpell.enabled": false,
+"[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+}
 }

@@ -1,50 +1,44 @@
 import { useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
 import { Layout } from '@/workspaces/contexts/LayoutProvider'
-import { useLazyGetSpellQuery, useSaveDiffMutation } from '@/state/api/spells'
-import { debounce } from '@/utils/debounce'
-import EditorWindow from './windows/EditorWindow/'
+import { useLazyGetSpellQuery } from '@/state/api/spells'
 import EventHandler from '@/screens/Thoth/components/EventHandler'
+import { debounce } from '@/utils/debounce'
+
+import EditorWindow from './windows/EditorWindow/'
 import Inspector from './windows/InspectorWindow'
 import Playtest from './windows/PlaytestWindow'
 import StateManager from '@/workspaces/spells/windows/StateManagerWindow'
-import SettingsWindow from './windows/SettingsWindow'
+
 import TextEditor from './windows/TextEditorWindow'
 import DebugConsole from './windows/DebugConsole'
+
 import { Spell } from '@thothai/thoth-core/types'
 import { usePubSub } from '@/contexts/PubSubProvider'
 import { useSharedb } from '@/contexts/SharedbProvider'
 import { sharedb } from '@/config'
 import { ThothComponent } from '@thothai/thoth-core/types'
 import { useAuth } from '@/contexts/AuthProvider'
-import { CalendarApp } from '@/screens/Calendar/Calendar'
-import EntityManagerWindow from './windows/EntityManagerWindow'
+
 import EventManagerWindow from './windows/EventManager'
-import SearchCorpus from './windows/SearchCorpusWindow'
-import VideoTranscription from './windows/VideoTranscription'
 import { RootState } from '@/state/store'
-import { useSelector } from 'react-redux'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
-import { diff } from '@/utils/json0'
-import { useSnackbar } from 'notistack'
 
-const Workspace = ({ tab, tabs, pubSub }) => {
+const Workspace = ({ tab, pubSub }) => {
   const spellRef = useRef<Spell>()
   const { events, publish } = usePubSub()
   const { getSpellDoc } = useSharedb()
   const { user } = useAuth()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
-  const [saveDiff] = useSaveDiffMutation()
-  const { editor } = useEditor()
+  const { editor, serialize } = useEditor()
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
   const preferences = useSelector((state: RootState) => state.preferences)
 
   const [docLoaded, setDocLoaded] = useState<boolean>(false)
-
-  const { enqueueSnackbar } = useSnackbar()
 
   // Set up autosave for the workspaces
   useEffect(() => {
@@ -54,24 +48,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
-          const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
-          console.log('Saving diff', jsonDiff)
-          if (jsonDiff == [] || !jsonDiff) return
-
-          const response = await saveDiff({
-            name: spellRef.current.name,
-            diff: jsonDiff,
-          })
-          loadSpell({
-            spellId: tab.spellId,
-            userId: user?.id as string,
-          })
-
-          if ('error' in response) {
-            enqueueSnackbar('Error saving spell', {
-              variant: 'error',
-            })
-          }
+          publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
         }
       }, 2000)
     )
@@ -141,10 +118,10 @@ const Workspace = ({ tab, tabs, pubSub }) => {
 
   useEffect(() => {
     if (!client || !feathersFlag) return
-    ;(async () => {
-      if (!client || !tab || !tab.spellId) return
-      await client.service('spell-runner').get(tab.spellId)
-    })()
+      ; (async () => {
+        if (!client || !tab || !tab.spellId) return
+        await client.service('spell-runner').get(tab.spellId)
+      })()
   }, [client, feathersFlag])
 
   const factory = tab => {
@@ -167,18 +144,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <EditorWindow {...props} />
         case 'debugConsole':
           return <DebugConsole {...props} />
-        case 'searchCorpus':
-          return <SearchCorpus />
-        case 'entityManager':
-          return <EntityManagerWindow />
         case 'eventManager':
-          return <EventManagerWindow />
-        case 'videoTranscription':
-          return <VideoTranscription />
-        case 'calendarTab':
-          return <CalendarApp />
-        case 'settings':
-          return <SettingsWindow {...props} />
+          return <EventManagerWindow {...props} />
         default:
           return <p></p>
       }

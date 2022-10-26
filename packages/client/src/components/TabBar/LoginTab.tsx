@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import Icon from '../Icon/Icon'
 
-export function LoginTab({}) {
+export function LoginTab({ }) {
   const { user } = useAuth()
   const auth = useAuth()
   const [loggedIn, setLoggedIn] = useState(false)
@@ -116,80 +116,82 @@ export function LoginTab({}) {
             onClick={toggleMenu}
           />
         }
-        <div
-          className={'plugSettings' + (showMenu ? ' showMenu' : '')}
-          style={{ position: 'absolute', right: 0 }}
-        >
-          <div className="menuHeader">
-            <button onClick={loggedIn ? pluginDisconnect : plugLogin}>
-              {loggedIn ? 'Disconnect' : register ? 'Back' : 'Connect'}
-            </button>
-            {register && !loggedIn ? (
-              <div>
-                Email:
-                <input
-                  type="text"
-                  defaultValue={registerInfo.email}
-                  onChange={e => (registerInfo.email = e.target.value)}
-                />
-                <br />
-                Username:
-                <input
-                  type="text"
-                  defaultValue={registerInfo.username}
-                  onChange={e => (registerInfo.username = e.target.value)}
-                />
-                <br />
-                Password:
-                <input
-                  type="password"
-                  defaultValue={registerInfo.password}
-                  onChange={e => (registerInfo.password = e.target.value)}
-                />
-                <br />
-                <button onClick={pluginRegister}>Register</button>
-              </div>
-            ) : (
-              <div></div>
-            )}
-            {register ? (
-              <div></div>
-            ) : (
-              <div>
-                {loggedIn ? (
-                  <div>
-                    <h6>Logged In As {username}</h6>
-                  </div>
-                ) : (
-                  <div>
-                    <button
-                      onClick={() => {
-                        if (!loggedIn) {
-                          setRegister(true)
-                        }
-                      }}
-                    >
-                      Register
-                    </button>
-                    Username:
-                    <input
-                      type="text"
-                      defaultValue={loginInfo.username}
-                      onChange={e => (loginInfo.username = e.target.value)}
-                    />
-                    <br />
-                    Password:
-                    <input
-                      type="password"
-                      defaultValue={loginInfo.password}
-                      onChange={e => (loginInfo.password = e.target.value)}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+        {showMenu && (
+          <div
+            className={'plugSettings' + (showMenu ? ' showMenu' : '')}
+            style={{ position: 'absolute', right: 0 }}
+          >
+            <div className="menuHeader">
+              <button onClick={loggedIn ? pluginDisconnect : plugLogin}>
+                {loggedIn ? 'Disconnect' : register ? 'Back' : 'Connect'}
+              </button>
+              {register && !loggedIn ? (
+                <div>
+                  Email:
+                  <input
+                    type="text"
+                    defaultValue={registerInfo.email}
+                    onChange={e => (registerInfo.email = e.target.value)}
+                  />
+                  <br />
+                  Username:
+                  <input
+                    type="text"
+                    defaultValue={registerInfo.username}
+                    onChange={e => (registerInfo.username = e.target.value)}
+                  />
+                  <br />
+                  Password:
+                  <input
+                    type="password"
+                    defaultValue={registerInfo.password}
+                    onChange={e => (registerInfo.password = e.target.value)}
+                  />
+                  <br />
+                  <button onClick={pluginRegister}>Register</button>
+                </div>
+              ) : (
+                <div></div>
+              )}
+              {register ? (
+                <div></div>
+              ) : (
+                <div>
+                  {loggedIn ? (
+                    <div>
+                      <h6>Logged In As {username}</h6>
+                    </div>
+                  ) : (
+                    <div>
+                      <button
+                        onClick={() => {
+                          if (!loggedIn) {
+                            setRegister(true)
+                          }
+                        }}
+                      >
+                        Register
+                      </button>
+                      Username:
+                      <input
+                        type="text"
+                        defaultValue={loginInfo.username}
+                        onChange={e => (loginInfo.username = e.target.value)}
+                      />
+                      <br />
+                      Password:
+                      <input
+                        type="password"
+                        defaultValue={loginInfo.password}
+                        onChange={e => (loginInfo.password = e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   )

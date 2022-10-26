@@ -98,7 +98,7 @@ export class slack_client {
     await this.app.start(settings.slack_port)
     console.log('Slack Bolt app is running on', settings.slack_port, '!')
   }
-  async destroy() {}
+  async destroy() { }
 
   prevData: any[] = []
   async setupMessageReactions(data: any) {

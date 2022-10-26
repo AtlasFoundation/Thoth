@@ -12,12 +12,38 @@ export class messenger_client {
   spellHandler
   settings
   entity
+  haveCustomCommands
+  custom_commands
 
   handleMessage = async (senderPsid, receivedMessage) => {
     const text = receivedMessage.text
     console.log('receivedMessage: ' + text + ' from: ' + senderPsid)
 
     if (receivedMessage.text) {
+      if (this.haveCustomCommands) {
+        for (let i = 0; i < this.custom_commands[i].length; i++) {
+          if (text.startsWith(this.custom_commands[i].command_name)) {
+            const _content = text.replace(
+              this.custom_commands[i].command_name,
+              ''
+            )
+
+            const response = await this.custom_commands[i].spell_handler(
+              _content,
+              senderPsid,
+              'MessengerBot',
+              'messenger',
+              senderPsid,
+              null,
+              []
+            )
+
+            this.callSendAPI(senderPsid, { text: response }, response)
+            return
+          }
+        }
+      }
+
       const resp = await this.spellHandler(
         text,
         senderPsid,
@@ -25,8 +51,7 @@ export class messenger_client {
         'messenger',
         senderPsid,
         null,
-        [],
-        'msg'
+        []
       )
       this.callSendAPI(senderPsid, { text: resp }, resp)
     }
@@ -73,6 +98,8 @@ export class messenger_client {
     this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
+    this.haveCustomCommands = settings.haveCustomCommands
+    this.custom_commands = settings.custom_commands
 
     const { messenger_page_access_token, messenger_verify_token } =
       this.settings

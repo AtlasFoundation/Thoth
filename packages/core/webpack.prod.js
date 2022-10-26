@@ -1,0 +1,20 @@
+const Dotenv = require('dotenv-flow-webpack')
+const CompressionPlugin = require('compression-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
+
+const { merge } = require('webpack-merge')
+const common = require('./webpack.common')
+
+module.exports = () => {
+  const commonConfig = common()
+
+  const prodConfig = {
+    mode: 'development',
+    optimization: {
+      minimize: false,
+      minimizer: [new TerserPlugin()],
+    },
+  }
+
+  return merge(commonConfig, prodConfig)
+}

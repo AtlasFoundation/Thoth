@@ -1,6 +1,8 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import { Node } from './Node'
+
+import { createRoot } from 'react-dom/client';
+
 
 function install(editor, { component: NodeComponent = Node }) {
   editor.on(
@@ -8,21 +10,17 @@ function install(editor, { component: NodeComponent = Node }) {
     ({ el, node, component, bindSocket, bindControl }) => {
       if (component.render && component.render !== 'react') return
       const Component = component.component || NodeComponent
+      const root = createRoot(el)
 
       node.update = () =>
-        new Promise(res => {
-          console.log('Rendering!', Component)
-          ReactDOM.render(
-            <Component
-              node={node}
-              editor={editor}
-              bindSocket={bindSocket}
-              bindControl={bindControl}
-            />,
-            el,
-            res
-          )
-        })
+        root.render(
+          <Component
+            node={node}
+            editor={editor}
+            bindSocket={bindSocket}
+            bindControl={bindControl}
+          />
+        )
       node._reactComponent = true
       node.update()
     }
@@ -31,11 +29,10 @@ function install(editor, { component: NodeComponent = Node }) {
   editor.on('rendercontrol', ({ el, control }) => {
     if (control.render && control.render !== 'react') return
     const Component = control.component
+    const root = createRoot(el)
 
     control.update = () =>
-      new Promise(res => {
-        ReactDOM.render(<Component {...control.props} />, el, res)
-      })
+      root.render(<Component {...control.props} />)
     control.update()
   })
 

@@ -1,21 +1,23 @@
 import discord_client from './connectors/discord'
-import { telegram_client } from './connectors/telegram'
-import { zoom_client } from './connectors/zoom'
-import { twitter_client } from './connectors/twitter'
-import { reddit_client } from './connectors/reddit'
 import { instagram_client } from './connectors/instagram'
 import { messenger_client } from './connectors/messenger'
-import { whatsapp_client } from './connectors/whatsapp'
+import { reddit_client } from './connectors/reddit'
+import { telegram_client } from './connectors/telegram'
 import { twilio_client } from './connectors/twilio'
+import { twitter_client } from './connectors/twitter'
+import { whatsapp_client } from './connectors/whatsapp'
+import { zoom_client } from './connectors/zoom'
 //import { harmony_client } from '../../../core/src/connectors/harmony'
-import { xrengine_client } from './connectors/xrengine'
-import { CreateSpellHandler } from './CreateSpellHandler'
+import express, { json, urlencoded } from 'express'
 import { cacheManager } from '../cacheManager'
+import { database } from '../database'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
-import { stringIsAValidUrl } from '../utils/utils'
 import { tts_tiktalknet } from '../systems/tiktalknet'
+import { stringIsAValidUrl } from '../utils/utils'
 import { slack_client } from './connectors/slack'
+import { xrengine_client } from './connectors/xrengine'
+import { CreateSpellHandler } from './CreateSpellHandler'
 
 export class Entity {
   name = ''
@@ -43,7 +45,11 @@ export class Entity {
     discord_bot_name_regex: string,
     discord_bot_name: string,
     discord_empty_responses: string,
+    discord_greeting: any,
     spell_handler: string,
+    spell_handler_update: string,
+    spell_handler_metadata: string,
+    spell_handler_slash_command: string,
     spell_version: string,
     use_voice: boolean,
     voice_provider: string,
@@ -51,7 +57,9 @@ export class Entity {
     voice_language_code: string,
     tiktalknet_url: string,
     discord_echo_slack: boolean,
-    discord_echo_format: string
+    discord_echo_format: string,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -61,7 +69,24 @@ export class Entity {
       spell: spell_handler,
       version: spell_version,
     })
-
+    const updateSpellHandler = spell_handler_update
+      ? await CreateSpellHandler({
+        spell: spell_handler_update,
+        version: spell_version,
+      })
+      : null
+    const metadataSpellHandler = spell_handler_metadata
+      ? await CreateSpellHandler({
+        spell: spell_handler_metadata,
+        version: spell_version,
+      })
+      : null
+    const slashCommandSpellHandler = spell_handler_slash_command
+      ? await CreateSpellHandler({
+        spell: spell_handler_slash_command,
+        version: spell_version,
+      })
+      : null
     this.discord = new discord_client()
     console.log('createDiscordClient')
     await this.discord.createDiscordClient(
@@ -71,25 +96,22 @@ export class Entity {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
+      discord_greeting,
       spellHandler,
+      updateSpellHandler,
+      metadataSpellHandler,
+      slashCommandSpellHandler,
       use_voice,
       voice_provider,
       voice_character,
       voice_language_code,
       tiktalknet_url,
       discord_echo_slack,
-      discord_echo_format
+      discord_echo_format,
+      haveCustomCommands,
+      custom_commands
     )
     console.log('Started discord client for agent ' + this.name)
-    // const response = await spellHandler(
-    //   'testmessage',
-    //   'testsender',
-    //   'testbot',
-    //   'discord',
-    //   "0",
-    //   this.id
-    // )
-    // console.log("response is ", response)
   }
 
   async stopDiscord() {
@@ -114,6 +136,8 @@ export class Entity {
     voice_character: string
     voice_language_code: string
     tiktalknet_url: string
+    haveCustomCommands: boolean
+    custom_commands: any[]
   }) {
     if (this.xrengine)
       throw new Error(
@@ -140,7 +164,7 @@ export class Entity {
   stopXREngine() {
     if (!this.xrengine) throw new Error("XREngine isn't running, can't stop it")
     this.xrengine.destroy()
-    ;(this.xrengine as any) = null
+      ; (this.xrengine as any) = null
     console.log('Stopped xrengine client for agent ' + this.name)
   }
 
@@ -160,7 +184,9 @@ export class Entity {
     twitter_spell_handler_incoming: any,
     twitter_spell_handler_auto: any,
     spell_version: string,
-    entity: any
+    entity: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     console.log('initializing Twitter:', twitter_token)
     if (this.twitter)
@@ -197,6 +223,8 @@ export class Entity {
         twitter_bot_name_regex,
         twitter_spell_handler_incoming,
         twitter_spell_handler_auto,
+        haveCustomCommands,
+        custom_commands,
       },
       entity
     )
@@ -213,7 +241,9 @@ export class Entity {
     telegram_bot_name: string,
     entity: any,
     spell_handler: string,
-    spell_version: string
+    spell_version: string,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     console.log('initializing telegram:', telegram_bot_token)
     if (this.telegram)
@@ -231,6 +261,8 @@ export class Entity {
       telegram_bot_token,
       telegram_bot_name,
       entity,
+      haveCustomCommands,
+      custom_commands,
     })
   }
   stopTelegram() {
@@ -240,7 +272,7 @@ export class Entity {
     }
   }
 
-  startReddit(
+  async startReddit(
     reddit_app_id: string,
     reddit_app_secret_id: string,
     reddit_oauth_token: string,
@@ -248,14 +280,16 @@ export class Entity {
     reddit_bot_name_regex: string,
     reddit_spell_handler_incoming: string,
     spell_version: string,
-    entity: any
+    entity: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     console.log('initializing reddit:', reddit_app_id)
     if (this.reddit) {
       throw new Error('Reddit already running for this entity on this instance')
     }
 
-    const spellHandler = CreateSpellHandler({
+    const spellHandler = await CreateSpellHandler({
       spell: reddit_spell_handler_incoming,
       version: spell_version,
     })
@@ -269,6 +303,8 @@ export class Entity {
         reddit_oauth_token,
         reddit_bot_name,
         reddit_bot_name_regex,
+        haveCustomCommands,
+        custom_commands,
       },
       entity
     )
@@ -362,48 +398,6 @@ export class Entity {
       throw new Error('Loop Interval must be a number greater than 0')
     }
   }
-  async stopLoop() {
-    if (this.loopHandler && this.loopHandler !== undefined) {
-      clearInterval(this.loopHandler)
-      this.loopHandler = null
-    }
-  }
-
-  async startSlack(
-    slack_token: any,
-    slack_signing_secret: any,
-    slack_bot_token: any,
-    slack_bot_name: any,
-    slack_port: any,
-    slack_spell_handler_incoming: any,
-    spell_version: any,
-    slack_echo_channel: any
-  ) {
-    if (this.slack) {
-      throw new Error('Slack already running for this client on this instance')
-    }
-
-    const spellHandler = await CreateSpellHandler({
-      spell: slack_spell_handler_incoming,
-      version: spell_version,
-    })
-
-    this.slack = new slack_client()
-    this.slack.createSlackClient(
-      spellHandler,
-      {
-        slack_token,
-        slack_signing_secret,
-        slack_bot_token,
-        slack_bot_name,
-        slack_port,
-        slack_echo_channel,
-      },
-      this
-    )
-  }
-  async stopSlack() {}
-
   async startInstagram(
     instagram_username: string,
     instagram_password: string,
@@ -411,7 +405,9 @@ export class Entity {
     instagram_bot_name_regex: string,
     instagram_spell_handler_incoming: string,
     spell_version: string,
-    entity: any
+    entity: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     if (this.instagram) {
       throw new Error(
@@ -433,6 +429,8 @@ export class Entity {
         instagram_bot_name,
         instagram_bot_name_regex,
         instagram_spell_handler_incoming,
+        haveCustomCommands,
+        custom_commands,
       },
       entity
     )
@@ -451,7 +449,9 @@ export class Entity {
     messenger_bot_name_regex: string,
     messenger_spell_handler_incoming: string,
     spell_version: string,
-    entity: any
+    entity: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     if (this.messenger) {
       throw new Error(
@@ -474,6 +474,8 @@ export class Entity {
         messenger_verify_token,
         messenger_bot_name,
         messenger_bot_name_regex,
+        haveCustomCommands,
+        custom_commands,
       },
       entity
     )
@@ -492,7 +494,9 @@ export class Entity {
     twilio_bot_name: any,
     twilio_empty_responses: any,
     twilio_spell_handler_incoming: any,
-    spell_version: any
+    spell_version: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
   ) {
     if (this.twilio) {
       throw new Error('Twlio already running for this client on this instance')
@@ -515,17 +519,70 @@ export class Entity {
         twilio_empty_responses,
         twilio_spell_handler_incoming,
         entity: this,
+        haveCustomCommands,
+        custom_commands,
       },
       spellHandler
     )
   }
-  async stopTwlio() {}
+  async stopTwlio() { }
+
+  async startSlack(
+    slack_token: any,
+    slack_signing_secret: any,
+    slack_bot_token: any,
+    slack_bot_name: any,
+    slack_port: any,
+    slack_verification_token: any,
+    slack_greeting: any,
+    slack_echo_channel: any,
+    slack_spell_handler_incoming: any,
+    spell_version: any,
+    haveCustomCommands: boolean,
+    custom_commands: any[]
+  ) {
+    if (this.slack) {
+      throw new Error('Slack already running for this client on this instance')
+    }
+
+    const spellHandler = await CreateSpellHandler({
+      spell: slack_spell_handler_incoming,
+      version: spell_version,
+    })
+
+    this.slack = new slack_client()
+    this.slack.createSlackClient(
+      spellHandler,
+      {
+        slack_token,
+        slack_signing_secret,
+        slack_bot_token,
+        slack_bot_name,
+        slack_port,
+        slack_verification_token,
+        slack_greeting,
+        slack_echo_channel,
+        haveCustomCommands,
+        custom_commands,
+      },
+      this
+    )
+  }
+  async stopSlack() { }
+
+  async stopLoop() {
+    if (this.loopHandler && this.loopHandler !== undefined) {
+      clearInterval(this.loopHandler)
+      this.loopHandler = null
+    }
+  }
 
   async onDestroy() {
     console.log(
       'CLOSING ALL CLIENTS, discord is defined:,',
       this.discord === null || this.discord === undefined
     )
+    if (this.loopHandler && this.loopHandler !== undefined) this.stopLoop()
     if (this.discord) this.stopDiscord()
     if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
@@ -553,11 +610,11 @@ export class Entity {
           if (
             await cacheManager.instance.has(
               'voice_' +
-                data.voice_provider +
-                '_' +
-                data.voice_character +
-                '_' +
-                filtered[i]
+              data.voice_provider +
+              '_' +
+              data.voice_character +
+              '_' +
+              filtered[i]
             )
           ) {
             continue
@@ -588,11 +645,11 @@ export class Entity {
           if (url && url.length > 0 && stringIsAValidUrl(url)) {
             await cacheManager.instance.set(
               'voice_' +
-                data.voice_provider +
-                '_' +
-                data.voice_character +
-                '_' +
-                filtered[i],
+              data.voice_provider +
+              '_' +
+              data.voice_character +
+              '_' +
+              filtered[i],
               url
             )
           }
@@ -601,9 +658,42 @@ export class Entity {
     }
   }
 
-  constructor(data: any) {
+  constructor(data: any, port: number) {
+    this.init(data, port)
+  }
+
+  async init(data: any, port: number) {
+    if (!this.router && !this.app) {
+      this.router = express.Router()
+      this.router.use(urlencoded({ extended: false }))
+      this.app = express()
+      this.app.use(json())
+    }
+    this.app.listen(port, () => {
+      console.log(`Entity Web Server listening on http://localhost:${port}`)
+    })
+
     if (!cacheManager.instance) {
       new cacheManager()
+    }
+
+    console.log('data is', data)
+
+    const custom_commands = data.custom_commands ? JSON.parse(data.custom_commands) : []
+    const haveCustomCommands =
+      data.use_custom_commands &&
+      custom_commands?.length > 0 &&
+      data.custom_command_starter?.length > 0
+    if (haveCustomCommands) {
+      for (let i = 0; i < custom_commands.length; i++) {
+        custom_commands[i].command_name =
+          data.custom_command_starter + custom_commands[i].command_name.trim()
+        const temp = custom_commands[i].spell_Handler
+        custom_commands[i].spell_handler = await CreateSpellHandler({
+          spell: temp,
+          version: 'latest',
+        })
+      }
     }
 
     this.onDestroy()
@@ -624,13 +714,20 @@ export class Entity {
     }
 
     if (data.discord_enabled) {
+      const [greeting] = await database.instance.getGreeting(
+        data.discord_greeting_id
+      )
       this.startDiscord(
         data.discord_api_key,
         data.discord_starting_words,
         data.discord_bot_name_regex,
         data.discord_bot_name,
         data.discord_empty_responses,
+        greeting,
         data.discord_spell_handler_incoming,
+        data.discord_spell_handler_update,
+        data.discord_spell_handler_metadata,
+        data.discord_spell_handler_slash_command,
         data.spell_version,
         data.use_voice,
         data.voice_provider,
@@ -638,7 +735,9 @@ export class Entity {
         data.voice_language_code,
         data.tiktalknet_url,
         data.discord_echo_slack,
-        data.discord_echo_format
+        data.discord_echo_format,
+        haveCustomCommands,
+        custom_commands
       )
     }
 
@@ -657,6 +756,8 @@ export class Entity {
         voice_character: data.voice_character,
         voice_language_code: data.voice_language_code,
         tiktalknet_url: data.tiktalknet_url,
+        haveCustomCommands,
+        custom_commands,
       })
     }
 
@@ -677,7 +778,9 @@ export class Entity {
         data.twitter_spell_handler_incoming,
         data.twitter_spell_handler_auto,
         data.spell_version,
-        data
+        data,
+        haveCustomCommands,
+        custom_commands
       )
     }
 
@@ -687,7 +790,51 @@ export class Entity {
         data.telegram_bot_name,
         data,
         data.telegram_spell_handler_incoming,
-        data.spell_version
+        data.spell_version,
+        haveCustomCommands,
+        custom_commands
+      )
+    }
+
+    if (data.instagram_enabled) {
+      this.startInstagram(
+        data.instagram_username,
+        data.instagram_password,
+        data.instagram_bot_name,
+        data.instagram_bot_name_regex,
+        data.instagram_spell_handler_incoming,
+        data.spell_version,
+        data,
+        haveCustomCommands,
+        custom_commands
+      )
+    }
+
+    if (data.messenger_enabled) {
+      this.startMessenger(
+        data.messenger_page_access_token,
+        data.messenger_verify_token,
+        data.messenger_bot_name,
+        data.messenger_bot_name_regex,
+        data.messenger_spell_handler_incoming,
+        data.spell_version,
+        data,
+        haveCustomCommands,
+        custom_commands
+      )
+    }
+
+    if (data.twilio_enabled) {
+      this.startTwilio(
+        data.twilio_account_sid,
+        data.twilio_auth_token,
+        data.twilio_phone_number,
+        data.twilio_bot_name,
+        data.twilio_empty_responses,
+        data.twilio_spell_handler_incoming,
+        data.spell_version,
+        haveCustomCommands,
+        custom_commands
       )
     }
 
@@ -707,6 +854,9 @@ export class Entity {
     }
 
     if (data.slack_enabled) {
+      const [greeting] = await database.instance.getGreeting(
+        data.slack_greeting_id
+      )
       this.startSlack(
         data.slack_token,
         data.slack_signing_secret,
@@ -715,43 +865,11 @@ export class Entity {
         data.slack_port,
         data.slack_spell_handler_incoming,
         data.spell_version,
-        data.slack_echo_channel
-      )
-    }
-
-    if (data.instagram_enabled) {
-      this.startInstagram(
-        data.instagram_username,
-        data.instagram_password,
-        data.instagram_bot_name,
-        data.instagram_bot_name_regex,
-        data.instagram_spell_handler_incoming,
-        data.spell_version,
-        data
-      )
-    }
-
-    if (data.messenger_enabled) {
-      this.startMessenger(
-        data.messenger_page_access_token,
-        data.messenger_verify_token,
-        data.messenger_bot_name,
-        data.messenger_bot_name_regex,
-        data.messenger_spell_handler_incoming,
-        data.spell_version,
-        data
-      )
-    }
-
-    if (data.twilio_enabled) {
-      this.startTwilio(
-        data.twilio_account_sid,
-        data.twilio_auth_token,
-        data.twilio_phone_number,
-        data.twilio_bot_name,
-        data.twilio_empty_responses,
-        data.twilio_spell_handler_incoming,
-        data.spell_version
+        data.slack_verification_token,
+        greeting,
+        data.slack_echo_channel,
+        haveCustomCommands,
+        custom_commands
       )
     }
   }

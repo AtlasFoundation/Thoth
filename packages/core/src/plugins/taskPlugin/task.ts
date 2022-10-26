@@ -28,9 +28,9 @@ type RunOptions = {
 
 export type TaskOutputTypes = 'option' | 'output'
 
-const hasTrigger = (task: Task) => {
-  return Object.values(task.component.task.outputs).includes('option')
-}
+// const hasTrigger = (task: Task) => {
+//   return Object.values(task.component.task.outputs).includes('option')
+// }
 
 export class Task {
   node: NodeData
@@ -93,8 +93,8 @@ export class Task {
       garbage = [] as Task[],
       propagate = true,
       fromSocket,
-      fromNode,
-      fromTask,
+      // fromNode,
+      // fromTask,
     } = options
 
     // garbage means that the nodes output value will be reset after it is all done.
@@ -110,24 +110,24 @@ export class Task {
 
       /*
         This is where we are populating all the input values to be passed into the worker. We are getting all the input connections that are connected as outputs (ie have values)
-        We filter out all connections which did not come from the previou node.  This is to hgelp support multiple inputs properly, otherwise we actually back propagate along every input and run it, whichI think is unwanted behaviour.
+        We filter out all connections which did not come from the previou node.  This is to help support multiple inputs properly, otherwise we actually back propagate along every input and run it, which I think is unwanted behaviour.
         
         After we have filtered these out, we need to run the task, which triggers that nodes worker.  After the worker runs, the task has populated output data, which we take and we associate with the tasks input values, which are subsequently
         passed to the nodes worker for processing.
 
         We assume here that his nodes worker does not need to access ALL values simultaneously, but is only interested in one. There is a task option which enables this functionality just in case we have use cases that don't want this behaviour.
       */
+
       await Promise.all(
         this.getInputs('output').map(async key => {
           const inputPromises = this.inputs[key]
-            .filter((con: ThothReteInput) => {
-              // only filter inputs to remove ones that are not the origin if a task option is true
-              //console.log('HAS TRIGGER', fromTask && hasTrigger(fromTask))
-              if (!this.component.task.runOneInput || !fromNode) return true
-              // if (fromTask.)
-              return con.task.node.id === fromNode.id
-            })
-            .map(async (con: ThothReteInput) => {
+            // .filter((con: ThothReteInput) => {
+            //   // only filter inputs to remove ones that are not the origin if a task option is true
+            //   if (this.component.task.runOneInput) return false
+            //   // if (!this.component.task.runOneInput || !fromNode) return true
+            //   return true
+            // })
+            .map(async (con: ThothReteInput, i, arr) => {
               await con.task.run(data, {
                 needReset: false,
                 garbage,

@@ -21,6 +21,13 @@
     "rootDir": ".",
     "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "*.d.ts"],
-  "typeRoots": ["@types/@thothai"]
+  "exclude": ["node_modules", "*.d.ts"],
+  "ts-node": {
+    // these options are overrides used only by ts-node
+    // same as the --compilerOptions flag and the TS_NODE_COMPILER_OPTIONS environment variable
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
+  //   "typeRoots": ["@types/@thothai"]
 }

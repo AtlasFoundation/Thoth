@@ -1,15 +1,15 @@
 import { ThothComponent } from '../../types'
-import { AddAgent } from './entities/AddAgent'
-import { AgentTextCompletion } from './entities/AgentTextCompletion'
-import { CacheManagerDelete } from './entities/CacheManagerDelete'
-import { CacheManagerGet } from './entities/CacheManagerGet'
-import { CacheManagerSet } from './entities/CacheManagerSet'
-import { CreateOrGetAgent } from './entities/CreateOrGetAgent'
-import { EventRecall } from './entities/EventRecall'
-import { EventStore } from './entities/EventStore'
-import { InputDestructureComponent } from './entities/InputDestructure'
-import { InputRestructureComponent } from './entities/InputRestructure'
-import { Request } from './entities/Request'
+import { AddAgent } from './agents/AddAgent'
+import { AgentTextCompletion } from './agents/AgentTextCompletion'
+import { CacheManagerDelete } from './agents/CacheManagerDelete'
+import { CacheManagerGet } from './agents/CacheManagerGet'
+import { CacheManagerSet } from './agents/CacheManagerSet'
+import { CreateOrGetAgent } from './agents/CreateOrGetAgent'
+import { EventRecall } from './agents/EventRecall'
+import { EventStore } from './agents/EventStore'
+import { InputDestructureComponent } from './agents/InputDestructure'
+import { InputRestructureComponent } from './agents/InputRestructure'
+import { Request } from './agents/Request'
 import { InputComponent } from './io/Input'
 import { Output } from './io/Output'
 import { TriggerIn } from './io/TriggerIn'
@@ -24,6 +24,7 @@ import { LogicalOperator } from './logic/LogicalOperator'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
+import { Wysiwyg } from './logic/Wysiwyg'
 import { ActionTypeComponent } from './ml/ActionType'
 import { Classifier } from './ml/Classifier'
 import { DifficultyDetectorComponent } from './ml/DifficultyDetector'
@@ -44,7 +45,9 @@ import { DocumentDelete } from './search/DocumentDelete'
 import { DocumentEdit } from './search/DocumentEdit'
 import { DocumentGet } from './search/DocumentGet'
 import { DocumentSet } from './search/DocumentSet'
+import { DocumentSetMass } from './search/DocumentSetMass'
 import { DocumentStoreGet } from './search/DocumentStoreGet'
+import { RSSGet } from './search/RSSGet'
 import { Search } from './search/Search'
 import { VectorSearch } from './search/VectorSearch'
 import { SpellComponent } from './services/Spell'
@@ -61,17 +64,23 @@ import { StringProcessor } from './strings/StringProcessor'
 import { Alert } from './utility/AlertMessage'
 import { Echo } from './utility/Echo'
 import { InRange } from './utility/InRange'
+import { Cast } from './utility/Cast'
 import { InputsToJSON } from './utility/InputsToJSON'
 import { ArrayVariable } from './variable/ArrayVariable'
 import { BooleanVariable } from './variable/BooleanVariable'
 import { FewshotVariable } from './variable/FewshotVariable'
 import { NumberVariable } from './variable/NumberVariable'
 import { StringVariable } from './variable/StringVariable'
-import { DocumentSetMass } from './search/DocumentSetMass'
-import { RSSGet } from './search/RSSGet'
-import { CustomTextCompletion } from './entities/CustomTextCompletion'
+import { CustomTextCompletion } from './agents/CustomTextCompletion'
 import { IsQuery } from './logic/IsQuery'
 import { VariableReplacer } from './utility/VariableReplacer'
+import { Destructure } from './utility/Destructure'
+import { Log } from './utility/Log'
+import { Merge } from './utility/Merge'
+import { WeaviateWikipedia } from './search/WeaviateWikipedia'
+import { GetWikipediaSummary } from './services/GetWikipediaSummary'
+import { OrGate } from './logic/OrGate'
+import { QueryGoogle } from './services/QueryGoogle'
 
 // Here we load up all components of the builder into our editor for usage.
 // We might be able to programatically generate components from enki
@@ -83,11 +92,14 @@ export const components = {
   actionTypeComponent: () => new ActionTypeComponent(),
   alert: () => new Alert(),
   booleanGate: () => new BooleanGate(),
+  cast: () => new Cast(),
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
+  wysiwyg: () => new Wysiwyg(),
   sentenceMatcher: () => new SentenceMatcher(),
   difficultyDetectorComponent: () => new DifficultyDetectorComponent(),
+  destructure: () => new Destructure(),
   // enkiTask: () => new EnkiTask(),
   entityDetector: () => new EntityDetector(),
   complexStringMatcher: () => new ComplexStringMatcher(),
@@ -113,8 +125,8 @@ export const components = {
   documentEdit: () => new DocumentEdit(),
   documentDelete: () => new DocumentDelete(),
   documentSet: () => new DocumentSet(),
-  documentStoreGet: () => new DocumentStoreGet(),
   documentSetMass: () => new DocumentSetMass(),
+  documentStoreGet: () => new DocumentStoreGet(),
   rssGet: () => new RSSGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
@@ -154,6 +166,12 @@ export const components = {
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
   waitForAll: () => new WaitForAll(),
+  weaviateWikipedia: () => new WeaviateWikipedia(),
+  getWikipediaSummary: () => new GetWikipediaSummary(),
+  merge: () => new Merge(),
+  orGate: () => new OrGate(),
+  log: () => new Log(),
+  queryGoogle: () => new QueryGoogle()
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {

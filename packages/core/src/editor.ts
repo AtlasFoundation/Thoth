@@ -25,6 +25,7 @@ import { PubSubContext, ThothComponent } from './thoth-component'
 import SocketPlugin from './plugins/socketPlugin'
 // import SelectionPlugin from './plugins/selectionPlugin'
 import errorPlugin from './plugins/errorPlugin'
+import cachePlugin from './plugins/cachePlugin'
 
 interface ThothEngineClient extends ThothEngine {
   thoth: EditorContext
@@ -39,6 +40,7 @@ export class ThothEditor extends NodeEditor<EventsTypes> {
   moduleManager: ModuleManager
   runProcess: (callback?: Function) => Promise<void>
   onSpellUpdated: (spellId: string, callback: Function) => Function
+  refreshEventTable: () => void
 }
 
 /*
@@ -158,12 +160,17 @@ export const initEditor = function ({
     return thoth.onSubspellUpdated(spellId, callback)
   }
 
+  editor.refreshEventTable = () => {
+    return thoth.refreshEventTable()
+  }
+
   editor.use(KeyCodePlugin)
 
   if (client && feathers) {
     editor.use(SocketPlugin, { client })
   } else {
     // WARNING: ModulePlugin needs to be initialized before TaskPlugin during engine setup
+    editor.use(cachePlugin)
     editor.use(ModulePlugin, { engine, modules: {} } as unknown as void)
     editor.use(TaskPlugin)
   }

@@ -7,7 +7,6 @@ import { useNavigate } from 'react-router-dom'
 import MenuBar from '../MenuBar/MenuBar'
 import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
-import { PlugWallet } from '../PlugWallet/PlugWallet'
 import { changeActive } from '@/state/tabs'
 import { RootState } from '@/state/store'
 import { LoginTab } from './LoginTab'
@@ -29,17 +28,17 @@ const Tab = ({ tab, activeTab }) => {
     const updatedTabs = tabs.map(t =>
       t.id === tab.id
         ? {
-            id: t.id,
-            changes: {
-              active: true,
-            },
-          }
+          id: t.id,
+          changes: {
+            active: true,
+          },
+        }
         : {
-            id: t.id,
-            changes: {
-              active: false,
-            },
-          }
+          id: t.id,
+          changes: {
+            active: false,
+          },
+        }
     )
     dispatch(changeActive(updatedTabs))
     navigate('/thoth')
@@ -77,7 +76,6 @@ const TabBar = ({ tabs, activeTab }) => {
       </div>
 
       <div className={css['tabbar-user']}>
-        <PlugWallet />
         <LoginTab />
       </div>
     </div>

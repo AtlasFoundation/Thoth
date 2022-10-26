@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createWikipediaEntity } from '../entities/connectors/wikipedia'
 import { database } from '../database'
 import { handleInput } from '../entities/connectors/handleInput'
@@ -6,7 +5,7 @@ import { handleInput } from '../entities/connectors/handleInput'
 import weaviate from 'weaviate-client'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
-import { noAuth } from './middleware/auth'
+import { noAuth } from '../middleware/auth'
 import { Route } from '../types'
 import axios from 'axios'
 import { cacheManager } from '../cacheManager'
@@ -19,6 +18,9 @@ import fs from 'fs'
 import path from 'path'
 import { CreateSpellHandler } from '../entities/CreateSpellHandler'
 import { stringIsAValidUrl } from '../utils/utils'
+import * as events from '../services/events'
+import queryGoogleSearch from './utils/queryGoogle'
+import { CustomError } from '../utils/CustomError'
 
 export const modules: Record<string, unknown> = {}
 
@@ -152,6 +154,54 @@ const deleteEntityHandler = async (ctx: Koa.Context) => {
   }
 }
 
+const getGreetings = async (ctx: Koa.Context) => {
+  const { enabled } = ctx.request.query
+  try {
+    const greetings = await database.instance.getGreetings(!!enabled)
+    return (ctx.body = greetings)
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
+const addGreetings = async (ctx: Koa.Context) => {
+  try {
+    const { enabled, sendIn, channelId, message } = ctx.request.body
+    const { id } = ctx.params
+
+    if (!id)
+      await database.instance.addGreeting(enabled, sendIn, channelId, message)
+    else
+      await database.instance.updateGreeting(
+        enabled,
+        sendIn,
+        channelId,
+        message,
+        id
+      )
+
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
+const deleteGreeting = async (ctx: Koa.Context) => {
+  try {
+    const { id } = ctx.params
+    await database.instance.deleteGreeting(id)
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
 const getEvent = async (ctx: Koa.Context) => {
   const type = ctx.request.query.type as string
   const agent = ctx.request.query.agent
@@ -176,7 +226,7 @@ const getEvent = async (ctx: Koa.Context) => {
 
   console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = event)
+  return (ctx.body = { event })
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
@@ -192,7 +242,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
-    const sortOrder = ctx.request.query.order as st
+    const sortOrder = ctx.request.query.order as string
     if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
@@ -263,22 +313,26 @@ const createEvent = async (ctx: Koa.Context) => {
   const text = ctx.request.body.text
   const type = ctx.request.body.type
   console.log('Creating event:', agent, speaker, client, channel, text, type)
-  await database.instance.createEvent(
+
+  // Todo needs error handling
+  await events.createEvent({
     type,
     agent,
     client,
     channel,
     speaker,
     text
-  )
+  })
 
   return (ctx.body = 'ok')
 }
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
-  const text = ctx.request.query.text
-  const voice_provider = ctx.request.query.voice_provider
-  const voice_character = ctx.request.query.voice_character
+  const text = ctx.request.query.text as string
+  const character = (ctx.request.query.character ?? 'none')
+  console.log('text and character are', text, character)
+  const voice_provider = ctx.request.query.voice_provider as string
+  const voice_character = ctx.request.query.voice_character as string
   const voice_language_code = ctx.request.query.voice_language_code
   const tiktalknet_url = ctx.request.query.tiktalknet_url
 
@@ -306,10 +360,9 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
         text,
         voice_provider,
         voice_character,
-        voice_language_code
       )
     } else {
-      url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
+      url = await tts_tiktalknet(text, voice_character, tiktalknet_url as any)
     }
   }
 
@@ -370,8 +423,9 @@ const customMessage = async (ctx: Koa.Context) => {
     'discord',
     channel,
     [],
-    []
-  )
+    [],
+    'auto'
+  ) as any
 
   if (isVoice) {
     if (
@@ -449,7 +503,7 @@ const textCompletion = async (ctx: Koa.Context) => {
   const sender = (ctx.request.body.sender as string) ?? 'User'
   const agent = (ctx.request.body.agent as string) ?? 'Agent'
   const prompt = (ctx.request.body.prompt as string)
-    .replace('{agent}')
+    .replace('{agent}', agent)
     .replace('{speaker}', sender)
   let stop = ctx.request.body.stop as string[]
 
@@ -469,7 +523,7 @@ const textCompletion = async (ctx: Koa.Context) => {
   console.log('stop:', stop)
 
   const { success, choice, error } = await makeCompletion(modelName, {
-    prompt: prompt,
+    prompt: prompt.trim(),
     temperature: temperature,
     max_tokens: maxTokens,
     top_p: topP,
@@ -519,7 +573,9 @@ const makeWeaviateRequest = async (ctx: Koa.Context) => {
     .withLimit(3)
     .do()
 
-  if (res.data.Get !== undefined) {
+  console.log("RESPONSE", res)
+
+  if (res?.data?.Get !== undefined) {
     return (ctx.body = { data: res.data.Get })
   }
   return (ctx.body = { data: '' })
@@ -539,9 +595,8 @@ const requestInformationAboutVideo = async (
   question: string
 ): Promise<string> => {
   const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${
-    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-  }\n${agent}:`
+  const prompt = `Information: ${videoInformation} \n ${sender}: ${question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
+    }\n${agent}:`
 
   const modelName = 'davinci'
   const temperature = 0.9
@@ -626,6 +681,12 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
+const zoomBufferChunk = async (ctx: Koa.Context) => {
+  const chunk = ctx.request.body.chunk
+  console.log('GOT ZOOM BUFFER CHUNK:', chunk)
+  return (ctx.body = 'ok')
+}
+
 const getCalendarEvents = async (ctx: Koa.Context) => {
   try {
     let calendarEvents = await database.instance.getCalendarEvents()
@@ -668,7 +729,7 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
     return (ctx.body = 'inserted')
   } catch (e) {
     ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
+    return (ctx.body = { payload: [], message: 'internal error' })
   }
 }
 
@@ -709,8 +770,8 @@ const deleteCalendarEvent = async (ctx: Koa.Context) => {
 
 const addVideo = async (ctx: Koa.Context) => {
   try {
-    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
-    const [type, subType] = mimeType.split('/')
+    let { path: videoPath, name, type: mimeType } = ctx.request?.files?.video as any
+    const [type] = mimeType.split('/')
     if (type !== 'video') {
       ctx.response.status = 400
       return (ctx.body = 'Only video can be uploaded')
@@ -770,6 +831,75 @@ const register = async (ctx: Koa.Context) => {
   }
 }
 
+const post_pipedream = async (ctx: Koa.Context) => {
+  console.log('testPipeDream:', ctx.request)
+  return (ctx.body = 'ok')
+}
+
+const getMessageReactions = async (ctx: Koa.Context) => {
+  try {
+    const message_reactions = await database.instance.getMessageReactions()
+    return (ctx.body = message_reactions)
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+const createMessageReaction = async (ctx: Koa.Context) => {
+  try {
+    const { reaction, spell_handler, discord_enabled, slack_enabled } =
+      ctx.request.body
+    const { id } = ctx.params
+
+    console.log('got body data:', ctx.request.body)
+    if (!id) {
+      await database.instance.addMessageReaction(
+        reaction,
+        spell_handler,
+        discord_enabled,
+        slack_enabled
+      )
+    } else {
+      await database.instance.updateMessageReaction(
+        id,
+        reaction,
+        spell_handler,
+        discord_enabled,
+        slack_enabled
+      )
+    }
+
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+const deleteMessageReaction = async (ctx: Koa.Context) => {
+  try {
+    const { id } = ctx.params
+    await database.instance.deleteMessageReaction(id)
+    return (ctx.body = 'ok')
+  } catch (e) {
+    console.log(e)
+    ctx.status = 500
+    return (ctx.body = 'internal error')
+  }
+}
+
+const queryGoogle = async (ctx: Koa.Context) => {
+  console.log("QUERY", ctx.request?.body?.query)
+  if (!ctx.request?.body?.query) throw new CustomError('input-failed', 'No query provided in request body')
+  const query = ctx.request.body?.query as string
+  const result = await queryGoogleSearch(query)
+
+  ctx.body = {
+    result
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -796,6 +926,18 @@ export const entities: Route[] = [
     path: '/entity/:id',
     access: noAuth,
     delete: deleteEntityHandler,
+  },
+  {
+    path: '/greetings',
+    access: noAuth,
+    get: getGreetings,
+    post: addGreetings,
+  },
+  {
+    path: '/greetings/:id',
+    access: noAuth,
+    put: addGreetings,
+    delete: deleteGreeting,
   },
   {
     path: '/event',
@@ -884,6 +1026,11 @@ export const entities: Route[] = [
     post: handleCustomInput,
   },
   {
+    path: '/zoom_buffer_chunk',
+    access: noAuth,
+    post: zoomBufferChunk,
+  },
+  {
     path: '/video',
     access: noAuth,
     post: addVideo,
@@ -897,5 +1044,27 @@ export const entities: Route[] = [
     path: '/register',
     access: noAuth,
     post: register,
+  },
+  {
+    path: '/pipedream',
+    access: noAuth,
+    post: post_pipedream,
+  },
+  {
+    path: '/message_reactions',
+    access: noAuth,
+    get: getMessageReactions,
+    post: createMessageReaction,
+  },
+  {
+    path: '/message_reaction/:id',
+    access: noAuth,
+    put: createMessageReaction,
+    delete: deleteMessageReaction,
+  },
+  {
+    path: '/query_google',
+    access: noAuth,
+    post: queryGoogle
   },
 ]

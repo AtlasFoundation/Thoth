@@ -75,13 +75,13 @@ async function makeOpenAIGPT3Request(
 export async function makeCompletion(
   engine: string,
   data: {
-    prompt: string
-    temperature: number
-    max_tokens: number
-    top_p: number
-    frequency_penalty: number
-    presence_penalty: number
-    stop: string[]
+    prompt: string,
+    temperature: number,
+    max_tokens: number,
+    top_p: number,
+    frequency_penalty: number,
+    presence_penalty: number,
+    stop: string[],
   }
 ): Promise<any> {
   const API_KEY = process.env.OPENAI_API_KEY
@@ -111,7 +111,10 @@ export async function makeCompletion(
   _data.stop = data.stop
 
   try {
-    const gptEngine = engine ?? 'davinci'
+    const gptEngine = engine ?? 'text-davinci-002'
+    console.log("MAKING REQUEST TO", `https://api.openai.com/v1/engines/${gptEngine}/completions`)
+    console.log('BODY', _data)
+
     const resp = await axios.post(
       `https://api.openai.com/v1/engines/${gptEngine}/completions`,
       _data,
@@ -123,6 +126,7 @@ export async function makeCompletion(
       return { success: true, choice }
     }
   } catch (err) {
+    console.log("ERROR")
     console.error(err)
     return { success: false }
   }
