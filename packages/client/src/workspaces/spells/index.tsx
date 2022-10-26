@@ -147,7 +147,7 @@ const Workspace = ({ tab, pubSub }) => {
         case 'eventManager':
           return <EventManagerWindow {...props} />
         default:
-          return <p></p>
+          return <p>error</p>
       }
     }
   }

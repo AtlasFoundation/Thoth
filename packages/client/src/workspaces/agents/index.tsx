@@ -10,6 +10,7 @@ import MessageReactionEditor from './windows/MessageReactionEditor'
 
 const Workspace = ({ tab, pubSub }) => {
   const factory = tab => {
+    console.log('creating tab', tab)
     return node => {
       const props = {
         tab,
