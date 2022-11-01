@@ -99,8 +99,6 @@ export class twitter_client {
   twitter_tweet_rules: string = ''
   twitter_auto_tweet_interval_min: number = 0
   twitter_auto_tweet_interval_max: number = 0
-  haveCustomCommands
-  custom_commands
 
   createTwitterClient = async (
     spellHandler,
@@ -112,8 +110,6 @@ export class twitter_client {
     this.spellHandlerAuto = spellHandlerAuto
     this.settings = settings
     this.entity = entity
-    this.haveCustomCommands = settings.haveCustomCommands
-    this.custom_commands = settings.custom_commands
 
     const bearerToken = settings.twitter_token
     const twitterUser = settings.twitter_id
@@ -172,37 +168,6 @@ export class twitter_client {
             '@' + localUser.data.username,
             this.settings.twitter_bot_name ?? 'Agent'
           )
-
-          if (this.haveCustomCommands) {
-            for (let i = 0; i < this.custom_commands[i].length; i++) {
-              if (body.startsWith(this.custom_commands[i].command_name)) {
-                const _content = body.replace(
-                  this.custom_commands[i].command_name,
-                  ''
-                )
-
-                const response = await this.custom_commands[i].spell_handler(
-                  _content,
-                  authorName,
-                  this.settings.twitter_bot_name ?? 'Agent',
-                  'twitter',
-                  event.id,
-                  settings.entity,
-                  []
-                )
-
-                await this.handleMessage(
-                  response,
-                  event.id,
-                  'DM',
-                  twitter,
-                  tv1,
-                  localUser
-                )
-                return
-              }
-            }
-          }
 
           const resp = this.spellHandler(
             body,

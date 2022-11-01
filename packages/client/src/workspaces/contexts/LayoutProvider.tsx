@@ -18,15 +18,11 @@ const windowTypes: WindowTypes = {
   STATE_MANAGER: 'stateManager',
   EDITOR: 'editor',
   PLAYTEST: 'playtest',
-  WYSIWYG_EDITOR: 'wysiwygEditor',
   CONSOLE: 'debugConsole',
   SETTINGS: 'settings',
   SEARCH_CORPUS: 'searchCorpus',
   ENT_MANAGER: 'entityManager',
-  GREETINGS_MANAGER: 'greetingsManager',
   EVENT_MANAGER: 'eventManager',
-  VIDEO_TRANSCRIPTION: 'videoTranscription',
-  CALENDAR_TAB: 'calendarTab',
   MESSAGE_REACTION_EDITOR: 'messageReactionEditor',
 }
 
@@ -40,12 +36,8 @@ type WindowType =
   | 'settings'
   | 'searchCorpus'
   | 'entityManager'
-  | 'greetingsManager'
-  | 'wysiwygEditor'
   | 'messageReactionEditor'
   | 'eventManager'
-  | 'videoTranscription'
-  | 'calendarTab'
 type WindowTypes = Record<string, WindowType>
 
 // helpful resources

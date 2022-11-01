@@ -13,6 +13,6 @@ export const rootApi = createApi({
       return headers
     },
   }),
-  tagTypes: ['Spell', 'Spells', 'Version', 'Greetings'],
+  tagTypes: ['Spell', 'Spells', 'Version'],
   endpoints: () => ({}),
 })

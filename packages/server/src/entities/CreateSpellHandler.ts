@@ -125,7 +125,7 @@ export const CreateSpellHandler = async (props: {
 
   const inputKeys = extractModuleInputKeys(graph) as string[]
 
-  // Return this-- this is the callback for discord, xrengine, etc to handle chat
+  // Return this-- this is the callback for discord, etc to handle chat
   async function spellHandler(
     message: string,
     speaker: string,

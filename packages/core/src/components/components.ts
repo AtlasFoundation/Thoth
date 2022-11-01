@@ -24,7 +24,6 @@ import { LogicalOperator } from './logic/LogicalOperator'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
-import { Wysiwyg } from './logic/Wysiwyg'
 import { ActionTypeComponent } from './ml/ActionType'
 import { Classifier } from './ml/Classifier'
 import { DifficultyDetectorComponent } from './ml/DifficultyDetector'
@@ -96,7 +95,6 @@ export const components = {
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
-  wysiwyg: () => new Wysiwyg(),
   sentenceMatcher: () => new SentenceMatcher(),
   difficultyDetectorComponent: () => new DifficultyDetectorComponent(),
   destructure: () => new Destructure(),

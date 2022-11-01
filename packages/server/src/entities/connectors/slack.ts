@@ -6,9 +6,6 @@ export class slack_client {
   spellHandler: any
   settings: any
   entity: any
-  haveCustomCommands: boolean
-  custom_commands: any[]
-  greeting: any
 
   app: App
   message_reactions: { [reaction: string]: any } = {}
@@ -27,9 +24,6 @@ export class slack_client {
     this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
-    this.haveCustomCommands = settings.haveCustomCommands
-    this.custom_commands = settings.custom_commands
-    this.greeting = settings.slack_greeting
 
     console.log('slack settings:', settings)
     this.app = new App({
@@ -46,41 +40,6 @@ export class slack_client {
         user: userId,
       })
       const user = result.user?.name
-
-      if (this.haveCustomCommands) {
-        for (let i = 0; i < this.custom_commands.length; i++) {
-          console.log(
-            'command:',
-            this.custom_commands[i].command_name,
-            'starting_with:',
-            text.startsWith(this.custom_commands[i].command_name)
-          )
-          if (text.startsWith(this.custom_commands[i].command_name)) {
-            const _content = text
-              .replace(this.custom_commands[i].command_name, '')
-              .trim()
-            console.log(
-              'handling command:',
-              this.custom_commands[i].command_name,
-              'content:',
-              _content
-            )
-
-            const cresponse = await this.custom_commands[i].spell_handler(
-              _content,
-              user,
-              this.settings.slack_bot_name,
-              'slack',
-              channel,
-              this.entity,
-              []
-            )
-
-            say(cresponse)
-            return
-          }
-        }
-      }
 
       const response = await spellHandler(
         text,

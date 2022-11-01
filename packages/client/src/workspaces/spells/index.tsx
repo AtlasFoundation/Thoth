@@ -26,6 +26,9 @@ import EventManagerWindow from './windows/EventManager'
 import { RootState } from '@/state/store'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
+import SearchCorpus from '../agents/windows/SearchCorpusWindow'
+import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
+import MessageReactionEditor from '../agents/windows/MessageReactionEditor'
 
 const Workspace = ({ tab, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -146,8 +149,16 @@ const Workspace = ({ tab, pubSub }) => {
           return <DebugConsole {...props} />
         case 'eventManager':
           return <EventManagerWindow {...props} />
+        case 'stateManager':
+          return <StateManager {...props} />
+        case 'searchCorpus':
+          return <SearchCorpus />
+        case 'entityManager':
+          return <EntityManagerWindow />
+        case 'messageReactionEditor':
+          return <MessageReactionEditor />
         default:
-          return <p>error</p>
+          return <p>component is {component}</p>
       }
     }
   }

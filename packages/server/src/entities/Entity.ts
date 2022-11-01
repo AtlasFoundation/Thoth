@@ -16,7 +16,6 @@ import { tts } from '../systems/googleTextToSpeech'
 import { tts_tiktalknet } from '../systems/tiktalknet'
 import { stringIsAValidUrl } from '../utils/utils'
 import { slack_client } from './connectors/slack'
-import { xrengine_client } from './connectors/xrengine'
 import { CreateSpellHandler } from './CreateSpellHandler'
 
 export class Entity {
@@ -31,7 +30,6 @@ export class Entity {
   messenger: messenger_client | null
   whatsapp: whatsapp_client | null
   twilio: twilio_client | null
-  xrengine: xrengine_client | null
   slack: slack_client | null
   id: any
 
@@ -45,7 +43,6 @@ export class Entity {
     discord_bot_name_regex: string,
     discord_bot_name: string,
     discord_empty_responses: string,
-    discord_greeting: any,
     spell_handler: string,
     spell_handler_update: string,
     spell_handler_metadata: string,
@@ -58,8 +55,6 @@ export class Entity {
     tiktalknet_url: string,
     discord_echo_slack: boolean,
     discord_echo_format: string,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -96,7 +91,6 @@ export class Entity {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_greeting,
       spellHandler,
       updateSpellHandler,
       metadataSpellHandler,
@@ -107,9 +101,7 @@ export class Entity {
       voice_language_code,
       tiktalknet_url,
       discord_echo_slack,
-      discord_echo_format,
-      haveCustomCommands,
-      custom_commands
+      discord_echo_format
     )
     console.log('Started discord client for agent ' + this.name)
   }
@@ -119,53 +111,6 @@ export class Entity {
     await this.discord.destroy()
     this.discord = null
     console.log('Stopped discord client for agent ' + this.name)
-  }
-
-  async startXREngine(settings: {
-    entity: any
-    url: string
-    spell_handler: string
-    spell_version: string
-    xrengine_bot_name: string
-    xrengine_bot_name_regex: string
-    xrengine_starting_words: string
-    xrengine_empty_responses: string
-    handleInput?: any
-    use_voice: boolean
-    voice_provider: string
-    voice_character: string
-    voice_language_code: string
-    tiktalknet_url: string
-    haveCustomCommands: boolean
-    custom_commands: any[]
-  }) {
-    if (this.xrengine)
-      throw new Error(
-        'XREngine already running for this agent on this instance'
-      )
-
-    const spellHandler = await CreateSpellHandler({
-      spell: settings.spell_handler,
-      version: settings.spell_version,
-    })
-
-    settings.handleInput = spellHandler
-
-    this.xrengine = new xrengine_client()
-    this.xrengine.createXREngineClient(
-      this,
-      settings,
-      this.xrengine,
-      spellHandler
-    )
-    console.log('Started xrengine client for agent ' + this.name)
-  }
-
-  stopXREngine() {
-    if (!this.xrengine) throw new Error("XREngine isn't running, can't stop it")
-    this.xrengine.destroy()
-      ; (this.xrengine as any) = null
-    console.log('Stopped xrengine client for agent ' + this.name)
   }
 
   async startTwitter(
@@ -184,9 +129,7 @@ export class Entity {
     twitter_spell_handler_incoming: any,
     twitter_spell_handler_auto: any,
     spell_version: string,
-    entity: any,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    entity: any
   ) {
     console.log('initializing Twitter:', twitter_token)
     if (this.twitter)
@@ -222,9 +165,7 @@ export class Entity {
         twitter_bot_name,
         twitter_bot_name_regex,
         twitter_spell_handler_incoming,
-        twitter_spell_handler_auto,
-        haveCustomCommands,
-        custom_commands,
+        twitter_spell_handler_auto
       },
       entity
     )
@@ -241,9 +182,7 @@ export class Entity {
     telegram_bot_name: string,
     entity: any,
     spell_handler: string,
-    spell_version: string,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    spell_version: string
   ) {
     console.log('initializing telegram:', telegram_bot_token)
     if (this.telegram)
@@ -260,9 +199,7 @@ export class Entity {
     await this.telegram.createTelegramClient(spellHandler, {
       telegram_bot_token,
       telegram_bot_name,
-      entity,
-      haveCustomCommands,
-      custom_commands,
+      entity
     })
   }
   stopTelegram() {
@@ -280,9 +217,7 @@ export class Entity {
     reddit_bot_name_regex: string,
     reddit_spell_handler_incoming: string,
     spell_version: string,
-    entity: any,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    entity: any
   ) {
     console.log('initializing reddit:', reddit_app_id)
     if (this.reddit) {
@@ -302,9 +237,7 @@ export class Entity {
         reddit_app_secret_id,
         reddit_oauth_token,
         reddit_bot_name,
-        reddit_bot_name_regex,
-        haveCustomCommands,
-        custom_commands,
+        reddit_bot_name_regex
       },
       entity
     )
@@ -405,9 +338,7 @@ export class Entity {
     instagram_bot_name_regex: string,
     instagram_spell_handler_incoming: string,
     spell_version: string,
-    entity: any,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    entity: any
   ) {
     if (this.instagram) {
       throw new Error(
@@ -428,9 +359,7 @@ export class Entity {
         instagram_password,
         instagram_bot_name,
         instagram_bot_name_regex,
-        instagram_spell_handler_incoming,
-        haveCustomCommands,
-        custom_commands,
+        instagram_spell_handler_incoming
       },
       entity
     )
@@ -449,9 +378,7 @@ export class Entity {
     messenger_bot_name_regex: string,
     messenger_spell_handler_incoming: string,
     spell_version: string,
-    entity: any,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    entity: any
   ) {
     if (this.messenger) {
       throw new Error(
@@ -473,9 +400,7 @@ export class Entity {
         messenger_page_access_token,
         messenger_verify_token,
         messenger_bot_name,
-        messenger_bot_name_regex,
-        haveCustomCommands,
-        custom_commands,
+        messenger_bot_name_regex
       },
       entity
     )
@@ -494,9 +419,7 @@ export class Entity {
     twilio_bot_name: any,
     twilio_empty_responses: any,
     twilio_spell_handler_incoming: any,
-    spell_version: any,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    spell_version: any
   ) {
     if (this.twilio) {
       throw new Error('Twlio already running for this client on this instance')
@@ -518,9 +441,7 @@ export class Entity {
         twilio_bot_name,
         twilio_empty_responses,
         twilio_spell_handler_incoming,
-        entity: this,
-        haveCustomCommands,
-        custom_commands,
+        entity: this
       },
       spellHandler
     )
@@ -534,12 +455,9 @@ export class Entity {
     slack_bot_name: any,
     slack_port: any,
     slack_verification_token: any,
-    slack_greeting: any,
     slack_echo_channel: any,
     slack_spell_handler_incoming: any,
-    spell_version: any,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    spell_version: any
   ) {
     if (this.slack) {
       throw new Error('Slack already running for this client on this instance')
@@ -560,10 +478,7 @@ export class Entity {
         slack_bot_name,
         slack_port,
         slack_verification_token,
-        slack_greeting,
-        slack_echo_channel,
-        haveCustomCommands,
-        custom_commands,
+        slack_echo_channel
       },
       this
     )
@@ -584,7 +499,6 @@ export class Entity {
     )
     if (this.loopHandler && this.loopHandler !== undefined) this.stopLoop()
     if (this.discord) this.stopDiscord()
-    if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
@@ -677,25 +591,6 @@ export class Entity {
       new cacheManager()
     }
 
-    console.log('data is', data)
-
-    const custom_commands = data.custom_commands ? JSON.parse(data.custom_commands) : []
-    const haveCustomCommands =
-      data.use_custom_commands &&
-      custom_commands?.length > 0 &&
-      data.custom_command_starter?.length > 0
-    if (haveCustomCommands) {
-      for (let i = 0; i < custom_commands.length; i++) {
-        custom_commands[i].command_name =
-          data.custom_command_starter + custom_commands[i].command_name.trim()
-        const temp = custom_commands[i].spell_Handler
-        custom_commands[i].spell_handler = await CreateSpellHandler({
-          spell: temp,
-          version: 'latest',
-        })
-      }
-    }
-
     this.onDestroy()
     this.id = data.id
     console.log('initing agent')
@@ -714,16 +609,12 @@ export class Entity {
     }
 
     if (data.discord_enabled) {
-      const [greeting] = await database.instance.getGreeting(
-        data.discord_greeting_id
-      )
       this.startDiscord(
         data.discord_api_key,
         data.discord_starting_words,
         data.discord_bot_name_regex,
         data.discord_bot_name,
         data.discord_empty_responses,
-        greeting,
         data.discord_spell_handler_incoming,
         data.discord_spell_handler_update,
         data.discord_spell_handler_metadata,
@@ -735,30 +626,8 @@ export class Entity {
         data.voice_language_code,
         data.tiktalknet_url,
         data.discord_echo_slack,
-        data.discord_echo_format,
-        haveCustomCommands,
-        custom_commands
+        data.discord_echo_format
       )
-    }
-
-    if (data.xrengine_enabled) {
-      this.startXREngine({
-        url: data.xrengine_url,
-        entity: data,
-        spell_handler: data.xrengine_spell_handler_incoming,
-        spell_version: data.spell_version,
-        xrengine_bot_name: data.xrengine_bot_name,
-        xrengine_bot_name_regex: data.xrengine_bot_name_regex,
-        xrengine_starting_words: data.xrengine_starting_words,
-        xrengine_empty_responses: data.xrengine_empty_responses,
-        use_voice: data.use_voice,
-        voice_provider: data.voice_provider,
-        voice_character: data.voice_character,
-        voice_language_code: data.voice_language_code,
-        tiktalknet_url: data.tiktalknet_url,
-        haveCustomCommands,
-        custom_commands,
-      })
     }
 
     if (data.twitter_client_enable) {
@@ -778,9 +647,7 @@ export class Entity {
         data.twitter_spell_handler_incoming,
         data.twitter_spell_handler_auto,
         data.spell_version,
-        data,
-        haveCustomCommands,
-        custom_commands
+        data
       )
     }
 
@@ -790,9 +657,7 @@ export class Entity {
         data.telegram_bot_name,
         data,
         data.telegram_spell_handler_incoming,
-        data.spell_version,
-        haveCustomCommands,
-        custom_commands
+        data.spell_version
       )
     }
 
@@ -804,9 +669,7 @@ export class Entity {
         data.instagram_bot_name_regex,
         data.instagram_spell_handler_incoming,
         data.spell_version,
-        data,
-        haveCustomCommands,
-        custom_commands
+        data
       )
     }
 
@@ -818,9 +681,7 @@ export class Entity {
         data.messenger_bot_name_regex,
         data.messenger_spell_handler_incoming,
         data.spell_version,
-        data,
-        haveCustomCommands,
-        custom_commands
+        data
       )
     }
 
@@ -832,9 +693,7 @@ export class Entity {
         data.twilio_bot_name,
         data.twilio_empty_responses,
         data.twilio_spell_handler_incoming,
-        data.spell_version,
-        haveCustomCommands,
-        custom_commands
+        data.spell_version
       )
     }
 
@@ -854,9 +713,6 @@ export class Entity {
     }
 
     if (data.slack_enabled) {
-      const [greeting] = await database.instance.getGreeting(
-        data.slack_greeting_id
-      )
       this.startSlack(
         data.slack_token,
         data.slack_signing_secret,
@@ -866,10 +722,7 @@ export class Entity {
         data.slack_spell_handler_incoming,
         data.spell_version,
         data.slack_verification_token,
-        greeting,
-        data.slack_echo_channel,
-        haveCustomCommands,
-        custom_commands
+        data.slack_echo_channel
       )
     }
   }

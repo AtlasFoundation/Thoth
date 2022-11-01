@@ -154,54 +154,6 @@ const deleteEntityHandler = async (ctx: Koa.Context) => {
   }
 }
 
-const getGreetings = async (ctx: Koa.Context) => {
-  const { enabled } = ctx.request.query
-  try {
-    const greetings = await database.instance.getGreetings(!!enabled)
-    return (ctx.body = greetings)
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
-const addGreetings = async (ctx: Koa.Context) => {
-  try {
-    const { enabled, sendIn, channelId, message } = ctx.request.body
-    const { id } = ctx.params
-
-    if (!id)
-      await database.instance.addGreeting(enabled, sendIn, channelId, message)
-    else
-      await database.instance.updateGreeting(
-        enabled,
-        sendIn,
-        channelId,
-        message,
-        id
-      )
-
-    return (ctx.body = 'ok')
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
-const deleteGreeting = async (ctx: Koa.Context) => {
-  try {
-    const { id } = ctx.params
-    await database.instance.deleteGreeting(id)
-    return (ctx.body = 'ok')
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
 const getEvent = async (ctx: Koa.Context) => {
   const type = ctx.request.query.type as string
   const agent = ctx.request.query.agent
@@ -687,107 +639,6 @@ const zoomBufferChunk = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
-const getCalendarEvents = async (ctx: Koa.Context) => {
-  try {
-    let calendarEvents = await database.instance.getCalendarEvents()
-    return (ctx.body = calendarEvents)
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-const addCalendarEvent = async (ctx: Koa.Context) => {
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-
-  if (
-    !name ||
-    !date ||
-    !time ||
-    !type ||
-    !moreInfo ||
-    name?.length <= 0 ||
-    date?.length <= 0 ||
-    time?.length <= 0 ||
-    type?.length <= 0 ||
-    moreInfo?.length <= 0
-  ) {
-    return (ctx.body = { error: 'invalid event data' })
-  }
-
-  try {
-    await database.instance.createCalendarEvent(
-      name,
-      date,
-      time,
-      type,
-      moreInfo
-    )
-    return (ctx.body = 'inserted')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { payload: [], message: 'internal error' })
-  }
-}
-
-const editCalendarEvent = async (ctx: Koa.Context) => {
-  const id = ctx.params.id
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-
-  try {
-    await database.instance.editCalendarEvent(
-      id,
-      name,
-      date,
-      time,
-      type,
-      moreInfo
-    )
-    return (ctx.body = 'edited')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const deleteCalendarEvent = async (ctx: Koa.Context) => {
-  const id = ctx.params.id
-  try {
-    await database.instance.deleteCalendarEvent(id)
-    return (ctx.body = 'deleted')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const addVideo = async (ctx: Koa.Context) => {
-  try {
-    let { path: videoPath, name, type: mimeType } = ctx.request?.files?.video as any
-    const [type] = mimeType.split('/')
-    if (type !== 'video') {
-      ctx.response.status = 400
-      return (ctx.body = 'Only video can be uploaded')
-    }
-
-    fs.copyFileSync(
-      videoPath,
-      path.join(process.cwd(), `/files/videos/${name}`)
-    )
-    return (ctx.body = 'ok')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
 const login = async (ctx: Koa.Context) => {
   const username = ctx.request.body.username
   const password = ctx.request.body.password
@@ -928,18 +779,6 @@ export const entities: Route[] = [
     delete: deleteEntityHandler,
   },
   {
-    path: '/greetings',
-    access: noAuth,
-    get: getGreetings,
-    post: addGreetings,
-  },
-  {
-    path: '/greetings/:id',
-    access: noAuth,
-    put: addGreetings,
-    delete: deleteGreeting,
-  },
-  {
     path: '/event',
     access: noAuth,
     get: getEvent,
@@ -960,18 +799,6 @@ export const entities: Route[] = [
     path: '/events_sorted',
     access: noAuth,
     get: getSortedEventsByDate,
-  },
-  {
-    path: '/calendar_event',
-    access: noAuth,
-    get: getCalendarEvents,
-    post: addCalendarEvent,
-  },
-  {
-    path: '/calendar_event/:id',
-    access: noAuth,
-    patch: editCalendarEvent,
-    delete: deleteCalendarEvent,
   },
   {
     path: '/text_to_speech',
@@ -1029,11 +856,6 @@ export const entities: Route[] = [
     path: '/zoom_buffer_chunk',
     access: noAuth,
     post: zoomBufferChunk,
-  },
-  {
-    path: '/video',
-    access: noAuth,
-    post: addVideo,
   },
   {
     path: '/login',

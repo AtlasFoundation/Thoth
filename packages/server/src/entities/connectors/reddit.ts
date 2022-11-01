@@ -110,15 +110,11 @@ export class reddit_client {
   spellHandler
   settings
   entity
-  haveCustomCommands
-  custom_commands
 
   createRedditClient = async (spellHandler, settings, entity) => {
     this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
-    this.haveCustomCommands = settings.haveCustomCommands
-    this.custom_commands = settings.custom_commands
 
     const appId = settings.reddit_app_id
     const appSecredId = settings.reddit_app_secret_id
@@ -238,42 +234,12 @@ export class reddit_client {
     })
 
     setInterval(async () => {
-      ;(await reddit.getInbox()).forEach(async message => {
+      ; (await reddit.getInbox()).forEach(async message => {
         const id = message.name
         const author = message.author.name
         const body = message.body
         if (!author.includes('reddit')) {
           log('got new message: ' + body)
-
-          if (this.haveCustomCommands) {
-            for (let i = 0; i < this.custom_commands[i].length; i++) {
-              if (body.startsWith(this.custom_commands[i].command_name)) {
-                const _content = body.replace(
-                  this.custom_commands[i].command_name,
-                  ''
-                )
-
-                const response = await this.custom_commands[i].spell_handler(
-                  _content,
-                  author ?? 'Sender',
-                  this.settings.reddit_bot_name ?? 'Agent',
-                  'reddit',
-                  chat_id,
-                  this.entity,
-                  []
-                )
-
-                await this.handleMessage(
-                  response,
-                  id,
-                  chat_id,
-                  'isChat',
-                  reddit
-                )
-                return
-              }
-            }
-          }
 
           const resp = await this.spellHandler(
             body,

@@ -25,7 +25,7 @@ function capitalizeFirstLetter(word) {
   return word.charAt(0).toUpperCase() + word.slice(1)
 }
 
-const EntityWindow = ({ id, updateCallback, greetings }) => {
+const EntityWindow = ({ id, updateCallback }) => {
   const { user } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -42,16 +42,10 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
   const [tiktalknet_url, setTikTalkNetUrl] = useState('')
 
-  const [use_custom_commands, setUseCustomCommands] = useState(false)
-  const [custom_command_starter, setCustomCommandStarter] = useState('')
-  const [custom_commands, setCustomCommands] = useState([])
-  const [cusotm_commands_updated, setCustomCommandsUpdated] = useState(false)
-
   const [discord_starting_words, setDiscordStartingWords] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
-  const [discord_greeting_id, setDiscordGreetingId] = useState(0)
   const [discord_echo_slack, setDiscordEchoSlack] = useState(false)
   const [discord_echo_format, setDiscordEchoFormat] = useState('')
   const [discord_spell_handler_incoming, setDiscordSpellHandlerIncoming] =
@@ -65,19 +59,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
     discord_spell_handler_slash_command,
     setDiscordSpellHandlerSlashCommand,
   ] = useState('')
-
-  const [xrengine_spell_handler_incoming, setXREngineSpellHandlerIncoming] =
-    useState('')
-  const [xrengine_spell_handler_update, setXREngineSpellHandlerUpdate] =
-    useState('')
-  const [xrengine_spell_handler_feed, setXREngineSpellHandlerFeed] =
-    useState('')
-  const [xrengine_enabled, setxrengine_enabled] = useState(false)
-  const [xrengine_url, setXREngineUrl] = useState('')
-  const [xrengine_bot_name, setXREngineBotName] = useState('')
-  const [xrengine_bot_name_regex, setXREngineBotNameRegex] = useState('')
-  const [xrengine_starting_words, setXREngineStartingWords] = useState('')
-  const [xrengine_empty_responses, setXREngineEmptyResponses] = useState('')
 
   const [twitter_client_enable, setTwitterClientEnable] = useState(false)
   const [twitter_token, setTwitterToken] = useState('')
@@ -156,7 +137,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [slack_bot_name, setSlackBotName] = useState('')
   const [slack_port, setSlackPort] = useState('')
   const [slack_verification_token, setSlackVerificationToken] = useState('')
-  const [slack_greeting_id, setSlackGreetingId] = useState('')
   const [slack_echo_channel, setSlackEchoChannel] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
@@ -211,17 +191,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
     }
   }
 
-  const getNextCustomCommandId = () => {
-    let index = 0
-    for (let i = 0; i < custom_commands.length; i++) {
-      if (custom_commands[i].id === index) {
-        index++
-      }
-    }
-
-    return index
-  }
-
   const [spellList, setSpellList] = useState('')
   useEffect(() => {
     if (!loaded) {
@@ -239,18 +208,11 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setVoiceDefaultPhrases(res.data.voice_default_phrases)
         setTikTalkNetUrl(res.data.tiktalknet_url)
 
-        setUseCustomCommands(res.data.use_custom_commands === true)
-        setCustomCommandStarter(res.data.custom_command_starter)
-        setCustomCommands(
-          res.data.custom_commands ? JSON.parse(res.data.custom_commands) : []
-        )
-
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
         setDiscordBotName(res.data.discord_bot_name)
         setDiscordEmptyResponses(res.data.discord_empty_responses)
-        setDiscordGreetingId(res.data.discord_greeting_id)
         setDiscordEchoSlack(res.data.discord_echo_slack === true)
         setDiscordEchoFormat(res.data.discord_echo_format)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
@@ -259,18 +221,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setDiscordSpellHandlerSlashCommand(
           res.data.discord_spell_handler_slash_command
         )
-
-        setxrengine_enabled(res.data.xrengine_enabled === true)
-        setXREngineUrl(res.data.xrengine_url)
-        setXREngineSpellHandlerIncoming(
-          res.data.xrengine_spell_handler_incoming
-        )
-        setXREngineSpellHandlerUpdate(res.data.xrengine_spell_handler_update)
-        setXREngineSpellHandlerFeed(res.data.xrengine_spell_handler_feed)
-        setXREngineBotName(res.data.xrengine_bot_name)
-        setXREngineBotNameRegex(res.data.xrengine_bot_name_regex)
-        setXREngineStartingWords(res.data.xrengine_starting_words)
-        setXREngineEmptyResponses(res.data.xrengine_empty_responses)
 
         setTwitterClientEnable(res.data.twitter_client_enable === true)
         setTwitterToken(res.data.twitter_token)
@@ -328,7 +278,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         )
 
         setTwilioEnabled(res.data.twilio_enabled === true)
-        setTwilioAccoundSID(res.data.twilio_account_sid)
+        // setTwilioAccoundSID(res.data.twilio_account_sid)
         setTwilioAuthToken(res.data.twilio_auth_token)
         setTwilioPhoneNumber(res.data.twilio_phone_number)
         setTwilioBotName(res.data.twilio_bot_name)
@@ -342,7 +292,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setSlackBotName(res.data.slack_bot_name)
         setSlackPort(res.data.slack_port)
         setSlackVerificationToken(res.data.slack_verification_token)
-        setSlackGreetingId(res.data.slack_greeting_id)
         setSlackEchoChannel(res.data.slack_echo_channel)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
@@ -399,7 +348,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_greeting_id,
       discord_echo_slack,
       discord_echo_format,
       discord_spell_handler_incoming,
@@ -412,18 +360,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       voice_language_code,
       voice_default_phrases,
       tiktalknet_url,
-      use_custom_commands,
-      custom_command_starter,
-      custom_commands: JSON.stringify(custom_commands),
-      xrengine_enabled,
-      xrengine_url,
-      xrengine_spell_handler_incoming,
-      xrengine_spell_handler_update,
-      xrengine_spell_handler_feed,
-      xrengine_bot_name,
-      xrengine_bot_name_regex,
-      xrengine_starting_words,
-      xrengine_empty_responses,
       twitter_client_enable,
       twitter_token,
       twitter_id,
@@ -481,7 +417,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_bot_name,
       slack_port,
       slack_verification_token,
-      slack_greeting_id,
       slack_echo_channel,
       slack_spell_handler_incoming,
       loop_enabled,
@@ -505,14 +440,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           })
           console.log('response on update', JSON.parse(res.config.data).data)
           let responseData = res && JSON.parse(res?.config?.data).data
-          console.log(responseData, 'responseDataresponseData')
-          setUseCustomCommands(responseData.use_custom_commands)
-          setCustomCommandStarter(responseData.custom_command_starter)
-          setCustomCommands(
-            responseData.custom_commands
-              ? JSON.parse(responseData.custom_commands)
-              : []
-          )
 
           setEnabled(responseData.enabled)
           setDiscordEnabled(responseData.discord_enabled)
@@ -521,7 +448,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setDiscordBotNameRegex(responseData.discord_bot_name_regex)
           setDiscordBotName(responseData.discord_bot_name)
           setDiscordEmptyResponses(responseData.discord_empty_responses)
-          setDiscordGreetingId(responseData.discord_greeting_id)
           setDiscordEchoSlack(responseData.discord_echo_slack)
           setDiscordEchoFormat(responseData.discord_echo_format)
           setDiscordSpellHandlerIncoming(
@@ -536,18 +462,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setDiscordSpellHandlerSlashCommand(
             responseData.discord_spell_handler_slash_command
           )
-
-          setXREngineSpellHandlerIncoming(
-            responseData.xrengine_spell_handler_incoming
-          )
-          setXREngineSpellHandlerUpdate(
-            responseData.xrengine_spell_handler_update
-          )
-          setXREngineSpellHandlerFeed(responseData.xrengine_spell_handler_feed)
-          setXREngineBotName(responseData.xrengine_bot_name)
-          setXREngineBotNameRegex(responseData.xrengine_bot_name_regex)
-          setXREngineStartingWords(responseData.xrengine_starting_words)
-          setXREngineEmptyResponses(responseData.xrengine_empty_responses)
 
           setTwitterClientEnable(responseData.twitter_client_enable)
           setTwitterToken(responseData.twitter_token)
@@ -629,7 +543,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           setSlackBotName(responseData.slack_bot_name)
           setSlackPort(responseData.slack_port)
           setSlackVerificationToken(responseData.slack_verification_token)
-          setSlackGreetingId(responseData.slack_greeting_id)
           setSlackEchoChannel(responseData.slack_echo_channel)
           setSlackSpellHandlerIncoming(
             responseData.slack_spell_handler_incoming
@@ -659,7 +572,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_greeting_id,
       discord_echo_slack,
       discord_echo_format,
       discord_spell_handler_incoming,
@@ -672,18 +584,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       voice_language_code,
       voice_default_phrases,
       tiktalknet_url,
-      use_custom_commands,
-      custom_command_starter,
-      custom_commands,
-      xrengine_enabled,
-      xrengine_url,
-      xrengine_spell_handler_incoming,
-      xrengine_spell_handler_update,
-      xrengine_spell_handler_feed,
-      xrengine_bot_name,
-      xrengine_bot_name_regex,
-      xrengine_starting_words,
-      xrengine_empty_responses,
       twitter_client_enable,
       twitter_token,
       twitter_id,
@@ -741,7 +641,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
       slack_bot_name,
       slack_port,
       slack_verification_token,
-      slack_greeting_id,
       slack_echo_channel,
       slack_spell_handler_incoming,
       loop_enabled,
@@ -972,114 +871,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         </React.Fragment>
       )}
 
-      <div className="form-item">
-        <span className="form-item-label">Custom Commands Enabled</span>
-        <input
-          type="checkbox"
-          value={use_voice}
-          defaultChecked={use_custom_commands || use_custom_commands === 'true'}
-          onChange={e => {
-            setUseCustomCommands(e.target.checked)
-          }}
-        />
-      </div>
-      {use_custom_commands && (
-        <React.Fragment>
-          <div className="form-item agent-select">
-            <div className="form-item">
-              <span className="form-item-label">Command Start</span>
-              <input
-                type="text"
-                defaultValue={custom_command_starter}
-                onChange={e => {
-                  setCustomCommandStarter(e.target.value)
-                }}
-              />
-            </div>
-            {custom_commands.map((d, idx) => {
-              return (
-                <div id={idx}>
-                  <div className="form-item">
-                    <span className="form-item-label">Command Name</span>
-                    <input
-                      type="text"
-                      defaultValue={d.command_name}
-                      onChange={e => {
-                        d.command_name = e.target.value
-                      }}
-                    />
-                  </div>
-                  <div className="form-item">
-                    <span className="form-item-label">Command Description</span>
-                    <input
-                      type="text"
-                      defaultValue={d.command_description}
-                      onChange={e => {
-                        d.command_description = e.target.value
-                      }}
-                    />
-                  </div>
-                  <div className="form-item agent-select">
-                    <span className="form-item-label">
-                      Spell Handler (Command Handler)
-                    </span>
-                    <select
-                      name="spellHandlerIncoming"
-                      id="spellHandlerIncoming"
-                      value={d.spell_Handler}
-                      onChange={event => {
-                        d.spell_Handler = event.target.value
-                      }}
-                    >
-                      {spellList.length > 0 &&
-                        spellList.map((spell, idx) => (
-                          <option value={spell.name} key={idx}>
-                            {spell.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                  <div className="form-item">
-                    <button
-                      onClick={() => {
-                        for (let i = 0; i < custom_commands.length; i++) {
-                          if (custom_commands[i].id === d.id) {
-                            custom_commands.splice(i, 1)
-                            break
-                          }
-                        }
-                        setCustomCommandsUpdated(!cusotm_commands_updated)
-                        console.log('added new cmd:', custom_commands)
-                      }}
-                      style={{ marginRight: '10px' }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-            <div className="form-item">
-              <button
-                onClick={() => {
-                  custom_commands.push({
-                    id: getNextCustomCommandId(),
-                    command_name: '',
-                    command_description: '',
-                    spell_Handler: '',
-                  })
-                  setCustomCommandsUpdated(!cusotm_commands_updated)
-                  console.log('added new cmd:', custom_commands)
-                }}
-                style={{ marginRight: '10px' }}
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        </React.Fragment>
-      )}
-
       {enabled && (
         <>
           <div className="form-item">
@@ -1180,24 +971,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
               </div>
 
               <div className="form-item agent-select">
-                <span className="form-item-label">Discord Greeting</span>
-                <select
-                  name="discordGreetingId"
-                  id="discordGreetingId"
-                  value={discord_greeting_id}
-                  onChange={event => {
-                    setDiscordGreetingId(event.target.value)
-                  }}
-                >
-                  <option defaultValue hidden></option>
-                  {greetings.length > 0 &&
-                    greetings.map((greeting, idx) => (
-                      <option value={greeting.id} key={idx}>
-                        {greeting.message}
-                      </option>
-                    ))}
-                </select>
-
                 <div className="form-item">
                   <span className="form-item-label">Echo Slack</span>
                   <input
@@ -1302,141 +1075,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                   <option value="null" selected>
                     --Disabled--
                   </option>
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          <div className="form-item">
-            <span className="form-item-label">XREngine Enabled</span>
-            <input
-              type="checkbox"
-              value={xrengine_enabled}
-              defaultChecked={xrengine_enabled || xrengine_enabled === 'true'}
-              onChange={e => {
-                setxrengine_enabled(e.target.checked)
-              }}
-            />
-          </div>
-
-          {xrengine_enabled && (
-            <>
-              <div className="form-item">
-                <span className="form-item-label">Room URL</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_url}
-                  onChange={e => {
-                    setXREngineUrl(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Starting Words</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_starting_words}
-                  onChange={e => {
-                    setXREngineStartingWords(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Bot Name Regex</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_bot_name_regex}
-                  onChange={e => {
-                    setXREngineBotNameRegex(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Bot Name</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_bot_name}
-                  onChange={e => {
-                    setXREngineBotName(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">
-                  Empty Responses - Separated by |
-                </span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_empty_responses}
-                  onChange={e => {
-                    setXREngineEmptyResponses(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">
-                  Spell Handler (Incoming Message Handler)
-                </span>
-                <select
-                  name="spellHandlerIncoming"
-                  id="spellHandlerIncoming"
-                  value={xrengine_spell_handler_incoming}
-                  onChange={event => {
-                    setXREngineSpellHandlerIncoming(event.target.value)
-                  }}
-                >
-                  <option defaultValue hidden></option>
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">Interval Update Handler</span>
-                <select
-                  name="spellHandlerUpdate"
-                  id="spellHandlerUpdate"
-                  value={xrengine_spell_handler_update}
-                  onChange={event => {
-                    setXREngineSpellHandlerUpdate(event.target.value)
-                  }}
-                >
-                  <option defaultValue hidden></option>
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">Event Feed Handler</span>
-                <select
-                  name="spellHandlerFeed"
-                  id="spellHandlerFeed"
-                  value={xrengine_spell_handler_feed}
-                  onChange={event => {
-                    setXREngineSpellHandlerFeed(event.target.value)
-                  }}
-                >
-                  <option defaultValue hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -2010,6 +1648,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
             </>
           )}
 
+          {/*
           <div className="form-item">
             <span className="form-item-label">Twilio Client Enabled</span>
             <input
@@ -2032,7 +1671,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                   type="text"
                   defaultValue={twilio_account_sid}
                   onChange={e => {
-                    setTwilioAccoundSID(e.target.value)
+                    // setTwilioAccoundSID(e.target.value)
                   }}
                 />
               </div>
@@ -2098,7 +1737,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
               </div>
             </>
           )}
-
+                    */}
           <div className="form-item">
             <span className="form-item-label">Slack Client Enabled</span>
             <input
@@ -2172,25 +1811,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
                     setSlackBotName(e.target.value)
                   }}
                 />
-              </div>
-              <div className="form-item agent-select">
-                <span className="form-item-label">Slack Greeting</span>
-                <select
-                  name="slackGreetingId"
-                  id="slackGreetingId"
-                  value={slack_greeting_id}
-                  onChange={event => {
-                    setSlackGreetingId(event.target.value)
-                  }}
-                >
-                  <option defaultValue hidden></option>
-                  {greetings.length > 0 &&
-                    greetings.map((greeting, idx) => (
-                      <option value={greeting.id} key={idx}>
-                        {greeting.message}
-                      </option>
-                    ))}
-                </select>
               </div>
               <div className="form-item">
                 <span className="form-item-label">Echo Channel</span>

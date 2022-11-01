@@ -1,13 +1,11 @@
 // @ts-nocheck
 import FileInput from '@/screens/HomeScreen/components/FileInput'
-import { useGetGreetingsQuery } from '@/state/api/greetings'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
 import EntityWindow from './EntityWindow'
 
 const EntityManagerWindow = () => {
-  const { data: greetings } = useGetGreetingsQuery(true)
   const [data, setData] = useState(false)
 
   const resetData = async () => {
@@ -41,7 +39,7 @@ const EntityManagerWindow = () => {
   }
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const res = await axios.get(
         `${process.env.REACT_APP_API_ROOT_URL}/entities`
       )
@@ -58,12 +56,11 @@ const EntityManagerWindow = () => {
             (data as any).map((value, idx) => {
               return (
                 <EntityWindow
-                  id={value.id ?? 0}
-                  key={value.id ?? idx}
+                  id={value?.id ?? 0}
+                  key={value?.id ?? idx}
                   updateCallback={async () => {
                     resetData()
                   }}
-                  greetings={greetings}
                 />
               )
             })}

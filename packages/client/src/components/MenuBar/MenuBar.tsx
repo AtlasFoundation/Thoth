@@ -36,17 +36,13 @@ const MenuBar = () => {
     $SAVE_SPELL,
     $CREATE_STATE_MANAGER,
     $CREATE_ENT_MANAGER,
-    $CREATE_GREETINGS_MANAGER,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_SEARCH_CORPUS,
     $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_TEXT_EDITOR,
-    $CREATE_WYSIWYG_EDITOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
-    $CREATE_VIDEO_TRANSCRIPTION,
-    $CREATE_CALENDAR_TAB,
     $CREATE_SETTINGS_WINDOW,
     $SERIALIZE,
     $EXPORT,
@@ -107,16 +103,8 @@ const MenuBar = () => {
     publish($CREATE_SEARCH_CORPUS(activeTabRef.current?.id))
   }
 
-  const onCreateWYSIWYGEditor = () => {
-    publish($CREATE_WYSIWYG_EDITOR(activeTabRef.current?.id))
-  }
-
   const onEntityManagerCreate = () => {
     publish($CREATE_ENT_MANAGER(activeTabRef.current?.id))
-  }
-  
-  const onGreetingsManagerCreate = () => {
-    publish($CREATE_GREETINGS_MANAGER(activeTabRef.current?.id))
   }
 
   const onMessageReactionEditorCreate = () => {
@@ -156,16 +144,6 @@ const MenuBar = () => {
   const onEventManagerCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_EVENT_MANAGER(activeTabRef.current.id))
-  }
-
-  const onVideoTrancriptionCreate = () => {
-    if (!activeTabRef.current) return
-    publish($CREATE_VIDEO_TRANSCRIPTION(activeTabRef.current.id))
-  }
-
-  const onCalendarTabCreate = () => {
-    if (!activeTabRef.current) return
-    publish($CREATE_CALENDAR_TAB(activeTabRef.current.id))
   }
 
   //Menu bar hotkeys
@@ -267,12 +245,6 @@ const MenuBar = () => {
         ent_manager: {
           onClick: onEntityManagerCreate,
         },
-        greetings_manager: {
-          onClick: onGreetingsManagerCreate,
-        },
-        wysiwyg_editor: {
-          onClick: onCreateWYSIWYGEditor,
-        },
         message_reaction_editor: {
           onClick: onMessageReactionEditorCreate,
         },
@@ -284,16 +256,7 @@ const MenuBar = () => {
         },
         event_manager: {
           onClick: onEventManagerCreate,
-        },
-        video_transcription: {
-          onClick: onVideoTrancriptionCreate,
-        },
-        calendar_tab: {
-          onClick: onCalendarTabCreate,
-          settings: {
-            onClick: onSettingsCreate,
-          },
-        },
+        }
       },
       settings: {
         items: {
@@ -387,7 +350,7 @@ const MenuBar = () => {
   const handleClick = func => {
     //Initially intended to control the visibility with a state, but this triggers a re-render and hides the menu anyway! :D
     //Keeping this intact just in case.
-    ;(togglemenuVisibility as Function)(menuVisibility)
+    ; (togglemenuVisibility as Function)(menuVisibility)
     // eslint-disable-next-line no-eval
     eval(func)
   }

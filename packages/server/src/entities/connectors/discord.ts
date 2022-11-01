@@ -21,7 +21,6 @@ import { CreateSpellHandler } from '../CreateSpellHandler'
 import {
   getRandomEmptyResponse,
   startsWithCapital,
-  makeGreeting,
 } from './utils'
 
 function log(...s: (string | boolean)[]) {
@@ -45,38 +44,38 @@ export class discord_client {
     const userName = user.user.username
     const serverName = user.guild.name
 
-    if (this.discord_greeting) {
-      const { enabled, sendIn, message, channelId } = this.discord_greeting
-      if (!enabled) return
-      const greeting = makeGreeting(message, { userName, serverName })
-      switch (sendIn) {
-        case 'dm':
-          const dmChannel = await user.createDM()
-          await this.sendGreetingInChannel(greeting, dmChannel)
-          break
-        case 'channel':
-          try {
-            const channel = await user.guild.channels.fetch(channelId)
-            console.log('channel ::: ', channel)
-            await this.sendGreetingInChannel(greeting, channel)
-          } catch (e) {
-            console.log('Error fetching channel ::: ', e)
-          }
-          break
-        default:
-          break
-      }
-    }
+    // if (this.discord_greeting) {
+    //   const { enabled, sendIn, message, channelId } = this.discord_greeting
+    //   if (!enabled) return
+    //   const greeting = makeGreeting(message, { userName, serverName })
+    //   switch (sendIn) {
+    //     case 'dm':
+    //       const dmChannel = await user.createDM()
+    //       await this.sendGreetingInChannel(greeting, dmChannel)
+    //       break
+    //     case 'channel':
+    //       try {
+    //         const channel = await user.guild.channels.fetch(channelId)
+    //         console.log('channel ::: ', channel)
+    //         await this.sendGreetingInChannel(greeting, channel)
+    //       } catch (e) {
+    //         console.log('Error fetching channel ::: ', e)
+    //       }
+    //       break
+    //     default:
+    //       break
+    //   }
+    // }
   }
 
-  async sendGreetingInChannel(greeting, channel) {
-    try {
-      await channel.send(greeting)
-      console.log('Greeting sent ::: ', greeting)
-    } catch (e) {
-      console.log('Error sending greeting ::: ', e)
-    }
-  }
+  // async sendGreetingInChannel(greeting, channel) {
+  //   try {
+  //     await channel.send(greeting)
+  //     console.log('Greeting sent ::: ', greeting)
+  //   } catch (e) {
+  //     console.log('Error sending greeting ::: ', e)
+  //   }
+  // }
 
   //Event that is triggered when a user is removed from the server
   async handleGuildMemberRemove(user: { user: { id: any; username: any } }) {
@@ -263,65 +262,6 @@ export class discord_client {
           this.entity.slack.settings.slack_echo_channel,
           msg
         )
-      }
-    }
-
-    if (this.haveCustomCommands && !author.bot) {
-      for (let i = 0; i < this.custom_commands.length; i++) {
-        console.log(
-          'command:',
-          this.custom_commands[i].command_name,
-          'starting_with:',
-          content.startsWith(this.custom_commands[i].command_name)
-        )
-        if (content.startsWith(this.custom_commands[i].command_name)) {
-          const _content = content
-            .replace(this.custom_commands[i].command_name, '')
-            .trim()
-          console.log(
-            'handling command:',
-            this.custom_commands[i].command_name,
-            'content:',
-            _content
-          )
-
-          setTimeout(() => {
-            channel.sendTyping()
-          }, message.content.length)
-
-          const roomInfo: {
-            user: string
-            inConversation: boolean
-            isBot: boolean
-            info3d: string
-          }[] = []
-          for (const [memberID, member] of channel.members) {
-            roomInfo.push({
-              user: member.user.username,
-              inConversation: this.isInConversation(member.user.id),
-              isBot: member.user.bot,
-              info3d: '',
-            })
-          }
-
-          const response = await this.custom_commands[i].spell_handler(
-            _content,
-            message.author.username,
-            this.discord_bot_name,
-            'discord',
-            message.channel.id,
-            this.entity,
-            roomInfo
-          )
-
-          this.handlePingSoloAgent(
-            message.channel.id,
-            message.id,
-            response,
-            false
-          )
-          return
-        }
       }
     }
 
@@ -1447,7 +1387,6 @@ export class discord_client {
   discord_bot_name_regex: string = ''
   discord_bot_name: string = 'Bot'
   discord_empty_responses: string[] = []
-  discord_greeting: any
   use_voice: boolean
   voice_provider: string
   voice_character: string
@@ -1455,8 +1394,6 @@ export class discord_client {
   tiktalknet_url: string
   discord_echo_slack: boolean
   discord_echo_format: string
-  haveCustomCommands: boolean
-  custom_commands: any[]
   message_reactions: { [reaction: string]: any } = {}
   createDiscordClient = async (
     entity: any,
@@ -1465,7 +1402,6 @@ export class discord_client {
     discord_bot_name_regex: string,
     discord_bot_name: string | RegExp,
     discord_empty_responses: string,
-    discord_greeting: any,
     handleInput: (
       message: string | undefined,
       speaker: string,
@@ -1490,13 +1426,9 @@ export class discord_client {
     voice_language_code,
     tiktalknet_url,
     discord_echo_slack: boolean,
-    discord_echo_format: string,
-    haveCustomCommands: boolean,
-    custom_commands: any[]
+    discord_echo_format: string
   ) => {
-    console.log('creating discord client')
     this.entity = entity
-    this.discord_greeting = discord_greeting
     this.handleInput = handleInput
     this.userUpdateSpellHandler = userUpdateSpellHandler
     this.metadataSpellHandler = metadataSpellHandler
@@ -1508,8 +1440,6 @@ export class discord_client {
     this.tiktalknet_url = tiktalknet_url
     this.discord_echo_slack = discord_echo_slack
     this.discord_echo_format = discord_echo_format
-    this.haveCustomCommands = haveCustomCommands
-    this.custom_commands = custom_commands
     if (!discord_starting_words || discord_starting_words?.length <= 0) {
       this.discord_starting_words = ['hi', 'hey']
     } else {

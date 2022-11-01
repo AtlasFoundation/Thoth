@@ -11,8 +11,8 @@ sidebar_position: 1
 
 speaker -- key of who is speaking, probably discord id of person chatting with agent
 agent -- key of this particular agent receiving, since each agent can be different, probably supplied from agent settings (depends on connector)
-client -- type of client -- discord, xrengine, etc
-channel -- where it is received, i.e. discord channel or xrengine room (at least ideally, discord does this but other connectors might need work)
+client -- type of client -- discord, etc
+channel -- where it is received, i.e. discord channel room
 entity -- information about this running entity instance (entity number, etc)
 roomInfo -- info from the world, this is how we do text gen from worlds ideally
 output -- actual information received
@@ -35,7 +35,7 @@ Type of client that is interacting with the Agent (discord, XR Engine, twitter, 
 
 ### Channel Id
 
-Where it is received from, i.e. discord channel or xrengine room (at least ideally, discord does this but other connectors might need work)
+Where it is received from, i.e. discord channel room (at least ideally, discord does this but other connectors might need work)
 
 ### Entity
 

@@ -1,14 +1,12 @@
 import WorkspaceProvider from './contexts/WorkspaceProvider'
 import Composer from './spells'
-import Agents from './agents'
 
 // TODO create a proper workspace component that can take in everything we need it to
 // for a standalone workspace environment.  Factor, events, etc.
 // Workspace should register events with the events provider, etc.
 const workspaceMap = {
   spell: Composer,
-  module: Composer,
-  agents: Agents,
+  module: Composer
 }
 
 const Workspaces = ({ tabs, pubSub, activeTab }) => {

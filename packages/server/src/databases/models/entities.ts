@@ -14,7 +14,6 @@ export interface entitiesAttributes {
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
-  discord_greeting_id?: string
   discord_echo_slack?: boolean
   discord_echo_format?: string
   discord_spell_handler_incoming?: string
@@ -27,18 +26,6 @@ export interface entitiesAttributes {
   voice_language_code?: string
   voice_default_phrases?: string
   tiktalknet_url?: string
-  use_custom_commands?: boolean
-  custom_command_starter?: string
-  custom_commands?: string
-  xrengine_enabled?: boolean
-  xrengine_url?: string
-  xrengine_spell_handler_incoming?: string
-  xrengine_spell_handler_update?: string
-  xrengine_spell_handler_feed?: string
-  xrengine_bot_name?: string
-  xrengine_bot_name_regex?: string
-  xrengine_starting_words?: string
-  xrengine_empty_responses?: string
   twitter_client_enable?: boolean
   twitter_token?: string
   twitter_id?: string
@@ -96,7 +83,6 @@ export interface entitiesAttributes {
   slack_bot_name?: string
   slack_port?: string
   slack_verification_token?: string
-  slack_greeting_id?: string
   slack_echo_channel?: string
   slack_spell_handler_incoming?: string
   loop_enabled?: boolean
@@ -114,7 +100,6 @@ export type entitiesOptionalAttributes =
   | 'discord_bot_name_regex'
   | 'discord_bot_name'
   | 'discord_empty_responses'
-  | 'discord_greeting_id'
   | 'discord_echo_slack'
   | 'discord_echo_format'
   | 'discord_spell_handler_incoming'
@@ -127,16 +112,6 @@ export type entitiesOptionalAttributes =
   | 'voice_language_code'
   | 'voice_default_phrases'
   | 'tiktalknet_url'
-  | 'use_custom_commands'
-  | 'custom_command_starter'
-  | 'custom_commands'
-  | 'xrengine_enabled'
-  | 'xrengine_url'
-  | 'xrengine_spell_handler_incoming'
-  | 'xrengine_spell_handler_update'
-  | 'xrengine_spell_handler_feed'
-  | 'xrengine_bot_name'
-  | 'xrengine_bot_name_regex'
   | 'twitter_client_enable'
   | 'twitter_token'
   | 'twitter_id'
@@ -194,7 +169,6 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_name'
   | 'slack_port'
   | 'slack_verification_token'
-  | 'slack_greeting_id'
   | 'slack_echo_channel'
   | 'slack_spell_handler_incoming'
   | 'loop_enabled'
@@ -222,7 +196,6 @@ export class entities
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
-  discord_greeting_id?: string
   discord_echo_slack?: boolean
   discord_echo_format?: string
   discord_spell_handler_incoming?: string
@@ -235,18 +208,6 @@ export class entities
   voice_language_code?: string
   voice_default_phrases?: string
   tiktalknet_url?: string
-  use_custom_commands?: boolean
-  custom_command_starter?: string
-  custom_commands?: string
-  xrengine_enabled?: boolean
-  xrengine_url?: string
-  xrengine_spell_handler_incoming?: string
-  xrengine_spell_handler_update?: string
-  xrengine_spell_handler_feed?: string
-  xrengine_bot_name?: string
-  xrengine_bot_name_regex?: string
-  xrengine_starting_words?: string
-  xrengine_empty_responses?: string
   twitter_client_enable?: boolean
   twitter_token?: string
   twitter_id?: string
@@ -304,7 +265,6 @@ export class entities
   slack_bot_name?: string
   slack_port?: string
   slack_verification_token?: string
-  slack_greeting_id?: string
   slack_echo_channel?: string
   slack_spell_handler_incoming?: string
   loop_enabled?: boolean
@@ -361,16 +321,6 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
-        discord_greeting_id: {
-          type: DataTypes.INTEGER,
-          allowNull: true,
-          references: {
-            model: 'greetings',
-            key: 'id',
-          },
-          onDelete: 'CASCADE',
-          onUpdate: 'CASCADE',
-        },
         discord_echo_slack: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
@@ -407,315 +357,267 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
-          use_custom_commands: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          custom_command_starter: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          custom_commands: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          discord_spell_handler_update: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          discord_spell_handler_metadata: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          discord_spell_handler_slash_command: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          xrengine_url: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_spell_handler_update: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_spell_handler_feed: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_bot_name_regex: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_starting_words: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          xrengine_empty_responses: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_client_enable: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          twitter_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_id: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_app_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_app_token_secret: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_access_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_access_token_secret: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_enable_twits: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_tweet_rules: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_auto_tweet_interval_min: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_auto_tweet_interval_max: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_bot_name_regex: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twitter_spell_handler_auto: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          telegram_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          telegram_bot_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          telegram_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          telegram_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          reddit_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          reddit_app_id: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          reddit_app_secret_id: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          reddit_oauth_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          reddit_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          reddit_bot_name_regex: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          reddit_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          zoom_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          zoom_invitation_link: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          zoom_password: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          zoom_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          zoom_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          loop_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          loop_interval: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          loop_agent_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          loop_spell_handler: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          slack_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_signing_secret: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_bot_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_port: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_echo_channel: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          slack_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          instagram_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          instagram_username: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          instagram_password: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          instagram_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          instagram_bot_name_regex: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          instagram_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          messenger_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          messenger_page_access_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          messenger_verify_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          messenger_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          messenger_bot_name_regex: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          messenger_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twilio_enabled: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-          },
-          twilio_account_sid: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twilio_auth_token: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twilio_phone_number: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twilio_bot_name: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twilio_empty_responses: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
-          twilio_spell_handler_incoming: {
-            type: DataTypes.TEXT,
-            allowNull: true,
-          },
+        discord_spell_handler_update: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
+        discord_spell_handler_metadata: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        discord_spell_handler_slash_command: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_client_enable: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        twitter_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_id: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_app_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_app_token_secret: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_access_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_access_token_secret: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_enable_twits: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_tweet_rules: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_auto_tweet_interval_min: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_auto_tweet_interval_max: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twitter_spell_handler_auto: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        telegram_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        telegram_bot_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        telegram_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        telegram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        reddit_app_id: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_app_secret_id: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_oauth_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        reddit_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        zoom_invitation_link: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        zoom_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        loop_interval: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_agent_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        loop_spell_handler: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        slack_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_signing_secret: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_bot_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_port: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_echo_channel: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        slack_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        instagram_username: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_password: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        instagram_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        messenger_page_access_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_verify_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_bot_name_regex: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        messenger_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_enabled: {
+          type: DataTypes.BOOLEAN,
+          allowNull: true,
+        },
+        twilio_account_sid: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_auth_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_phone_number: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_bot_name: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_empty_responses: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        twilio_spell_handler_incoming: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+      },
       {
         sequelize,
         tableName: 'entities',

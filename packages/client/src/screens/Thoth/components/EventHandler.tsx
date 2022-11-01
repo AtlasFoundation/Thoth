@@ -76,15 +76,11 @@ const EventHandler = ({ pubSub, tab }) => {
     $CREATE_SEARCH_CORPUS,
     $CREATE_ENT_MANAGER,
     $CREATE_SETTINGS_WINDOW,
-    $CREATE_GREETINGS_MANAGER,
     $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
-    $CREATE_WYSIWYG_EDITOR,
     $CREATE_EVENT_MANAGER,
-    $CREATE_VIDEO_TRANSCRIPTION,
-    $CREATE_CALENDAR_TAB,
     $CREATE_TEXT_EDITOR,
     $SERIALIZE,
     $EXPORT,
@@ -195,10 +191,6 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.ENT_MANAGER, 'Ent Manager')
   }
 
-  const createGreetingsManager = () => {
-    createOrFocus(windowTypes.GREETINGS_MANAGER, 'Greetings Manager')
-  }
-
   const createMessageReactionEditor = () => {
     createOrFocus(
       windowTypes.MESSAGE_REACTION_EDITOR,
@@ -224,18 +216,6 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const createEventManager = () => {
     createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
-  }
-
-  const createVideoTranscription = () => {
-    createOrFocus(windowTypes.VIDEO_TRANSCRIPTION, 'Video Transcription')
-  }
-
-  const createWysiwygEditor = () => {
-    createOrFocus(windowTypes.WYSIWYG_EDITOR, 'Wysiwyg Editor')
-  }
-
-  const createCalendarTab = () => {
-    createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
   }
 
   const createSettingsWindow = () => {
@@ -307,15 +287,11 @@ const EventHandler = ({ pubSub, tab }) => {
     [$CREATE_MESSAGE_REACTION_EDITOR(tab.id)]: createMessageReactionEditor,
     [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
     [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
-    [$CREATE_GREETINGS_MANAGER(tab.id)]: createGreetingsManager,
     [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
     [$CREATE_INSPECTOR(tab.id)]: createInspector,
     [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
     [$CREATE_CONSOLE(tab.id)]: createConsole,
     [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
-    [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
-    [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
-    [$CREATE_WYSIWYG_EDITOR(tab.id)]: createWysiwygEditor,
     [$SERIALIZE(tab.id)]: onSerialize,
     [$EXPORT(tab.id)]: onExport,
     [$CLOSE_EDITOR(tab.id)]: onCloseEditor,

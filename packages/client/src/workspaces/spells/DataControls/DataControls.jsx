@@ -13,7 +13,6 @@ import SocketGenerator from './SocketGenerator'
 import PlaytestControl from './PlaytestControl'
 import SwitchControl from './SwitchControl'
 import SpellSelect from './SpellSelect'
-import WysiwygControl from './WysiwygControl'
 
 const StubComponent = props => <div>{props.name}</div>
 
@@ -33,12 +32,10 @@ const controlMap = {
   switch: SwitchControl,
   dropdownSelect: DropdownSelect,
   modelSelect: ModelSelect,
-  wysiwygControl: WysiwygControl,
 }
 
 const DataControls = ({
   dataControls,
-  // wysiwygControls,
   updateData,
   updateControl,
   width,

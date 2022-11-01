@@ -111,17 +111,17 @@ export function getSetting(settings: any[], key: string) {
   return undefined
 }
 
-export const makeGreeting = (
-  greeting: string, { 
-    userName, 
-    serverName 
-  } : { 
-    userName: string, 
-    serverName: string
-  }
-) => {
-  if(!greeting) return ''
-  if(greeting.includes('$user')) greeting = greeting.replaceAll('$user', userName)
-  if(greeting.includes('$server')) greeting = greeting.replaceAll('$server', serverName) 
-  return greeting
-}
+// export const makeGreeting = (
+//   greeting: string, { 
+//     userName, 
+//     serverName 
+//   } : { 
+//     userName: string, 
+//     serverName: string
+//   }
+// ) => {
+//   if(!greeting) return ''
+//   if(greeting.includes('$user')) greeting = greeting.replaceAll('$user', userName)
+//   if(greeting.includes('$server')) greeting = greeting.replaceAll('$server', serverName) 
+//   return greeting
+// }

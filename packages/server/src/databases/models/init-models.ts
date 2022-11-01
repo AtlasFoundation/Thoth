@@ -41,11 +41,6 @@ import type {
 } from './scope_settings'
 import { scopeSettings as _scopeSettings } from './scope_settings'
 import type {
-  calendarEventsAttributes,
-  calendarEventsCreationAttributes,
-} from './calendarEvents'
-import { calendarEvents as _calendarEvents } from './calendarEvents'
-import type {
   authUsersAttributes,
   authUsersAttributesCreationAttributes,
 } from './authUsers'
@@ -54,11 +49,6 @@ import {
   handled_history as _handled_history,
   handled_historyAttributes,
 } from './handled_history'
-import type {
-  greetingsAttributes,
-  greetingsCreationAttributes,
-} from './greetings'
-import { greetings as _greetings } from './greetings'
 import {
   message_reactions as _message_reactions,
   messageReactionsAttributes,
@@ -76,10 +66,8 @@ export {
   _clientSettings as clientSettings,
   _configurationSettings as configurationSettings,
   _scopeSettings as scopeSettings,
-  _calendarEvents as calendarEvents,
   _authUsers as authUsers,
   _handled_history as handled_history,
-  _greetings as greetings,
   _message_reactions as messageReactions,
 }
 
@@ -104,18 +92,13 @@ export type {
   configurationSettingCreationAttributes,
   scopeSettingAttributes,
   scopeSettingCreationAttributes,
-  calendarEventsAttributes,
-  calendarEventsCreationAttributes,
   authUsersAttributes,
   handled_historyAttributes,
-  greetingsAttributes,
-  greetingsCreationAttributes,
   messageReactionsAttributes,
   messageReactionCreationAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
-  const greetings = _greetings.initModel(sequelize)
   const entities = _entities.initModel(sequelize)
   const spells = _spells.initModel(sequelize)
   const events = _events.initModel(sequelize)
@@ -126,7 +109,6 @@ export function initModels(sequelize: Sequelize) {
   const clientSettings = _clientSettings.initModel(sequelize)
   const configurationSettings = _configurationSettings.initModel(sequelize)
   const scopeSettings = _scopeSettings.initModel(sequelize)
-  const calendarEvents = _calendarEvents.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
   const handled_history = _handled_history.initModel(sequelize)
   const messageReactions = _message_reactions.initModel(sequelize)
@@ -142,10 +124,8 @@ export function initModels(sequelize: Sequelize) {
     clientSettings: clientSettings,
     configurationSettings: configurationSettings,
     scopeSettings: scopeSettings,
-    calendarEvents: calendarEvents,
     authUsers: authUsers,
     handled_history: handled_history,
-    greetings,
     messageReactions,
   }
 }
