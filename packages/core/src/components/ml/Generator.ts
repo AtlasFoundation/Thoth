@@ -8,6 +8,7 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
+import { DropdownControl } from '../../dataControls/DropdownControl'
 import { FewshotControl } from '../../dataControls/FewshotControl'
 import { InputControl } from '../../dataControls/InputControl'
 // import { ModelControl } from '../../dataControls/ModelControl'
@@ -65,11 +66,11 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     //   defaultValue: (node.data?.model as string) || 'vanilla-jumbo',
     // })
 
-    const modelName = new InputControl({
+    const modelName = new DropdownControl({
+      name: 'modelName',
       dataKey: 'modelName',
-      name: 'Model Name',
-      icon: 'moon',
-      defaultValue: node.data.modelName || 'text-davinci-002'
+      values: ['text-davinvci-002', 'text-curie-001', 'text-babbage-001', 'text-ada-001', 'curie-instruct-beta', 'davinci-instruct-beta'],
+      defaultValue: 'text-davinci-002'
     })
 
     const inputGenerator = new SocketGeneratorControl({
@@ -135,7 +136,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       return acc
     }, {} as Record<string, unknown>)
 
-    const model = (node.data.modelName as string) || 'text-davinci-002'
+    const modelName = (node.data.modelName as string) || 'text-davinci-002'
     // const model = node.data.model || 'davinci'
 
     // Replace carriage returns with newlines because that's what the language models expect
@@ -166,7 +167,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     const presencePenalty = presencePenaltyData ? parseFloat(presencePenaltyData) : 0
 
     const body = {
-      model,
+      modelName,
       prompt,
       stop,
       maxTokens,
