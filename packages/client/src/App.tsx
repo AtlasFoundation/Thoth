@@ -13,7 +13,6 @@ import './App.css'
 import { activeTabSelector, selectAllTabs } from './state/tabs'
 import { useSelector } from 'react-redux'
 import { RootState } from './state/store'
-import { useLatitude } from './config'
 
 //These need to be imported last to override styles.
 
@@ -24,15 +23,11 @@ function App() {
   const { user } = useAuth()
 
   const redirect = () => {
-    if ((!useLatitude || user) && tabs.length > 0) {
+    if (user && tabs.length > 0) {
       return <Navigate to="/thoth" />
     }
 
-    return !useLatitude || user ? (
-      <Navigate to="/home" />
-    ) : (
-      <Navigate to="/login" />
-    )
+    return <Navigate to="/home" />
   }
 
   return (

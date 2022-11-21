@@ -1,10 +1,10 @@
-import { latitudeApiRootUrl } from '@/config'
+import { thothApiRootUrl } from '@/config'
 import axios from 'axios'
 import { getAuthHeader } from '../../contexts/AuthProvider'
 
 export const getModels = async () => {
   try {
-    const response = await fetch(latitudeApiRootUrl + '/text/models', {
+    const response = await fetch(thothApiRootUrl + '/text/models', {
       method: 'GET',
       headers: {
         ...(await getAuthHeader()),

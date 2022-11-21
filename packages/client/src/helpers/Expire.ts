@@ -1,9 +1,9 @@
 import { getSessionId } from '../contexts/AuthProvider'
-import { latitudeApiRootUrl } from '../config'
+import { thothApiRootUrl } from '../config'
 
 export const callExpire = async () => {
   const sessionId = await getSessionId()
-  const endpoint = `${latitudeApiRootUrl}/user/expire`
+  const endpoint = `${thothApiRootUrl}/user/expire`
   await fetch(endpoint, {
     method: 'GET',
     headers: {

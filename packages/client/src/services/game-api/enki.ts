@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { latitudeApiRootUrl } from '@/config'
+import { thothApiRootUrl } from '@/config'
 import { getAuthHeader } from '../../contexts/AuthProvider'
 
 export const getEnkiPrompt = async taskName => {
   try {
-    const response = await fetch(latitudeApiRootUrl + `/enki/${taskName}`, {
+    const response = await fetch(thothApiRootUrl + `/enki/${taskName}`, {
       method: 'GET',
       mode: 'cors',
       headers: {
@@ -23,7 +23,7 @@ export const getEnkiPrompt = async taskName => {
 
 export const getEnkis = async () => {
   try {
-    const response = await fetch(latitudeApiRootUrl + `/enki`, {
+    const response = await fetch(thothApiRootUrl + `/enki`, {
       method: 'GET',
       mode: 'cors',
       headers: {
@@ -43,7 +43,7 @@ export const getEnkis = async () => {
 export const postEnkiCompletion = async (taskName, inputs) => {
   try {
     const response = await fetch(
-      latitudeApiRootUrl + `/enki/${taskName}/completion`,
+      thothApiRootUrl + `/enki/${taskName}/completion`,
       {
         method: 'POST',
 

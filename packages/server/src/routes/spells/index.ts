@@ -103,10 +103,6 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   }
 }
 
-// Should we use the Latitude API or run independently?
-const latitudeApiKey =
-  process.env.LATITUDE_API_KEY !== '' && process.env.LATITUDE_API_KEY
-
 const saveHandler = async (ctx: Koa.Context) => {
   console.log('ctx.request is', ctx.request)
   const body =
@@ -117,17 +113,6 @@ const saveHandler = async (ctx: Koa.Context) => {
   console.log('ctx.request.body is', ctx.request.body)
 
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'POST',
-      url: process.env.API_URL + '/game/spells/save',
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    ctx.body = response.data
-    return
-  }
 
   const spell = await creatorToolsDatabase.spells.findOne({
     where: { id: body.id },
@@ -188,18 +173,6 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
 }
 
 const newHandler = async (ctx: Koa.Context) => {
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'POST',
-      url: process.env.API_URL + '/game/spells/save',
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    ctx.body = response.data
-    return
-  }
-
   const body = ctx.request.body
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
 
@@ -235,17 +208,6 @@ const newHandler = async (ctx: Koa.Context) => {
 }
 
 const patchHandler = async (ctx: Koa.Context) => {
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'POST',
-      url: process.env.API_URL + '/game/spells/save',
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
-
   const name = ctx.params.name
   const userId = 'global' //ctx.state.user?.id ?? ctx.query.userId
   const spell = await creatorToolsDatabase.spells.findOne({
@@ -262,16 +224,6 @@ const patchHandler = async (ctx: Koa.Context) => {
 }
 
 const getSpellsHandler = async (ctx: Koa.Context) => {
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'GET',
-      url: process.env.API_URL + '/game/spells',
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
   let queryBody: any = {}
   if (ctx.query.userId)
     queryBody['where'] = {
@@ -287,18 +239,7 @@ const getSpellsHandler = async (ctx: Koa.Context) => {
 }
 
 const getSpellHandler = async (ctx: Koa.Context) => {
-  console.log("GETTING SPELLLLLLLL")
   const name = ctx.params.name
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'GET',
-      url: process.env.API_URL + '/game/spells/' + name,
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
   try {
     const spell = await creatorToolsDatabase.spells.findOne({
       where: { name },
@@ -353,16 +294,6 @@ const postSpellExistsHandler = async (ctx: Koa.Context) => {
 
 const deleteHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'DELETE',
-      url: process.env.API_URL + '/game/spells/' + name,
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
   const spell = await creatorToolsDatabase.spells.findOne({
     where: { name, userId: 'global' }, // ctx.state.user?.id ?? ctx.query.userId },
   })
@@ -379,16 +310,6 @@ const deleteHandler = async (ctx: Koa.Context) => {
 
 const deploySpellHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'POST',
-      url: process.env.API_URL + '/game/spells/' + name + '/deploy',
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
   const body =
     typeof ctx.request.body === 'string'
       ? JSON.parse(ctx.request.body)
@@ -421,16 +342,6 @@ const deploySpellHandler = async (ctx: Koa.Context) => {
 
 const getdeployedSpellsHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'GET',
-      url: process.env.API_URL + '/game/spells/deployed/' + name,
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
 
   const spells = await creatorToolsDatabase.deployedSpells.findAll({
     where: { name },
@@ -446,16 +357,6 @@ const getDeployedSpellHandler = async (ctx: Koa.Context) => {
   console.log('ctx.params', ctx.params)
   const name = ctx.params.name ?? 'default'
   const version = ctx.params.version ?? 'latest'
-  if (latitudeApiKey) {
-    const response = await axios({
-      method: 'GET',
-      url: process.env.API_URL + `/game/spells/deployed/${name}/${version}`,
-      headers: ctx.headers as any,
-      data: ctx.request.body,
-    })
-
-    return (ctx.body = response.data)
-  }
   const spell = await creatorToolsDatabase.deployedSpells.findOne({
     where: { name: name, version: version },
   })

@@ -1,10 +1,8 @@
-import { authRequest } from './axios'
+import axios from 'axios'
 
 export const getSpell = async (spellId: string) => {
   try {
-    const response = await authRequest({
-      url: `/game/spells/${spellId}`,
-    })
+    const response = await axios.get(`/game/spells/${spellId}`)
 
     return response.data
   } catch (err) {
@@ -32,10 +30,8 @@ export const runSpell = async ({
       inputs,
       state,
     }
-    const response = await authRequest({
-      url: `game/chains/${spellId}/${version}`,
-      data: JSON.stringify(data),
-    })
+    // attempting runSpell with new axios
+    const response = await axios.post(`game/chains/${spellId}/${version}`, JSON.stringify(data))
 
     return response.data
   } catch (err) {
