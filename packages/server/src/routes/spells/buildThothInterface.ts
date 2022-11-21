@@ -85,9 +85,6 @@ export const buildThothInterface = (
         throw new CustomError('server-error', 'Error in spell runner: processCode component.')
       }
     },
-    enkiCompletion: async (taskName: string, inputs: string) => {
-      return { outputs: [] }
-    },
     huggingface: async (model: string, options: any) => {
       // const outputs = await huggingface({ context: ctx, model, options })
       return {}

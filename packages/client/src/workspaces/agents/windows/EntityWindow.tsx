@@ -1,10 +1,6 @@
-// @ts-nocheck
-
-import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   adjectives,
   colors,
@@ -26,7 +22,6 @@ function capitalizeFirstLetter(word) {
 }
 
 const EntityWindow = ({ id, updateCallback }) => {
-  const { user } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
 
   const [loaded, setLoaded] = useState(false)
@@ -308,7 +303,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   useEffect(() => {
     ; (async () => {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_ROOT_URL}/game/spells?userId=${user?.id}`
+        `${process.env.REACT_APP_API_ROOT_URL}/game/spells`
       )
       setSpellList(res.data)
     })()

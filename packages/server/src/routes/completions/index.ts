@@ -1,4 +1,3 @@
-import { noAuth } from '../../middleware/auth'
 import Koa from 'koa'
 import { Route } from 'src/types'
 
@@ -50,7 +49,6 @@ const completionsHandler = async (ctx: Koa.Context) => {
 export const completions: Route[] = [
   {
     path: '/completions',
-    access: noAuth,
     post: completionsHandler,
   },
 ]

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { renderToString } from 'react-dom/server'
 import Terminal from 'react-console-emulator'
-import { useAuth } from '@/contexts/AuthProvider'
 import { usePubSub } from '@/contexts/PubSubProvider'
 import Window from '@components/Window/Window'
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
@@ -17,7 +16,6 @@ interface Terminal {
 const DebugConsole = ({ tab }) => {
   const [scrollToBottom, setScrollToBottom] = useState<boolean>(false)
   const { centerNode } = useEditor()
-  const { user } = useAuth()
   const { publish, subscribe, events } = usePubSub()
   const { $TRIGGER, $DEBUG_PRINT } = events
 
@@ -33,13 +31,11 @@ const DebugConsole = ({ tab }) => {
   }
 
   const formatErrorMessage = message =>
-    `> Node ${message.nodeId}: Error in ${message.from} component${
-      message.name ? ' ' + message.name : ''
+    `> Node ${message.nodeId}: Error in ${message.from} component${message.name ? ' ' + message.name : ''
     }.`
 
   const formatLogMessage = message =>
-    `> Node ${message.nodeId}: Message from ${message.from} component ${
-      message.name ?? 'unnamed'
+    `> Node ${message.nodeId}: Message from ${message.from} component ${message.name ?? 'unnamed'
     }.`
 
   const Message = (message, type) => (
@@ -122,7 +118,7 @@ const DebugConsole = ({ tab }) => {
         dangerMode={true} // This is causing the [Object, object] line to appear in the terminal printout
         commandCallback={commandCallback}
         noNewlineParsing={true}
-        promptLabel={`${user?.username}@thothai:~$`}
+        promptLabel={`thothai:~$`}
         style={{
           overflow: 'hidden',
           minHeight: '100%',

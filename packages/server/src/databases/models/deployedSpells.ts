@@ -8,7 +8,6 @@ export interface deployedSpellsAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  userId: string;
   version: number;
   message?: string;
   modules?: object;
@@ -27,7 +26,6 @@ export class deployedSpells extends Model<deployedSpellsAttributes, deployedSpel
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  userId!: string;
   version!: number;
   message?: string;
   modules?: object;
@@ -66,11 +64,6 @@ export class deployedSpells extends Model<deployedSpellsAttributes, deployedSpel
         type: DataTypes.DATE,
         allowNull: true,
         field: 'deleted_at'
-      },
-      userId: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        field: 'user_id'
       },
       version: {
         type: DataTypes.INTEGER,

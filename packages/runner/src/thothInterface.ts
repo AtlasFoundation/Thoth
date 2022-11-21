@@ -31,10 +31,6 @@ export const buildThothInterface = (
       }
       gameState = newState
     },
-    async enkiCompletion() {
-      // Hit enki endpoint?
-      return { outputs: [] }
-    },
     async huggingface() {
       return {}
     },

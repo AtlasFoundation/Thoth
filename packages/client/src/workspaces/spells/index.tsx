@@ -20,7 +20,6 @@ import { usePubSub } from '@/contexts/PubSubProvider'
 import { useSharedb } from '@/contexts/SharedbProvider'
 import { sharedb } from '@/config'
 import { ThothComponent } from '@thothai/thoth-core/types'
-import { useAuth } from '@/contexts/AuthProvider'
 
 import EventManagerWindow from './windows/EventManager'
 import { RootState } from '@/state/store'
@@ -34,7 +33,6 @@ const Workspace = ({ tab, pubSub }) => {
   const spellRef = useRef<Spell>()
   const { events, publish } = usePubSub()
   const { getSpellDoc } = useSharedb()
-  const { user } = useAuth()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
   const { editor, serialize } = useEditor()
   const FeathersContext = useFeathers()
@@ -115,7 +113,6 @@ const Workspace = ({ tab, pubSub }) => {
     if (!tab || !tab.spellId) return
     loadSpell({
       spellId: tab.spellId,
-      userId: user?.id as string,
     })
   }, [tab])
 
@@ -149,8 +146,6 @@ const Workspace = ({ tab, pubSub }) => {
           return <DebugConsole {...props} />
         case 'eventManager':
           return <EventManagerWindow {...props} />
-        case 'stateManager':
-          return <StateManager {...props} />
         case 'searchCorpus':
           return <SearchCorpus />
         case 'entityManager':

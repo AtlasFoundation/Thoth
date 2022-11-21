@@ -11,13 +11,11 @@ import { useNavigate } from 'react-router-dom'
 import { useNewSpellMutation } from '@/state/api/spells'
 import Panel from '../../../components/Panel/Panel'
 import emptyImg from '../empty.png'
-// import enkiImg from '../enki.png'
-// import langImg from '../lang.png'
+
 import css from '../homeScreen.module.css'
 import TemplatePanel from '../components/TemplatePanel'
 import defaultGraph from '../../../data/graphs/default'
 import { GraphData } from '@thothai/thoth-core/types'
-import { useAuth } from '@/contexts/AuthProvider'
 
 const customConfig = {
   dictionaries: [adjectives, colors],
@@ -34,7 +32,6 @@ export type Template = {
 export const thothTemplates = [
   { label: 'Starter', bg: emptyImg, graph: defaultGraph },
   // { label: 'Language example', bg: langImg, graph: defaultChain },
-  // { label: 'Enki example', bg: enkiImg, graph: defaultChain },
 ]
 
 const CreateNew = () => {
@@ -46,7 +43,6 @@ const CreateNew = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [newSpell] = useNewSpellMutation()
-  const { user } = useAuth()
   const {
     register,
     handleSubmit,
@@ -61,7 +57,6 @@ const CreateNew = () => {
       const response = await newSpell({
         graph: selectedTemplate?.graph,
         name,
-        user: user?.id,
       })
 
       if ('error' in response) {

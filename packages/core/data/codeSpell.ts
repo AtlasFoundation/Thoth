@@ -129,7 +129,6 @@ export default {
   createdAt: '2022-05-25T22:31:10.259Z',
   updatedAt: '2022-05-25T22:33:55.441Z',
   deletedAt: null,
-  userId: '2508068',
   modules: [],
   gameState: {
     introText:

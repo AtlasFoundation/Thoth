@@ -62,10 +62,6 @@ export type EngineContext = {
   getCurrentGameState: () => Record<string, unknown>
   setCurrentGameState: (state: Record<string, unknown>) => void
   updateCurrentGameState: (update: Record<string, unknown>) => void
-  enkiCompletion: (
-    taskName: string,
-    inputs: string[] | string
-  ) => Promise<{ outputs: string[] }>
   huggingface: (
     model: string,
     request: string
@@ -175,7 +171,6 @@ export type ThothNode = Node & {
   display: (content: string) => void
   outputs: { name: string;[key: string]: unknown }[]
   category?: string
-  deprecated?: boolean
   displayName?: string
   info: string
   subscription: Function

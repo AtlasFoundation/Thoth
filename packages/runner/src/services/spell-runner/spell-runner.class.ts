@@ -9,21 +9,14 @@ import {
 import { getSpell } from '../../api/spell'
 import { Application } from '../../declarations'
 
-interface Data {}
+interface Data { }
 
 interface CreateData {
   inputs: Record<string, any>
   spellId: string
 }
 
-interface ServiceOptions {}
-
-type UserInfo = {
-  id: string
-}
-interface SpellRunnerParams extends Params {
-  user: UserInfo
-}
+interface ServiceOptions { }
 
 export class SpellRunner implements ServiceMethods<Data> {
   app: Application
@@ -40,7 +33,7 @@ export class SpellRunner implements ServiceMethods<Data> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async get(id: Id, params?: SpellRunnerParams): Promise<Data> {
+  async get(id: Id): Promise<Data> {
     if (!this.app.userSpellManagers) return {}
     if (!params) throw new Error('No params present in service')
 

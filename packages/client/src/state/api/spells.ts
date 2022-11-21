@@ -27,7 +27,6 @@ export interface DeployedSpellVersion {
 
 export interface DeployArgs {
   spellId: string
-  userId: string
   message: string
 }
 
@@ -38,7 +37,6 @@ export interface GetDeployArgs {
 
 export interface PatchArgs {
   spellId: string
-  userId: string
   update: Partial<Spell>
 }
 
@@ -51,24 +49,21 @@ export interface RunSpell {
 
 export interface UserSpellArgs {
   spellId: string
-  userId: string
 }
 
 export const spellApi = rootApi.injectEndpoints({
   endpoints: builder => ({
     getSpells: builder.query<Spell[], string>({
       providesTags: ['Spells'],
-      query: userId => ({
+      query: () => ({
         url: `game/spells`,
-        params: { userId },
       }),
     }),
     getSpell: builder.query<Spell, UserSpellArgs>({
       providesTags: ['Spell'],
-      query: ({ spellId, userId }) => {
+      query: ({ spellId }) => {
         return {
           url: `game/spells/${spellId}`,
-          params: { userId },
         }
       },
     }),
@@ -102,11 +97,10 @@ export const spellApi = rootApi.injectEndpoints({
     saveSpell: builder.mutation<Partial<Spell>, Partial<Spell> | Spell>({
       invalidatesTags: ['Spell'],
       // needed to use queryFn as query option didnt seem to allow async functions.
-      async queryFn({ user, ...spell }, { dispatch }, extraOptions, baseQuery) {
+      async queryFn({ ...spell }, { dispatch }, extraOptions, baseQuery) {
         const baseQueryOptions = {
           url: 'game/spells/save',
           body: spell,
-          params: { userId: user },
           method: 'POST',
         }
 
@@ -129,32 +123,29 @@ export const spellApi = rootApi.injectEndpoints({
     }),
     patchSpell: builder.mutation<Spell, PatchArgs>({
       invalidatesTags: ['Spell'],
-      query({ spellId, userId, update }) {
+      query({ spellId, update }) {
         return {
           url: `game/spells/${spellId}`,
           body: {
             ...update,
           },
-          params: { userId },
           method: 'PATCH',
         }
       },
     }),
     deleteSpell: builder.mutation<string[], UserSpellArgs>({
       invalidatesTags: ['Spells'],
-      query: ({ spellId, userId }) => ({
+      query: ({ spellId }) => ({
         url: `game/spells/${spellId}`,
-        params: { userId },
         method: 'DELETE',
       }),
     }),
     deploySpell: builder.mutation<DeployedSpellVersion, DeployArgs>({
       invalidatesTags: ['Version'],
-      query({ spellId, userId, ...update }) {
+      query({ spellId, ...update }) {
         return {
           url: `game/spells/${spellId}/deploy`,
           body: update,
-          params: { userId },
           method: 'POST',
         }
       },

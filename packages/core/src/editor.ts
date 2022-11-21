@@ -128,7 +128,6 @@ export const initEditor = function ({
       const { workspaceType } = component
 
       if (isProd && (component as any).dev) return null
-      if (component.deprecated) return null
       if (component.hide) return null
       if (workspaceType && workspaceType !== tabType) return null
       return [component.category]

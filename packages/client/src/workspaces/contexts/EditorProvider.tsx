@@ -20,8 +20,6 @@ import { MyNode } from '../../components/Node/Node'
 import gridimg from '@/grid.png'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useThothInterface } from './ThothInterfaceProvider'
-// TODO fix this path import
-import { useAuth } from '@/contexts/AuthProvider'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers } from '@/config'
 
@@ -37,7 +35,7 @@ export type ThothTab = {
 
 // TODO give better typing to the editor
 const Context = createContext({
-  run: () => {},
+  run: () => { },
   getEditor: (): ThothEditor | null => null,
   editor: {} as ThothEditor | null,
   serialize: (): GraphData | undefined => undefined,
@@ -47,16 +45,16 @@ const Context = createContext({
     spell: Spell | undefined,
     tab: ThothTab,
     reteInterface: EditorContext
-  ) => {},
-  setEditor: (editor: any) => {},
-  getNodeMap: () => {},
-  getNodes: () => {},
-  loadGraph: (graph: any) => {},
-  setContainer: () => {},
-  undo: () => {},
-  redo: () => {},
-  del: () => {},
-  centerNode: (nodeId: number): void => {},
+  ) => { },
+  setEditor: (editor: any) => { },
+  getNodeMap: () => { },
+  getNodes: () => { },
+  loadGraph: (graph: any) => { },
+  setContainer: () => { },
+  undo: () => { },
+  redo: () => { },
+  del: () => { },
+  centerNode: (nodeId: number): void => { },
 })
 
 export const useEditor = () => useContext(Context)
@@ -178,7 +176,6 @@ const EditorProvider = ({ children }) => {
 }
 
 const RawEditor = ({ tab, children }) => {
-  const { user } = useAuth()
   const [getSpell, { data: spell, isLoading }] = useLazyGetSpellQuery()
   const [loaded, setLoaded] = useState(false)
   const { buildEditor } = useEditor()
@@ -191,7 +188,6 @@ const RawEditor = ({ tab, children }) => {
     if (tab?.spellId)
       getSpell({
         spellId: tab.spellId,
-        userId: user?.id as string,
       })
   }, [tab])
 
@@ -212,7 +208,7 @@ const RawEditor = ({ tab, children }) => {
         onDragOver={e => {
           e.preventDefault()
         }}
-        onDrop={e => {}}
+        onDrop={e => { }}
       >
         <div
           ref={el => {

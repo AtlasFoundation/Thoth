@@ -19,7 +19,6 @@ export class OrGate extends ThothComponent<void> {
   }
 
   // the builder is used to "assemble" the node component.
-  // when we have enki hooked up and have grabbed all few shots, we would use the builder
   // to generate the appropriate inputs and ouputs for the fewshot at build time
   builder(node: ThothNode) {
     const trigger1 = new Rete.Input('trigger1', 'Trigger 1', triggerSocket)

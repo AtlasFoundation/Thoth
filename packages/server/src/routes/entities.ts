@@ -5,7 +5,6 @@ import { handleInput } from '../entities/connectors/handleInput'
 import weaviate from 'weaviate-client'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
-import { noAuth } from '../middleware/auth'
 import { Route } from '../types'
 import axios from 'axios'
 import { cacheManager } from '../cacheManager'
@@ -14,8 +13,6 @@ import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
 import { tts_tiktalknet } from '../systems/tiktalknet'
-import fs from 'fs'
-import path from 'path'
 import { CreateSpellHandler } from '../entities/CreateSpellHandler'
 import { stringIsAValidUrl } from '../utils/utils'
 import * as events from '../services/events'
@@ -639,54 +636,6 @@ const zoomBufferChunk = async (ctx: Koa.Context) => {
   return (ctx.body = 'ok')
 }
 
-const login = async (ctx: Koa.Context) => {
-  const username = ctx.request.body.username
-  const password = ctx.request.body.password
-
-  const loginRes = await database.instance.login(username, password)
-  if (!loginRes || loginRes === undefined) {
-    ctx.status = 401
-    return (ctx.body = { error: 'invalid credentials' })
-  } else {
-    return (ctx.body = loginRes)
-  }
-}
-
-const register = async (ctx: Koa.Context) => {
-  const email = ctx.request.body.email
-  const username = ctx.request.body.username
-  const password = ctx.request.body.password
-  const user_id = ctx.request.body.user_id
-
-  console.log('register, body:', ctx.request.body)
-  if (await database.instance.usernameExists(username)) {
-    ctx.status = 400
-    return (ctx.body = { error: 'username already exists' })
-  } else if (await database.instance.emailExists(email)) {
-    ctx.status = 400
-    return (ctx.body = { error: 'email already exists' })
-  }
-
-  const registerRes = await database.instance.register(
-    email,
-    username,
-    password,
-    user_id
-  )
-  console.log('register res:', registerRes)
-  if (registerRes !== 'ok') {
-    ctx.status = 401
-    return (ctx.body = { error: 'invalid credentials' })
-  } else {
-    return (ctx.body = 'ok')
-  }
-}
-
-const post_pipedream = async (ctx: Koa.Context) => {
-  console.log('testPipeDream:', ctx.request)
-  return (ctx.body = 'ok')
-}
-
 const getMessageReactions = async (ctx: Koa.Context) => {
   try {
     const message_reactions = await database.instance.getMessageReactions()
@@ -754,139 +703,101 @@ const queryGoogle = async (ctx: Koa.Context) => {
 export const entities: Route[] = [
   {
     path: '/execute',
-    access: noAuth,
     post: executeHandler,
   },
   {
     path: '/createWikipediaEntity',
-    access: noAuth,
     post: createWikipediaEntityHandler,
   },
   {
     path: '/entities',
-    access: noAuth,
     get: getEntitiesHandler,
   },
   {
     path: '/entity',
-    access: noAuth,
     get: getEntityHandler,
     post: addEntityHandler,
   },
   {
     path: '/entity/:id',
-    access: noAuth,
     delete: deleteEntityHandler,
   },
   {
     path: '/event',
-    access: noAuth,
     get: getEvent,
     post: createEvent,
   },
   {
     path: '/event/:id',
-    access: noAuth,
     delete: deleteEvent,
     put: updateEvent,
   },
   {
     path: '/events',
-    access: noAuth,
     get: getAllEvents,
   },
   {
     path: '/events_sorted',
-    access: noAuth,
     get: getSortedEventsByDate,
   },
   {
     path: '/text_to_speech',
-    access: noAuth,
     get: getTextToSpeech,
   },
   {
     path: '/get_entity_image',
-    access: noAuth,
     get: getEntityImage,
   },
   {
     path: '/cache_manager',
-    access: noAuth,
     get: getFromCache,
     delete: deleteFromCache,
     post: setInCache,
   },
   {
     path: '/text_completion',
-    access: noAuth,
     post: textCompletion,
   },
   {
     path: '/hf_request',
-    access: noAuth,
     post: hfRequest,
   },
   {
     path: '/weaviate',
-    access: noAuth,
     post: makeWeaviateRequest,
   },
   {
     path: '/custom_message',
-    access: noAuth,
     post: customMessage,
   },
   {
     path: '/chat_agent',
-    access: noAuth,
     post: chatEntity,
   },
   {
     path: '/entities_info',
-    access: noAuth,
     get: getEntitiesInfo,
   },
   {
     path: '/handle_custom_input',
-    access: noAuth,
     post: handleCustomInput,
   },
   {
     path: '/zoom_buffer_chunk',
-    access: noAuth,
     post: zoomBufferChunk,
   },
   {
-    path: '/login',
-    access: noAuth,
-    post: login,
-  },
-  {
-    path: '/register',
-    access: noAuth,
-    post: register,
-  },
-  {
-    path: '/pipedream',
-    access: noAuth,
-    post: post_pipedream,
-  },
-  {
     path: '/message_reactions',
-    access: noAuth,
     get: getMessageReactions,
     post: createMessageReaction,
   },
   {
     path: '/message_reaction/:id',
-    access: noAuth,
     put: createMessageReaction,
     delete: deleteMessageReaction,
   },
   {
     path: '/query_google',
-    access: noAuth,
     post: queryGoogle
   },
 ]

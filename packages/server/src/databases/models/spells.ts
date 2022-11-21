@@ -8,7 +8,6 @@ export interface spellsAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  userId?: string;
   modules?: object;
   gameState?: object;
 }
@@ -25,10 +24,8 @@ export class spells extends Model<spellsAttributes, spellsCreationAttributes> im
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  userId?: string;
   modules?: object;
   gameState?: object;
-
 
   static initModel(sequelize: Sequelize.Sequelize): typeof spells {
     spells.init({
@@ -63,11 +60,6 @@ export class spells extends Model<spellsAttributes, spellsCreationAttributes> im
         type: DataTypes.DATE,
         allowNull: true,
         field: 'deleted_at'
-      },
-      userId: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-        field: 'user_id'
       },
       modules: {
         type: DataTypes.JSONB,

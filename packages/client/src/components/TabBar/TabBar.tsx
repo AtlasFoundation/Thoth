@@ -9,7 +9,6 @@ import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
 import { changeActive } from '@/state/tabs'
 import { RootState } from '@/state/store'
-import { LoginTab } from './LoginTab'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
@@ -73,10 +72,6 @@ const TabBar = ({ tabs, activeTab }) => {
       </div>
       <div className={css['tabbar-section']}>
         <CreateTab />
-      </div>
-
-      <div className={css['tabbar-user']}>
-        <LoginTab />
       </div>
     </div>
   )

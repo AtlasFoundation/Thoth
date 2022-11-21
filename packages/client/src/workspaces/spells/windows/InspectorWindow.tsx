@@ -109,21 +109,10 @@ const Inspector = props => {
     </>
   )
 
-  const DeprecationMessage = (inspectorData: InspectorData) => {
-    if (!inspectorData.deprecated) return <></>
-    return (
-      <div style={{ padding: 'var(--c1) var(--c2)' }}>
-        <h2 style={{ color: 'var(--red)' }}>WARNING</h2>
-        <p>{inspectorData.deprecationMessage}</p>
-      </div>
-    )
-  }
-
   if (!inspectorData) return <WindowMessage />
 
   return (
     <Window toolbar={toolbar} darker outline borderless>
-      {DeprecationMessage(inspectorData)}
       <DataControls
         inspectorData={inspectorData}
         nodeId={inspectorData.nodeId}

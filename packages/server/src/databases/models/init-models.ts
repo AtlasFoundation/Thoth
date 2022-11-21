@@ -40,11 +40,6 @@ import type {
   scopeSettingCreationAttributes,
 } from './scope_settings'
 import { scopeSettings as _scopeSettings } from './scope_settings'
-import type {
-  authUsersAttributes,
-  authUsersAttributesCreationAttributes,
-} from './authUsers'
-import { authUsers as _authUsers } from './authUsers'
 import {
   handled_history as _handled_history,
   handled_historyAttributes,
@@ -66,7 +61,6 @@ export {
   _clientSettings as clientSettings,
   _configurationSettings as configurationSettings,
   _scopeSettings as scopeSettings,
-  _authUsers as authUsers,
   _handled_history as handled_history,
   _message_reactions as messageReactions,
 }
@@ -92,7 +86,6 @@ export type {
   configurationSettingCreationAttributes,
   scopeSettingAttributes,
   scopeSettingCreationAttributes,
-  authUsersAttributes,
   handled_historyAttributes,
   messageReactionsAttributes,
   messageReactionCreationAttributes,
@@ -109,7 +102,6 @@ export function initModels(sequelize: Sequelize) {
   const clientSettings = _clientSettings.initModel(sequelize)
   const configurationSettings = _configurationSettings.initModel(sequelize)
   const scopeSettings = _scopeSettings.initModel(sequelize)
-  const authUsers = _authUsers.initModel(sequelize)
   const handled_history = _handled_history.initModel(sequelize)
   const messageReactions = _message_reactions.initModel(sequelize)
 
@@ -124,7 +116,6 @@ export function initModels(sequelize: Sequelize) {
     clientSettings: clientSettings,
     configurationSettings: configurationSettings,
     scopeSettings: scopeSettings,
-    authUsers: authUsers,
     handled_history: handled_history,
     messageReactions,
   }

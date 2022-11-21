@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { createContext, useContext, useEffect, useRef } from 'react'
 
-import { useAuth } from '@/contexts/AuthProvider'
 import { useGetSpellQuery, useRunSpellMutation } from '@/state/api/spells'
 import { useFetchFromImageCacheMutation } from '@/state/api/visualGenerationsApi'
 import {
@@ -12,7 +11,6 @@ import {
 } from '@thothai/thoth-core/types'
 
 import { usePubSub } from '../../contexts/PubSubProvider'
-import { postEnkiCompletion } from '../../services/game-api/enki'
 import { completion as _completion } from '../../services/game-api/text'
 import { invokeInference } from '../../utils/huggingfaceHelper'
 import { thothApiRootUrl } from '@/config'
@@ -25,12 +23,10 @@ const ThothInterfaceProvider = ({ children, tab }) => {
   const { events, publish, subscribe } = usePubSub()
   const spellRef = useRef<Spell | null>(null)
   const [fetchFromImageCache] = useFetchFromImageCacheMutation()
-  const { user } = useAuth()
   const [_runSpell] = useRunSpellMutation()
   const { data: _spell } = useGetSpellQuery(
     {
       spellId: tab.spellId,
-      userId: user?.id as string,
     },
     {
       skip: !tab.spellId,
@@ -135,11 +131,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     return result
   }
 
-  const enkiCompletion = async (taskName, inputs) => {
-    const result = await postEnkiCompletion(taskName, inputs)
-    return result
-  }
-
   const huggingface = async (model, data) => {
     const result = await invokeInference(model, data)
     return result
@@ -237,11 +228,10 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     channel,
     maxCount = 10,
   }) => {
-    const urlString = `${
-      process.env.REACT_APP_API_ROOT_URL ??
+    const urlString = `${process.env.REACT_APP_API_ROOT_URL ??
       process.env.API_ROOT_URL ??
       'https://localhost:8001'
-    }/event`
+      }/event`
 
     const params = {
       type: type,
@@ -272,10 +262,9 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     channel,
   }: CreateEventArgs) => {
     const response = await axios.post(
-      `${
-        process.env.REACT_APP_API_ROOT_URL ??
-        process.env.API_ROOT_URL ??
-        'https://localhost:8001'
+      `${process.env.REACT_APP_API_ROOT_URL ??
+      process.env.API_ROOT_URL ??
+      'https://localhost:8001'
       }/event`,
       {
         type,
@@ -327,7 +316,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     onPlaytest,
     clearTextEditor,
     completion,
-    enkiCompletion,
     huggingface,
     readFromImageCache,
     getCurrentGameState,

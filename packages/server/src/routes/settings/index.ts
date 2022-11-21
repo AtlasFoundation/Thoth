@@ -1,5 +1,4 @@
 import Koa from 'koa'
-import { noAuth } from '../../middleware/auth'
 import { Route } from 'src/types'
 import { database } from '../../database'
 import {
@@ -648,7 +647,6 @@ const deleteScope = async (ctx: Koa.Context) => {
 export const settings: Route[] = [
   {
     path: '/setting/client',
-    access: noAuth,
     post: addClient,
     patch: editClient,
     delete: deleteClient,
@@ -656,7 +654,6 @@ export const settings: Route[] = [
   },
   {
     path: '/setting/configuration',
-    access: noAuth,
     get: getAllConfiguration,
     post: addConfiguration,
     patch: editConfiguration,
@@ -664,7 +661,6 @@ export const settings: Route[] = [
   },
   {
     path: '/setting/scope',
-    access: noAuth,
     get: getAllScope,
     post: addScope,
     patch: editScope,

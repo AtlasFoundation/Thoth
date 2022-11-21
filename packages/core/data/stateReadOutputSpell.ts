@@ -78,7 +78,6 @@ export default {
   createdAt: '2022-06-09T15:41:18.512Z',
   updatedAt: '2022-06-08T03:42:12.331Z',
   deletedAt: null,
-  userId: '2508068',
   modules: [],
   gameState: { output: 'stateOutput' },
 } as unknown as Spell

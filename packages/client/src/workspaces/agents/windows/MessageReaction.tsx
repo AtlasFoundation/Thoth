@@ -1,4 +1,3 @@
-import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import { useEffect, useState } from 'react'
@@ -6,7 +5,6 @@ import { useEffect, useState } from 'react'
 const MessageReaction = ({ message_reaction, updateCallback }) => {
   const [data, setData] = useState(message_reaction)
   const [spellList, setSpellList] = useState('')
-  const { user } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
   const handleChange = (key: string, value: string) => {
     setData({
@@ -16,9 +14,9 @@ const MessageReaction = ({ message_reaction, updateCallback }) => {
   }
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_ROOT_URL}/game/spells?userId=${user?.id}`
+        `${process.env.REACT_APP_API_ROOT_URL}/game/spells`
       )
       setSpellList(res.data)
     })()

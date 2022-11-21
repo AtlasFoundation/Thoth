@@ -1,14 +1,10 @@
 import { thothApiRootUrl } from '@/config'
 import axios from 'axios'
-import { getAuthHeader } from '../../contexts/AuthProvider'
 
 export const getModels = async () => {
   try {
     const response = await fetch(thothApiRootUrl + '/text/models', {
       method: 'GET',
-      headers: {
-        ...(await getAuthHeader()),
-      },
     })
     const result = await response.json()
     return result

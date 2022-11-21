@@ -20,7 +20,6 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth, IAuth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -62,7 +61,7 @@ export class database {
 
     if (!r || !r.rows || r.rows.length <= 0) {
       const cquery =
-        'INSERT INTO "public"."spells" ("id","name","graph","created_at","updated_at","deleted_at","user_id","modules","game_state") VALUES (\'3599a8fa-4e3b-4e91-b329-43a907780ea7\',\'default\',\'{"id": "demo@0.1.0", "nodes": {"1": {"id": 1, "data": {"name": "Input", "text": "Input text here", "outputs": [], "socketKey": "98d25387-d2b3-493c-b61c-ec20689fb101", "dataControls": {"name": {"expanded": true}, "useDefault": {"expanded": true}, "playtestToggle": {"expanded": true}}, "playtestToggle": {"outputs": [], "receivePlaytest": false}}, "name": "Universal Input", "inputs": {}, "outputs": {"output": {"connections": [{"data": {"pins": []}, "node": 5, "input": "input"}, {"data": {"pins": []}, "node": 6, "input": "outputs"}]}}, "position": [-558.857827667479, -287.8964566771861]}, "2": {"id": 2, "data": {"name": "Trigger", "socketKey": "5ce31be1-de07-4669-8ca6-61463cb2c74d", "dataControls": {"name": {"expanded": true}}}, "name": "Module Trigger In", "inputs": {}, "outputs": {"trigger": {"connections": [{"data": {"pins": []}, "node": 5, "input": "trigger"}, {"data": {"pins": []}, "node": 6, "input": "trigger"}]}}, "position": [-570.1478847920745, -18.81676187432589]}, "3": {"id": 3, "data": {"socketKey": "6e5d5852-b5a6-410c-8f8c-37ea5a32532b"}, "name": "Module Trigger Out", "inputs": {"trigger": {"connections": []}}, "outputs": {}, "position": [83.9492364030962, -61.88793070021913]}, "5": {"id": 5, "data": {"name": "Output", "socketKey": "1a13b0de-0ec2-40b9-b139-0e44674cf090", "dataControls": {"name": {"expanded": true}}}, "name": "Module Output", "inputs": {"input": {"connections": [{"data": {"pins": []}, "node": 1, "output": "output"}]}, "trigger": {"connections": [{"data": {"pins": []}, "node": 2, "output": "trigger"}]}}, "outputs": {}, "position": [103.51577963166771, -267.8995017050695]}, "6": {"id": 6, "data": {"inputs": [{"name": "outputs", "taskType": "output", "socketKey": "outputs", "socketType": "anySocket", "connectionType": "input"}], "dataControls": {"inputs": {"expanded": true}}}, "name": "State Write", "inputs": {"outputs": {"connections": [{"data": {"pins": []}, "node": 1, "output": "output"}]}, "trigger": {"connections": [{"data": {"pins": []}, "node": 2, "output": "trigger"}]}}, "outputs": {}, "position": [59.65794741138853, -516.9197232909086]}}}\',\'2022-02-04 10:45:31.638981+00\',\'2022-02-04 10:58:13.785909+00\',NULL,\'0\',\'[]\',\'{}\');'
+        'INSERT INTO "public"."spells" ("id","name","graph","created_at","updated_at","deleted_at","modules","game_state") VALUES (\'3599a8fa-4e3b-4e91-b329-43a907780ea7\',\'default\',\'{"id": "demo@0.1.0", "nodes": {"1": {"id": 1, "data": {"name": "Input", "text": "Input text here", "outputs": [], "socketKey": "98d25387-d2b3-493c-b61c-ec20689fb101", "dataControls": {"name": {"expanded": true}, "useDefault": {"expanded": true}, "playtestToggle": {"expanded": true}}, "playtestToggle": {"outputs": [], "receivePlaytest": false}}, "name": "Universal Input", "inputs": {}, "outputs": {"output": {"connections": [{"data": {"pins": []}, "node": 5, "input": "input"}, {"data": {"pins": []}, "node": 6, "input": "outputs"}]}}, "position": [-558.857827667479, -287.8964566771861]}, "2": {"id": 2, "data": {"name": "Trigger", "socketKey": "5ce31be1-de07-4669-8ca6-61463cb2c74d", "dataControls": {"name": {"expanded": true}}}, "name": "Module Trigger In", "inputs": {}, "outputs": {"trigger": {"connections": [{"data": {"pins": []}, "node": 5, "input": "trigger"}, {"data": {"pins": []}, "node": 6, "input": "trigger"}]}}, "position": [-570.1478847920745, -18.81676187432589]}, "3": {"id": 3, "data": {"socketKey": "6e5d5852-b5a6-410c-8f8c-37ea5a32532b"}, "name": "Module Trigger Out", "inputs": {"trigger": {"connections": []}}, "outputs": {}, "position": [83.9492364030962, -61.88793070021913]}, "5": {"id": 5, "data": {"name": "Output", "socketKey": "1a13b0de-0ec2-40b9-b139-0e44674cf090", "dataControls": {"name": {"expanded": true}}}, "name": "Module Output", "inputs": {"input": {"connections": [{"data": {"pins": []}, "node": 1, "output": "output"}]}, "trigger": {"connections": [{"data": {"pins": []}, "node": 2, "output": "trigger"}]}}, "outputs": {}, "position": [103.51577963166771, -267.8995017050695]}, "6": {"id": 6, "data": {"inputs": [{"name": "outputs", "taskType": "output", "socketKey": "outputs", "socketType": "anySocket", "connectionType": "input"}], "dataControls": {"inputs": {"expanded": true}}}, "name": "State Write", "inputs": {"outputs": {"connections": [{"data": {"pins": []}, "node": 1, "output": "output"}]}, "trigger": {"connections": [{"data": {"pins": []}, "node": 2, "output": "trigger"}]}}, "outputs": {}, "position": [59.65794741138853, -516.9197232909086]}}}\',\'2022-02-04 10:45:31.638981+00\',\'2022-02-04 10:58:13.785909+00\',\'0\',\'[]\',\'{}\');'
       await this.client.query(cquery)
     }
   }
@@ -1295,214 +1294,6 @@ export class database {
     }
   }
 
-  // Scope settings end
-
-  async getAuthuserById(id: string): Promise<any> {
-    const query =
-      'SELECT id, user_id, token FROM auth_users WHERE id=$1 AND is_deleted=false'
-    const values = [id]
-
-    const rows = await this.client.query(query, values)
-    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
-  }
-
-  async getAuthuserByToken(token: string): Promise<any> {
-    const query =
-      'SELECT id, user_id, token FROM auth_users WHERE token=$1 AND is_deleted=false'
-    const values = [token]
-
-    const rows = await this.client.query(query, values)
-    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
-  }
-
-  async getAuthuserByUserId(user_id: string): Promise<any> {
-    const query =
-      'SELECT id, user_id, token FROM auth_users WHERE user_id=$1 AND is_deleted=false'
-    const values = [user_id]
-
-    const rows = await this.client.query(query, values)
-    return rows && rows.rows && rows.rows.length > 0 ? rows.rows[0] : {}
-  }
-
-  async addAuthUser(body: AddAuthUser): Promise<any> {
-    const { token: newToken, user_id } = body
-    let isValidToken = false
-
-    try {
-      const res1 = await this.getAuthuserByUserId(user_id)
-
-      if (isValidObject(res1)) {
-        const { token, user_id } = res1 as any
-
-        const decryptedUserId = auth.verify(token)
-
-        isValidToken = decryptedUserId === user_id
-
-        if (!isValidToken) {
-          const query3 =
-            'UPDATE auth_users SET token=$2 WHERE user_id=$1 AND is_deleted=false'
-          const values3: any = [user_id, newToken]
-
-          const res3 = await this.client.query(query3, values3)
-          const { command, rowCount } = res3
-
-          if (command === 'UPDATE' && rowCount > 0) {
-            const data = await this.getAuthuserByUserId(user_id)
-            return { success: true, data: data, isAlreadyExists: false }
-          }
-        } else {
-          return { success: true, data: res1, isAlreadyExists: true }
-        }
-      }
-
-      const query2 =
-        'INSERT INTO auth_users(token, user_id, email, username, password) VALUES($1, $2, $3, $4, $5)'
-      const values2: any = [newToken, user_id, null, null, null]
-
-      const res2 = await this.client.query(query2, values2)
-      const { command, rowCount } = res2
-
-      if (command === 'INSERT' && rowCount > 0) {
-        const data = await this.getAuthuserByUserId(user_id)
-        return { success: true, data: data, isAlreadyExists: false }
-      }
-      throw new Error('Something break in insert query')
-    } catch (error) {
-      console.log('Error => addAuthUser => ', error)
-      return { success: false, data: {}, isAlreadyExists: false }
-    }
-  }
-
-  async getAuthuser(user_id: string) {
-    try {
-      const res1 = await this.getAuthuserByUserId(user_id)
-
-      if (isValidObject(res1)) {
-        const { token, user_id } = res1 as any
-
-        const decryptedUserId = auth.verify(token)
-
-        if (decryptedUserId === user_id) {
-          return { success: true, data: res1, isAlreadyExists: true }
-        }
-
-        // remove token from user
-        const query2 = 'UPDATE auth_users SET token=null WHERE user_id=$1'
-        const values2: any = [user_id]
-
-        const res2 = await this.client.query(query2, values2)
-        const { command, rowCount } = res2
-
-        if (command === 'UPDATE' && rowCount > 0) {
-          const data = await this.getAuthuserByUserId(user_id)
-          return { success: false, data: data, isAlreadyExists: false }
-        }
-      }
-      return { success: false, data: {}, isAlreadyExists: false }
-    } catch (error) {
-      console.log('Error => getAuthuser => ', error)
-      return { success: false, data: {}, isAlreadyExists: false }
-    }
-  }
-
-  async login(username: string, password: string) {
-    if (
-      !username ||
-      !password ||
-      username?.length <= 0 ||
-      password?.length <= 0
-    ) {
-      return false
-    }
-
-    const query =
-      'SELECT * FROM auth_users WHERE username=$1 AND password=$2 AND is_deleted=false'
-    const values = [username, password]
-
-    const rows = await this.client.query(query, values)
-    if (rows && rows.rows && rows.rows.length > 0) {
-      return rows.rows[0].user_id
-    } else {
-      return undefined
-    }
-  }
-
-  async usernameExists(username: string) {
-    if (!username || username?.length <= 0) {
-      return false
-    }
-
-    const query =
-      'SELECT * FROM auth_users WHERE username=$1 AND is_deleted=false'
-    const values = [username]
-
-    const rows = await this.client.query(query, values)
-    return rows && rows.rows && rows.rows.length > 0 ? true : false
-  }
-
-  async emailExists(email: string) {
-    if (!email || email?.length <= 0) {
-      return false
-    }
-
-    const query = 'SELECT * FROM auth_users WHERE email=$1 AND is_deleted=false'
-    const values = [email]
-
-    const rows = await this.client.query(query, values)
-    return rows && rows.rows && rows.rows.length > 0 ? true : false
-  }
-
-  async register(
-    email: string,
-    username: string,
-    password: string,
-    user_id: string
-  ) {
-    console.log('credentials:', email, username, password, user_id)
-    if (
-      !email ||
-      !username ||
-      !password ||
-      !user_id ||
-      email?.length <= 0 ||
-      username?.length <= 0 ||
-      password?.length <= 0 ||
-      user_id?.length <= 0
-    ) {
-      return 'invalid credentials'
-    }
-    let query = 'SELECT * FROM auth_users WHERE user_id=$1 AND is_deleted=false'
-    const values = [user_id]
-
-    const rows = await this.client.query(query, values)
-    console.log('rows.rows.length:', rows.rows.length)
-    if (rows && rows.rows && rows.rows.length > 0 && !rows.rows[0].email) {
-      if (
-        rows.rows[0].username ||
-        rows.rows[0].email ||
-        rows.rows[0].username.length > 0 ||
-        rows.rows[0].email.length > 0
-      ) {
-        return 'account already registered!'
-      }
-
-      query =
-        'UPDATE auth_users SET email=$1, username=$2, password=$3 WHERE user_id=$4 AND is_deleted=false'
-      const values = [email, username, password, user_id]
-
-      await this.client.query(query, values)
-      return 'ok'
-    } else {
-      const token: any = (auth as IAuth).generate(user_id)
-      query =
-        'INSERT INTO auth_users(token, user_id, email, username, password) VALUES($1, $2, $3, $4, $5)'
-      const values = [token, user_id, email, username, password]
-
-      await this.client.query(query, values)
-      return 'ok'
-    }
-  }
-
   async dataIsHandled(id: string, client: string): Promise<boolean> {
     const query = 'SELECT * FROM handled_history WHERE _id=$1 AND client=$2'
     const values = [id, client]
@@ -1567,9 +1358,4 @@ export class database {
       throw new Error(e)
     }
   }
-}
-
-type AddAuthUser = {
-  user_id: string
-  token: string
 }

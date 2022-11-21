@@ -43,7 +43,6 @@ export class TriggerOut extends ThothComponent<WorkerReturn> {
   }
 
   // the builder is used to "assemble" the node component.
-  // when we have enki hooked up and have grabbed all few shots, we would use the builder
   // to generate the appropriate inputs and outputs for the fewshot at build time
   builder(node: ThothNode) {
     // create inputs here. First argument is the name, second is the type (matched to other components sockets), and third is the socket the i/o will use

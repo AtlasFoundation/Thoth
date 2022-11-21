@@ -163,7 +163,6 @@ export default {
   createdAt: '2022-06-10T06:48:49.841Z',
   updatedAt: '2022-06-07T23:26:14.112Z',
   deletedAt: null,
-  userId: '29476106',
   modules: [],
   gameState: null,
 } as unknown as Spell

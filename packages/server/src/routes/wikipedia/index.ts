@@ -1,7 +1,6 @@
 import Koa from 'koa'
 
 import { searchWikipedia } from "./helpers";
-import { noAuth } from '../../middleware/auth';
 import { Route } from "../../types";
 import { CustomError } from "../../utils/CustomError";
 
@@ -41,7 +40,6 @@ const getWikipediaSummary = async (ctx: Koa.Context) => {
 export const wikipedia: Route[] = [
   {
     path: '/wikipediaSummary',
-    access: noAuth,
     get: getWikipediaSummary
   }
 ]
