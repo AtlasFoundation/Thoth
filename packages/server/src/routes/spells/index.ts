@@ -112,13 +112,6 @@ const saveHandler = async (ctx: Koa.Context) => {
     where: { id: body.id },
   }) as any
 
-  if (spell) {
-    throw new CustomError(
-      'input-failed',
-      'A spell with that name already exists.'
-    )
-  }
-
   if (!spell) {
     const newSpell = await creatorToolsDatabase.spells.create({
       name: body.name,

@@ -178,8 +178,6 @@ export const defaultClientData: AddClient[] = [
 ]
 
 export const defaultConfiguationData: any = {
-  ball: 'football',
-
   whatsappBotName: '',
 
   harmonyURL: '',
@@ -218,13 +216,7 @@ export const defaultConfiguationData: any = {
 
   agent: 'Thales',
 
-  openai_api_key: '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',
-
   google_project_id: '',
-
-  hf_api_token: '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',
-
-  use_gptj: false,
 
   discord_api_token: '',
 
@@ -516,12 +508,6 @@ export const defaultScopeData: AddScope[] = [
     tables: 'wikipedia',
     fullTableSize: '96 KB',
     tableSize: '64 KB',
-    recordCount: 0,
-  },
-  {
-    tables: 'xr_engine_room_prompt',
-    fullTableSize: '16 KB',
-    tableSize: '8 KB',
     recordCount: 0,
   },
 ]

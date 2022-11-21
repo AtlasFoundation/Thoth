@@ -57,6 +57,7 @@ async function init() {
   await creatorToolsDatabase.sequelize.sync({
     force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
   })
+
   await database.instance.firstInit()
 
   await initFileServer()
@@ -138,17 +139,26 @@ async function init() {
   }
 
   type MiddlewareParams = {
+    access: string | string[] | Middleware
     middleware: Middleware[] | undefined
   }
 
-  const routeMiddleware = ({ middleware = [] }: MiddlewareParams) => {
+  const noAuth = async (ctx: Koa.Context, next: Koa.Next) => {
+    await next()
+  }
+
+  const routeMiddleware = ({ access, middleware = [] }: MiddlewareParams) => {
+    if (!access) return [...middleware]
+    if (typeof access === 'function') return [access, ...middleware]
+    if (typeof access === 'string') return [...middleware]
     return [...middleware]
   }
 
   // Create Koa routes from the routes defined in each module
   routes.forEach(route => {
     const { method, path, middleware, handler } = route
-    const _middleware = routeMiddleware({ middleware })
+    const access = noAuth
+    const _middleware = routeMiddleware({ access, middleware })
     if (method && handler) {
       createRoute(method, path, _middleware, handler)
     }

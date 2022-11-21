@@ -13,32 +13,7 @@ export async function MakeCompletionRequest(
   type: any,
   engine: any
 ) {
-  // if ((await database.instance.getConfig())['use_gptj']) {
-  //   const params = {
-  //     temperature: 0.8,
-  //     repetition_penalty: 0.5,
-  //     max_length: 500,
-  //     return_full_text: false,
-  //     max_new_tokens: 150,
-  //   }
-  //   const options = {
-  //     wait_for_model: true,
-  //   }
-  //   const response = await makeModelRequest(
-  //     data.prompt,
-  //     'EleutherAI/gpt-j-6B',
-  //     params,
-  //     options
-  //   )
-  //   console.log('response', response.body)
-  //   const responseModified = {
-  //     success: true,
-  //     choice: { text: response[0].generated_text.split('\n')[0] },
-  //   }
-  //   return responseModified
-  // } else {
   return await makeOpenAIGPT3Request(data, speaker, agent, type, engine)
-  // }
 }
 const useDebug = false
 async function makeOpenAIGPT3Request(
