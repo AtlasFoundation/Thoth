@@ -10,7 +10,6 @@ import {
   extractModuleInputKeys,
   runSpell,
 } from './runSpell'
-import { getTestSpell } from './testSpells'
 import { Graph, Module } from './types'
 
 import otJson0 from 'ot-json0'
@@ -20,7 +19,7 @@ export const modules: Record<string, unknown> = {}
 
 const runSpellHandler = async (ctx: Koa.Context) => {
   const { spell, version } = ctx.params
-  const { isTest, userGameState = {} } = ctx.request.body
+  const { userGameState = {} } = ctx.request.body
 
   let rootSpell = await creatorToolsDatabase.spells.findOne({
     where: { name: spell },
@@ -29,10 +28,7 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   // eslint-disable-next-line functional/no-let
   let activeSpell
 
-  if (isTest) {
-    console.log('test')
-    activeSpell = getTestSpell(spell)
-  } else if (version === 'latest') {
+  if (version === 'latest') {
     console.log('latest')
     activeSpell = rootSpell
   } else {

@@ -5,14 +5,11 @@ export const buildThothInterface = (): EngineContext => {
     async completion(body) {
       return 'testing'
     },
-    setCurrentGameState() {},
+    setCurrentGameState() { },
     getCurrentGameState() {
       return {}
     },
-    async enkiCompletion() {
-      return { outputs: [] }
-    },
-    updateCurrentGameState() {},
+    updateCurrentGameState() { },
     async huggingface() {
       return {}
     },
@@ -22,6 +19,6 @@ export const buildThothInterface = (): EngineContext => {
     async readFromImageCache() {
       return { images: [] }
     },
-    processCode() {},
+    processCode() { },
   }
 }

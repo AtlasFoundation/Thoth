@@ -5,7 +5,6 @@ import {
 } from '@thothai/thoth-core/types'
 import { useContext, createContext, useRef, useEffect } from 'react'
 
-import { postEnkiCompletion } from '../../services/game-api/enki'
 import { completion as _completion } from '../../services/game-api/text'
 import { invokeInference } from '../../utils/huggingfaceHelper'
 import { usePubSub } from '../../contexts/PubSubProvider'
@@ -126,11 +125,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     return result
   }
 
-  const enkiCompletion = async (taskName, inputs) => {
-    const result = await postEnkiCompletion(taskName, inputs)
-    return result
-  }
-
   const huggingface = async (model, data) => {
     const result = await invokeInference(model, data)
     return result
@@ -234,7 +228,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     onPlaytest,
     clearTextEditor,
     completion,
-    enkiCompletion,
     huggingface,
     readFromImageCache,
     getCurrentGameState,

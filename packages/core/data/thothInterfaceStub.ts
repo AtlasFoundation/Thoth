@@ -10,17 +10,14 @@ export default {
       string | OpenAIResultChoice
     >
   },
-  enkiCompletion: (): Promise<{ outputs: string[] }> => {
-    return new Promise(resolve => resolve({ outputs: ['string'] }))
-  },
   huggingface: (): Promise<{ outputs: string[] }> => {
     return new Promise(resolve => resolve({ outputs: ['string'] }))
   },
   getCurrentGameState: () => {
     return {}
   },
-  setCurrentGameState: (state: Record<string, unknown>) => {},
-  updateCurrentGameState: (state: Record<string, unknown>) => {},
+  setCurrentGameState: (state: Record<string, unknown>) => { },
+  updateCurrentGameState: (state: Record<string, unknown>) => { },
   runSpell: (flattenedInputs: Record<string, unknown>, spellId: string) => {
     return new Promise(resolve => resolve({ outputs: ['string'] }))
   },

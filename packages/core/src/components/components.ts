@@ -24,22 +24,13 @@ import { LogicalOperator } from './logic/LogicalOperator'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
-import { ActionTypeComponent } from './ml/ActionType'
 import { Classifier } from './ml/Classifier'
-import { DifficultyDetectorComponent } from './ml/DifficultyDetector'
-import { EntityDetector } from './ml/EntityDetector'
 import { Generator } from './ml/Generator'
-import { HuggingfaceComponent } from './ml/Huggingface'
-import { ItemTypeComponent } from './ml/ItemDetector'
 import { KeywordExtractor } from './ml/KeywordExtractor'
 import { NamedEntityRecognition } from './ml/NamedEntityRecognition'
-import { ProseToScript } from './ml/ProseToScript'
-import { SafetyVerifier } from './ml/SafetyVerifier'
 import { SentenceMatcher } from './ml/SentenceMatcher'
 import { SummarizeFacts } from './ml/SummarizeFacts'
-import { TenseTransformer } from './ml/TenseTransformer'
 import { TextToSpeech } from './ml/TextToSpeech'
-import { TimeDetectorComponent } from './ml/TimeDetector'
 import { DocumentDelete } from './search/DocumentDelete'
 import { DocumentEdit } from './search/DocumentEdit'
 import { DocumentGet } from './search/DocumentGet'
@@ -80,16 +71,12 @@ import { VariableReplacer } from './utility/VariableReplacer'
 // todo some kind of custom build parser perhaps to take car of keeping these in alphabetical order
 
 export const components = {
-  actionTypeComponent: () => new ActionTypeComponent(),
   alert: () => new Alert(),
   booleanGate: () => new BooleanGate(),
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
   sentenceMatcher: () => new SentenceMatcher(),
-  difficultyDetectorComponent: () => new DifficultyDetectorComponent(),
-  // enkiTask: () => new EnkiTask(),
-  entityDetector: () => new EntityDetector(),
   complexStringMatcher: () => new ComplexStringMatcher(),
   echo: () => new Echo(),
   variableReplacer: () => new VariableReplacer(),
@@ -134,23 +121,17 @@ export const components = {
   addAgent: () => new AddAgent(),
   logicalOperator: () => new LogicalOperator(),
   generator: () => new Generator(),
-  huggingfaceComponent: () => new HuggingfaceComponent(),
   inputComponent: () => new InputComponent(),
   inputDestructureComponent: () => new InputDestructureComponent(),
   inputRestructureComponent: () => new InputRestructureComponent(),
   inputsToJson: () => new InputsToJSON(),
-  itemTypeComponent: () => new ItemTypeComponent(),
   joinListComponent: () => new JoinListComponent(),
   moduleComponent: () => new SpellComponent(),
   output: () => new Output(),
-  proseToScript: () => new ProseToScript(),
-  safetyVerifier: () => new SafetyVerifier(),
   stateWrite: () => new StateWrite(),
   stateRead: () => new StateRead(),
   stringProcessor: () => new StringProcessor(),
   switchGate: () => new SwitchGate(),
-  tenseTransformer: () => new TenseTransformer(),
-  timeDetectorComponent: () => new TimeDetectorComponent(),
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
   waitForAll: () => new WaitForAll(),

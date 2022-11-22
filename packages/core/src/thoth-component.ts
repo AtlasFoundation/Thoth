@@ -28,7 +28,7 @@ export interface ModuleOptions {
 
 export abstract class ThothComponent<
   WorkerReturnType
-  > extends ThothEngineComponent<WorkerReturnType> {
+> extends ThothEngineComponent<WorkerReturnType> {
   // Original interface for task and _task: IComponentWithTask from the Rete Task Plugin
   task: TaskOptions
   _task: ThothTask
@@ -38,10 +38,8 @@ export abstract class ThothComponent<
   category: string
   info: string
   display: boolean
-  deprecated = false
   dev = false
   hide = false
-  deprecationMessage: string | undefined
   module: ModuleOptions
   contextMenuName: string | undefined
   workspaceType: 'module' | 'spell' | null | undefined

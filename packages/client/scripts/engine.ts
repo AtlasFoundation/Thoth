@@ -10,7 +10,6 @@ export const components = [
   // new BooleanGate(),
   // new Code(),
   // new DifficultyDetectorComponent(),
-  // new EnkiTask(),
   // new EntityDetector(),
   // new ForEach(),
   // new Generator(),
