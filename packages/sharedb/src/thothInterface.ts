@@ -10,9 +10,6 @@ export const buildThothInterface = (): EngineContext => {
       return {}
     },
     updateCurrentGameState() { },
-    async huggingface() {
-      return {}
-    },
     async runSpell() {
       return {}
     },

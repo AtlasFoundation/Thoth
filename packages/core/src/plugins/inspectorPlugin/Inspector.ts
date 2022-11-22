@@ -23,8 +23,6 @@ export type InspectorData = {
   data: Record<string, unknown>
   category?: string
   info: string
-  deprecated: boolean
-  deprecationMessage: string
 }
 
 export class Inspector {
@@ -102,8 +100,10 @@ export class Inspector {
       )
       // filter out any sockets which we have set to be ignored
       .filter(
-        existing =>
-          ignored.length === 0 || ignored.some(socket => socket !== existing)
+        existing => {
+          console.log("filtering out existing")
+          return ignored.length === 0 || !ignored.some(socket => socket === existing)
+        }
       )
       // iterate over each socket after this to remove is
       .forEach(key => {
@@ -267,7 +267,7 @@ export class Inspector {
     this.editor.trigger('save')
   }
 
-  get() {}
+  get() { }
 
   // returns all data prepared for the pubsub to send it.
   data(): InspectorData {
@@ -289,12 +289,8 @@ export class Inspector {
       data: this.node.data,
       category: this.node.category,
       info: this.node.info,
-      deprecated: this.component.deprecated,
-      deprecationMessage:
-        this.component.deprecationMessage ||
-        'This component has been deprecated.  Please use an alternative component, and remove any instances from your spells.',
     }
   }
 
-  remove() {}
+  remove() { }
 }

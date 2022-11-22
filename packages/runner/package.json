@@ -16,22 +16,13 @@
   "bugs": {},
   "directories": {
     "lib": "src",
-    "test": "test/",
     "config": "config/"
   },
   "scripts": {
-    "test": "yarn lint && yarn compile && yarn jest",
     "lint": "eslint src/. test/. --config .eslintrc.json --ext .ts --fix",
     "dev": "ts-node-dev --no-notify src/",
     "start": "yarn compile && node lib/",
-    "jest": "jest --forceExit",
     "compile": "shx rm -rf lib/ && tsc"
-  },
-  "standard": {
-    "env": [
-      "jest"
-    ],
-    "ignore": []
   },
   "types": "lib/",
   "dependencies": {
@@ -64,7 +55,6 @@
     "@types/serve-favicon": "^2.5.3",
     "axios": "^0.27.2",
     "eslint": "^8.6.0",
-    "jest": "^28.0.3",
     "shx": "^0.3.4",
     "ts-jest": "^27.1.4",
     "ts-node-dev": "^2.0.0",

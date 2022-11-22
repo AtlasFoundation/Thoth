@@ -26,10 +26,7 @@
     "reset": "rm -rf ./node_modules && rm yarn.lock && yarn install",
     "start": "pm2-runtime start ecosystem.config.yml --env production",
     "stop": "pid=$(lsof -ti tcp:8001) && [[ $pid ]] && kill -9 $pid fi",
-    "test": "jest -o",
-    "test:full": "jest --clearCache && jest --coverage",
     "tsc:noEmit": "tsc --noEmit",
-    "test:watch": "jest --watch --silent",
     "seed": "sh ../../scripts/seed_dev.sh"
   },
   "dependencies": {
@@ -102,7 +99,6 @@
     "eslint-plugin-import": "2.23.4",
     "eslint-plugin-no-autofix": "1.1.2",
     "jasmine-check": "^1.0.0-rc.0",
-    "jest": "27.0.6",
     "jest-mock-extended": "1.0.16",
     "lint-staged": ">=10",
     "prettier": "2.3.2",

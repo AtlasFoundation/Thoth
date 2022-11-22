@@ -25,7 +25,6 @@
     "canary": "yarn build && auto canary",
     "ship": "auto release --prerelease --base-branch main",
     "release": "yarn build && yarn ship",
-    "test": "jest",
     "test:watch": "jest --watch"
   },
   "resolutions": {
@@ -100,7 +99,6 @@
     "auto": "^10.32.0",
     "babel-loader": "^8.2.2",
     "copyfiles": "^2.4.1",
-    "jest": "^28.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",

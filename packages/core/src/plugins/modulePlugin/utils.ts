@@ -120,8 +120,7 @@ const addSockets = ({
 
   if (uniqueCount !== sockets.length)
     throw new Error(
-      `Module ${node.data.module} has duplicate ${
-        taskType === 'option' ? 'trigger' : ''
+      `Module ${node.data.module} has duplicate ${taskType === 'option' ? 'trigger' : ''
       } ${connectionType}s`
     )
 
@@ -154,7 +153,7 @@ const addSockets = ({
 
       node[addMethod](
         new Socket(socketKey, name, socket, taskType === 'option') as Input &
-          Output
+        Output
       )
       if (connectionType === 'output')
         node.inspector.component.task.outputs[socketKey] = taskType

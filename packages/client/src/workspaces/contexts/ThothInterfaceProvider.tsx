@@ -125,11 +125,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     return result
   }
 
-  const huggingface = async (model, data) => {
-    const result = await invokeInference(model, data)
-    return result
-  }
-
   const readFromImageCache = async (caption, cacheTag, topK) => {
     const result = await fetchFromImageCache({
       caption,
@@ -228,7 +223,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     onPlaytest,
     clearTextEditor,
     completion,
-    huggingface,
     readFromImageCache,
     getCurrentGameState,
     setCurrentGameState,
