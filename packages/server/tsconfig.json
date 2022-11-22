@@ -27,8 +27,8 @@
         "@thothai/thoth-core/dist/server.d.ts"
       ]
     },
-    "noImplicitAny": true,
-    "strictNullChecks": true
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
   "include": [
     "hocs/**/*.ts",

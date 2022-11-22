@@ -24,8 +24,8 @@
         "@types/@teamwork/websocket-json-stream"
       ]
     },
-    "noImplicitAny": true,
-    "strictNullChecks": true
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
   "include": ["src/**/*.ts", "@types/**/*.d.ts", "index.ts"]
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable require-await */
@@ -48,8 +49,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-            rejectUnauthorized: false,
-          }
+          rejectUnauthorized: false,
+        }
         : false,
     })
     this.client.connect()
@@ -158,8 +159,8 @@ export class database {
         (type === 'conversation' || 'history'
           ? '\n'
           : type === 'facts'
-          ? '. '
-          : '')
+            ? '. '
+            : '')
       count++
       if (count >= max_length) {
         break

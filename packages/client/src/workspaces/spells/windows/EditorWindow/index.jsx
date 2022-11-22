@@ -4,16 +4,12 @@ import { createNode } from 'rete-context-menu-plugin/src/utils'
 import WindowToolbar from '@/components/Window/WindowToolbar'
 import { Editor, useEditor } from '../../../contexts/EditorProvider'
 import Deployment from './Deployment'
-import Minting from './Minting'
 import Select from '@components/Select/Select'
 import css from './editorwindow.module.css'
-import { usePlugWallet } from '@/contexts/PlugProvider'
 
 const EditorWindow = ({ tab }) => {
   const { getNodes, getNodeMap, editor } = useEditor()
   const [deployOpen, setDeployOpen] = useState(false)
-  const [mintingOpen, setMintingOpen] = useState(false)
-  const { connected } = usePlugWallet()
   const nodeList = getNodes()
   const nodeMap = getNodeMap()
 
@@ -70,10 +66,6 @@ const EditorWindow = ({ tab }) => {
     setDeployOpen(false)
   }
 
-  const closeMinting = () => {
-    setMintingOpen(false)
-  }
-
   const EditorToolbar = () => {
     return (
       <React.Fragment>
@@ -90,14 +82,6 @@ const EditorWindow = ({ tab }) => {
           value={null}
           focusKey="cmd+p, ctl+p"
         />
-        <button
-          style={{ visibility: `${connected ? 'initial' : 'hidden'}` }}
-          onClick={() => {
-            setMitningOpen(true)
-          }}
-        >
-          Minting
-        </button>
         <button
           onClick={() => {
             setDeployOpen(true)
@@ -117,12 +101,6 @@ const EditorWindow = ({ tab }) => {
         </div>
         <Editor tab={tab} />
       </div>
-      <Minting
-        open={mintingOpen}
-        setOpen={setMintingOpen}
-        close={closeMinting}
-        spellId={tab.spellId}
-      />
       <Deployment
         open={deployOpen}
         setOpen={setDeployOpen}
