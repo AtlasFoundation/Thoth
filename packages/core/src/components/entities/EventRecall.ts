@@ -26,7 +26,7 @@ async function getEvent(
   channel: string,
   maxCount = 10,
   target_count: string | any = 'single',
-  max_time_diff: number = -1
+  max_time_diff = -1
 ) {
   const response = await axios.get(
     `${

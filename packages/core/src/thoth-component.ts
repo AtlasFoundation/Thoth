@@ -1,6 +1,7 @@
 import { Node, Socket } from 'rete'
-import { ThothEditor } from './editor'
+
 import { PubSubBase, ThothNode } from '../types'
+import { ThothEditor } from './editor'
 import { ThothEngineComponent } from './engine'
 import { Task, TaskOptions } from './plugins/taskPlugin/task'
 

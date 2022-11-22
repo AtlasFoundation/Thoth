@@ -1,9 +1,10 @@
+import { VM } from 'vm2'
+
 import {
   ImageCacheResponse,
   OpenAIResultChoice,
   ThothWorkerInputs,
 } from '../types'
-import { VM } from 'vm2'
 export default {
   completion: () => {
     return new Promise(resolve => resolve('string')) as Promise<
@@ -16,8 +17,8 @@ export default {
   getCurrentGameState: () => {
     return {}
   },
-  setCurrentGameState: (state: Record<string, unknown>) => { },
-  updateCurrentGameState: (state: Record<string, unknown>) => { },
+  setCurrentGameState: (state: Record<string, unknown>) => {},
+  updateCurrentGameState: (state: Record<string, unknown>) => {},
   runSpell: (flattenedInputs: Record<string, unknown>, spellId: string) => {
     return new Promise(resolve => resolve({ outputs: ['string'] }))
   },

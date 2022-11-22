@@ -16,7 +16,7 @@ export class StringProcessor extends ThothComponent<Record<string, string>> {
 
     this.task = {
       outputs: { trigger: 'option' },
-      init: () => { },
+      init: () => {},
     }
     this.category = 'Strings'
     this.info = info

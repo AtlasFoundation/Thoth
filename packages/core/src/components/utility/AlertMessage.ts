@@ -15,8 +15,8 @@ export class Alert extends ThothComponent<void> {
 
     this.task = {
       outputs: {},
-      init: () => { },
-      onRun: () => { },
+      init: () => {},
+      onRun: () => {},
     } as TaskOptions
     this.category = 'Utility'
     this.info = info
