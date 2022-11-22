@@ -18,7 +18,7 @@ import {
   useGetSpellQuery,
 } from '@/state/api/spells'
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
-import { latitudeApiRootUrl } from '@/config'
+import { thothApiRootUrl } from '@/config'
 import { useAuth } from '@/contexts/AuthProvider'
 
 const DeploymentView = ({ open, setOpen, spellId, close }) => {
@@ -52,8 +52,7 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
   }
 
   const buildUrl = version => {
-    // return encodeURI(`${latitudeApiRootUrl}/games/spells/${spellId}/${version}`)
-    return encodeURI(`${latitudeApiRootUrl}/games/graphs/${spellId}/${version}`)
+    return encodeURI(`${thothApiRootUrl}/games/graphs/${spellId}/${version}`)
   }
 
   const loadVersion = async version => {
@@ -73,15 +72,15 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
 
   useEffect(() => {
     if (!deploymentData || !loadingVersion) return
-    ;(async () => {
-      close()
-      await saveSpell({ ...spell, graph: deploymentData.graph, user: user?.id })
-      enqueueSnackbar(`version ${deploymentData.version} loaded!`, {
-        variant: 'success',
-      })
-      setLoadingVersion(false)
-      loadGraph(deploymentData.graph)
-    })()
+      ; (async () => {
+        close()
+        await saveSpell({ ...spell, graph: deploymentData.graph, user: user?.id })
+        enqueueSnackbar(`version ${deploymentData.version} loaded!`, {
+          variant: 'success',
+        })
+        setLoadingVersion(false)
+        loadGraph(deploymentData.graph)
+      })()
   }, [deploymentData, loadingVersion])
 
   const copy = url => {
@@ -158,9 +157,8 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
                 return (
                   <SimpleAccordion
                     key={deploy.version}
-                    heading={`${deploy.version}${
-                      deploy.versionName ? ' - ' + deploy.versionName : ''
-                    }`}
+                    heading={`${deploy.version}${deploy.versionName ? ' - ' + deploy.versionName : ''
+                      }`}
                     defaultExpanded={true}
                   >
                     <button
