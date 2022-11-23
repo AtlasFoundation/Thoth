@@ -8,6 +8,5 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "typeRoots": ["./@types"]
-  },
-  "exclude": ["test", "jest.config.js"]
+  }
 }
