@@ -25,15 +25,6 @@ export interface entitiesAttributes {
   voice_language_code?: string
   voice_default_phrases?: string
   tiktalknet_url?: string
-  xrengine_enabled?: boolean
-  xrengine_url?: string
-  xrengine_spell_handler_incoming?: string
-  xrengine_spell_handler_update?: string
-  xrengine_spell_handler_feed?: string
-  xrengine_bot_name?: string
-  xrengine_bot_name_regex?: string
-  xrengine_starting_words?: string
-  xrengine_empty_responses?: string
   twitter_client_enable?: boolean
   twitter_token?: string
   twitter_id?: string
@@ -118,13 +109,6 @@ export type entitiesOptionalAttributes =
   | 'voice_language_code'
   | 'voice_default_phrases'
   | 'tiktalknet_url'
-  | 'xrengine_enabled'
-  | 'xrengine_url'
-  | 'xrengine_spell_handler_incoming'
-  | 'xrengine_spell_handler_update'
-  | 'xrengine_spell_handler_feed'
-  | 'xrengine_bot_name'
-  | 'xrengine_bot_name_regex'
   | 'twitter_client_enable'
   | 'twitter_token'
   | 'twitter_id'
@@ -220,15 +204,6 @@ export class entities
   voice_language_code?: string
   voice_default_phrases?: string
   tiktalknet_url?: string
-  xrengine_enabled?: boolean
-  xrengine_url?: string
-  xrengine_spell_handler_incoming?: string
-  xrengine_spell_handler_update?: string
-  xrengine_spell_handler_feed?: string
-  xrengine_bot_name?: string
-  xrengine_bot_name_regex?: string
-  xrengine_starting_words?: string
-  xrengine_empty_responses?: string
   twitter_client_enable?: boolean
   twitter_token?: string
   twitter_id?: string
@@ -382,42 +357,6 @@ export class entities
           allowNull: true,
         },
         discord_spell_handler_feed: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_enabled: {
-          type: DataTypes.BOOLEAN,
-          allowNull: true,
-        },
-        xrengine_url: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_spell_handler_incoming: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_spell_handler_update: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_spell_handler_feed: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_bot_name: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_bot_name_regex: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_starting_words: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_empty_responses: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
