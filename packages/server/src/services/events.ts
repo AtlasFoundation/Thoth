@@ -6,7 +6,7 @@ export type GetEventArgs = {
   client: string
   channel: string
   maxCount: number
-  target_count: number
+  target_count: string
   max_time_diff: number
 }
 

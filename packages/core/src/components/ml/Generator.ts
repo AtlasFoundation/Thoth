@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Handlebars from 'handlebars'
 import Rete from 'rete'
 
@@ -11,7 +12,6 @@ import {
 import { DropdownControl } from '../../dataControls/DropdownControl'
 import { FewshotControl } from '../../dataControls/FewshotControl'
 import { InputControl } from '../../dataControls/InputControl'
-// import { ModelControl } from '../../dataControls/ModelControl'
 import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
@@ -60,17 +60,19 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       name: 'Component Name',
     })
 
-    // const modelControl = new ModelControl({
-    //   dataKey: 'model',
-    //   name: 'Model',
-    //   defaultValue: (node.data?.model as string) || 'vanilla-jumbo',
-    // })
-
     const modelName = new DropdownControl({
       name: 'modelName',
       dataKey: 'modelName',
-      values: ['text-davinvci-002', 'text-davinvci-001', 'text-curie-001', 'text-babbage-001', 'text-ada-001', 'curie-instruct-beta', 'davinci-instruct-beta'],
-      defaultValue: 'text-davinci-002'
+      values: [
+        'text-davinvci-002',
+        'text-davinvci-001',
+        'text-curie-001',
+        'text-babbage-001',
+        'text-ada-001',
+        'curie-instruct-beta',
+        'davinci-instruct-beta',
+      ],
+      defaultValue: 'text-davinci-002',
     })
 
     const inputGenerator = new SocketGeneratorControl({
@@ -87,7 +89,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       dataKey: 'stop',
       name: 'Stop',
       icon: 'stop-sign',
-      defaultValue: `\\n`,
+      defaultValue: '',
     })
 
     const temperatureControl = new InputControl({
@@ -112,7 +114,6 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
 
     node.inspector
       .add(nameControl)
-      // .add(modelControl)
       .add(modelName)
       .add(inputGenerator)
       .add(fewshotControl)
@@ -128,7 +129,7 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     node: NodeData,
     rawInputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,
-    { thoth, silent }: { silent: boolean; thoth: EngineContext }
+    { thoth }: { silent: boolean; thoth: EngineContext }
   ) {
     const { completion } = thoth
     const inputs = Object.entries(rawInputs).reduce((acc, [key, value]) => {
@@ -140,7 +141,9 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
     // const model = node.data.model || 'davinci'
 
     // Replace carriage returns with newlines because that's what the language models expect
-    const fewshot = node.data.fewshot ? (node.data.fewshot as string).replace('\r\n', '\n') : ''
+    const fewshot = node.data.fewshot
+      ? (node.data.fewshot as string).replace('\r\n', '\n')
+      : ''
     const stopSequence = node.data.stop as string
     const topPData = node?.data?.topP as string
     const topP = topPData ? parseFloat(topPData) : 1
@@ -149,9 +152,9 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
 
     const stop = node?.data?.stop
       ? stopSequence.split(',').map(i => {
-        if (i.includes('\\n')) return '\n'
-        return i.trim()
-      })
+          if (i.includes('\\n')) return '\n'
+          return i.trim()
+        })
       : ''
 
     const tempData = node.data.temp as string
@@ -164,7 +167,9 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       : 0
 
     const presencePenaltyData = node?.data?.presencePenalty as string
-    const presencePenalty = presencePenaltyData ? parseFloat(presencePenaltyData) : 0
+    const presencePenalty = presencePenaltyData
+      ? parseFloat(presencePenaltyData)
+      : 0
 
     const body = {
       modelName,
@@ -174,10 +179,11 @@ export class Generator extends ThothComponent<Promise<WorkerReturn>> {
       temperature,
       frequencyPenalty,
       presencePenalty,
-      topP
+      topP,
     }
     try {
       console.log('Sending completion!')
+      console.log('Prompt', prompt)
       const raw = (await completion(body)) as string
       console.log('completion result', raw)
       const result = raw

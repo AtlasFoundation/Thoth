@@ -209,7 +209,7 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const target_count = parseInt(ctx.request.query.target_count as string)
+  const target_count = ctx.request.query.target_count as string
   const max_time_diff = parseInt(ctx.request.query.max_time_diff as string)
 
   const event = await database.instance.getEvents(

@@ -98,7 +98,7 @@ export class database {
     channel: any,
     asString: boolean = true,
     maxCount: number = 10,
-    target_count: number | null,
+    target_count: string | null,
     max_time_diff: number
   ) {
     // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
