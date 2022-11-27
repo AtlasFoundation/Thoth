@@ -321,7 +321,7 @@ const createEvent = async (ctx: Koa.Context) => {
     client,
     channel,
     speaker,
-    text
+    text,
   })
 
   return (ctx.body = 'ok')
@@ -329,7 +329,7 @@ const createEvent = async (ctx: Koa.Context) => {
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text as string
-  const character = (ctx.request.query.character ?? 'none')
+  const character = ctx.request.query.character ?? 'none'
   console.log('text and character are', text, character)
   const voice_provider = ctx.request.query.voice_provider as string
   const voice_character = ctx.request.query.voice_character as string
@@ -349,18 +349,14 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
 
   if (!cache && cache.length <= 0) {
     if (voice_provider === 'uberduck') {
-      url = await getAudioUrl(
+      url = (await getAudioUrl(
         process.env.UBER_DUCK_KEY as string,
         process.env.UBER_DUCK_SECRET_KEY as string,
         voice_character as string,
         text as string
-      )
+      )) as string
     } else if (voice_provider === 'google') {
-      url = await tts(
-        text,
-        voice_provider,
-        voice_character,
-      )
+      url = await tts(text, voice_provider, voice_character)
     } else {
       url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
     }
@@ -417,7 +413,7 @@ const customMessage = async (ctx: Koa.Context) => {
   })
 
   // warning coerced into string, but may not be
-  const response = await spellHandler(
+  const response = (await spellHandler(
     message,
     sender,
     agent,
@@ -425,8 +421,8 @@ const customMessage = async (ctx: Koa.Context) => {
     channel,
     [],
     [],
-    "room"
-  ) as string
+    'room'
+  )) as string
 
   if (isVoice) {
     if (
@@ -571,7 +567,7 @@ const makeWeaviateRequest = async (ctx: Koa.Context) => {
     .withLimit(3)
     .do()
 
-  console.log("RESPONSE", res)
+  console.log('RESPONSE', res)
 
   if (res?.data?.Get !== undefined) {
     return (ctx.body = { data: res.data.Get })
@@ -593,8 +589,9 @@ const requestInformationAboutVideo = async (
   question: string
 ): Promise<string> => {
   const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-    }\n${agent}:`
+  const prompt = `Information: ${videoInformation} \n ${sender}: ${
+    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
+  }\n${agent}:`
 
   const modelName = 'davinci'
   const temperature = 0.9
@@ -768,7 +765,11 @@ const deleteCalendarEvent = async (ctx: Koa.Context) => {
 
 const addVideo = async (ctx: Koa.Context) => {
   try {
-    let { path: videoPath, name, type: mimeType } = ctx.request?.files?.video as any
+    let {
+      path: videoPath,
+      name,
+      type: mimeType,
+    } = ctx.request?.files?.video as any
     const [type] = mimeType.split('/')
     if (type !== 'video') {
       ctx.response.status = 400
@@ -787,13 +788,14 @@ const addVideo = async (ctx: Koa.Context) => {
 }
 
 const queryGoogle = async (ctx: Koa.Context) => {
-  console.log("QUERY", ctx.request?.body?.query)
-  if (!ctx.request?.body?.query) throw new CustomError('input-failed', 'No query provided in request body')
+  console.log('QUERY', ctx.request?.body?.query)
+  if (!ctx.request?.body?.query)
+    throw new CustomError('input-failed', 'No query provided in request body')
   const query = ctx.request.body?.query as string
   const result = await queryGoogleSearch(query)
 
   ctx.body = {
-    result
+    result,
   }
 }
 
@@ -983,7 +985,7 @@ export const entities: Route[] = [
   {
     path: '/query_google',
     access: noAuth,
-    post: queryGoogle
+    post: queryGoogle,
   },
   {
     path: '/register',

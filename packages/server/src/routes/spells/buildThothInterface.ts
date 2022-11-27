@@ -1,13 +1,13 @@
-import { CustomError } from './../../utils/CustomError';
+import { CustomError } from './../../utils/CustomError'
 import { EngineContext, ThothWorkerInputs } from '@thothai/thoth-core/types'
 import Koa from 'koa'
 import vm2 from 'vm2'
 import { CompletionRequest, completionsParser } from '../completions'
 import * as events from '../../services/events'
 import { CreateEventArgs, GetEventArgs } from '../../services/events'
-import { searchWikipedia } from '../wikipedia/helpers';
+import { searchWikipedia } from '../wikipedia/helpers'
 import { makeCompletion } from '../../utils/MakeCompletionRequest'
-import queryGoogle from '../utils/queryGoogle';
+import queryGoogle from '../utils/queryGoogle'
 
 export const buildThothInterface = (
   ctx: Koa.Context,
@@ -26,7 +26,7 @@ export const buildThothInterface = (
         temperature,
         frequencyPenalty,
         presencePenalty,
-        topP
+        topP,
       } = request
 
       const { success, choice } = await makeCompletion(model, {
@@ -44,7 +44,7 @@ export const buildThothInterface = (
     runSpell: () => {
       return {}
     },
-    queryGoogle: async (query) => {
+    queryGoogle: async query => {
       const response = await queryGoogle(query)
       return response
     },
@@ -61,12 +61,13 @@ export const buildThothInterface = (
       const vm = new VM()
 
       // Inputs are flattened before we inject them for a better code experience
-      const flattenInputs = Object.entries(inputs)
-        .reduce((acc, [key, value]: [string, any]) => {
+      const flattenInputs = Object.entries(inputs).reduce(
+        (acc, [key, value]: [string, any]) => {
           acc[key] = value[0]
           return acc
-        }, {} as Record<string, any>)
-
+        },
+        {} as Record<string, any>
+      )
 
       // Freeze the variables we are injecting into the VM
       vm.freeze(data, 'data')
@@ -78,21 +79,17 @@ export const buildThothInterface = (
 
       try {
         const codeResult = vm.run(codeToRun)
-        console.log("CODE RESULT", codeResult)
+        console.log('CODE RESULT', codeResult)
         return codeResult
       } catch (err) {
         console.log({ err })
-        throw new CustomError('server-error', 'Error in spell runner: processCode component.')
+        throw new CustomError(
+          'server-error',
+          'Error in spell runner: processCode component.'
+        )
       }
     },
-    enkiCompletion: async (taskName: string, inputs: string) => {
-      return { outputs: [] }
-    },
-    huggingface: async (model: string, options: any) => {
-      // const outputs = await huggingface({ context: ctx, model, options })
-      return {}
-    },
-    setCurrentGameState: (state) => {
+    setCurrentGameState: state => {
       gameState = state
     },
     getCurrentGameState: () => {
@@ -116,14 +113,14 @@ export const buildThothInterface = (
     getWikipediaSummary: async (keyword: string) => {
       let out = null
       try {
-        out = await searchWikipedia(keyword as string) as any
+        out = (await searchWikipedia(keyword as string)) as any
       } catch (err) {
         throw new Error('Error getting wikipedia summary')
       }
 
-      console.log("WIKIPEDIA SEARCH", out)
+      console.log('WIKIPEDIA SEARCH', out)
 
       return out
-    }
+    },
   }
 }

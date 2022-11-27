@@ -1,11 +1,13 @@
-import { database } from './../database';
+import { database } from './../database'
 export type GetEventArgs = {
-  type: string,
-  agent: string,
-  speaker: string,
-  client: string,
-  channel: string,
+  type: string
+  agent: string
+  speaker: string
+  client: string
+  channel: string
   maxCount: number
+  target_count: number
+  max_time_diff: number
 }
 
 export const getEvents = async ({
@@ -14,7 +16,9 @@ export const getEvents = async ({
   speaker,
   client,
   channel,
-  maxCount
+  maxCount,
+  target_count,
+  max_time_diff,
 }: GetEventArgs) => {
   const event = await database.instance.getEvents(
     type,
@@ -23,10 +27,12 @@ export const getEvents = async ({
     client,
     channel,
     true,
-    maxCount
+    maxCount,
+    target_count,
+    max_time_diff
   )
 
-  console.log("EVENT FOUND", event)
+  console.log('EVENT FOUND', event)
 
   if (!event) return null
 
@@ -34,11 +40,11 @@ export const getEvents = async ({
 }
 
 export type CreateEventArgs = {
-  agent: string,
-  speaker: string,
-  client: string,
-  channel: string,
-  text: string,
+  agent: string
+  speaker: string
+  client: string
+  channel: string
+  text: string
   type: string
 }
 

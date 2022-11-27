@@ -21,7 +21,7 @@ import { ThothComponent, ThothTask } from '../../thoth-component'
 const info = `The input component allows you to pass a single value to your graph.  You can set a default value to fall back to if no value is provided at runtime.  You can also turn the input on to receive data from the playtest input.`
 
 type InputReturn = {
-  output: Agent
+  output: Agent | unknown
   speaker: string
   agent: string
   client: string

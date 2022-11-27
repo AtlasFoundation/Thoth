@@ -21,7 +21,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth, IAuth } from './routes/middleware/auth'
+import { auth, IAuth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -49,8 +49,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-          rejectUnauthorized: false,
-        }
+            rejectUnauthorized: false,
+          }
         : false,
     })
     this.client.connect()
@@ -167,8 +167,8 @@ export class database {
         (type === 'conversation' || 'history'
           ? '\n'
           : type === 'facts'
-            ? '. '
-            : '')
+          ? '. '
+          : '')
       count++
       if (count >= max_length) {
         break
@@ -385,8 +385,9 @@ export class database {
 
   async getGreetings(enabled: boolean) {
     const whereClause = 'WHERE enabled = true'
-    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${enabled ? whereClause : ''
-      } ORDER BY id ASC`
+    const query = `SELECT id, enabled, send_in AS "sendIn", channel_id AS "channelId", message FROM greetings ${
+      enabled ? whereClause : ''
+    } ORDER BY id ASC`
     const rows = await this.client.query(query)
     return rows.rows
   }

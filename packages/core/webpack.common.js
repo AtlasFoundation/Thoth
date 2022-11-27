@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const path = require('path')
 const LicenseWebpackPlugin =
   require('license-webpack-plugin').LicenseWebpackPlugin
+const path = require('path')
 const BundleAnalyzerPlugin =
   require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
