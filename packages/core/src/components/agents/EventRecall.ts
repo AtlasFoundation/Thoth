@@ -112,7 +112,7 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
 
     const maxCountData = node.data?.max_count as string
     const maxCount = maxCountData ? parseInt(maxCountData) : 10
-    const target_count = node.data?.target_count as string
+    const target_count = parseInt(node.data?.target_count as string)
     const max_time_diffData = node.data?.max_time_diff as string
     const max_time_diff = max_time_diffData ? parseInt(max_time_diffData) : -1
 

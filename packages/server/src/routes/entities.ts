@@ -19,7 +19,7 @@ import path from 'path'
 import * as events from '../services/events'
 import queryGoogleSearch from './utils/queryGoogle'
 import { CustomError } from '../utils/CustomError'
-import { stringIsAValidUrl } from 'src/utils/utils'
+import { stringIsAValidUrl } from '../utils/utils'
 import { CreateSpellHandler } from '../entities/CreateSpellHandler'
 
 export const modules: Record<string, unknown> = {}

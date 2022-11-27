@@ -16,7 +16,9 @@
   },
   "scripts": {
     "start:core": "lerna exec --scope @thothai/thoth-core -- yarn start",
-    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' && concurrently \"cd packages/server && docker compose up\" \"cd packages/server/weaviate && docker compose up\" \"cd packages/server/redis && docker compose up\" \"yarn start:core\" \"sleep 25 && yarn run dev:server\" \"sleep 25 && yarn start:client\" \"sleep 25 && yarn run db:seed\" ",
+    "start:containers": "concurrently \"cd packages/server && docker compose up\" \"cd packages/server/weaviate && docker compose up\" \"cd packages/server/redis && docker compose up\"",
+    "start:apps": "concurrently \"yarn start:core\" \"sleep 25 && yarn run dev:server\" \"sleep 25 && yarn start:client\" \"sleep 25 && yarn run db:seed\"",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' yarn run start:containers && yarn run start:apps",
     "dev-windows": "cross-env NODE_OPTIONS=--max-old-space-size=8192 yarn run dev-windows-script",
     "dev-windows-script": "(cd packages/server && docker-compose up -d) && (cd packages/server/weaviate && docker-compose up -d) && (cd packages/server/redis && docker-compose up -d) && concurrently \"yarn run dev:server\" \"yarn start:core\" yarn start:client\" yarn run db:seed\" ",
     "dev:client": "concurrently \"yarn start:core\" \"sleep 1 && yarn start:client\"",
