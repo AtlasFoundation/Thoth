@@ -13,9 +13,7 @@ const isSpeechHandlerAttachedToConnection = (
   connection: VoiceConnection
 ): boolean => {
   return Boolean(
-    connection.receiver.speaking
-      //  Only ts-ignoring while we are not using the file
-      //@ts-ignore
+    (connection.receiver.speaking as any)
       .listeners('start')
       //@ts-ignore
       .find(func => func.name === 'handleSpeechEventOnConnectionReceiver')

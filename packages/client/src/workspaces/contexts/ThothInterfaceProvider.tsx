@@ -12,7 +12,6 @@ import {
 } from '@thothai/thoth-core/types'
 
 import { usePubSub } from '../../contexts/PubSubProvider'
-import { postEnkiCompletion } from '../../services/game-api/enki'
 import { completion as _completion } from '../../services/game-api/text'
 import { invokeInference } from '../../utils/huggingfaceHelper'
 import { thothApiRootUrl } from '@/config'
@@ -135,16 +134,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     return result
   }
 
-  const enkiCompletion = async (taskName, inputs) => {
-    const result = await postEnkiCompletion(taskName, inputs)
-    return result
-  }
-
-  const huggingface = async (model, data) => {
-    const result = await invokeInference(model, data)
-    return result
-  }
-
   const readFromImageCache = async (caption, cacheTag, topK) => {
     const result = await fetchFromImageCache({
       caption,
@@ -236,6 +225,8 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     client,
     channel,
     maxCount = 10,
+    target_count = 'single',
+    max_time_diff = -1,
   }) => {
     const urlString = `${
       process.env.REACT_APP_API_ROOT_URL ??
@@ -250,6 +241,8 @@ const ThothInterfaceProvider = ({ children, tab }) => {
       client: client,
       channel: channel,
       maxCount: maxCount,
+      target_count,
+      max_time_diff,
     } as Record<string, any>
 
     const url = new URL(urlString)
@@ -327,8 +320,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     onPlaytest,
     clearTextEditor,
     completion,
-    enkiCompletion,
-    huggingface,
     readFromImageCache,
     getCurrentGameState,
     setCurrentGameState,

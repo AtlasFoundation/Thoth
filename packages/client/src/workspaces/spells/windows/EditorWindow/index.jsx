@@ -5,12 +5,10 @@ import { Editor, useEditor } from '../../../contexts/EditorProvider'
 import Deployment from './Deployment'
 import Select from '@components/Select/Select'
 import css from './editorwindow.module.css'
-import { usePlugWallet } from '@/contexts/PlugProvider'
 
 const EditorWindow = ({ tab }) => {
   const { getNodes, getNodeMap, editor } = useEditor()
   const [deployOpen, setDeployOpen] = useState(false)
-  const { connected } = usePlugWallet()
   const nodeList = getNodes()
   const nodeMap = getNodeMap()
 
@@ -41,9 +39,6 @@ const EditorWindow = ({ tab }) => {
     //Categorize node list into respective categories
     if (nodeList)
       Object.keys(nodeList).map(item => {
-        if (nodeList[item].deprecated) {
-          return
-        }
         if (doesCategoryExist(arr, nodeList[item].category) !== false) {
           return arr[
             doesCategoryExist(arr, nodeList[item].category)

@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-nocheck
@@ -6,8 +8,8 @@ import axios from 'axios'
 
 //Model Request using the Hugging Face API (models can be found at -> https://huggingface.co/models)
 export async function MakeModelRequest(
-  inputs,
-  model,
+  inputs: any,
+  model: any,
   parameters = {},
   options = { use_cache: false, wait_for_model: true }
 ) {
@@ -21,7 +23,7 @@ export async function MakeModelRequest(
         },
       }
     )
-    return await response.data
+    return await { sucess: true, data: response.data }
   } catch (err) {
     console.error(err)
     return { success: false }

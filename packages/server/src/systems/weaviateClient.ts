@@ -6,7 +6,9 @@ import { classifyText } from '../../../core/src/utils/textClassifier'
 import path from 'path'
 import { database } from '../database'
 import axios from 'axios'
+import { ClassifierSchema } from '../types'
 
+const DOCUMENTS_CLASS_NAME = 'DataStore'
 const saved_docs: SearchSchema[] = []
 let client: weaviate.client
 
@@ -20,7 +22,7 @@ export async function initWeaviateClient(
   })
 
   if (_train) {
-    console.time('test')
+    console.time('train')
 
     const data = await trainFromUrl(
       'https://www.toptal.com/developers/feed2json/convert?url=https%3A%2F%2Ffeeds.simplecast.com%2F54nAGcIl'
@@ -36,10 +38,45 @@ export async function initWeaviateClient(
     }
 
     await train(data)
-    console.timeEnd('test')
+    console.timeEnd('train')
   }
 
-  await getDocumentId('', '')
+  if (_trainClassifier) {
+    await trainClassifier(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(__dirname, '..', '..', '/weaviate/classifier_data.json'),
+          'utf-8'
+        )
+      )
+    )
+  }
+}
+
+async function trainClassifier(data: ClassifierSchema[]) {
+  if (!client) {
+    initWeaviateClient(false)
+  }
+
+  if (!data || data === undefined) {
+    return
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    if (Array.isArray(data[i].examples)) {
+      data[i].examples = (data[i].examples as string[]).join(', ')
+    }
+
+    console.log(typeof data[i].examples, data[i].examples)
+
+    const res = await client.data
+      .creator()
+      .withClassName('Emotion')
+      .withProperties(data[i])
+      .do()
+
+    console.log(res)
+  }
 }
 
 async function train(data: SearchSchema[]) {
@@ -60,15 +97,10 @@ async function train(data: SearchSchema[]) {
       continue
     }
 
-    const topic = await classifyText(data[i].description)
-    if (!topic || topic === undefined || topic.length <= 0) {
-      continue
-    }
-
     saved_docs.push(object)
     const res = await client.data
       .creator()
-      .withClassName(topic)
+      .withClassName(DOCUMENTS_CLASS_NAME)
       .withProperties(object)
       .do()
 
@@ -86,15 +118,10 @@ async function train(data: SearchSchema[]) {
         continue
       }
 
-      const topic = await classifyText(documents[i].description)
-      if (!topic || topic === undefined || topic.length <= 0) {
-        continue
-      }
-
       saved_docs.push(object)
       const res = await client.data
         .creator()
-        .withClassName(topic)
+        .withClassName(DOCUMENTS_CLASS_NAME)
         .withProperties(object)
         .do()
       console.log(res)
@@ -152,15 +179,10 @@ export async function singleTrain(data: SearchSchema) {
     return
   }
 
-  const topic = await classifyText(object.description)
-  if (!topic || topic === undefined || topic.length <= 0) {
-    return
-  }
-
   saved_docs.push(object)
   const res = await client.data
     .creator()
-    .withClassName(topic)
+    .withClassName(DOCUMENTS_CLASS_NAME)
     .withProperties(object)
     .do()
 
@@ -169,18 +191,16 @@ export async function singleTrain(data: SearchSchema) {
 
 export async function search(query: string): SearchSchema {
   if (!client || client === undefined) {
-    return { title: '', description: '' }
+    await initWeaviateClient(false, false)
   }
-
-  const topic = await classifyText(query)
 
   const info = await client.graphql
     .get()
-    .withClassName(topic)
-    .withFields(['title', 'description'])
+    .withClassName(DOCUMENTS_CLASS_NAME)
+    .withFields('title description')
     .withNearText({
       concepts: [query],
-      certainty: 0.7,
+      certainty: 0.6,
     })
     .do()
 
@@ -192,10 +212,10 @@ export async function search(query: string): SearchSchema {
   if (
     info['data'] &&
     info['data']['Get'] &&
-    info['data']['Get'][topic] &&
-    info['data']['Get'][topic].length > 0
+    info['data']['Get'][DOCUMENTS_CLASS_NAME] &&
+    info['data']['Get'][DOCUMENTS_CLASS_NAME].length > 0
   ) {
-    const data = info['data']['Get'][topic][0]
+    const data = info['data']['Get'][DOCUMENTS_CLASS_NAME][0]
 
     return {
       title: data.title,
@@ -203,6 +223,39 @@ export async function search(query: string): SearchSchema {
     }
   } else {
     return { title: '', description: '' }
+  }
+}
+export async function classify(query: string): Promise<string> {
+  if (!client || client === undefined) {
+    return ''
+  }
+
+  const info = await client.graphql
+    .get()
+    .withClassName('Emotion')
+    .withFields(['type', 'examples'])
+    .withNearText({
+      concepts: [query],
+      certainty: 0.7,
+    })
+    .do()
+
+  if (info.errors) {
+    console.log(info.errors)
+    return ''
+  }
+
+  if (
+    info['data'] &&
+    info['data']['Get'] &&
+    info['data']['Get']['Emotion'] &&
+    info['data']['Get']['Emotion'].length > 0
+  ) {
+    const data = info['data']['Get']['Emotion'][0]
+
+    return data.type
+  } else {
+    return ''
   }
 }
 

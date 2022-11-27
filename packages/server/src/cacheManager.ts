@@ -1,8 +1,4 @@
-import axios from 'axios'
 import { createClient } from 'redis'
-
-//@ts-ignore
-import similarity from 'similarity'
 
 export class cacheManager {
   static instance: cacheManager
@@ -28,6 +24,10 @@ export class cacheManager {
     }
   }
   async set(key: string, value: any) {
+    if (!key || key === undefined || !value || value === undefined) {
+      return
+    }
+
     await this.client.set(key, value)
   }
 

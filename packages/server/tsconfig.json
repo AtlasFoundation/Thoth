@@ -17,7 +17,7 @@
     "sourceMap": true,
     "target": "ES2021",
     "typeRoots": ["./@types", "node_modules/@types"],
-    "types": ["node", "jest"],
+    "types": ["node"],
     "baseUrl": ".",
     "paths": {
       "unirest": ["@types/unirest.d.ts"],
@@ -25,8 +25,8 @@
       "weaviate-client": ["@types/weaviate-client.d.ts"],
       "ot-json0": ["@types/ot-json0.d.ts"]
     },
-    "noImplicitAny": true,
-    "strictNullChecks": true
+    "noImplicitAny": false,
+    "strictNullChecks": false
   },
   "include": [
     "hocs/**/*.ts",

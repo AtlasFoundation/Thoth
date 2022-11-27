@@ -9,15 +9,11 @@ export class instagram_client {
   spellHandler
   settings
   entity
-  haveCustomCommands
-  custom_commands
 
   createInstagramClient = async (spellHandler, settings, entity) => {
     this.spellHandler = spellHandler
     this.settings = settings
     this.entity = entity
-    this.haveCustomCommands = settings.haveCustomCommands
-    this.custom_commands = settings.custom_commands
 
     const username = settings['instagram_username']
     const password = settings['instagram_password']
@@ -40,31 +36,6 @@ export class instagram_client {
           const { text } = last_permanent_item
           const userIds = users.map(user => user.pk)
 
-          if (this.haveCustomCommands) {
-            for (let i = 0; i < this.custom_commands[i].length; i++) {
-              if (text.startsWith(this.custom_commands[i].command_name)) {
-                const _content = text.replace(
-                  this.custom_commands[i].command_name,
-                  ''
-                )
-
-                const cresponse = await this.custom_commands[i].spell_handler(
-                  _content,
-                  inviter.username,
-                  this.settings.instagram_bot_name ?? 'Agent',
-                  'instagram',
-                  thread_v2_id,
-                  settings.entity,
-                  []
-                )
-
-                const cThread = ig.entity.directThread(userIds)
-                await cThread.broadcastText(cresponse)
-                return
-              }
-            }
-          }
-
           const resp = await this.spellHandler(
             text,
             inviter.username,
@@ -72,7 +43,8 @@ export class instagram_client {
             'instagram',
             thread_v2_id,
             settings.entity,
-            []
+            [],
+            'msg'
           )
           console.log('resp of spellHandler ::: ', resp)
           const thread = ig.entity.directThread(userIds)

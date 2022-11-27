@@ -1,7 +1,6 @@
 import { App } from '@slack/bolt'
 import { CreateSpellHandler } from '../CreateSpellHandler'
 import { database } from '../../database'
-import { makeGreeting } from './utils'
 
 export class slack_client {
   spellHandler: any
@@ -37,52 +36,6 @@ export class slack_client {
       signingSecret: settings.slack_signing_secret,
       token: settings.slack_bot_token,
       appToken: settings.slack_token,
-    })
-
-    const reaction_handlers = await database.instance.getMessageReactions()
-    this.setupMessageReactions(reaction_handlers)
-    setInterval(async () => {
-      const reactionhandlers = await database.instance.getMessageReactions()
-      this.setupMessageReactions(reactionhandlers)
-    }, 5000)
-
-    this.app.event('reaction_added', async ({ event, context }) => {
-      const userId = (event as any).user
-      const emoji = (event as any).reaction
-      const result = await this.app.client.users.info({
-        user: userId,
-      })
-      const user = result.user?.name
-      const emojid = ':' + emoji + ':'
-
-      if (
-        this.message_reactions[emojid] &&
-        this.message_reactions[emojid] !== undefined
-      ) {
-        const response = await this.message_reactions[emojid](
-          '',
-          user,
-          this.settings.slack_bot_name,
-          'slack',
-          (event as any).item.channel,
-          this.entity,
-          []
-        )
-        if (response && response !== undefined && response?.length > 0) {
-          await this.app.client.chat.postMessage({
-            channel: (event as any).item.channel,
-            text: response,
-          })
-        }
-      }
-    })
-    this.app.event('member_joined_channel', async ({ event }) => {
-      const { user } = event
-      if (!this.greeting || !this.greeting.enabled) {
-        return
-      }
-
-      this.sendGreeting(user)
     })
 
     this.app.message(async ({ message, say }) => {
@@ -136,7 +89,8 @@ export class slack_client {
         'slack',
         channel,
         this.entity,
-        []
+        [],
+        'msg'
       )
       say(response)
     })
@@ -176,7 +130,6 @@ export class slack_client {
   }
 
   async sendMessage(channelId: string, message: string) {
-    console.log('sending Message to:', channelId, message)
     if (
       !channelId ||
       channelId?.length <= 0 ||
@@ -190,47 +143,5 @@ export class slack_client {
       channel: channelId,
       text: message,
     })
-  }
-
-  async sendGreeting(user: any) {
-    const { channelId, sendIn, message } = this.greeting
-    switch (sendIn) {
-      case 'dm': {
-        try {
-          const { channel } = await this.app.client.conversations.open({
-            users: user?.id,
-          })
-          const greeting = makeGreeting(message, {
-            userName: user?.real_name as string,
-            serverName: 'DM',
-          })
-          await this.app.client.chat.postMessage({
-            channel: channel?.id as string,
-            text: greeting,
-          })
-        } catch (e) {
-          console.log('Error sending greeting in DM ::: ', e)
-        }
-        break
-      }
-      case 'channel': {
-        try {
-          const { channel } = await this.app.client.conversations.info({
-            channel: channelId,
-          })
-          const greeting = makeGreeting(message, {
-            userName: user?.real_name as string,
-            serverName: channel?.name as string,
-          })
-          await this.app.client.chat.postMessage({
-            channel: channelId,
-            text: greeting,
-          })
-        } catch (e) {
-          console.log('Error sending greeting in channel ::: ', e)
-        }
-        break
-      }
-    }
   }
 }

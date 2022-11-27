@@ -166,7 +166,8 @@ export class reddit_client {
           'reddit',
           chat_id,
           this.entity,
-          []
+          [],
+          'msg'
         )
         await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       } else {
@@ -182,7 +183,8 @@ export class reddit_client {
           'reddit',
           chat_id,
           this.entity,
-          []
+          [],
+          'msg'
         )
         await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       }
@@ -211,7 +213,8 @@ export class reddit_client {
           'reddit',
           chat_id,
           this.entity,
-          []
+          [],
+          'msg'
         )
         await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       } else {
@@ -227,7 +230,8 @@ export class reddit_client {
           'reddit',
           chat_id,
           this.entity,
-          []
+          [],
+          'msg'
         )
         await this.handleMessage(resp, id, chat_id, 'isPost', reddit)
       }
@@ -278,7 +282,8 @@ export class reddit_client {
             'reddit',
             chat_id,
             this.entity,
-            []
+            [],
+            'msg'
           )
           await this.handleMessage(resp, id, chat_id, 'isChat', reddit)
         }

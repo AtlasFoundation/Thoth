@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable camelcase */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
@@ -14,6 +16,7 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
+import { InputControl } from '../../dataControls/InputControl'
 import { triggerSocket, stringSocket, anySocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
@@ -69,6 +72,13 @@ export class TextToSpeech extends ThothComponent<Promise<WorkerReturn>> {
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const outp = new Rete.Output('output', 'output', stringSocket)
 
+    const tiktalknet_url = new InputControl({
+      dataKey: 'tiktalknet_url',
+      name: 'Tiktalknet URL',
+    })
+
+    node.inspector.add(tiktalknet_url)
+
     return node
       .addInput(textInput)
       .addInput(triggerInput)
@@ -90,6 +100,7 @@ export class TextToSpeech extends ThothComponent<Promise<WorkerReturn>> {
     const voiceProvider = inputs['voiceProvider'][0]
     const character = inputs['character']?.[0] as string
     const languageCode = inputs['languageCode']?.[0] as string
+    const tiktalknet_url = node.data?.tiktalknet_url as string
 
     const isCommand = (action as string).startsWith('/')
 
@@ -102,9 +113,9 @@ export class TextToSpeech extends ThothComponent<Promise<WorkerReturn>> {
           voice_provider: voiceProvider,
           voice_character: character,
           voice_language_code: languageCode,
+          tiktalknet_url: tiktalknet_url,
         },
       })
-      console.log('url', url.data)
     }
 
     return {

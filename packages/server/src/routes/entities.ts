@@ -13,11 +13,14 @@ import { makeCompletion } from '../utils/MakeCompletionRequest'
 import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
+import { tts_tiktalknet } from '../systems/tiktalknet'
 import fs from 'fs'
 import path from 'path'
 import * as events from '../services/events'
 import queryGoogleSearch from './utils/queryGoogle'
 import { CustomError } from '../utils/CustomError'
+import { stringIsAValidUrl } from 'src/utils/utils'
+import { CreateSpellHandler } from '../entities/CreateSpellHandler'
 
 export const modules: Record<string, unknown> = {}
 
@@ -61,8 +64,13 @@ const executeHandler = async (ctx: Koa.Context) => {
   )
 }
 
-const createWikipediaEntityHandler = async (ctx: Koa.Context) => { }
+const createWikipediaEntityHandler = async (ctx: Koa.Context) => {
+  const { agent, speaker } = ctx.request.body
 
+  const out = await createWikipediaEntity(speaker, agent, '', '')
+
+  return (ctx.body = out)
+}
 
 const getEntitiesHandler = async (ctx: Koa.Context) => {
   try {
@@ -201,6 +209,9 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
+  const target_count = parseInt(ctx.request.query.target_count as string)
+  const max_time_diff = parseInt(ctx.request.query.max_time_diff as string)
+
   const event = await database.instance.getEvents(
     type,
     agent,
@@ -208,7 +219,9 @@ const getEvent = async (ctx: Koa.Context) => {
     client,
     channel,
     true,
-    maxCount
+    maxCount,
+    target_count,
+    max_time_diff
   )
 
   console.log('event, query:', ctx.request.query, 'conv:', event)
@@ -320,7 +333,8 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
   console.log('text and character are', text, character)
   const voice_provider = ctx.request.query.voice_provider as string
   const voice_character = ctx.request.query.voice_character as string
-  const voice_language_code = ctx.request.query.voice_language_code
+  // const voice_language_code = ctx.request.query.voice_language_code
+  const tiktalknet_url = ctx.request.query.tiktalknet_url as string
 
   console.log('text and character are', text, voice_character)
   const cache = await cacheManager.instance.get(
@@ -341,12 +355,14 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
         voice_character as string,
         text as string
       )
-    } else {
+    } else if (voice_provider === 'google') {
       url = await tts(
         text,
         voice_provider,
         voice_character,
       )
+    } else {
+      url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
     }
   }
 
@@ -381,50 +397,76 @@ const getEntityImage = async (ctx: Koa.Context) => {
 }
 
 const customMessage = async (ctx: Koa.Context) => {
+  console.log('got custom message:', ctx.request.body)
   const sender = ctx.request.body?.sender as string
   const agent = ctx.request.body?.agent as string
   const message = (ctx.request.body?.message as string).trim().toLowerCase()
-  let isVoice = ctx.request.body?.isVoice as boolean
+  const spell_handler = ctx.request.body?.spell_handler as string
+  const spell_version = (ctx.request.body?.spell_version as string) ?? 'latest'
+  const channel = ctx.request.body?.channel as string
+  let isVoice = (ctx.request.body?.isVoice as string | undefined) === 'true'
+  const voice_provider = ctx.request.body?.voice_provider as string
+  const voice_character = ctx.request.body?.voice_character as string
+  const voice_language_code = ctx.request.body?.voice_language_code as string
+  const tiktalknet_url = ctx.request.body?.tiktalknet_url as string
   let url: any = ''
-  let response = message
 
-  if (message.startsWith('[welcome]')) {
-    const user = message.replace('[welcome]', '').trim()
-    response = 'Welcome ' + user + '!'
-    isVoice = true
-  }
-  let cmd = message.trim().toLowerCase()
+  const spellHandler = await CreateSpellHandler({
+    spell: spell_handler,
+    version: spell_version,
+  })
 
-  if (cmd.length <= 0) {
-    response = "I can't understand you!"
-  } else if (cmd === 'play') {
-  } else if (cmd === 'pause') {
-  } else if (cmd.startsWith('go to')) {
-  } else {
-    response = await requestInformationAboutVideo(sender, agent, cmd)
-  }
+  // warning coerced into string, but may not be
+  const response = await spellHandler(
+    message,
+    sender,
+    agent,
+    'discord',
+    channel,
+    [],
+    [],
+    "room"
+  ) as string
 
   if (isVoice) {
-    console.log('generating voice')
-    const character = 'kurzgesagt'
-    const cache = cacheManager.instance.get(
-      'speech_' + character + ': ' + response
-    )
-    if (cache !== undefined && cache !== null) {
-      return (ctx.body = cache)
+    if (
+      await cacheManager.instance.has(
+        'voice_' + voice_provider + '_' + voice_character + '_' + response
+      )
+    ) {
+      url = await cacheManager.instance.get(
+        'voice_' + voice_provider + '_' + voice_character + '_' + response
+      )
+    } else {
+      if (voice_provider === 'uberduck') {
+        url = await getAudioUrl(
+          process.env.UBER_DUCK_KEY as string,
+          process.env.UBER_DUCK_SECRET_KEY as string,
+          voice_character,
+          response
+        )
+      } else if (voice_provider === 'google') {
+        url =
+          process.env.FILE_SERVER_URL +
+          '/' +
+          (await tts(response, voice_character, voice_language_code))
+      } else {
+        url =
+          process.env.FILE_SERVER_URL +
+          '/' +
+          (await tts_tiktalknet(response, voice_character, tiktalknet_url))
+      }
+
+      if (url && url.length > 0 && stringIsAValidUrl(url)) {
+        await cacheManager.instance.set(
+          'voice_' + voice_provider + '_' + voice_character + '_' + response,
+          url
+        )
+      }
     }
-
-    url = await getAudioUrl(
-      process.env.UBER_DUCK_KEY as string,
-      process.env.UBER_DUCK_SECRET_KEY as string,
-      character as string,
-      response as string
-    )
-
-    cacheManager.instance.set('speech_' + character + ': ' + response, url)
   }
 
-  return (ctx.body = { response: isVoice ? url : message, isVoice: isVoice })
+  return (ctx.body = { response: isVoice ? url : response, isVoice: isVoice })
 }
 
 const getFromCache = async (ctx: Koa.Context) => {
@@ -453,7 +495,6 @@ const setInCache = async (ctx: Koa.Context) => {
 }
 
 const textCompletion = async (ctx: Koa.Context) => {
-  const prompt = ctx.request.body.prompt as string
   const modelName = ctx.request.body.modelName as string
   const temperature = ctx.request.body.temperature as number
   const maxTokens = ctx.request.body.maxTokens as number
@@ -461,6 +502,10 @@ const textCompletion = async (ctx: Koa.Context) => {
   const frequencyPenalty = ctx.request.body.frequencyPenalty as number
   const presencePenalty = ctx.request.body.presencePenalty as number
   const sender = (ctx.request.body.sender as string) ?? 'User'
+  const agent = (ctx.request.body.agent as string) ?? 'Agent'
+  const prompt = (ctx.request.body.prompt as string)
+    .replace('{agent}', agent)
+    .replace('{speaker}', sender)
   let stop = ctx.request.body.stop as string[]
 
   if (!stop || stop.length === undefined || stop.length <= 0) {
@@ -469,11 +514,11 @@ const textCompletion = async (ctx: Koa.Context) => {
     for (let i = 0; i < stop.length; i++) {
       if (stop[i] === '#speaker:') {
         stop[i] = `${sender}:`
+      } else if (stop[i] === '#agent:') {
+        stop[i] = `${agent}:`
       }
     }
   }
-
-  console.log("COMPLETION CAME IN")
 
   const { success, choice } = await makeCompletion(modelName, {
     prompt: prompt.trim(),
@@ -504,7 +549,7 @@ const hfRequest = async (ctx: Koa.Context) => {
     options
   )
 
-  return (ctx.body = { success, data })
+  return (ctx.body = { succes: success, data: data })
 }
 
 const makeWeaviateRequest = async (ctx: Koa.Context) => {
@@ -656,6 +701,21 @@ const addCalendarEvent = async (ctx: Koa.Context) => {
   const type = ctx.request.body.type
   const moreInfo = ctx.request.body.moreInfo
 
+  if (
+    !name ||
+    !date ||
+    !time ||
+    !type ||
+    !moreInfo ||
+    name?.length <= 0 ||
+    date?.length <= 0 ||
+    time?.length <= 0 ||
+    type?.length <= 0 ||
+    moreInfo?.length <= 0
+  ) {
+    return (ctx.body = { error: 'invalid event data' })
+  }
+
   try {
     await database.instance.createCalendarEvent(
       name,
@@ -726,64 +786,6 @@ const addVideo = async (ctx: Koa.Context) => {
   }
 }
 
-const post_pipedream = async (ctx: Koa.Context) => {
-  console.log('testPipeDream:', ctx.request)
-  return (ctx.body = 'ok')
-}
-
-const getMessageReactions = async (ctx: Koa.Context) => {
-  try {
-    const message_reactions = await database.instance.getMessageReactions()
-    return (ctx.body = message_reactions)
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-const createMessageReaction = async (ctx: Koa.Context) => {
-  try {
-    const { reaction, spell_handler, discord_enabled, slack_enabled } =
-      ctx.request.body
-    const { id } = ctx.params
-
-    console.log('got body data:', ctx.request.body)
-    if (!id) {
-      await database.instance.addMessageReaction(
-        reaction,
-        spell_handler,
-        discord_enabled,
-        slack_enabled
-      )
-    } else {
-      await database.instance.updateMessageReaction(
-        id,
-        reaction,
-        spell_handler,
-        discord_enabled,
-        slack_enabled
-      )
-    }
-
-    return (ctx.body = 'ok')
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-const deleteMessageReaction = async (ctx: Koa.Context) => {
-  try {
-    const { id } = ctx.params
-    await database.instance.deleteMessageReaction(id)
-    return (ctx.body = 'ok')
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
 const queryGoogle = async (ctx: Koa.Context) => {
   console.log("QUERY", ctx.request?.body?.query)
   if (!ctx.request?.body?.query) throw new CustomError('input-failed', 'No query provided in request body')
@@ -792,6 +794,49 @@ const queryGoogle = async (ctx: Koa.Context) => {
 
   ctx.body = {
     result
+  }
+}
+
+const login = async (ctx: Koa.Context) => {
+  const username = ctx.request.body.username
+  const password = ctx.request.body.password
+
+  const loginRes = await database.instance.login(username, password)
+  if (!loginRes || loginRes === undefined) {
+    ctx.status = 401
+    return (ctx.body = { error: 'invalid credentials' })
+  } else {
+    return (ctx.body = loginRes)
+  }
+}
+
+const register = async (ctx: Koa.Context) => {
+  const email = ctx.request.body.email
+  const username = ctx.request.body.username
+  const password = ctx.request.body.password
+  const user_id = ctx.request.body.user_id
+
+  console.log('register, body:', ctx.request.body)
+  if (await database.instance.usernameExists(username)) {
+    ctx.status = 400
+    return (ctx.body = { error: 'username already exists' })
+  } else if (await database.instance.emailExists(email)) {
+    ctx.status = 400
+    return (ctx.body = { error: 'email already exists' })
+  }
+
+  const registerRes = await database.instance.register(
+    email,
+    username,
+    password,
+    user_id
+  )
+  console.log('register res:', registerRes)
+  if (registerRes !== 'ok') {
+    ctx.status = 401
+    return (ctx.body = { error: 'invalid credentials' })
+  } else {
+    return (ctx.body = 'ok')
   }
 }
 
@@ -931,25 +976,18 @@ export const entities: Route[] = [
     post: addVideo,
   },
   {
-    path: '/pipedream',
+    path: '/login',
     access: noAuth,
-    post: post_pipedream,
-  },
-  {
-    path: '/message_reactions',
-    access: noAuth,
-    get: getMessageReactions,
-    post: createMessageReaction,
-  },
-  {
-    path: '/message_reaction/:id',
-    access: noAuth,
-    put: createMessageReaction,
-    delete: deleteMessageReaction,
+    post: login,
   },
   {
     path: '/query_google',
     access: noAuth,
     post: queryGoogle
+  },
+  {
+    path: '/register',
+    access: noAuth,
+    post: register,
   },
 ]

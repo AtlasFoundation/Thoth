@@ -20,7 +20,7 @@ export class JoinListComponent extends ThothComponent<WorkerReturn> {
         text: 'output',
         trigger: 'option',
       },
-      init: () => { },
+      init: () => {},
     }
 
     this.category = 'Strings'

@@ -82,9 +82,7 @@ export class World {
         undefined
       ) {
         if (newEntities[i].enabled) {
-          await this.addEntity(
-            new Entity(newEntities[i], this.getAvailablePort())
-          )
+          await this.addEntity(newEntities[i])
         }
       }
     }
@@ -92,9 +90,7 @@ export class World {
     for (const i in newEntities) {
       if (newEntities[i].dirty) {
         await this.removeEntity(newEntities[i].id)
-        await this.addEntity(
-          new Entity(newEntities[i], this.getAvailablePort())
-        )
+        await this.addEntity(newEntities[i])
         await database.instance.setEntityDirty(newEntities[i].id, false)
       }
     }
@@ -159,10 +155,10 @@ export class World {
 
   async onDestroy() {}
 
-  async addEntity(obj: Entity) {
+  async addEntity(obj: any) {
     console.log('adding object', obj.id)
     if (this.objects[obj.id] === undefined) {
-      this.objects[obj.id] = obj
+      this.objects[obj.id] = new Entity(obj)
     } else {
       //throw new Error('Object already exists')
     }
@@ -170,7 +166,7 @@ export class World {
 
   async removeEntity(id: number) {
     if (this.objectExists(id)) {
-      await (this.objects[id] as Entity)?.onDestroy()
+      await this.objects[id]?.onDestroy()
       this.objects[id] = null
       delete this.objects[id]
       console.log('Removed ', id)

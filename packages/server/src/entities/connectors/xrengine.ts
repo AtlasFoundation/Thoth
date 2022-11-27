@@ -27,6 +27,7 @@ import {
 } from './utils'
 import { removeEmojisFromString } from '../../utils/utils'
 import { cacheManager } from '../../cacheManager'
+import { tts_tiktalknet } from '../../systems/tiktalknet'
 
 function isUrl(url: string): boolean {
   if (!url || url === undefined || url.length <= 0 || !url.startsWith('http'))
@@ -453,8 +454,7 @@ export class xrengine_client {
           channelId,
           this.entity,
           roomInfo,
-          this.settings.xrengine_spell_handler_incoming,
-          this.spell_version
+          'msg'
         )
 
         console.log('got response:', response)
@@ -535,14 +535,33 @@ export class xrengine_client {
           response = cache
           console.log('got from cache:', cache)
         } else {
-          const fileId = await tts(response as string)
-          const url =
-            (process.env.FILE_SERVER_URL?.endsWith('/')
-              ? process.env.FILE_SERVER_URL
-              : process.env.FILE_SERVER_URL + '/') + fileId
-
-          console.log('url:', url)
-          response = url
+          if (this.settings.voice_provider === 'google') {
+            const fileId = await tts(response as string)
+            const url =
+              (process.env.FILE_SERVER_URL?.endsWith('/')
+                ? process.env.FILE_SERVER_URL
+                : process.env.FILE_SERVER_URL + '/') + fileId
+            response = url
+          } else if (this.settings.voice_provider === 'uberduck') {
+            const url = await getAudioUrl(
+              process.env.UBER_DUCK_KEY as string,
+              process.env.UBER_DUCK_SECRET_KEY as string,
+              this.settings.voice_character,
+              response as string
+            )
+            response = url
+          } else {
+            const fileId = await tts_tiktalknet(
+              response,
+              this.settings.voice_character,
+              this.settings.tiktalknet_url
+            )
+            const url =
+              (process.env.FILE_SERVER_URL?.endsWith('/')
+                ? process.env.FILE_SERVER_URL
+                : process.env.FILE_SERVER_URL + '/') + fileId
+            response = url
+          }
         }
         await this.xrengineBot.delay(1000)
         await this.xrengineBot.sendMessage('!voiceUrl|' + response)

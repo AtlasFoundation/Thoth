@@ -29,10 +29,6 @@ const router: Router = new Router()
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
 async function init() {
-  /*await convertToMp4(
-    'https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8',
-    'test.mp4'
-  )*/
   // async function initLoop() {
   //   new roomManager()
   //   const expectedServerDelta = 1000 / 60
@@ -58,7 +54,10 @@ async function init() {
 
   new database()
   await database.instance.connect()
-  console.log('refreshing db', process.env.REFRESH_DB?.toLowerCase().trim() === 'true')
+  console.log(
+    'refreshing db',
+    process.env.REFRESH_DB?.toLowerCase().trim() === 'true'
+  )
   await creatorToolsDatabase.sequelize.sync({
     force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
   })
@@ -99,9 +98,9 @@ async function init() {
     parseInt(process.env.CORS_PORT as string),
     '0.0.0.0',
     process.env.USESSL === 'true' &&
-    fs.existsSync('certs/') &&
-    fs.existsSync('certs/key.pem') &&
-    fs.existsSync('certs/cert.pem')
+      fs.existsSync('certs/') &&
+      fs.existsSync('certs/key.pem') &&
+      fs.existsSync('certs/cert.pem')
   )
 
   process.on('unhandledRejection', (err: Error) => {
@@ -199,13 +198,13 @@ async function init() {
   }
   useSSL
     ? https
-      .createServer(optionSsl, app.callback())
-      .listen(PORT, '0.0.0.0', () => {
-        console.log('Https Server listening on: 0.0.0.0:' + PORT)
-      })
+        .createServer(optionSsl, app.callback())
+        .listen(PORT, '0.0.0.0', () => {
+          console.log('Https Server listening on: 0.0.0.0:' + PORT)
+        })
     : http.createServer(app.callback()).listen(PORT, '0.0.0.0', () => {
-      console.log('Http Server listening on: 0.0.0.0:' + PORT)
-    })
+        console.log('Http Server listening on: 0.0.0.0:' + PORT)
+      })
   // await initLoop()
 }
 

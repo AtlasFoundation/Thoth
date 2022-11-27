@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable no-console */
 /* eslint-disable require-await */
@@ -62,6 +64,7 @@ export class DocumentSetMass extends ThothComponent<void> {
   ) {
     const storeId = inputs['storeId']?.[0]
     let documents = inputs['documents']
+    // eslint-disable-next-line camelcase
     const store_name = node?.data?.store_name as string
 
     if (typeof documents === 'string') {

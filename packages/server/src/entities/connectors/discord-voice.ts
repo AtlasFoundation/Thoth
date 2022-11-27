@@ -4,12 +4,14 @@ import {
   createAudioPlayer,
   createAudioResource,
   StreamType,
+  VoiceConnectionStatus,
 } from '@discordjs/voice'
 import { tts } from '../../systems/googleTextToSpeech'
 import { getAudioUrl } from '../../routes/getAudioUrl'
 import { addSpeechEvent } from './voiceUtils/addSpeechEvent'
 import { removeEmojisFromString } from '../../utils/utils'
 import { cacheManager } from '../../cacheManager'
+import { tts_tiktalknet } from '../../systems/tiktalknet'
 
 //const transcriber = new Transcriber('288916776772018')
 export function initSpeechClient(
@@ -19,9 +21,10 @@ export function initSpeechClient(
   handleInput,
   voiceProvider,
   voiceCharacter,
-  languageCode
+  languageCode,
+  tiktalknet_url
 ) {
-  addSpeechEvent(client)
+  addSpeechEvent(client, { group: 'default_' + entity.id })
 
   client.on('speech', async msg => {
     console.log('msg is ', msg)
@@ -59,7 +62,8 @@ export function initSpeechClient(
           'discord',
           channel.id,
           entity,
-          roomInfo
+          roomInfo,
+          'voice'
         )
       )
       if (response === undefined || !response || response.length <= 0) {
@@ -78,8 +82,9 @@ export function initSpeechClient(
         let url = await cacheManager.instance.get(
           'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response
         )
+        console.log('retrievied url from cache', url)
 
-        if (!url) {
+        if (!url || url === undefined || url?.length <= 0) {
           if (voiceProvider === 'uberduck') {
             url = await getAudioUrl(
               process.env.UBER_DUCK_KEY as string,
@@ -87,9 +92,12 @@ export function initSpeechClient(
               voiceCharacter,
               response as string
             )
-          } else {
+          } else if (voiceProvider === 'google') {
+            console.log('discord voice tts:', response)
             // google tts
             url = await tts(response, voiceCharacter, languageCode)
+          } else {
+            url = await tts_tiktalknet(response, voiceCharacter, tiktalknet_url)
           }
 
           cacheManager.instance.set(
@@ -117,7 +125,7 @@ export function initSpeechClient(
  * @param {Discord.Receiver} receiver
  * @param {Discord.TextChannel} textChannel
  */
-export async function recognizeSpeech(textChannel) {
+export async function recognizeSpeech(textChannel, clientId) {
   console.log('recognizeStream')
   if (textChannel) {
     joinVoiceChannel({
@@ -125,6 +133,7 @@ export async function recognizeSpeech(textChannel) {
       guildId: textChannel.guild.id,
       adapterCreator: textChannel.guild.voiceAdapterCreator,
       selfDeaf: false,
+      group: 'default_' + clientId,
     })
   }
 }

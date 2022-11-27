@@ -12,7 +12,7 @@ build
 core/src/plugins/areaPlugin/style.css.d.ts
 yarn-error.log
 server/google_credentials.json
-server/files/
+packages/server/files/
 
 # Ignore lockfiles
 .idea

@@ -64,6 +64,6 @@ export async function resolveSpeechWithGoogleSpeechV2(
   requestOptions.data = audioBuffer
   const response = await axios(requestOptions)
   if (response.data.error)
-    throw new Error(`Google speech api error: ${response.data}`)
+    throw new Error(`Google speech api error: ${JSON.stringify(response.data)}`)
   return response.data.result[0].alternative[0].transcript
 }

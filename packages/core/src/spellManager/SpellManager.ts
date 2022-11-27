@@ -1,4 +1,5 @@
 import io from 'socket.io'
+
 import { EngineContext, Spell } from '../../types'
 import SpellRunner from './SpellRunner'
 
@@ -16,7 +17,7 @@ export default class SpellManager {
     return this.spellRunnerMap.get(spellId)
   }
 
-  load(spell: Spell, overload: boolean = false) {
+  load(spell: Spell, overload = false) {
     if (this.spellRunnerMap.has(spell.name) && !overload)
       return this.getSpellRunner(spell.name)
 

@@ -1,7 +1,6 @@
 import { SimpleAccordion } from '../../../components/Accordion'
 import CodeControl from './CodeControl'
-import css from '../../components/windowMessage.module.css'
-import EnkiSelect from './EnkiSelect'
+import css from './datacontrols.module.css'
 import Info from './Info'
 import Input from './Input'
 import InputGenerator from './InputGenerator'
@@ -20,7 +19,6 @@ const StubComponent = props => <div>{props.name}</div>
 const controlMap = {
   code: CodeControl,
   dial: StubComponent,
-  enkiSelect: EnkiSelect,
   info: Info,
   input: Input,
   inputGenerator: InputGenerator,

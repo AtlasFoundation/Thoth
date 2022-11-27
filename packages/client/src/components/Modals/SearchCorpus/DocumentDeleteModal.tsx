@@ -1,3 +1,5 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 import Modal from '../../Modal/Modal'
 import css from '../modalForms.module.css'
 import axios from 'axios'
