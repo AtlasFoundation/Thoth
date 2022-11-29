@@ -43,7 +43,7 @@
   color: var(--green);
 }
 .node-title {
-  /* font-family: 'IBM Plex Mono', monospace !important; */
+  font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
   /* text-transform: uppercase; */
   letter-spacing: 0.1em;
   font-weight: 900;

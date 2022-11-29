@@ -1,6 +1,7 @@
 {
   "global": {
-    "tabSetTabStripHeight": 24
+    "tabSetTabStripHeight": 24,
+    "splitterSize": 4
   },
   "layout": {
     "type": "row",

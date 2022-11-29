@@ -524,3 +524,7 @@ input[type='text'] {
   background-color: #05c807 !important;
   color: red !important;
 }
+
+.input-title, .output-title, div.item {
+    font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
+}
