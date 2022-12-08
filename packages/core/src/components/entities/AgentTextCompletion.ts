@@ -114,7 +114,7 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    let apiKey = null as string | null
+    let apiKey = process.env.OPENAI_API_KEY as string | null
     // check if we are in a browser and local storage is available
     // if it is, we can use the API key from local storage
     if (typeof window !== 'undefined' && window.localStorage) {

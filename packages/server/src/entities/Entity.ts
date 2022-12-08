@@ -563,6 +563,8 @@ export class Entity {
     console.log('agent data is ', data)
     this.name = data.agent ?? data.name ?? 'agent'
 
+    process.env.OPENAI_API_KEY = data.openai_api_key
+
     this.generateVoices(data)
 
     if (data.loop_enabled) {
