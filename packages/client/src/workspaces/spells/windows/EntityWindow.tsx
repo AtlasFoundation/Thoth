@@ -32,6 +32,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [loaded, setLoaded] = useState(false)
 
   const [enabled, setEnabled] = useState(false)
+  const [openai_api_key, setOpenaiApiKey] = useState('')
   const [discord_enabled, setDiscordEnabled] = useState(false)
   const [discord_api_key, setDiscordApiKey] = useState('')
 
@@ -208,6 +209,7 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceDefaultPhrases(res.data.voice_default_phrases)
         setTikTalkNetUrl(res.data.tiktalknet_url)
 
+        setOpenaiApiKey(res.data.openai_api_key)
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
@@ -339,6 +341,7 @@ const EntityWindow = ({ id, updateCallback }) => {
     const _data = {
       enabled,
       discord_enabled,
+      openai_api_key,
       discord_api_key,
       discord_starting_words,
       discord_bot_name_regex,
@@ -437,6 +440,7 @@ const EntityWindow = ({ id, updateCallback }) => {
           console.log(responseData, 'responseDataresponseData')
           setEnabled(responseData.enabled)
           setDiscordEnabled(responseData.discord_enabled)
+          setOpenaiApiKey(responseData.openai_api_key)
           setDiscordApiKey(responseData.discord_api_key)
           setDiscordStartingWords(responseData.discord_starting_words)
           setDiscordBotNameRegex(responseData.discord_bot_name_regex)
@@ -555,6 +559,7 @@ const EntityWindow = ({ id, updateCallback }) => {
     const _data = {
       enabled,
       discord_enabled,
+      openai_api_key,
       discord_api_key,
       discord_starting_words,
       discord_bot_name_regex,
@@ -657,7 +662,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   return !loaded ? (
     <>Loading...</>
   ) : (
-    <div>
+    <div className="entityWindow">
       <div className="form-item">
         <span className="form-item-label">Enabled</span>
         <input
@@ -856,6 +861,17 @@ const EntityWindow = ({ id, updateCallback }) => {
 
       {enabled && (
         <>
+          <div className="form-item">
+            <span className="form-item-label">OpenAI Key</span>
+            {/*password input field that, when changed, sets the openai key*/}
+            <input
+              type="password"
+              defaultValue={openai_api_key}
+              onChange={e => {
+                setOpenAIKey(e.target.value)
+              }}
+            />
+          </div>
           <div className="form-item">
             <span className="form-item-label">Discord Enabled</span>
             <input

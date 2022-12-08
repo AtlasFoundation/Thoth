@@ -451,7 +451,8 @@ const textCompletion = async (ctx: Koa.Context) => {
   const prompt = (ctx.request.body.prompt as string)
     .replace('{agent}')
     .replace('{speaker}', sender)
-  let stop = ctx.request.body.stop as string[]
+  let stop = (ctx.request.body.stop ?? ['']) as string[]
+  const openaiApiKey = ctx.request.body.apiKey as string
 
   if (!stop || stop.length === undefined || stop.length <= 0) {
     stop = ['"""', `${sender}:`, '\n']
@@ -476,6 +477,7 @@ const textCompletion = async (ctx: Koa.Context) => {
     frequency_penalty: frequencyPenalty,
     presence_penalty: presencePenalty,
     stop: stop,
+    apiKey: openaiApiKey,
   })
 
   return (ctx.body = { success, choice })

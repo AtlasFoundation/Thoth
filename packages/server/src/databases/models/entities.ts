@@ -8,6 +8,7 @@ export interface entitiesAttributes {
   enabled?: boolean
   updated_at?: string
   dirty?: boolean
+  openai_api_key?: string
   discord_enabled?: boolean
   discord_api_key?: string
   discord_starting_words?: string
@@ -92,6 +93,7 @@ export interface entitiesAttributes {
 export type entitiesPk = 'id'
 export type entitiesId = entities[entitiesPk]
 export type entitiesOptionalAttributes =
+  | 'openai_api_key'
   | 'discord_enabled'
   | 'discord_api_key'
   | 'discord_starting_words'
@@ -187,6 +189,7 @@ export class entities
   personality?: string
   enabled?: boolean
   updated_at?: string
+  openai_api_key?: string
   discord_enabled?: boolean
   discord_api_key?: string
   discord_starting_words?: string
@@ -289,6 +292,10 @@ export class entities
           allowNull: true,
         },
         updated_at: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        openai_api_key: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

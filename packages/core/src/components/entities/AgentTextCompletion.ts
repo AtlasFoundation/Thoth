@@ -114,6 +114,13 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
+    let apiKey = null as string | null
+    // check if we are in a browser and local storage is available
+    // if it is, we can use the API key from local storage
+    if (typeof window !== 'undefined' && window.localStorage) {
+      apiKey = window.localStorage.getItem('openai-api-key')
+    }
+
     const prompt = inputs['string'][0]
     const settings = ((inputs.settings && inputs.settings[0]) ?? {}) as any
     const modelName = settings.modelName ?? (node?.data?.modelName as string)
@@ -151,14 +158,15 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
         'https://localhost:8001'
       }/text_completion`,
       {
-        prompt: prompt,
-        modelName: modelName,
-        temperature: temperature,
-        maxTokens: maxTokens,
-        topP: topP,
-        frequencyPenalty: frequencyPenalty,
-        presencePenalty: presencePenalty,
+        prompt,
+        modelName,
+        temperature,
+        maxTokens,
+        topP,
+        frequencyPenalty,
+        presencePenalty,
         stop: filteredStop,
+        apiKey,
       }
     )
     console.log('resp.data is ', resp.data)
