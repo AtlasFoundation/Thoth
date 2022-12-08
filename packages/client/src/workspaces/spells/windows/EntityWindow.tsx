@@ -149,7 +149,7 @@ const EntityWindow = ({ id, updateCallback }) => {
 
   const testVoice = async () => {
     if (
-      (voice_provider && voice_character && voice_language_code) ||
+      (voice_provider && voice_character) ||
       playingAudio
     ) {
       if (voice_provider === 'tiktalknet' && tiktalknet_url?.length <= 0) {
@@ -171,7 +171,7 @@ const EntityWindow = ({ id, updateCallback }) => {
 
       const url =
         voice_provider === 'google' || voice_provider === 'tiktalknet'
-          ? process.env.REACT_APP_SEARCH_FILE_URL + '/' + resp.data
+          ? process.env.REACT_APP_FILE_SERVER_URL + '/' + resp.data
           : resp.data
       if (url && url.length > 0) {
         setPlayingAudio(true)
