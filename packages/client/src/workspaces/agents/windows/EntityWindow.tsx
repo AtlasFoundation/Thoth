@@ -315,7 +315,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
         setSlackEchoChannel(res.data.slack_echo_channel)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
-        setInstagramEnabled(res.data.instagram_enabled)
+        setInstagramEnabled(res.data.instagram_enabled === true)
         setInstagramUsername(res.data.instagram_username)
         setInstagramPassword(res.data.instagram_password)
         setInstagramBotName(res.data.instagram_bot_name)
@@ -324,7 +324,7 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
           res.data.instagram_spell_handler_incoming
         )
 
-        setMessengerEnabled(res.data.messenger_enabled)
+        setMessengerEnabled(res.data.messenger_enabled === true)
         setMessengerPageAccessToken(res.data.messenger_page_access_token)
         setMessengerVerifyToken(res.data.messenger_verify_token)
         setMessengerBotName(res.data.messenger_bot_name)

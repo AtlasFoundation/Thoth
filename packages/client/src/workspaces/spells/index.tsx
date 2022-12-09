@@ -26,6 +26,7 @@ import EventManagerWindow from './windows/EventManager'
 import { RootState } from '@/state/store'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
+import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -146,6 +147,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <DebugConsole {...props} />
         case 'eventManager':
           return <EventManagerWindow {...props} />
+        case 'entityManager':
+          return <EntityManagerWindow />
         default:
           return <p></p>
       }
