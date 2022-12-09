@@ -17,7 +17,8 @@ import { tts_tiktalknet } from '../systems/tiktalknet'
 import * as events from '../services/events'
 import { stringIsAValidUrl } from '../utils/utils'
 import { CreateSpellHandler } from '../entities/CreateSpellHandler'
-import queryGoogle from './utils/queryGoogle'
+import queryGoogleSearch from './utils/queryGoogle'
+import { CustomError } from 'src/utils/CustomError'
 
 export const modules: Record<string, unknown> = {}
 
@@ -687,6 +688,18 @@ const register = async (ctx: Koa.Context) => {
   }
 }
 
+const queryGoogle = async (ctx: Koa.Context) => {
+  console.log('QUERY', ctx.request?.body?.query)
+  if (!ctx.request?.body?.query)
+    throw new CustomError('input-failed', 'No query provided in request body')
+  const query = ctx.request.body?.query as string
+  const result = await queryGoogleSearch(query)
+
+  ctx.body = {
+    result,
+  }
+}
+
 export const entities: Route[] = [
   {
     path: '/execute',
@@ -808,7 +821,7 @@ export const entities: Route[] = [
   {
     path: '/query_google',
     access: noAuth,
-    post: queryGoogleSearch,
+    post: queryGoogle,
   },
   {
     path: '/register',
