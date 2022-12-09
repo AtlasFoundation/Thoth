@@ -92,9 +92,11 @@ const EditorWindow = ({ tab }) => {
   return (
     <div className={css['editor-deployments-wrapper']}>
       <div className={css['editor-container']}>
+      {/*
         <div className={css['editor-toolbar']}>
           <EditorToolbar />
         </div>
+      */}
         <Editor tab={tab} />
       </div>
       <Deployment

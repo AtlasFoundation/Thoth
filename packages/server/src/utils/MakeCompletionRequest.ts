@@ -11,7 +11,8 @@ export async function MakeCompletionRequest(
   speaker: any,
   agent: any,
   type: any,
-  engine: any
+  engine: any,
+  apiKey: string
 ) {
   // if ((await database.instance.getConfig())['use_gptj']) {
   //   const params = {
@@ -37,7 +38,7 @@ export async function MakeCompletionRequest(
   //   }
   //   return responseModified
   // } else {
-  return await makeOpenAIGPT3Request(data, speaker, agent, type, engine)
+  return await makeOpenAIGPT3Request(data, speaker, agent, type, engine, apiKey)
   // }
 }
 const useDebug = false
@@ -46,10 +47,11 @@ async function makeOpenAIGPT3Request(
   speaker: any,
   agent: any,
   type: any,
-  engine: any
+  engine: any,
+  apiKey: string
 ) {
   if (useDebug) return { success: true, choice: { text: 'Default response' } }
-  const API_KEY = process.env.OPENAI_API_KEY
+  const API_KEY = (apiKey !== '' && apiKey) ?? process.env.OPENAI_API_KEY
   const headers = {
     'Content-Type': 'application/json',
     Authorization: 'Bearer ' + API_KEY,
@@ -80,6 +82,7 @@ type CompletionData = {
   frequency_penalty: number
   presence_penalty: number
   stop: string[]
+  apiKey: string
 }
 
 export async function makeCompletion(
@@ -94,9 +97,10 @@ export async function makeCompletion(
     frequency_penalty = 0,
     presence_penalty = 0,
     stop,
+    apiKey,
   } = data
 
-  const API_KEY = process.env.OPENAI_API_KEY
+  const API_KEY = apiKey || process.env.OPENAI_API_KEY
 
   const headers = {
     'Content-Type': 'application/json',

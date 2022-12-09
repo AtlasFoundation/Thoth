@@ -125,7 +125,7 @@ export const CreateSpellHandler = async (props: {
 
   const inputKeys = extractModuleInputKeys(graph) as string[]
 
-  // Return this-- this is the callback for discord, xrengine, etc to handle chat
+  // Return this-- this is the callback for discord etc to handle chat
   async function spellHandler(
     message: string,
     speaker: string,
@@ -192,13 +192,9 @@ export const CreateSpellHandler = async (props: {
     // Write all the raw data that was output by the module run to an object
     module.write(rawOutputs)
 
-    console.log('rawOutputs are', JSON.stringify(rawOutputs))
-
     const outputs = Object.values(graph.nodes).filter((node: any) => {
       return node.name.includes('Output')
     })
-
-    console.log('outputs are', JSON.stringify(outputs))
 
     // Format raw outputs based on the names assigned to Module Outputs node data in the graph
     Object.values(graph.nodes)

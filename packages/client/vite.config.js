@@ -20,11 +20,11 @@ export default defineConfig(async command => {
       hmr: false,
       host: true,
       port: process.env.PORT || 3003,
-      https: {
+      https: process.env.USE_SSL==="true" ? {
         key: fs.readFileSync('./certs/key.pem'),
         cert: fs.readFileSync('./certs/cert.pem'),
         maxSessionMemory: 100,
-      },
+      } : null,
     },
     resolve: {
       alias: {

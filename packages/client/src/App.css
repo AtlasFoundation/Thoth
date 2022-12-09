@@ -363,6 +363,7 @@ input[type='text'] {
 }
 
 .entBtns {
+  padding: 1em;
   display: flex;
 }
 
@@ -467,9 +468,15 @@ input[type='text'] {
 }
 
 .agent-editor {
-  padding: 2em;
+  padding: 1em;
   height: calc(100% - 4em);
   overflow: auto;
+}
+
+.entityWindow {
+  padding: 1em;
+  background-color: #333;
+  border-radius: .25em;
 }
 
 .form-item > input[type='text'] {

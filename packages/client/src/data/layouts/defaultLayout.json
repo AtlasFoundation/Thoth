@@ -10,7 +10,7 @@
       {
         "type": "tabset",
         "id": "#3",
-        "weight": 7.102489336164113,
+        "weight": 15,
         "children": [
           {
             "type": "tab",
@@ -23,12 +23,12 @@
       {
         "type": "row",
         "id": "#9",
-        "weight": 34.08645212404496,
+        "weight": 60,
         "children": [
           {
             "type": "tabset",
             "id": "#15",
-            "weight": 77.96917497733455,
+            "weight": 60,
             "children": [
               {
                 "type": "tab",
@@ -44,8 +44,14 @@
           {
             "type": "tabset",
             "id": "#8",
-            "weight": 22.030825022665457,
+            "weight": 40,
             "children": [
+              {
+                "type": "tab",
+                "id": "#22",
+                "name": "Playtest",
+                "component": "playtest"
+              },
               {
                 "type": "tab",
                 "id": "44",
@@ -60,12 +66,12 @@
       {
         "type": "row",
         "id": "#7",
-        "weight": 7.945196793081777,
+        "weight": 25,
         "children": [
           {
             "type": "tabset",
             "id": "#14",
-            "weight": 50,
+            "weight": 100,
             "children": [
               {
                 "type": "tab",

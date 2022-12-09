@@ -21,12 +21,12 @@ import { useSharedb } from '@/contexts/SharedbProvider'
 import { sharedb } from '@/config'
 import { ThothComponent } from '@thothai/thoth-core/types'
 import { useAuth } from '@/contexts/AuthProvider'
-
 import EventManagerWindow from './windows/EventManager'
 import { RootState } from '@/state/store'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
+import SettingsWindow from './windows/SettingsWindow'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -149,6 +149,10 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <EventManagerWindow {...props} />
         case 'entityManager':
           return <EntityManagerWindow />
+        case 'eventManager':
+          return <EventManagerWindow {...props} />
+        case 'settings':
+          return <SettingsWindow {...props} />
         default:
           return <p></p>
       }

@@ -53,21 +53,19 @@ const EntityManagerWindow = () => {
   return (
     <div className="agent-editor">
       <React.Fragment>
-        <div>
-          {data &&
-            (data as any).map((value, idx) => {
-              return (
-                <EntityWindow
-                  id={value.id ?? 0}
-                  key={value.id ?? idx}
-                  updateCallback={async () => {
-                    resetData()
-                  }}
-                  greetings={greetings}
-                />
-              )
-            })}
-        </div>
+        {data &&
+          (data as any).map(value => {
+            return (
+              <EntityWindow
+                id={value.id ?? 0}
+                key={value.id ?? idx}
+                updateCallback={async () => {
+                  resetData()
+                }}
+                greetings={greetings}
+              />
+            )
+          })}
       </React.Fragment>
       <div className="entBtns">
         <button onClick={() => createNew()} style={{ marginRight: '10px' }}>

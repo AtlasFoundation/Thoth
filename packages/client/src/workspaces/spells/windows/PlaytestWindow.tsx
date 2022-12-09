@@ -31,6 +31,7 @@ const Input = props => {
 
   return (
     <div className={css['playtest-input']}>
+
       <input
         ref={ref}
         type="text"
@@ -164,6 +165,10 @@ const Playtest = ({ tab }) => {
 
   const toolbar = (
     <React.Fragment>
+      <form>
+        <label htmlFor='api-key'>API Key</label>
+        <input type='password' id='api-key' name='api-key' value='api-key' onChange={(e) => localStorage.setItem('openai-api-key', e.target.value)} />
+      </form>
       <button className="small" onClick={onClear}>
         Clear
       </button>
