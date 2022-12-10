@@ -149,6 +149,12 @@ export default function MiniDrawer({ children }) {
             text="Entity Manager"
           />
           <DrawerItem
+            active={location.pathname === '/dataManager'}
+            Icon={HubIcon}
+            open={open}
+            text="Deployments"
+          />
+          <DrawerItem
             active={location.pathname === '/settings'}
             Icon={SettingsIcon}
             open={open}
