@@ -82,7 +82,7 @@ type CompletionData = {
   frequency_penalty: number
   presence_penalty: number
   stop: string[]
-  apiKey: string
+  apiKey?: string
 }
 
 export async function makeCompletion(

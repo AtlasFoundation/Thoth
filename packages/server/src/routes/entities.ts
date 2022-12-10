@@ -18,7 +18,7 @@ import * as events from '../services/events'
 import { stringIsAValidUrl } from '../utils/utils'
 import { CreateSpellHandler } from '../entities/CreateSpellHandler'
 import queryGoogleSearch from './utils/queryGoogle'
-import { CustomError } from 'src/utils/CustomError'
+import { CustomError } from '../utils/CustomError'
 
 export const modules: Record<string, unknown> = {}
 

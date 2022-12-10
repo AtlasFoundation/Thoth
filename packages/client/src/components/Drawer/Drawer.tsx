@@ -1,4 +1,5 @@
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles'
+import { useNavigate } from 'react-router-dom'
 import MuiDrawer from '@mui/material/Drawer'
 import List from '@mui/material/List'
 import Divider from '@mui/material/Divider'
@@ -75,7 +76,7 @@ const Drawer = styled(MuiDrawer, {
   }),
 }))
 
-const DrawerItem = ({ Icon, open, text, active }) => (
+const DrawerItem = ({ Icon, open, text, active, onClick = () => {} }) => (
   <ListItem key={text} disablePadding sx={{ display: 'block' }}>
     <ListItemButton
       sx={{
@@ -83,6 +84,7 @@ const DrawerItem = ({ Icon, open, text, active }) => (
         justifyContent: open ? 'initial' : 'center',
         px: 2.5,
       }}
+      onClick={onClick}
     >
       <ListItemIcon
         sx={{
@@ -102,11 +104,16 @@ const DrawerItem = ({ Icon, open, text, active }) => (
 export default function MiniDrawer({ children }) {
   const theme = useTheme()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const [open, setOpen] = useState<boolean>(false)
 
   const toggleDrawer = () => {
     setOpen(!open)
+  }
+
+  const onClick = location => () => {
+    navigate(location)
   }
 
   return (
@@ -128,6 +135,7 @@ export default function MiniDrawer({ children }) {
             active={location.pathname === '/thoth'}
             Icon={AutoFixHighIcon}
             open={open}
+            onClick={onClick('/thoth')}
             text="Spell Composer"
           />
           <DrawerItem
@@ -137,9 +145,10 @@ export default function MiniDrawer({ children }) {
             text="Spellbook"
           />
           <DrawerItem
-            active={location.pathname === '/dataManager'}
+            active={location.pathname === '/eventManager'}
             Icon={StorageIcon}
             open={open}
+            onClick={onClick('/eventManager')}
             text="Event Manager"
           />
           <DrawerItem
