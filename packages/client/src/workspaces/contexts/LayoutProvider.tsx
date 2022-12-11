@@ -23,7 +23,6 @@ const windowTypes: WindowTypes = {
   SETTINGS: 'settings',
   SEARCH_CORPUS: 'searchCorpus',
   ENT_MANAGER: 'entityManager',
-  GREETINGS_MANAGER: 'greetingsManager',
   EVENT_MANAGER: 'eventManager',
   VIDEO_TRANSCRIPTION: 'videoTranscription',
   CALENDAR_TAB: 'calendarTab',
@@ -40,7 +39,6 @@ type WindowType =
   | 'settings'
   | 'searchCorpus'
   | 'entityManager'
-  | 'greetingsManager'
   | 'wysiwygEditor'
   | 'messageReactionEditor'
   | 'eventManager'

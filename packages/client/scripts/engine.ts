@@ -1,7 +1,7 @@
-import thothCore from '@thothai/thoth-core/dist/server'
+import thothCore from '@thothai/thoth-core/server'
 
 const {
-  components: { moduleInput, moduleOutput, tenseTransformer },
+  components: any
 } = thothCore
 
 export const components = [

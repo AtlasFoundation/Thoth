@@ -98,19 +98,6 @@
                 "component": "entityManager"
               }
             ]
-          },
-          {
-            "type": "tabset",
-            "id": "#6",
-            "weight": 50,
-            "children": [
-              {
-                "type": "tab",
-                "id": "#22",
-                "name": "Playtest",
-                "component": "playtest"
-              }
-            ]
           }
         ]
       }

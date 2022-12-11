@@ -1,10 +1,11 @@
 import 'regenerator-runtime'
-import { SpellRunner } from '@thothai/thoth-core/dist/server'
+import WebSocketJSONStream from '@teamwork/websocket-json-stream'
+import SpellRunner from '@thothai/thoth-core/src/spellManager/SpellRunner'
 import express from 'express'
 import http from 'http'
-import WebSocket from 'ws'
 import ShareDB from 'sharedb'
-import WebSocketJSONStream from '@teamwork/websocket-json-stream'
+import WebSocket from 'ws'
+
 import { buildThothInterface } from './src/thothInterface'
 
 const app = express()

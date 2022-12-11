@@ -2,7 +2,6 @@ import { Layout } from '@/workspaces/contexts/LayoutProvider'
 import EventHandler from '@/screens/Thoth/components/EventHandler'
 import StateManager from '@/workspaces/spells/windows/StateManagerWindow'
 import EntityManagerWindow from './windows/EntityManagerWindow'
-import GreetingsManagerWindow from './windows/GreetingsManagerWindow'
 import SearchCorpus from './windows/SearchCorpusWindow'
 import MessageReactionEditor from './windows/MessageReactionEditor'
 
@@ -21,8 +20,6 @@ const Workspace = ({ tab, pubSub }) => {
           return <SearchCorpus />
         case 'entityManager':
           return <EntityManagerWindow />
-        case 'greetingsManager':
-          return <GreetingsManagerWindow />
         case 'messageReactionEditor':
           return <MessageReactionEditor />
         default:

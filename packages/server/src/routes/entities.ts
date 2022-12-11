@@ -152,54 +152,6 @@ const deleteEntityHandler = async (ctx: Koa.Context) => {
   }
 }
 
-const getGreetings = async (ctx: Koa.Context) => {
-  const { enabled } = ctx.request.query
-  try {
-    const greetings = await database.instance.getGreetings(!!enabled)
-    return (ctx.body = greetings)
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
-const addGreetings = async (ctx: Koa.Context) => {
-  try {
-    const { enabled, sendIn, channelId, message } = ctx.request.body
-    const { id } = ctx.params
-
-    if (!id)
-      await database.instance.addGreeting(enabled, sendIn, channelId, message)
-    else
-      await database.instance.updateGreeting(
-        enabled,
-        sendIn,
-        channelId,
-        message,
-        id
-      )
-
-    return (ctx.body = 'ok')
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
-const deleteGreeting = async (ctx: Koa.Context) => {
-  try {
-    const { id } = ctx.params
-    await database.instance.deleteGreeting(id)
-    return (ctx.body = 'ok')
-  } catch (e) {
-    console.log(e)
-    ctx.status = 500
-    return (ctx.body = 'internal error')
-  }
-}
-
 const getEvent = async (ctx: Koa.Context) => {
   const type = ctx.request.query.type as string
   const agent = ctx.request.query.agent
@@ -726,18 +678,6 @@ export const entities: Route[] = [
     path: '/entity/:id',
     access: noAuth,
     delete: deleteEntityHandler,
-  },
-  {
-    path: '/greetings',
-    access: noAuth,
-    get: getGreetings,
-    post: addGreetings,
-  },
-  {
-    path: '/greetings/:id',
-    access: noAuth,
-    put: addGreetings,
-    delete: deleteGreeting,
   },
   {
     path: '/event',

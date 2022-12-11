@@ -1,13 +1,11 @@
 // @ts-nocheck
 import FileInput from '@/screens/HomeScreen/components/FileInput'
-import { useGetGreetingsQuery } from '@/state/api/greetings'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
 import EntityWindow from './EntityWindow'
 
 const EntityManagerWindow = () => {
-  const { data: greetings } = useGetGreetingsQuery(true)
   const [data, setData] = useState(false)
 
   const resetData = async () => {
@@ -62,7 +60,6 @@ const EntityManagerWindow = () => {
                 updateCallback={async () => {
                   resetData()
                 }}
-                greetings={greetings}
               />
             )
           })}

@@ -5,16 +5,13 @@ import { creatorToolsDatabase } from '../../databases/creatorTools'
 import { noAuth } from '../../middleware/auth'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
-import {
-  SpellRunner,
-  extractModuleInputKeys,
-} from '@thothai/thoth-core/dist/server'
-import { runSpell } from './runSpell'
 import { buildThothInterface } from './buildThothInterface'
 
 import otJson0 from 'ot-json0'
 import { Op } from 'sequelize'
 import { GraphData, Spell as SpellType } from '@thothai/thoth-core/types'
+import { Data } from 'rete/types/core/data'
+import SpellRunner from '@thothai/thoth-core/src/spellManager/SpellRunner'
 
 export const modules: Record<string, unknown> = {}
 
@@ -424,3 +421,7 @@ export const spells: Route[] = [
     post: runSpellHandler,
   },
 ]
+function extractModuleInputKeys(graph: Data): string[] {
+  throw new Error('Function not implemented.')
+}
+

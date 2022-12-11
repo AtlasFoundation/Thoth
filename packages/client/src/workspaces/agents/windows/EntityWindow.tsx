@@ -13,7 +13,7 @@ function capitalizeFirstLetter(word) {
   return word.charAt(0).toUpperCase() + word.slice(1)
 }
 
-const EntityWindow = ({ id, updateCallback, greetings }) => {
+const EntityWindow = ({ id, updateCallback }) => {
   const { user } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -37,7 +37,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [cusotm_commands_updated, setCustomCommandsUpdated] = useState(false)
 
   const [discord_starting_words, setDiscordStartingWords] = useState('')
-  const [discord_greeting_id, setDiscordGreetingId] = useState('')
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
@@ -133,7 +132,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
   const [slack_bot_name, setSlackBotName] = useState('')
   const [slack_port, setSlackPort] = useState('')
   const [slack_verification_token, setSlackVerificationToken] = useState('')
-  const [slack_greeting_id, setSlackGreetingId] = useState('')
   const [slack_echo_channel, setSlackEchoChannel] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
@@ -1095,24 +1093,6 @@ const EntityWindow = ({ id, updateCallback, greetings }) => {
               </div>
 
               <div className="form-item agent-select">
-                <span className="form-item-label">Discord Greeting</span>
-                <select
-                  name="discordGreetingId"
-                  id="discordGreetingId"
-                  value={discord_greeting_id}
-                  onChange={event => {
-                    setDiscordGreetingId(event.target.value)
-                  }}
-                >
-                  <option hidden></option>
-                  {greetings.length > 0 &&
-                    greetings.map((greeting, idx) => (
-                      <option value={greeting.id} key={idx}>
-                        {greeting.message}
-                      </option>
-                    ))}
-                </select>
-
                 <div className="form-item">
                   <span className="form-item-label">Echo Slack</span>
                   <input
