@@ -13,9 +13,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "strictNullChecks": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "strictNullChecks": false,
     "strict": false,
     "outDir": "./dist/",
     "declaration": true

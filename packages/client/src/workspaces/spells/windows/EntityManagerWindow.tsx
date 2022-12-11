@@ -44,8 +44,7 @@ const EntityManagerWindow = () => {
   return (
     <div className="agent-editor">
       <React.Fragment>
-        <div>
-          {data && (data as any) !== [] &&
+          {data &&
             (data as any).map((value) => {
               return (
                 <EntityWindow
@@ -57,7 +56,6 @@ const EntityManagerWindow = () => {
                 />
               )
             })}
-        </div>
       </React.Fragment>
       <div className="entBtns">
         <button onClick={() => createNew()} style={{ marginRight: '10px' }}>Create New</button>

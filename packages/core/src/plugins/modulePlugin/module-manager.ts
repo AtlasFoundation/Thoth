@@ -1,5 +1,6 @@
 import { Engine, Socket, Component } from 'rete'
 import { Socket as SocketType } from 'rete/types'
+import { NodeData } from 'rete/types/core/data'
 
 import {
   GraphData,
@@ -12,7 +13,6 @@ import {
 import { SocketNameType } from '../../sockets'
 import { Module } from './module'
 import { extractNodes } from './utils'
-import { NodeData } from 'rete/types/core/data'
 interface ModuleComponent extends Component {
   run: Function
 }

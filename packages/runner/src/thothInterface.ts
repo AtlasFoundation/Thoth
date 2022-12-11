@@ -29,13 +29,6 @@ export const buildThothInterface = (
       }
       gameState = newState
     },
-    async enkiCompletion() {
-      // Hit enki endpoint?
-      return { outputs: [] }
-    },
-    async huggingface() {
-      return {}
-    },
     async runSpell(inputs: Record<string, any>, spellId: string) {
       return runSpell({ spellId, inputs })
     },

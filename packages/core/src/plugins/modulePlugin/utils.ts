@@ -153,7 +153,7 @@ const addSockets = ({
 
       node[addMethod](
         new Socket(socketKey, name, socket, taskType === 'option') as Input &
-          Output
+        Output
       )
       if (connectionType === 'output')
         node.inspector.component.task.outputs[socketKey] = taskType

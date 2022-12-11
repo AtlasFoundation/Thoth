@@ -451,7 +451,8 @@ const textCompletion = async (ctx: Koa.Context) => {
   const prompt = (ctx.request.body.prompt as string)
     .replace('{agent}')
     .replace('{speaker}', sender)
-  let stop = ctx.request.body.stop as string[]
+  let stop = (ctx.request.body.stop ?? ['']) as string[]
+  const openaiApiKey = ctx.request.body.apiKey as string
 
   if (!stop || stop.length === undefined || stop.length <= 0) {
     stop = ['"""', `${sender}:`, '\n']
@@ -476,6 +477,7 @@ const textCompletion = async (ctx: Koa.Context) => {
     frequency_penalty: frequencyPenalty,
     presence_penalty: presencePenalty,
     stop: stop,
+    apiKey: openaiApiKey,
   })
 
   return (ctx.body = { success, choice })
@@ -531,37 +533,6 @@ const getEntityData = async (ctx: Koa.Context) => {
   const data = await database.instance.getEntity(agent)
 
   return (ctx.body = { agent: data })
-}
-
-const requestInformationAboutVideo = async (
-  sender: string,
-  agent: string,
-  question: string
-): Promise<string> => {
-  const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${
-    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-  }\n${agent}:`
-
-  const modelName = 'davinci'
-  const temperature = 0.9
-  const maxTokens = 100
-  const topP = 1
-  const frequencyPenalty = 0.5
-  const presencePenalty = 0.5
-  const stop: string[] = ['"""', `${sender}:`, '\n']
-
-  const { success, choice } = await makeCompletion(modelName, {
-    prompt: prompt,
-    temperature: temperature,
-    max_tokens: maxTokens,
-    top_p: topP,
-    frequency_penalty: frequencyPenalty,
-    presence_penalty: presencePenalty,
-    stop: stop,
-  })
-
-  return success ? choice : "Sorry I can't answer your question!"
 }
 
 const chatEntity = async (ctx: Koa.Context) => {
@@ -624,107 +595,6 @@ const handleCustomInput = async (ctx: Koa.Context) => {
       'latest'
     ),
   })
-}
-
-const getCalendarEvents = async (ctx: Koa.Context) => {
-  try {
-    let calendarEvents = await database.instance.getCalendarEvents()
-    return (ctx.body = calendarEvents)
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-const addCalendarEvent = async (ctx: Koa.Context) => {
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-
-  if (
-    !name ||
-    !date ||
-    !time ||
-    !type ||
-    !moreInfo ||
-    name?.length <= 0 ||
-    date?.length <= 0 ||
-    time?.length <= 0 ||
-    type?.length <= 0 ||
-    moreInfo?.length <= 0
-  ) {
-    return (ctx.body = { error: 'invalid event data' })
-  }
-
-  try {
-    await database.instance.createCalendarEvent(
-      name,
-      date,
-      time,
-      type,
-      moreInfo
-    )
-    return (ctx.body = 'inserted')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const editCalendarEvent = async (ctx: Koa.Context) => {
-  const id = ctx.params.id
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-
-  try {
-    await database.instance.editCalendarEvent(
-      id,
-      name,
-      date,
-      time,
-      type,
-      moreInfo
-    )
-    return (ctx.body = 'edited')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const deleteCalendarEvent = async (ctx: Koa.Context) => {
-  const id = ctx.params.id
-  try {
-    await database.instance.deleteCalendarEvent(id)
-    return (ctx.body = 'deleted')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const addVideo = async (ctx: Koa.Context) => {
-  try {
-    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
-    const [type, subType] = mimeType.split('/')
-    if (type !== 'video') {
-      ctx.response.status = 400
-      return (ctx.body = 'Only video can be uploaded')
-    }
-
-    fs.copyFileSync(
-      videoPath,
-      path.join(process.cwd(), `/files/videos/${name}`)
-    )
-    return (ctx.body = 'ok')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
 }
 
 const login = async (ctx: Koa.Context) => {
@@ -820,18 +690,6 @@ export const entities: Route[] = [
     get: getSortedEventsByDate,
   },
   {
-    path: '/calendar_event',
-    access: noAuth,
-    get: getCalendarEvents,
-    post: addCalendarEvent,
-  },
-  {
-    path: '/calendar_event/:id',
-    access: noAuth,
-    patch: editCalendarEvent,
-    delete: deleteCalendarEvent,
-  },
-  {
     path: '/text_to_speech',
     access: noAuth,
     get: getTextToSpeech,
@@ -882,11 +740,6 @@ export const entities: Route[] = [
     path: '/handle_custom_input',
     access: noAuth,
     post: handleCustomInput,
-  },
-  {
-    path: '/video',
-    access: noAuth,
-    post: addVideo,
   },
   {
     path: '/login',

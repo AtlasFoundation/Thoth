@@ -8,14 +8,13 @@ export interface entitiesAttributes {
   enabled?: boolean
   updated_at?: string
   dirty?: boolean
+  openai_api_key?: string
   discord_enabled?: boolean
   discord_api_key?: string
   discord_starting_words?: string
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
-  discord_echo_slack?: boolean
-  discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -25,15 +24,6 @@ export interface entitiesAttributes {
   voice_language_code?: string
   voice_default_phrases?: string
   tiktalknet_url?: string
-  xrengine_enabled?: boolean
-  xrengine_url?: string
-  xrengine_spell_handler_incoming?: string
-  xrengine_spell_handler_update?: string
-  xrengine_spell_handler_feed?: string
-  xrengine_bot_name?: string
-  xrengine_bot_name_regex?: string
-  xrengine_starting_words?: string
-  xrengine_empty_responses?: string
   twitter_client_enable?: boolean
   twitter_token?: string
   twitter_id?: string
@@ -75,7 +65,6 @@ export interface entitiesAttributes {
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
-  slack_echo_channel?: string
   slack_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
@@ -101,14 +90,13 @@ export interface entitiesAttributes {
 export type entitiesPk = 'id'
 export type entitiesId = entities[entitiesPk]
 export type entitiesOptionalAttributes =
+  | 'openai_api_key'
   | 'discord_enabled'
   | 'discord_api_key'
   | 'discord_starting_words'
   | 'discord_bot_name_regex'
   | 'discord_bot_name'
   | 'discord_empty_responses'
-  | 'discord_echo_slack'
-  | 'discord_echo_format'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
   | 'discord_spell_handler_feed'
@@ -118,13 +106,6 @@ export type entitiesOptionalAttributes =
   | 'voice_language_code'
   | 'voice_default_phrases'
   | 'tiktalknet_url'
-  | 'xrengine_enabled'
-  | 'xrengine_url'
-  | 'xrengine_spell_handler_incoming'
-  | 'xrengine_spell_handler_update'
-  | 'xrengine_spell_handler_feed'
-  | 'xrengine_bot_name'
-  | 'xrengine_bot_name_regex'
   | 'twitter_client_enable'
   | 'twitter_token'
   | 'twitter_id'
@@ -166,7 +147,6 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_token'
   | 'slack_bot_name'
   | 'slack_port'
-  | 'slack_echo_channel'
   | 'slack_spell_handler_incoming'
   | 'instagram_enabled'
   | 'instagram_username'
@@ -203,14 +183,13 @@ export class entities
   personality?: string
   enabled?: boolean
   updated_at?: string
+  openai_api_key?: string
   discord_enabled?: boolean
   discord_api_key?: string
   discord_starting_words?: string
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
-  discord_echo_slack?: boolean
-  discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -220,15 +199,6 @@ export class entities
   voice_language_code?: string
   voice_default_phrases?: string
   tiktalknet_url?: string
-  xrengine_enabled?: boolean
-  xrengine_url?: string
-  xrengine_spell_handler_incoming?: string
-  xrengine_spell_handler_update?: string
-  xrengine_spell_handler_feed?: string
-  xrengine_bot_name?: string
-  xrengine_bot_name_regex?: string
-  xrengine_starting_words?: string
-  xrengine_empty_responses?: string
   twitter_client_enable?: boolean
   twitter_token?: string
   twitter_id?: string
@@ -270,7 +240,6 @@ export class entities
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
-  slack_echo_channel?: string
   slack_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
@@ -317,6 +286,10 @@ export class entities
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        openai_api_key: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
         discord_enabled: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
@@ -338,14 +311,6 @@ export class entities
           allowNull: true,
         },
         discord_empty_responses: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        discord_echo_slack: {
-          type: DataTypes.BOOLEAN,
-          allowNull: true,
-        },
-        discord_echo_format: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
@@ -382,42 +347,6 @@ export class entities
           allowNull: true,
         },
         discord_spell_handler_feed: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_enabled: {
-          type: DataTypes.BOOLEAN,
-          allowNull: true,
-        },
-        xrengine_url: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_spell_handler_incoming: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_spell_handler_update: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_spell_handler_feed: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_bot_name: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_bot_name_regex: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_starting_words: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        xrengine_empty_responses: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
@@ -582,10 +511,6 @@ export class entities
           allowNull: true,
         },
         slack_port: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        slack_echo_channel: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

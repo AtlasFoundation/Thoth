@@ -18,11 +18,9 @@ import { useSharedb } from '@/contexts/SharedbProvider'
 import { sharedb } from '@/config'
 import { ThothComponent } from '@thothai/thoth-core/types'
 import { useAuth } from '@/contexts/AuthProvider'
-import { CalendarApp } from '@/screens/Calendar/Calendar'
 import EntityManagerWindow from './windows/EntityManagerWindow'
 import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
-import VideoTranscription from './windows/VideoTranscription'
 import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
 import { useFeathers } from '@/contexts/FeathersProvider'
@@ -173,10 +171,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <EntityManagerWindow />
         case 'eventManager':
           return <EventManagerWindow />
-        case 'videoTranscription':
-          return <VideoTranscription />
-        case 'calendarTab':
-          return <CalendarApp />
         case 'settings':
           return <SettingsWindow {...props} />
         default:

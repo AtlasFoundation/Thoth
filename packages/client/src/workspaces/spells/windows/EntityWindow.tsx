@@ -32,6 +32,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [loaded, setLoaded] = useState(false)
 
   const [enabled, setEnabled] = useState(false)
+  const [openai_api_key, setOpenaiApiKey] = useState('')
   const [discord_enabled, setDiscordEnabled] = useState(false)
   const [discord_api_key, setDiscordApiKey] = useState('')
 
@@ -46,8 +47,6 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
-  const [discord_echo_slack, setDiscordEchoSlack] = useState(false)
-  const [discord_echo_format, setDiscordEchoFormat] = useState('')
 
   const [discord_spell_handler_incoming, setDiscordSpellHandlerIncoming] =
     useState('')
@@ -60,19 +59,6 @@ const EntityWindow = ({ id, updateCallback }) => {
     discord_spell_handler_slash_command,
     setDiscordSpellHandlerSlashCommand,
   ] = useState('')
-
-  const [xrengine_spell_handler_incoming, setXREngineSpellHandlerIncoming] =
-    useState('')
-  const [xrengine_spell_handler_update, setXREngineSpellHandlerUpdate] =
-    useState('')
-  const [xrengine_spell_handler_feed, setXREngineSpellHandlerFeed] =
-    useState('')
-  const [xrengine_enabled, setxrengine_enabled] = useState(false)
-  const [xrengine_url, setXREngineUrl] = useState('')
-  const [xrengine_bot_name, setXREngineBotName] = useState('')
-  const [xrengine_bot_name_regex, setXREngineBotNameRegex] = useState('')
-  const [xrengine_starting_words, setXREngineStartingWords] = useState('')
-  const [xrengine_empty_responses, setXREngineEmptyResponses] = useState('')
 
   const [twitter_client_enable, setTwitterClientEnable] = useState(false)
   const [twitter_token, setTwitterToken] = useState('')
@@ -129,7 +115,6 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [slack_bot_token, setSlackBotToken] = useState('')
   const [slack_bot_name, setSlackBotName] = useState('')
   const [slack_port, setSlackPort] = useState('')
-  const [slack_echo_channel, setSlackEchoChannel] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
 
@@ -161,7 +146,7 @@ const EntityWindow = ({ id, updateCallback }) => {
 
   const testVoice = async () => {
     if (
-      (voice_provider && voice_character && voice_language_code) ||
+      (voice_provider && voice_character) ||
       playingAudio
     ) {
       if (voice_provider === 'tiktalknet' && tiktalknet_url?.length <= 0) {
@@ -183,7 +168,7 @@ const EntityWindow = ({ id, updateCallback }) => {
 
       const url =
         voice_provider === 'google' || voice_provider === 'tiktalknet'
-          ? process.env.REACT_APP_SEARCH_FILE_URL + '/' + resp.data
+          ? process.env.REACT_APP_FILE_SERVER_URL + '/' + resp.data
           : resp.data
       if (url && url.length > 0) {
         setPlayingAudio(true)
@@ -221,28 +206,15 @@ const EntityWindow = ({ id, updateCallback }) => {
         setVoiceDefaultPhrases(res.data.voice_default_phrases)
         setTikTalkNetUrl(res.data.tiktalknet_url)
 
+        setOpenaiApiKey(res.data.openai_api_key)
         setDiscordApiKey(res.data.discord_api_key)
         setDiscordStartingWords(res.data.discord_starting_words)
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
         setDiscordBotName(res.data.discord_bot_name)
         setDiscordEmptyResponses(res.data.discord_empty_responses)
-        setDiscordEchoSlack(res.data.discord_echo_slack === true)
-        setDiscordEchoFormat(res.data.discord_echo_format)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
         setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
-
-        setxrengine_enabled(res.data.xrengine_enabled === true)
-        setXREngineUrl(res.data.xrengine_url)
-        setXREngineSpellHandlerIncoming(
-          res.data.xrengine_spell_handler_incoming
-        )
-        setXREngineSpellHandlerUpdate(res.data.xrengine_spell_handler_update)
-        setXREngineSpellHandlerFeed(res.data.xrengine_spell_handler_feed)
-        setXREngineBotName(res.data.xrengine_bot_name)
-        setXREngineBotNameRegex(res.data.xrengine_bot_name_regex)
-        setXREngineStartingWords(res.data.xrengine_starting_words)
-        setXREngineEmptyResponses(res.data.xrengine_empty_responses)
 
         setTwitterClientEnable(res.data.twitter_client_enable === true)
         setTwitterToken(res.data.twitter_token)
@@ -292,7 +264,6 @@ const EntityWindow = ({ id, updateCallback }) => {
         setSlackSigningSecret(res.data.slack_signing_secret)
         setSlackBotName(res.data.slack_bot_name)
         setSlackPort(res.data.slack_port)
-        setSlackEchoChannel(res.data.slack_echo_channel)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
         setInstagramEnabled(res.data.instagram_enabled)
@@ -364,13 +335,12 @@ const EntityWindow = ({ id, updateCallback }) => {
     const _data = {
       enabled,
       discord_enabled,
+      openai_api_key,
       discord_api_key,
       discord_starting_words,
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_echo_slack,
-      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -380,15 +350,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_language_code,
       voice_default_phrases,
       tiktalknet_url,
-      xrengine_enabled,
-      xrengine_url,
-      xrengine_spell_handler_incoming,
-      xrengine_spell_handler_update,
-      xrengine_spell_handler_feed,
-      xrengine_bot_name,
-      xrengine_bot_name_regex,
-      xrengine_starting_words,
-      xrengine_empty_responses,
       twitter_client_enable,
       twitter_token,
       twitter_id,
@@ -430,7 +391,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       slack_bot_token,
       slack_bot_name,
       slack_port,
-      slack_echo_channel,
       slack_spell_handler_incoming,
       instagram_enabled,
       instagram_username,
@@ -471,13 +431,12 @@ const EntityWindow = ({ id, updateCallback }) => {
           console.log(responseData, 'responseDataresponseData')
           setEnabled(responseData.enabled)
           setDiscordEnabled(responseData.discord_enabled)
+          setOpenaiApiKey(responseData.openai_api_key)
           setDiscordApiKey(responseData.discord_api_key)
           setDiscordStartingWords(responseData.discord_starting_words)
           setDiscordBotNameRegex(responseData.discord_bot_name_regex)
           setDiscordBotName(responseData.discord_bot_name)
           setDiscordEmptyResponses(responseData.discord_empty_responses)
-          setDiscordEchoSlack(responseData.discord_echo_slack)
-          setDiscordEchoFormat(responseData.discord_echo_format)
           setDiscordSpellHandlerIncoming(
             responseData.discord_spell_handler_incoming
           )
@@ -485,18 +444,7 @@ const EntityWindow = ({ id, updateCallback }) => {
             responseData.discord_spell_handler_update
           )
           setDiscordSpellHandlerFeed(responseData.discord_spell_handler_feed)
-          setXREngineSpellHandlerIncoming(
-            responseData.xrengine_spell_handler_incoming
-          )
-          setXREngineSpellHandlerUpdate(
-            responseData.xrengine_spell_handler_update
-          )
-          setXREngineSpellHandlerFeed(responseData.xrengine_spell_handler_feed)
-          setXREngineBotName(responseData.xrengine_bot_name)
-          setXREngineBotNameRegex(responseData.xrengine_bot_name_regex)
-          setXREngineStartingWords(responseData.xrengine_starting_words)
-          setXREngineEmptyResponses(responseData.xrengine_empty_responses)
-
+          
           setTwitterClientEnable(responseData.twitter_client_enable)
           setTwitterToken(responseData.twitter_token)
           setTwitterId(responseData.twitter_id)
@@ -553,7 +501,6 @@ const EntityWindow = ({ id, updateCallback }) => {
           setSlackBotToken(responseData.slack_bot_token)
           setSlackBotName(responseData.slack_bot_name)
           setSlackPort(responseData.slack_port)
-          setSlackEchoChannel(responseData.slack_echo_channel)
           setSlackSpellHandlerIncoming(
             responseData.slack_spell_handler_incoming
           )
@@ -600,13 +547,12 @@ const EntityWindow = ({ id, updateCallback }) => {
     const _data = {
       enabled,
       discord_enabled,
+      openai_api_key,
       discord_api_key,
       discord_starting_words,
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_echo_slack,
-      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -616,15 +562,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       voice_language_code,
       voice_default_phrases,
       tiktalknet_url,
-      xrengine_enabled,
-      xrengine_url,
-      xrengine_spell_handler_incoming,
-      xrengine_spell_handler_update,
-      xrengine_spell_handler_feed,
-      xrengine_bot_name,
-      xrengine_bot_name_regex,
-      xrengine_starting_words,
-      xrengine_empty_responses,
       twitter_client_enable,
       twitter_token,
       twitter_id,
@@ -666,7 +603,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       slack_bot_token,
       slack_bot_name,
       slack_port,
-      slack_echo_channel,
       slack_spell_handler_incoming,
       instagram_enabled,
       instagram_username,
@@ -711,7 +647,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   return !loaded ? (
     <>Loading...</>
   ) : (
-    <div>
+    <div className="entityWindow">
       <div className="form-item">
         <span className="form-item-label">Enabled</span>
         <input
@@ -911,6 +847,17 @@ const EntityWindow = ({ id, updateCallback }) => {
       {enabled && (
         <>
           <div className="form-item">
+            <span className="form-item-label">OpenAI Key</span>
+            {/*password input field that, when changed, sets the openai key*/}
+            <input
+              type="password"
+              defaultValue={openai_api_key}
+              onChange={e => {
+                setOpenAIKey(e.target.value)
+              }}
+            />
+          </div>
+          <div className="form-item">
             <span className="form-item-label">Discord Enabled</span>
             <input
               type="checkbox"
@@ -983,30 +930,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                 />
               </div>
 
-              <div className="form-item">
-                <span className="form-item-label">Echo Slack</span>
-                <input
-                  type="checkbox"
-                  value={discord_echo_slack}
-                  defaultChecked={
-                    discord_echo_slack || discord_echo_slack === 'true'
-                  }
-                  onChange={e => {
-                    setDiscordEchoSlack(e.target.checked)
-                  }}
-                />
-              </div>
-              <div className="form-item">
-                <span className="form-item-label">Echo Format</span>
-                <input
-                  type="text"
-                  defaultValue={discord_echo_format}
-                  onChange={e => {
-                    setDiscordEchoFormat(e.target.value)
-                  }}
-                />
-              </div>
-
               <div className="form-item agent-select">
                 <span className="form-item-label">
                   Spell Handler (Incoming Message Handler)
@@ -1055,138 +978,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={discord_spell_handler_feed}
                   onChange={event => {
                     setDiscordSpellHandlerFeed(event.target.value)
-                  }}
-                >
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          <div className="form-item">
-            <span className="form-item-label">XREngine Enabled</span>
-            <input
-              type="checkbox"
-              value={xrengine_enabled}
-              defaultChecked={xrengine_enabled || xrengine_enabled === 'true'}
-              onChange={e => {
-                setxrengine_enabled(e.target.checked)
-              }}
-            />
-          </div>
-
-          {xrengine_enabled && (
-            <>
-              <div className="form-item">
-                <span className="form-item-label">Room URL</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_url}
-                  onChange={e => {
-                    setXREngineUrl(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Starting Words</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_starting_words}
-                  onChange={e => {
-                    setXREngineStartingWords(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Bot Name Regex</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_bot_name_regex}
-                  onChange={e => {
-                    setXREngineBotNameRegex(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Bot Name</span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_bot_name}
-                  onChange={e => {
-                    setXREngineBotName(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">
-                  Empty Responses - Separated by |
-                </span>
-                <input
-                  type="text"
-                  defaultValue={xrengine_empty_responses}
-                  onChange={e => {
-                    setXREngineEmptyResponses(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">
-                  Spell Handler (Incoming Message Handler)
-                </span>
-                <select
-                  name="spellHandlerIncoming"
-                  id="spellHandlerIncoming"
-                  value={xrengine_spell_handler_incoming}
-                  onChange={event => {
-                    setXREngineSpellHandlerIncoming(event.target.value)
-                  }}
-                >
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">Interval Update Handler</span>
-                <select
-                  name="spellHandlerUpdate"
-                  id="spellHandlerUpdate"
-                  value={xrengine_spell_handler_update}
-                  onChange={event => {
-                    setXREngineSpellHandlerUpdate(event.target.value)
-                  }}
-                >
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">Event Feed Handler</span>
-                <select
-                  name="spellHandlerFeed"
-                  id="spellHandlerFeed"
-                  value={xrengine_spell_handler_feed}
-                  onChange={event => {
-                    setXREngineSpellHandlerFeed(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&
@@ -1665,16 +1456,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                   defaultValue={slack_bot_name}
                   onChange={e => {
                     setSlackBotName(e.target.value)
-                  }}
-                />
-              </div>
-              <div className="form-item">
-                <span className="form-item-label">Echo Channel</span>
-                <input
-                  type="text"
-                  defaultValue={slack_echo_channel}
-                  onChange={e => {
-                    setSlackEchoChannel(e.target.value)
                   }}
                 />
               </div>

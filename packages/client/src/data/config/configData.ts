@@ -31,11 +31,9 @@ const data = {
   instagramPassword: '',
   fastMode: false,
 
-  discord_calendar_channel: '',
   discussion_channel_topics: 'Apples|Trees|Space|Universe',
   use_logtail: false,
   logtail_key: '',
-  initCalendar: false,
 
   enabledServices: 'Discord',
 
@@ -80,7 +78,5 @@ const data = {
   twiolioAuthToken: '',
 
   telegramBotToken: '',
-
-  xrEngineURL: '',
 }
 export default data

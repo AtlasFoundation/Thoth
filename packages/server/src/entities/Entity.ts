@@ -7,8 +7,6 @@ import { instagram_client } from './connectors/instagram'
 import { messenger_client } from './connectors/messenger'
 import { whatsapp_client } from './connectors/whatsapp'
 import { twilio_client } from './connectors/twilio'
-//import { harmony_client } from '../../../core/src/connectors/harmony'
-import { xrengine_client } from './connectors/xrengine'
 import { CreateSpellHandler } from './CreateSpellHandler'
 import { cacheManager } from '../cacheManager'
 import { getAudioUrl } from '../routes/getAudioUrl'
@@ -29,7 +27,6 @@ export class Entity {
   messenger: messenger_client | null
   whatsapp: whatsapp_client | null
   twilio: twilio_client | null
-  xrengine: xrengine_client | null
   slack: slack_client | null
   id: any
 
@@ -49,9 +46,7 @@ export class Entity {
     voice_provider: string,
     voice_character: string,
     voice_language_code: string,
-    tiktalknet_url: string,
-    discord_echo_slack: boolean,
-    discord_echo_format: string
+    tiktalknet_url: string
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -76,9 +71,7 @@ export class Entity {
       voice_provider,
       voice_character,
       voice_language_code,
-      tiktalknet_url,
-      discord_echo_slack,
-      discord_echo_format
+      tiktalknet_url
     )
     console.log('Started discord client for agent ' + this.name)
     // const response = await spellHandler(
@@ -97,51 +90,6 @@ export class Entity {
     await this.discord.destroy()
     this.discord = null
     console.log('Stopped discord client for agent ' + this.name)
-  }
-
-  async startXREngine(settings: {
-    entity: any
-    url: string
-    spell_handler: string
-    spell_version: string
-    xrengine_bot_name: string
-    xrengine_bot_name_regex: string
-    xrengine_starting_words: string
-    xrengine_empty_responses: string
-    handleInput?: any
-    use_voice: boolean
-    voice_provider: string
-    voice_character: string
-    voice_language_code: string
-    tiktalknet_url: string
-  }) {
-    if (this.xrengine)
-      throw new Error(
-        'XREngine already running for this agent on this instance'
-      )
-
-    const spellHandler = await CreateSpellHandler({
-      spell: settings.spell_handler,
-      version: settings.spell_version,
-    })
-
-    settings.handleInput = spellHandler
-
-    this.xrengine = new xrengine_client()
-    this.xrengine.createXREngineClient(
-      this,
-      settings,
-      this.xrengine,
-      spellHandler
-    )
-    console.log('Started xrengine client for agent ' + this.name)
-  }
-
-  stopXREngine() {
-    if (!this.xrengine) throw new Error("XREngine isn't running, can't stop it")
-    this.xrengine.destroy()
-    ;(this.xrengine as any) = null
-    console.log('Stopped xrengine client for agent ' + this.name)
   }
 
   async startTwitter(
@@ -376,8 +324,7 @@ export class Entity {
     slack_bot_name: any,
     slack_port: any,
     slack_spell_handler_incoming: any,
-    spell_version: any,
-    slack_echo_channel: any
+    spell_version: any
   ) {
     if (this.slack) {
       throw new Error('Slack already running for this client on this instance')
@@ -396,8 +343,7 @@ export class Entity {
         slack_signing_secret,
         slack_bot_token,
         slack_bot_name,
-        slack_port,
-        slack_echo_channel,
+        slack_port
       },
       this
     )
@@ -527,7 +473,6 @@ export class Entity {
       this.discord === null || this.discord === undefined
     )
     if (this.discord) this.stopDiscord()
-    if (this.xrengine) this.stopXREngine()
     if (this.twitter) this.stopTwitter()
     if (this.telegram) this.stopTelegram()
     if (this.reddit) this.stopReddit()
@@ -612,6 +557,8 @@ export class Entity {
     console.log('agent data is ', data)
     this.name = data.agent ?? data.name ?? 'agent'
 
+    process.env.OPENAI_API_KEY = data.openai_api_key
+
     this.generateVoices(data)
 
     if (data.loop_enabled) {
@@ -636,28 +583,8 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
-        data.tiktalknet_url,
-        data.discord_echo_slack,
-        data.discord_echo_format
+        data.tiktalknet_url
       )
-    }
-
-    if (data.xrengine_enabled) {
-      this.startXREngine({
-        url: data.xrengine_url,
-        entity: data,
-        spell_handler: data.xrengine_spell_handler_incoming,
-        spell_version: data.spell_version,
-        xrengine_bot_name: data.xrengine_bot_name,
-        xrengine_bot_name_regex: data.xrengine_bot_name_regex,
-        xrengine_starting_words: data.xrengine_starting_words,
-        xrengine_empty_responses: data.xrengine_empty_responses,
-        use_voice: data.use_voice,
-        voice_provider: data.voice_provider,
-        voice_character: data.voice_character,
-        voice_language_code: data.voice_language_code,
-        tiktalknet_url: data.tiktalknet_url,
-      })
     }
 
     if (data.twitter_client_enable) {
@@ -714,8 +641,7 @@ export class Entity {
         data.slack_bot_name,
         data.slack_port,
         data.slack_spell_handler_incoming,
-        data.spell_version,
-        data.slack_echo_channel
+        data.spell_version
       )
     }
 

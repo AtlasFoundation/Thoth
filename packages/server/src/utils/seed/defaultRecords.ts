@@ -98,12 +98,6 @@ export const defaultClientData: AddClient[] = [
     defaultValue: '',
   },
   {
-    client: 'xr-engine',
-    name: 'xrEngineURL',
-    type: 'string',
-    defaultValue: 'https://dev.theoverlay.io/location/bot',
-  },
-  {
     client: 'whatsapp',
     name: 'whatsappBotName',
     type: 'string',
@@ -216,11 +210,9 @@ export const defaultConfiguationData: any = {
   instagramPassword: '',
   fastMode: false,
 
-  discord_calendar_channel: '',
   discussion_channel_topics: 'Apples|Trees|Space|Universe',
   use_logtail: false,
   logtail_key: '',
-  initCalendar: false,
 
   enabledServices: 'Discord',
 

@@ -1,9 +1,9 @@
-import { latitudeApiRootUrl } from '@/config'
+import { thothApiRootUrl } from '@/config'
 import { getAuthHeader } from '../../contexts/AuthProvider'
 
 export const getModels = async () => {
   try {
-    const response = await fetch(latitudeApiRootUrl + '/text/models', {
+    const response = await fetch(thothApiRootUrl + '/text/models', {
       method: 'GET',
       headers: {
         ...(await getAuthHeader()),
@@ -19,7 +19,7 @@ export const getModels = async () => {
 
 export const completion = async body => {
   try {
-    const response = await fetch(latitudeApiRootUrl + '/text/completions_v2', {
+    const response = await fetch(thothApiRootUrl + '/text/completions_v2', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

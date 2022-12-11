@@ -13,7 +13,7 @@ const isSpeechHandlerAttachedToConnection = (
   connection: VoiceConnection
 ): boolean => {
   return Boolean(
-    connection.receiver.speaking
+    (connection.receiver.speaking as any)
       .listeners('start')
       .find(func => func.name === 'handleSpeechEventOnConnectionReceiver')
   )

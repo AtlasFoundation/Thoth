@@ -20,18 +20,15 @@ export class MyNode extends Node {
 
     return (
       <div
-        className={`${css['node']} ${css[selected]} ${
-          css[hasError ? 'error' : '']
-        } ${css[hasSuccess ? 'success' : '']}`}
+        className={`${css['node']} ${css[selected]} ${css[hasError ? 'error' : '']
+          } ${css[hasSuccess ? 'success' : '']}`}
       >
-        {node.deprecated && <div className={css['deprecated-overlay']}></div>}
         {nodeLocked && (
           <div className={`${css['node-locked']} ${icons['node-lock']}`}></div>
         )}
         <div
-          className={`${css['node-id']} ${hasError ? css['error'] : ''} ${
-            hasSuccess ? css['success'] : ''
-          }`}
+          className={`${css['node-id']} ${hasError ? css['error'] : ''} ${hasSuccess ? css['success'] : ''
+            }`}
         >
           <p>{node.id}</p>
         </div>
@@ -41,9 +38,6 @@ export class MyNode extends Node {
             style={{ marginRight: 'var(--extraSmall)' }}
           />
           {fullName}
-          {node.deprecated && (
-            <div className={css['node-depricated']}>DEPRECATED</div>
-          )}
         </div>
         <div className={css['connections-container']}>
           {inputs.length > 0 && (

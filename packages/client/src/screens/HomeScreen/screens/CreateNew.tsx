@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom'
 import { useNewSpellMutation } from '@/state/api/spells'
 import Panel from '../../../components/Panel/Panel'
 import emptyImg from '../empty.png'
-// import enkiImg from '../enki.png'
 // import langImg from '../lang.png'
 import css from '../homeScreen.module.css'
 import TemplatePanel from '../components/TemplatePanel'
@@ -34,7 +33,6 @@ export type Template = {
 export const thothTemplates = [
   { label: 'Starter', bg: emptyImg, graph: defaultGraph },
   // { label: 'Language example', bg: langImg, graph: defaultChain },
-  // { label: 'Enki example', bg: enkiImg, graph: defaultChain },
 ]
 
 const CreateNew = () => {

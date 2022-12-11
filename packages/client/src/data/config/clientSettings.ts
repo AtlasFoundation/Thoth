@@ -96,12 +96,6 @@ const apiKeys = [
     defaultValue: '',
   },
   {
-    client: 'xr-engine',
-    name: 'xrEngineURL',
-    type: 'string',
-    defaultValue: 'https://dev.theoverlay.io/location/bot',
-  },
-  {
     client: 'whatsapp',
     name: 'whatsappBotName',
     type: 'string',

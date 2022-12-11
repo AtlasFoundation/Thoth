@@ -37,6 +37,24 @@ export type ImageCacheResponse = {
   images: ImageType[]
 }
 
+export type CreateEventArgs = {
+  type: string,
+  agent: string,
+  speaker: string,
+  text: string,
+  client: string,
+  channel: string
+}
+
+export type GetEventArgs = {
+  type: string,
+  agent: string,
+  speaker: string,
+  client: string,
+  channel: string,
+  maxCount: number
+}
+
 export type EngineContext = {
   completion: (
     body: ModelCompletionOpts
@@ -44,14 +62,6 @@ export type EngineContext = {
   getCurrentGameState: () => Record<string, unknown>
   setCurrentGameState: (state: Record<string, unknown>) => void
   updateCurrentGameState: (update: Record<string, unknown>) => void
-  enkiCompletion: (
-    taskName: string,
-    inputs: string[] | string
-  ) => Promise<{ outputs: string[] }>
-  huggingface: (
-    model: string,
-    request: string
-  ) => Promise<{ error?: unknown; [key: string]: unknown }>
   runSpell: (
     flattenedInputs: Record<string, any>,
     spellId: string,
@@ -68,6 +78,11 @@ export type EngineContext = {
     data: Record<string, any>,
     state: Record<string, any>
   ) => any | void
+  queryGoogle: (query: string) => Promise<string>
+  getEvent: (args: GetEventArgs) => Promise<string | string[] | null | Record<string, any>>
+  storeEvent: (args: CreateEventArgs) => Promise<any>
+  getWikipediaSummary: (keyword: string) => Promise<Record<string, any> | null>
+
 }
 
 export type EventPayload = Record<string, any>
@@ -83,6 +98,7 @@ export interface EditorContext extends EngineContext {
   clearTextEditor: () => void
   getCurrentGameState: () => Record<string, unknown>
   updateCurrentGameState: (update: EventPayload) => void
+  refreshEventTable: () => void
   processCode: (
     code: unknown,
     inputs: ThothWorkerInputs,
@@ -117,6 +133,21 @@ export interface Spell {
   updatedAt?: number
 }
 
+export type Agent = {
+  output: unknown
+  speaker: string
+  agent: string
+  client: string
+  channel: string
+  entity: number
+  roomInfo?: {
+    user: string
+    inConversation: boolean
+    isBot: boolean
+    info3d: string
+  }[]
+}
+
 export interface IRunContextEditor extends NodeEditor {
   thoth: EditorContext
   abort: Function
@@ -134,9 +165,8 @@ export type DataSocketType = {
 export type ThothNode = Node & {
   inspector: Inspector
   display: (content: string) => void
-  outputs: { name: string; [key: string]: unknown }[]
+  outputs: { name: string;[key: string]: unknown }[]
   category?: string
-  deprecated?: boolean
   displayName?: string
   info: string
   subscription: Function
@@ -269,9 +299,9 @@ export type WorkerReturn =
   | Promise<never[] | { entities: { name: string; type: string }[] }>
   | Promise<{ element: unknown } | undefined>
   | Promise<
-      | { result: { error: unknown; [key: string]: unknown } }
-      | { result?: undefined }
-    >
+    | { result: { error: unknown;[key: string]: unknown } }
+    | { result?: undefined }
+  >
   | Promise<{ text: unknown }>
   | Promise<{ boolean: boolean }>
   | Promise<null | undefined>
@@ -292,11 +322,11 @@ export type ThothWorker = (
 
 export interface PubSubBase
   extends CountSubscriptions,
-    ClearAllSubscriptions,
-    GetSubscriptions,
-    Publish,
-    Subscribe,
-    Unsubscribe {
+  ClearAllSubscriptions,
+  GetSubscriptions,
+  Publish,
+  Subscribe,
+  Unsubscribe {
   name: string
   version: string
 }

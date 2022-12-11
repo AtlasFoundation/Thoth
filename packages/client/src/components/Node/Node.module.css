@@ -30,15 +30,6 @@
   color: var(--red);
   border-radius: var(--extraSmall);
 }
-.deprecated-overlay {
-  background-color: var(--red);
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  opacity: 0.2;
-}
 .node-id {
   position: absolute;
   top: -5px;

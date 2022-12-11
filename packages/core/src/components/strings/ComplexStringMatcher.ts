@@ -110,7 +110,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-
     // implement a function that replaces all instances of a string with another string
     const replaceAll = (str: string, find: string, replace: string) => {
       return str.toString().replace(new RegExp(find, 'g'), replace)
@@ -118,8 +117,8 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
 
     let input = inputs['input'][0] as string
     console.log('input:::::', input)
-    let str = input + ''
-    let i1 = str.toString().replace(/<.*>/, '')
+    const str = input + ''
+    const i1 = str.toString().replace(/<.*>/, '')
 
     console.log('input:::::', i1)
 

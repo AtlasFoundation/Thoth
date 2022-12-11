@@ -19,14 +19,12 @@
     "build:analyze": "BUNDLE_ANALYZE=true yarn build",
     "start": "yarn clean && vite build --watch --config vite.build.js",
     "clean": "rimraf dist",
-    "lint": "eslint . --ignore-path ../.eslintignore --ext ts --ext tsx --ext js --ext jsx",
-    "lint:fix": "eslint . --ignore-path ../.eslintignore --ext ts --ext tsx --ext js --ext jsx --fix",
+    "lint": "eslint . --ignore-path ./.eslintignore --ext ts --ext tsx --ext js --ext jsx",
+    "lint:fix": "eslint . --ignore-path ./.eslintignore --ext ts --ext tsx --ext js --ext jsx --fix",
     "postpublish": "yarn clean",
     "canary": "yarn build && auto canary",
     "ship": "auto release --prerelease --base-branch main",
-    "release": "yarn build && yarn ship",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "release": "yarn build && yarn ship"
   },
   "resolutions": {
     "@types/react": "17.0.2"
@@ -91,7 +89,6 @@
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.18.2",
     "@rollup/plugin-babel": "^5.3.0",
-    "@types/jest": "^27.5.1",
     "@types/lodash": "^4.14.172",
     "@types/node": "^16.4.3",
     "@types/pubsub-js": "^1.8.2",
@@ -100,12 +97,10 @@
     "auto": "^10.32.0",
     "babel-loader": "^8.2.2",
     "copyfiles": "^2.4.1",
-    "jest": "^28.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "rimraf": "^3.0.2",
     "style-loader": "^3.3.0",
-    "ts-jest": "^28.0.3",
     "ts-loader": "^9.2.6",
     "typescript": "^4.6.4",
     "vm2": "^3.9.9",

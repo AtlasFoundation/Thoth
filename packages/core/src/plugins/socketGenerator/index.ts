@@ -1,6 +1,6 @@
 import Rete, { Input, Output } from 'rete'
-import { DataSocketType, IRunContextEditor, ThothNode } from '../../../types'
 
+import { DataSocketType, IRunContextEditor, ThothNode } from '../../../types'
 import * as sockets from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 

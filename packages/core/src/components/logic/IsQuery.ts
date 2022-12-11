@@ -53,11 +53,11 @@ export class IsQuery extends ThothComponent<void> {
   ) {
     const str = inputs['input'][0]
 
-    let parameters = {
+    const parameters = {
       candidate_labels: ['greeting', 'question', 'statement'],
     }
 
-    let is = false
+    const is = false
     this._task.closed = is ? ['false'] : ['true']
     /*
     const resp = await axios.post(
