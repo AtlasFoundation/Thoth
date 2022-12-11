@@ -49,6 +49,11 @@ body,
   background: #7027dd;
 }
 
+.socket.output.agent,
+.socket.input.agent {
+  background: #0e10a4;
+}
+
 .socket {
   height: var(--small);
   width: var(--small);
@@ -358,6 +363,7 @@ input[type='text'] {
 }
 
 .entBtns {
+  padding: 1em;
   display: flex;
 }
 
@@ -410,7 +416,6 @@ input[type='text'] {
 }
 
 .search-corpus-btn {
-  height: var(--c20);
   background-color: #2e2e2e;
   border: none;
   margin: 0 0.4rem;
@@ -419,10 +424,6 @@ input[type='text'] {
 .admin-container {
   margin-left: 11em;
   margin-top: 1em;
-}
-
-.agent-select {
-  margin: 1em 0;
 }
 
 .agentFields {
@@ -442,7 +443,6 @@ input[type='text'] {
   order: 2;
 }
 
-.form-text-area,
 .agent-Manager select {
   background: #fff;
   color: #636363;
@@ -468,9 +468,15 @@ input[type='text'] {
 }
 
 .agent-editor {
-  padding: 2em;
+  padding: 1em;
   height: calc(100% - 4em);
   overflow: auto;
+}
+
+.entityWindow {
+  padding: 1em;
+  background-color: #333;
+  border-radius: .25em;
 }
 
 .form-item > input[type='text'] {
@@ -524,4 +530,8 @@ input[type='text'] {
 .adminActive div {
   background-color: #05c807 !important;
   color: red !important;
+}
+
+.input-title, .output-title, div.item {
+    font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
 }

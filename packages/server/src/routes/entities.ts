@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createWikipediaEntity } from '../entities/connectors/wikipedia'
 import { database } from '../database'
 import { handleInput } from '../entities/connectors/handleInput'
@@ -6,7 +5,7 @@ import { handleInput } from '../entities/connectors/handleInput'
 import weaviate from 'weaviate-client'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
-import { noAuth } from './middleware/auth'
+import { noAuth } from '../middleware/auth'
 import { Route } from '../types'
 import axios from 'axios'
 import { cacheManager } from '../cacheManager'
@@ -15,10 +14,11 @@ import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
 import { tts_tiktalknet } from '../systems/tiktalknet'
-import fs from 'fs'
-import path from 'path'
-import { CreateSpellHandler } from '../entities/CreateSpellHandler'
+import * as events from '../services/events'
 import { stringIsAValidUrl } from '../utils/utils'
+import { CreateSpellHandler } from '../entities/CreateSpellHandler'
+import queryGoogleSearch from './utils/queryGoogle'
+import { CustomError } from '../utils/CustomError'
 
 export const modules: Record<string, unknown> = {}
 
@@ -159,7 +159,7 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const target_count = parseInt(ctx.request.query.target_count as string)
+  const target_count = ctx.request.query.target_count as string
   const max_time_diff = parseInt(ctx.request.query.max_time_diff as string)
 
   const event = await database.instance.getEvents(
@@ -176,7 +176,7 @@ const getEvent = async (ctx: Koa.Context) => {
 
   console.log('event, query:', ctx.request.query, 'conv:', event)
 
-  return (ctx.body = event)
+  return (ctx.body = { event })
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
@@ -192,7 +192,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
-    const sortOrder = ctx.request.query.order as st
+    const sortOrder = ctx.request.query.order as string
     if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
@@ -263,24 +263,28 @@ const createEvent = async (ctx: Koa.Context) => {
   const text = ctx.request.body.text
   const type = ctx.request.body.type
   console.log('Creating event:', agent, speaker, client, channel, text, type)
-  await database.instance.createEvent(
+
+  // Todo needs error handling
+  await events.createEvent({
     type,
     agent,
     client,
     channel,
     speaker,
-    text
-  )
+    text,
+  })
 
   return (ctx.body = 'ok')
 }
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
-  const text = ctx.request.query.text
-  const voice_provider = ctx.request.query.voice_provider
-  const voice_character = ctx.request.query.voice_character
-  const voice_language_code = ctx.request.query.voice_language_code
-  const tiktalknet_url = ctx.request.query.tiktalknet_url
+  const text = ctx.request.query.text as string
+  const character = ctx.request.query.character ?? 'none'
+  console.log('text and character are', text, character)
+  const voice_provider = ctx.request.query.voice_provider as string
+  const voice_character = ctx.request.query.voice_character as string
+  // const voice_language_code = ctx.request.query.voice_language_code
+  const tiktalknet_url = ctx.request.query.tiktalknet_url as string
 
   console.log('text and character are', text, voice_character)
   const cache = await cacheManager.instance.get(
@@ -295,19 +299,14 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
 
   if (!cache && cache.length <= 0) {
     if (voice_provider === 'uberduck') {
-      url = await getAudioUrl(
+      url = (await getAudioUrl(
         process.env.UBER_DUCK_KEY as string,
         process.env.UBER_DUCK_SECRET_KEY as string,
         voice_character as string,
         text as string
-      )
+      )) as string
     } else if (voice_provider === 'google') {
-      url = await tts(
-        text,
-        voice_provider,
-        voice_character,
-        voice_language_code
-      )
+      url = await tts(text, voice_provider, voice_character)
     } else {
       url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
     }
@@ -363,15 +362,17 @@ const customMessage = async (ctx: Koa.Context) => {
     version: spell_version,
   })
 
-  const response = await spellHandler(
+  // warning coerced into string, but may not be
+  const response = (await spellHandler(
     message,
     sender,
     agent,
     'discord',
     channel,
     [],
-    []
-  )
+    [],
+    'room'
+  )) as string
 
   if (isVoice) {
     if (
@@ -449,9 +450,10 @@ const textCompletion = async (ctx: Koa.Context) => {
   const sender = (ctx.request.body.sender as string) ?? 'User'
   const agent = (ctx.request.body.agent as string) ?? 'Agent'
   const prompt = (ctx.request.body.prompt as string)
-    .replace('{agent}')
+    .replace('{agent}', agent)
     .replace('{speaker}', sender)
-  let stop = ctx.request.body.stop as string[]
+  let stop = (ctx.request.body.stop ?? ['']) as string[]
+  const openaiApiKey = ctx.request.body.apiKey as string
 
   if (!stop || stop.length === undefined || stop.length <= 0) {
     stop = ['"""', `${sender}:`, '\n']
@@ -465,17 +467,15 @@ const textCompletion = async (ctx: Koa.Context) => {
     }
   }
 
-  console.log('prompt:', prompt)
-  console.log('stop:', stop)
-
-  const { success, choice, error } = await makeCompletion(modelName, {
-    prompt: prompt,
+  const { success, choice } = await makeCompletion(modelName, {
+    prompt: prompt.trim(),
     temperature: temperature,
     max_tokens: maxTokens,
     top_p: topP,
     frequency_penalty: frequencyPenalty,
     presence_penalty: presencePenalty,
     stop: stop,
+    apiKey: openaiApiKey,
   })
 
   return (ctx.body = { success, choice })
@@ -519,7 +519,9 @@ const makeWeaviateRequest = async (ctx: Koa.Context) => {
     .withLimit(3)
     .do()
 
-  if (res.data.Get !== undefined) {
+  console.log('RESPONSE', res)
+
+  if (res?.data?.Get !== undefined) {
     return (ctx.body = { data: res.data.Get })
   }
   return (ctx.body = { data: '' })
@@ -531,37 +533,6 @@ const getEntityData = async (ctx: Koa.Context) => {
   const data = await database.instance.getEntity(agent)
 
   return (ctx.body = { agent: data })
-}
-
-const requestInformationAboutVideo = async (
-  sender: string,
-  agent: string,
-  question: string
-): Promise<string> => {
-  const videoInformation = ``
-  const prompt = `Information: ${videoInformation} \n ${sender}: ${
-    question.trim().endsWith('?') ? question.trim() : question.trim() + '?'
-  }\n${agent}:`
-
-  const modelName = 'davinci'
-  const temperature = 0.9
-  const maxTokens = 100
-  const topP = 1
-  const frequencyPenalty = 0.5
-  const presencePenalty = 0.5
-  const stop: string[] = ['"""', `${sender}:`, '\n']
-
-  const { success, choice } = await makeCompletion(modelName, {
-    prompt: prompt,
-    temperature: temperature,
-    max_tokens: maxTokens,
-    top_p: topP,
-    frequency_penalty: frequencyPenalty,
-    presence_penalty: presencePenalty,
-    stop: stop,
-  })
-
-  return success ? choice : "Sorry I can't answer your question!"
 }
 
 const chatEntity = async (ctx: Koa.Context) => {
@@ -626,107 +597,6 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
-const getCalendarEvents = async (ctx: Koa.Context) => {
-  try {
-    let calendarEvents = await database.instance.getCalendarEvents()
-    return (ctx.body = calendarEvents)
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-const addCalendarEvent = async (ctx: Koa.Context) => {
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-
-  if (
-    !name ||
-    !date ||
-    !time ||
-    !type ||
-    !moreInfo ||
-    name?.length <= 0 ||
-    date?.length <= 0 ||
-    time?.length <= 0 ||
-    type?.length <= 0 ||
-    moreInfo?.length <= 0
-  ) {
-    return (ctx.body = { error: 'invalid event data' })
-  }
-
-  try {
-    await database.instance.createCalendarEvent(
-      name,
-      date,
-      time,
-      type,
-      moreInfo
-    )
-    return (ctx.body = 'inserted')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const editCalendarEvent = async (ctx: Koa.Context) => {
-  const id = ctx.params.id
-  const name = ctx.request.body.name
-  const date = ctx.request.body.date
-  const time = ctx.request.body.time
-  const type = ctx.request.body.type
-  const moreInfo = ctx.request.body.moreInfo
-
-  try {
-    await database.instance.editCalendarEvent(
-      id,
-      name,
-      date,
-      time,
-      type,
-      moreInfo
-    )
-    return (ctx.body = 'edited')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const deleteCalendarEvent = async (ctx: Koa.Context) => {
-  const id = ctx.params.id
-  try {
-    await database.instance.deleteCalendarEvent(id)
-    return (ctx.body = 'deleted')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
-const addVideo = async (ctx: Koa.Context) => {
-  try {
-    let { path: videoPath, name, type: mimeType } = ctx.request.files.video
-    const [type, subType] = mimeType.split('/')
-    if (type !== 'video') {
-      ctx.response.status = 400
-      return (ctx.body = 'Only video can be uploaded')
-    }
-
-    fs.copyFileSync(
-      videoPath,
-      path.join(process.cwd(), `/files/videos/${name}`)
-    )
-    return (ctx.body = 'ok')
-  } catch (e) {
-    ctx.status = 500
-    return (ctx.body = { error: 'internal error' })
-  }
-}
-
 const login = async (ctx: Koa.Context) => {
   const username = ctx.request.body.username
   const password = ctx.request.body.password
@@ -767,6 +637,18 @@ const register = async (ctx: Koa.Context) => {
     return (ctx.body = { error: 'invalid credentials' })
   } else {
     return (ctx.body = 'ok')
+  }
+}
+
+const queryGoogle = async (ctx: Koa.Context) => {
+  console.log('QUERY', ctx.request?.body?.query)
+  if (!ctx.request?.body?.query)
+    throw new CustomError('input-failed', 'No query provided in request body')
+  const query = ctx.request.body?.query as string
+  const result = await queryGoogleSearch(query)
+
+  ctx.body = {
+    result,
   }
 }
 
@@ -818,18 +700,6 @@ export const entities: Route[] = [
     path: '/events_sorted',
     access: noAuth,
     get: getSortedEventsByDate,
-  },
-  {
-    path: '/calendar_event',
-    access: noAuth,
-    get: getCalendarEvents,
-    post: addCalendarEvent,
-  },
-  {
-    path: '/calendar_event/:id',
-    access: noAuth,
-    patch: editCalendarEvent,
-    delete: deleteCalendarEvent,
   },
   {
     path: '/text_to_speech',
@@ -884,14 +754,14 @@ export const entities: Route[] = [
     post: handleCustomInput,
   },
   {
-    path: '/video',
-    access: noAuth,
-    post: addVideo,
-  },
-  {
     path: '/login',
     access: noAuth,
     post: login,
+  },
+  {
+    path: '/query_google',
+    access: noAuth,
+    post: queryGoogle,
   },
   {
     path: '/register',

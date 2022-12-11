@@ -4,16 +4,15 @@ import { useModal } from '@/contexts/ModalProvider'
 import Icon, { componentCategories } from '../../../components/Icon/Icon'
 import Window from '../../../components/Window/Window'
 import DataControls from '../DataControls'
-import WindowMessage from '../components/WindowMessage'
+import WindowMessage from '../../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@thothai/thoth-core/types'
-// import { RootState } from '@/state/store'
-
-// import { useSelector } from 'react-redux'
-// import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
+// import { useWysiwygInspector } from '@/workspaces/contexts/WysiwygProvider'
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
+  // const { wysiwygData, saveWysiwyg } = useWysiwygInspector()
+
   const [width, setWidth] = useState()
   const { openModal } = useModal()
   // const preferences = useSelector((state: RootState) => state.preferences)
@@ -112,21 +111,10 @@ const Inspector = props => {
     </>
   )
 
-  const DeprecationMessage = (inspectorData: InspectorData) => {
-    if (!inspectorData.deprecated) return <></>
-    return (
-      <div style={{ padding: 'var(--c1) var(--c2)' }}>
-        <h2 style={{ color: 'var(--red)' }}>WARNING</h2>
-        <p>{inspectorData.deprecationMessage}</p>
-      </div>
-    )
-  }
-
   if (!inspectorData) return <WindowMessage />
 
   return (
     <Window toolbar={toolbar} darker outline borderless>
-      {DeprecationMessage(inspectorData)}
       <DataControls
         inspectorData={inspectorData}
         nodeId={inspectorData.nodeId}

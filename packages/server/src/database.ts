@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable require-await */
@@ -20,7 +21,7 @@ import {
 } from './routes/settings/types'
 import { isValidObject, makeUpdateQuery } from './utils/utils'
 import format from 'pg-format'
-import { auth, IAuth } from './routes/middleware/auth'
+import { auth, IAuth } from './middleware/auth'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -116,10 +117,14 @@ export class database {
           'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
       } else {
         query =
-          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 OR sender=$1 AND channel=$4 AND type=$5 ORDER BY id desc'
+          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND (sender=$3 OR sender=$1) AND channel=$4 AND type=$5 ORDER BY id desc'
       }
       values = [agent, client, sender, channel, type]
     }
+    console.log('******************************************')
+    console.log('query', query)
+    console.log('******************************************')
+
     const row = await this.client.query(query, values)
     if (!row || !row.rows || row.rows.length === 0) {
       console.log('rows are null, returning')
@@ -134,6 +139,10 @@ export class database {
     // })
 
     console.log('got ' + row.rows.length + ' rows')
+
+    console.log('******************************************')
+    console.log('row.rows', row.rows)
+    console.log('******************************************')
 
     const now = new Date()
     const max_length = maxCount
@@ -165,10 +174,14 @@ export class database {
         break
       }
     }
-    console.log('returning data', data)
-    return asString
-      ? data.split('\n').reverse().join('\n')
-      : data.split('\n').reverse()
+
+    if (type === 'conversation') {
+      return asString
+        ? data.split('\n').reverse().join('\n')
+        : data.split('\n').reverse()
+    }
+
+    return data
   }
   async getAllEvents() {
     const query = 'SELECT * FROM events'
@@ -587,58 +600,6 @@ export class database {
     const rows = await this.client.query(query, values)
     return rows && rows.rows && rows.rows.length > 0
   }
-
-  async getCalendarEvents() {
-    const query =
-      'SELECT id, name, date, time, type, more_info AS "moreInfo" FROM calendar_events'
-    const rows = await this.client.query(query)
-    if (rows && rows.rows && rows.rows.length > 0) return rows.rows
-    else return []
-  }
-  async createCalendarEvent(
-    name: string,
-    date: string,
-    time: string,
-    type: string,
-    moreInfo: string
-  ) {
-    const query =
-      'INSERT INTO calendar_events(name, date, time, type, more_info) VALUES ($1, $2, $3, $4, $5)'
-    const values = [name, date, time, type, moreInfo]
-    try {
-      return await this.client.query(query, values)
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
-  async editCalendarEvent(
-    id: string,
-    name: string,
-    date: string,
-    time: string,
-    type: string,
-    moreInfo: string
-  ) {
-    const query =
-      'UPDATE calendar_events SET name = $1, date = $2, time = $3, type = $4, more_info = $5 WHERE id = $6'
-    const values = [name, date, time, type, moreInfo, id]
-    try {
-      return await this.client.query(query, values)
-    } catch (e) {
-      throw new Error(e)
-    }
-  }
-  async deleteCalendarEvent(id: string) {
-    const query = 'DELETE FROM calendar_events WHERE id = $1'
-    const values = [id]
-    return await this.client.query(query, values)
-  }
-  /* 
-    Section : Settings
-    Modules : Client, Configuration, Scope
-  */
-
-  // Client settings start
 
   async getClientSettingByName(name: string) {
     const query =

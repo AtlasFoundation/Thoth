@@ -1,9 +1,6 @@
-import { getComponents } from '../components/components'
-
-import { initSharedEngine } from '../engine'
-
 import { EngineContext, GraphData, ModuleComponent, Spell } from '../../types'
-import { extractNodes, ThothEngine } from '../engine'
+import { getComponents } from '../components/components'
+import { initSharedEngine, extractNodes, ThothEngine } from '../engine'
 import { Module } from '../plugins/modulePlugin/module'
 
 type RunSpellConstructor = {

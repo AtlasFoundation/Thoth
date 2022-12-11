@@ -22,19 +22,16 @@ export const buildThothInterface = (
     setCurrentGameState: (state: Record<string, any>) => {
       gameState = state
     },
+    queryGoogle: async () => { return "" },
+    getEvent: () => new Promise(() => { }),
+    storeEvent: () => new Promise(() => { }),
+    getWikipediaSummary: () => new Promise(() => { }),
     updateCurrentGameState: (update: Record<string, unknown>) => {
       const newState = {
         ...gameState,
         ...update,
       }
       gameState = newState
-    },
-    async enkiCompletion() {
-      // Hit enki endpoint?
-      return { outputs: [] }
-    },
-    async huggingface() {
-      return {}
     },
     async runSpell(inputs: Record<string, any>, spellId: string) {
       return runSpell({ spellId, inputs })

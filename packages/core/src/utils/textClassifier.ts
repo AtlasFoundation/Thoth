@@ -15,7 +15,7 @@ export async function classifyText(input: any) {
   let higher = -1
   let _prop = ''
 
-  for (let prop in scores) {
+  for (const prop in scores) {
     if (Object.prototype.hasOwnProperty.call(scores, prop)) {
       if (scores[prop] > higher) {
         higher = scores[prop]

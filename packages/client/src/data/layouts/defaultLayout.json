@@ -1,6 +1,7 @@
 {
   "global": {
-    "tabSetTabStripHeight": 24
+    "tabSetTabStripHeight": 24,
+    "splitterSize": 4
   },
   "layout": {
     "type": "row",
@@ -9,7 +10,7 @@
       {
         "type": "tabset",
         "id": "#3",
-        "weight": 7.102489336164113,
+        "weight": 15,
         "children": [
           {
             "type": "tab",
@@ -22,12 +23,12 @@
       {
         "type": "row",
         "id": "#9",
-        "weight": 34.08645212404496,
+        "weight": 60,
         "children": [
           {
             "type": "tabset",
             "id": "#15",
-            "weight": 77.96917497733455,
+            "weight": 60,
             "children": [
               {
                 "type": "tab",
@@ -43,8 +44,14 @@
           {
             "type": "tabset",
             "id": "#8",
-            "weight": 22.030825022665457,
+            "weight": 40,
             "children": [
+              {
+                "type": "tab",
+                "id": "#22",
+                "name": "Playtest",
+                "component": "playtest"
+              },
               {
                 "type": "tab",
                 "id": "44",
@@ -59,12 +66,12 @@
       {
         "type": "row",
         "id": "#7",
-        "weight": 7.945196793081777,
+        "weight": 25,
         "children": [
           {
             "type": "tabset",
             "id": "#14",
-            "weight": 50,
+            "weight": 100,
             "children": [
               {
                 "type": "tab",
@@ -74,27 +81,9 @@
               },
               {
                 "type": "tab",
-                "id": "#20",
-                "name": "Video Transcription",
-                "component": "videoTranscription"
-              },
-              {
-                "type": "tab",
                 "id": "#10",
                 "name": "State Manager",
                 "component": "stateManager"
-              },
-              {
-                "type": "tab",
-                "id": "#12",
-                "name": "Ent Manager",
-                "component": "entityManager"
-              },
-              {
-                "type": "tab",
-                "id": "#16",
-                "name": "Search Corpus",
-                "component": "searchCorpus"
               },
               {
                 "type": "tab",
@@ -104,22 +93,9 @@
               },
               {
                 "type": "tab",
-                "id": "#77",
-                "name": "Calendar Tab",
-                "component": "calendarTab"
-              }
-            ]
-          },
-          {
-            "type": "tabset",
-            "id": "#6",
-            "weight": 50,
-            "children": [
-              {
-                "type": "tab",
-                "id": "#22",
-                "name": "Playtest",
-                "component": "playtest"
+                "id": "#12",
+                "name": "Ent Manager",
+                "component": "entityManager"
               }
             ]
           }

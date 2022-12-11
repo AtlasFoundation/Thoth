@@ -8,8 +8,6 @@ export class slack_client {
   entity: any
   haveCustomCommands: boolean
   custom_commands: any[]
-  greeting: any
-
   app: App
   message_reactions: { [reaction: string]: any } = {}
 
@@ -29,8 +27,6 @@ export class slack_client {
     this.entity = entity
     this.haveCustomCommands = settings.haveCustomCommands
     this.custom_commands = settings.custom_commands
-    this.greeting = settings.slack_greeting
-
     console.log('slack settings:', settings)
     this.app = new App({
       signingSecret: settings.slack_signing_secret,

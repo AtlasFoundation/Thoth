@@ -1,6 +1,7 @@
 import { Node, Socket } from 'rete'
-import { ThothEditor } from './editor'
+
 import { PubSubBase, ThothNode } from '../types'
+import { ThothEditor } from './editor'
 import { ThothEngineComponent } from './engine'
 import { Task, TaskOptions } from './plugins/taskPlugin/task'
 
@@ -28,19 +29,21 @@ export interface ModuleOptions {
 
 export abstract class ThothComponent<
   WorkerReturnType
-  > extends ThothEngineComponent<WorkerReturnType> {
+> extends ThothEngineComponent<WorkerReturnType> {
   // Original interface for task and _task: IComponentWithTask from the Rete Task Plugin
   task: TaskOptions
   _task: ThothTask
+  cache: Record<string, any>
   // Original Class: https://github.com/latitudegames/rete/blob/master/src/component.ts
   editor: ThothEditor | null = null
   data: unknown = {}
   category: string
   info: string
   display: boolean
-  deprecated = false
   dev = false
   hide = false
+  runFromCache = false
+  deprecated = false
   deprecationMessage: string | undefined
   module: ModuleOptions
   contextMenuName: string | undefined

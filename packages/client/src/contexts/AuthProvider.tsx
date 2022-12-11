@@ -9,7 +9,7 @@ import { uuidv4 } from '../utils/uuid'
 import { setItem, getItem } from '../utils/AsyncStorage'
 import { useQuery } from '../hooks/useQuery'
 import { useLocation } from 'react-router-dom'
-import { oAuthClientId, latitudeApiRootUrl, appRootUrl } from '../config'
+import { oAuthClientId, thothApiRootUrl, appRootUrl } from '../config'
 import { callExpire } from '../helpers/Expire'
 import LoadingScreen from '../components/LoadingScreen/LoadingScreen'
 
@@ -31,9 +31,9 @@ export interface UserInfoType {
 const initialState = {
   session: {} as SessionInfoType | null,
   user: {} as UserInfoType | null,
-  logoutAndRedirect: () => {},
-  loginRedirect: (force?: boolean, returnToPath?: string) => {},
-  refreshSession: (origin: string) => {},
+  logoutAndRedirect: () => { },
+  loginRedirect: (force?: boolean, returnToPath?: string) => { },
+  refreshSession: (origin: string) => { },
   done: false,
 }
 
@@ -58,7 +58,7 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
     await setStateStore(state, {
       origin: returnToPath ? returnToPath : window.location.pathname,
     })
-    window.location.href = `${latitudeApiRootUrl}/user/auth/authorize?client_id=${oAuthClientId}&state=${state}&redirect_uri=${encodeURIComponent(
+    window.location.href = `${thothApiRootUrl}/user/auth/authorize?client_id=${oAuthClientId}&state=${state}&redirect_uri=${encodeURIComponent(
       `${appRootUrl}/`
     )}${force ? `&force=true` : ''}`
   }
@@ -69,8 +69,8 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
     if (search) {
       let queryDictionary = JSON.parse(
         '{"' +
-          search.substring(1).replace(/&/g, '","').replace(/=/g, '":"') +
-          '"}',
+        search.substring(1).replace(/&/g, '","').replace(/=/g, '":"') +
+        '"}',
         function (key, value) {
           return key === '' ? value : decodeURIComponent(value)
         }
@@ -125,7 +125,7 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
   const logoutAndRedirect = async () => {
     await callExpire()
     removeData()
-    window.location.href = `${latitudeApiRootUrl}/user/logout?returnTo=${encodeURIComponent(
+    window.location.href = `${thothApiRootUrl}/user/logout?returnTo=${encodeURIComponent(
       appRootUrl as string
     )}`
   }
@@ -134,22 +134,22 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
     const state = uuidv4()
     removeData()
     await setStateStore(state, { origin: origin })
-    window.location.href = `${latitudeApiRootUrl}/user/auth/refresh?returnTo=${encodeURIComponent(
+    window.location.href = `${thothApiRootUrl}/user/auth/refresh?returnTo=${encodeURIComponent(
       `${appRootUrl}/callback`
     )}&state=${state}`
   }
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       try {
         // Check if User has an existing sessionId in local storage
         const sessionId = await getSessionId()
 
         if (sessionId) {
           const sessionReq = await fetch(
-            `${latitudeApiRootUrl}/user/auth/info?access_token=${sessionId}`
+            `${thothApiRootUrl}/user/auth/info?access_token=${sessionId}`
           )
-          const userReq = await fetch(`${latitudeApiRootUrl}/user/info`, {
+          const userReq = await fetch(`${thothApiRootUrl}/user/info`, {
             headers: {
               authorization: `session ${sessionId}`,
             },
@@ -171,7 +171,7 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
         // This is a critical security gate. Do not remove.
         if (authState && state === authState) {
           const tokenRequest = await fetch(
-            `${latitudeApiRootUrl}/user/auth/token`,
+            `${thothApiRootUrl}/user/auth/token`,
             {
               method: 'POST',
               body: JSON.stringify({
@@ -190,9 +190,9 @@ const AuthProvider = ({ children }: { children: ReactElement }) => {
             if (!access_token) return
             await setSessionId(access_token)
             const sessionReq = await fetch(
-              `${latitudeApiRootUrl}/user/auth/info?access_token=${access_token}`
+              `${thothApiRootUrl}/user/auth/info?access_token=${access_token}`
             )
-            const userReq = await fetch(`${latitudeApiRootUrl}/user/info`, {
+            const userReq = await fetch(`${thothApiRootUrl}/user/info`, {
               headers: {
                 authorization: `session ${access_token}`,
               },

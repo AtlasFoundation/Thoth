@@ -3,28 +3,30 @@ import ConnectionPlugin from 'rete-connection-plugin'
 import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
 import ContextMenuPlugin from 'rete-context-menu-plugin'
 import { Data } from 'rete/types/core/data'
+
 import { EventsTypes, EditorContext } from '../types'
 import { ThothNode } from './../types'
 import { getComponents } from './components/components'
 import { initSharedEngine, ThothEngine } from './engine'
 // import CommentPlugin from './plugins/commentPlugin'
 import AreaPlugin from './plugins/areaPlugin'
+import cachePlugin from './plugins/cachePlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
+import errorPlugin from './plugins/errorPlugin'
 import HistoryPlugin from './plugins/historyPlugin'
 import InspectorPlugin from './plugins/inspectorPlugin'
 import KeyCodePlugin from './plugins/keyCodePlugin'
 import LifecyclePlugin from './plugins/lifecyclePlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import { ModuleManager } from './plugins/modulePlugin/module-manager'
+import ReactRenderPlugin from './plugins/reactRenderPlugin/index'
 import SocketGenerator from './plugins/socketGenerator'
+import SocketPlugin from './plugins/socketPlugin'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
-import ReactRenderPlugin from './plugins/reactRenderPlugin/index'
 import { PubSubContext, ThothComponent } from './thoth-component'
-import SocketPlugin from './plugins/socketPlugin'
 // import SelectionPlugin from './plugins/selectionPlugin'
-import errorPlugin from './plugins/errorPlugin'
 
 interface ThothEngineClient extends ThothEngine {
   thoth: EditorContext
@@ -39,6 +41,7 @@ export class ThothEditor extends NodeEditor<EventsTypes> {
   moduleManager: ModuleManager
   runProcess: (callback?: Function) => Promise<void>
   onSpellUpdated: (spellId: string, callback: Function) => Function
+  refreshEventTable: () => void
 }
 
 /*
@@ -158,12 +161,17 @@ export const initEditor = function ({
     return thoth.onSubspellUpdated(spellId, callback)
   }
 
+  editor.refreshEventTable = () => {
+    return thoth.refreshEventTable()
+  }
+
   editor.use(KeyCodePlugin)
 
   if (client && feathers) {
     editor.use(SocketPlugin, { client })
   } else {
     // WARNING: ModulePlugin needs to be initialized before TaskPlugin during engine setup
+    editor.use(cachePlugin)
     editor.use(ModulePlugin, { engine, modules: {} } as unknown as void)
     editor.use(TaskPlugin)
   }

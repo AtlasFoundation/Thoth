@@ -2,7 +2,6 @@ dist/
 node_modules/
 test/
 .eslintrc.js
-jest.config.js
 src/libs
 hocs
 coverage

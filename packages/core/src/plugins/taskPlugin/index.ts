@@ -1,7 +1,8 @@
 import { Component } from 'rete'
 import { NodeData } from 'rete/types/core/data'
-import { ThothEditor } from '../../editor'
+
 import { ThothWorkerInputs } from '../../../types'
+import { ThothEditor } from '../../editor'
 import { ThothComponent } from '../../thoth-component'
 import { Task } from './task'
 
@@ -87,6 +88,8 @@ function install(editor: ThothEditor) {
 
       // Probably need to reset this when spells change
       editor.tasks.push(task)
+
+      return task
     }
   })
 }

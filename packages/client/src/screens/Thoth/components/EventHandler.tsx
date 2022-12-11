@@ -76,12 +76,11 @@ const EventHandler = ({ pubSub, tab }) => {
     $CREATE_SEARCH_CORPUS,
     $CREATE_ENT_MANAGER,
     $CREATE_SETTINGS_WINDOW,
+    $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
-    $CREATE_VIDEO_TRANSCRIPTION,
-    $CREATE_CALENDAR_TAB,
     $CREATE_TEXT_EDITOR,
     $SERIALIZE,
     $EXPORT,
@@ -192,6 +191,13 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.ENT_MANAGER, 'Ent Manager')
   }
 
+  const createMessageReactionEditor = () => {
+    createOrFocus(
+      windowTypes.MESSAGE_REACTION_EDITOR,
+      'Message Reaction Editor'
+    )
+  }
+
   const createPlaytest = () => {
     createOrFocus(windowTypes.PLAYTEST, 'Playtest')
   }
@@ -210,14 +216,6 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const createEventManager = () => {
     createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
-  }
-
-  const createVideoTranscription = () => {
-    createOrFocus(windowTypes.VIDEO_TRANSCRIPTION, 'Video Transcription')
-  }
-
-  const createCalendarTab = () => {
-    createOrFocus(windowTypes.CALENDAR_TAB, 'Calendar Tab')
   }
 
   const createSettingsWindow = () => {
@@ -286,6 +284,7 @@ const EventHandler = ({ pubSub, tab }) => {
     [$SAVE_SPELL(tab.id)]: saveSpell,
     [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
     [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
+    [$CREATE_MESSAGE_REACTION_EDITOR(tab.id)]: createMessageReactionEditor,
     [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
     [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
     [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
@@ -293,8 +292,6 @@ const EventHandler = ({ pubSub, tab }) => {
     [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,
     [$CREATE_CONSOLE(tab.id)]: createConsole,
     [$CREATE_EVENT_MANAGER(tab.id)]: createEventManager,
-    [$CREATE_VIDEO_TRANSCRIPTION(tab.id)]: createVideoTranscription,
-    [$CREATE_CALENDAR_TAB(tab.id)]: createCalendarTab,
     [$SERIALIZE(tab.id)]: onSerialize,
     [$EXPORT(tab.id)]: onExport,
     [$CLOSE_EDITOR(tab.id)]: onCloseEditor,

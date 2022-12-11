@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+
 import { Node } from './Node'
 
 function install(editor, { component: NodeComponent = Node }) {
@@ -11,7 +12,6 @@ function install(editor, { component: NodeComponent = Node }) {
 
       node.update = () =>
         new Promise(res => {
-          console.log('Rendering!', Component)
           ReactDOM.render(
             <Component
               node={node}

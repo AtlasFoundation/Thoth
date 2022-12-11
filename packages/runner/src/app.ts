@@ -19,7 +19,7 @@ import channels from './channels'
 import { HookContext as FeathersHookContext } from '@feathersjs/feathers'
 import handleSockets from './sockets'
 // import authentication from './authentication'
-import { configureManager } from '@thothai/thoth-core/dist/server'
+import configureManager from '@thothai/thoth-core/src/spellManager/configureManager'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const app: Application = express(feathers())

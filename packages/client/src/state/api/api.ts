@@ -16,6 +16,3 @@ export const rootApi = createApi({
   tagTypes: ['Spell', 'Spells', 'Version'],
   endpoints: () => ({}),
 })
-
-console.log("rootApi is")
-console.log(rootApi)

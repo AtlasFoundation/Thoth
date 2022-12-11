@@ -14,8 +14,6 @@ import Discord, { Intents } from 'discord.js'
 import emoji from 'emoji-dictionary'
 import emojiRegex from 'emoji-regex'
 
-// import { classifyText } from '../utils/textClassifier'
-import { database } from '../../database'
 import { initSpeechClient, recognizeSpeech } from './discord-voice'
 import { getRandomEmptyResponse, startsWithCapital } from './utils'
 
@@ -332,9 +330,9 @@ export class discord_client {
           for (const [key, value] of msgs.entries()) {
             if (value && value !== undefined) {
               values += value.content
-              if (value.author.bot) {
-                agentTalked = true
-              }
+              // if (value.author.bot) {
+              //   agentTalked = true
+              // }
             }
           }
         }

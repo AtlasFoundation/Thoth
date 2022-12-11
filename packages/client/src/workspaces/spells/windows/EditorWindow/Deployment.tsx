@@ -18,7 +18,7 @@ import {
   useGetSpellQuery,
 } from '@/state/api/spells'
 import { useEditor } from '@/workspaces/contexts/EditorProvider'
-import { latitudeApiRootUrl } from '@/config'
+import { thothApiRootUrl } from '@/config'
 import { useAuth } from '@/contexts/AuthProvider'
 
 const DeploymentView = ({ open, setOpen, spellId, close }) => {
@@ -53,7 +53,7 @@ const DeploymentView = ({ open, setOpen, spellId, close }) => {
 
   const buildUrl = version => {
     // return encodeURI(`${latitudeApiRootUrl}/games/spells/${spellId}/${version}`)
-    return encodeURI(`${latitudeApiRootUrl}/games/graphs/${spellId}/${version}`)
+    return encodeURI(`${thothApiRootUrl}/spells/${spellId}/${version}`)
   }
 
   const loadVersion = async version => {

@@ -30,15 +30,6 @@
   color: var(--red);
   border-radius: var(--extraSmall);
 }
-.deprecated-overlay {
-  background-color: var(--red);
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  opacity: 0.2;
-}
 .node-id {
   position: absolute;
   top: -5px;
@@ -52,7 +43,7 @@
   color: var(--green);
 }
 .node-title {
-  /* font-family: 'IBM Plex Mono', monospace !important; */
+  font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
   /* text-transform: uppercase; */
   letter-spacing: 0.1em;
   font-weight: 900;

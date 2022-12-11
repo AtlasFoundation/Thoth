@@ -52,7 +52,7 @@ const sockets = [
   stringSocket,
   arraySocket,
   objectSocket,
-  agentSocket
+  agentSocket,
 ]
 
 sockets.forEach(socket => {

@@ -19,7 +19,7 @@ function install(
       })
 
       try {
-        let result = await worker.apply(component, [
+        const result = await worker.apply(component, [
           node,
           inputs,
           outputs,

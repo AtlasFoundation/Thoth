@@ -39,11 +39,11 @@ const MenuBar = () => {
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_SEARCH_CORPUS,
+    $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_TEXT_EDITOR,
+    $CREATE_WYSIWYG_EDITOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
-    $CREATE_VIDEO_TRANSCRIPTION,
-    $CREATE_CALENDAR_TAB,
     $CREATE_SETTINGS_WINDOW,
     $SERIALIZE,
     $EXPORT,
@@ -104,8 +104,16 @@ const MenuBar = () => {
     publish($CREATE_SEARCH_CORPUS(activeTabRef.current?.id))
   }
 
+  const onCreateWYSIWYGEditor = () => {
+    publish($CREATE_WYSIWYG_EDITOR(activeTabRef.current?.id))
+  }
+
   const onEntityManagerCreate = () => {
     publish($CREATE_ENT_MANAGER(activeTabRef.current?.id))
+  }
+
+  const onMessageReactionEditorCreate = () => {
+    publish($CREATE_MESSAGE_REACTION_EDITOR(activeTabRef.current?.id))
   }
 
   const onPlaytestCreate = () => {
@@ -141,16 +149,6 @@ const MenuBar = () => {
   const onEventManagerCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_EVENT_MANAGER(activeTabRef.current.id))
-  }
-
-  const onVideoTrancriptionCreate = () => {
-    if (!activeTabRef.current) return
-    publish($CREATE_VIDEO_TRANSCRIPTION(activeTabRef.current.id))
-  }
-
-  const onCalendarTabCreate = () => {
-    if (!activeTabRef.current) return
-    publish($CREATE_CALENDAR_TAB(activeTabRef.current.id))
   }
 
   //Menu bar hotkeys
@@ -252,6 +250,12 @@ const MenuBar = () => {
         ent_manager: {
           onClick: onEntityManagerCreate,
         },
+        wysiwyg_editor: {
+          onClick: onCreateWYSIWYGEditor,
+        },
+        message_reaction_editor: {
+          onClick: onMessageReactionEditorCreate,
+        },
         playtest: {
           onClick: onPlaytestCreate,
         },
@@ -260,15 +264,6 @@ const MenuBar = () => {
         },
         event_manager: {
           onClick: onEventManagerCreate,
-        },
-        video_transcription: {
-          onClick: onVideoTrancriptionCreate,
-        },
-        calendar_tab: {
-          onClick: onCalendarTabCreate,
-          settings: {
-            onClick: onSettingsCreate,
-          },
         },
       },
       settings: {

@@ -1,4 +1,4 @@
-import { noAuth } from '../middleware/auth'
+import { noAuth } from '../../middleware/auth'
 import Koa from 'koa'
 import { Route } from 'src/types'
 

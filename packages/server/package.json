@@ -8,7 +8,6 @@
   "license": "ISC",
   "scripts": {
     "build": "yarn clean && tsc",
-    "coverage": "jest --coverage --silent",
     "clean": "rm -rf dist",
     "dev": "concurrently \"nodemon src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\" \"sleep 10 && yarn run seed\"",
     "speech": "nodemon src/speech-server.ts",
@@ -26,10 +25,7 @@
     "reset": "rm -rf ./node_modules && rm yarn.lock && yarn install",
     "start": "pm2-runtime start ecosystem.config.yml --env production",
     "stop": "pid=$(lsof -ti tcp:8001) && [[ $pid ]] && kill -9 $pid fi",
-    "test": "jest -o",
-    "test:full": "jest --clearCache && jest --coverage",
     "tsc:noEmit": "tsc --noEmit",
-    "test:watch": "jest --watch --silent",
     "seed": "sh ../../scripts/seed_dev.sh"
   },
   "dependencies": {
@@ -76,13 +72,13 @@
     "stripe": "^8.191.0",
     "ts-node": "^10.2.1",
     "uuid": "^8.3.2",
-    "verify-apple-id-token": "^2.1.0"
+    "verify-apple-id-token": "^2.1.0",
+    "vm2": "^3.9.10"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
     "@types/bcrypt": "^5.0.0",
     "@types/crypto-js": "^4.0.2",
-    "@types/jest": "26.0.23",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/koa": "^2.13.1",
     "@types/koa__router": "^8.0.4",
@@ -102,8 +98,6 @@
     "eslint-plugin-import": "2.23.4",
     "eslint-plugin-no-autofix": "1.1.2",
     "jasmine-check": "^1.0.0-rc.0",
-    "jest": "27.0.6",
-    "jest-mock-extended": "1.0.16",
     "lint-staged": ">=10",
     "prettier": "2.3.2",
     "prettier-eslint": "12.0.0",
@@ -112,7 +106,6 @@
     "sequelize-cli": "^6.4.1",
     "supertest": "6.1.3",
     "swagger-cli": "^4.0.4",
-    "ts-jest": "27.0.3",
     "ts-unused-exports": "^7.0.3",
     "typescript": "4.3.5"
   },

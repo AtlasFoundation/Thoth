@@ -51,7 +51,7 @@ export class ThothConsole {
 
     if (!foundNode) return
 
-    this.nodeView = foundNode[1]
+    this.nodeView = foundNode[1] as any
   }
 
   updateNodeView() {

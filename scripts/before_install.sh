@@ -1,13 +1,12 @@
 #!/bin/bash
 
-#download node and NPM LTS
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
 npm install --global yarn
 
 #install PM2
-npm install pm2 -g
+npm install --global pm2
 
 #create our working directory if it doesnt exist
 DIR="/opt/thoth"

@@ -18,8 +18,15 @@ const windowTypes: WindowTypes = {
   STATE_MANAGER: 'stateManager',
   EDITOR: 'editor',
   PLAYTEST: 'playtest',
+  WYSIWYG_EDITOR: 'wysiwygEditor',
   CONSOLE: 'debugConsole',
   SETTINGS: 'settings',
+  SEARCH_CORPUS: 'searchCorpus',
+  ENT_MANAGER: 'entityManager',
+  EVENT_MANAGER: 'eventManager',
+  VIDEO_TRANSCRIPTION: 'videoTranscription',
+  CALENDAR_TAB: 'calendarTab',
+  MESSAGE_REACTION_EDITOR: 'messageReactionEditor',
 }
 
 type WindowType =
@@ -30,7 +37,13 @@ type WindowType =
   | 'playtest'
   | 'debugConsole'
   | 'settings'
-
+  | 'searchCorpus'
+  | 'entityManager'
+  | 'wysiwygEditor'
+  | 'messageReactionEditor'
+  | 'eventManager'
+  | 'videoTranscription'
+  | 'calendarTab'
 type WindowTypes = Record<string, WindowType>
 
 // helpful resources
@@ -73,6 +86,7 @@ const LayoutProvider = ({ children, tab }) => {
   }, [currentModel])
 
   const createModel = json => {
+    console.log('creating model', json)
     const model = Model.fromJson(json)
     updateCurrentModel(model)
 
@@ -119,7 +133,6 @@ const LayoutProvider = ({ children, tab }) => {
 
   const createOrFocus = (componentName, title) => {
     if (!currentModelRef.current) return
-
     // We are here using a provate variable, so TS isnt picking it up
     // @ts-expect-error
     const component = Object.entries(currentModelRef.current._idMap).find(

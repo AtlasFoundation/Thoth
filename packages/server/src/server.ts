@@ -3,8 +3,7 @@ config()
 //@ts-ignore
 import cors from '@koa/cors'
 import Router from '@koa/router'
-// todo fix this import
-import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
+import { initClassifier } from '../../core/src/utils/textClassifier'
 import HttpStatus from 'http-status-codes'
 import Koa from 'koa'
 import koaBody from 'koa-body'
@@ -20,7 +19,7 @@ import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
-import { auth } from './routes/middleware/auth'
+import { auth } from './middleware/auth'
 import { initWeaviateClient } from './systems/weaviateClient'
 import cors_server from './cors-server'
 
@@ -55,6 +54,10 @@ async function init() {
 
   new database()
   await database.instance.connect()
+  console.log(
+    'refreshing db',
+    process.env.REFRESH_DB?.toLowerCase().trim() === 'true'
+  )
   await creatorToolsDatabase.sequelize.sync({
     force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
   })
@@ -73,18 +76,19 @@ async function init() {
     spawnPythonServer()
   }
 
-  /*const string = 'test string'
-  const key = 'test_key'
-  cacheManager.instance.set('global', key, string)
-  cacheManager.instance.set('global', 'earth', 'earth is a planet')
-  console.log(await cacheManager.instance.get('global', key))
-  console.log(await cacheManager.instance.get('global', 'test key'))
-  console.log(await cacheManager.instance.get('global', 'testkey'))
-  console.log(await cacheManager.instance.get('global', 'TEST KEY'))
-  console.log(await cacheManager.instance.get('global', 'TEST_KEY'))
-  console.log(await cacheManager.instance.get('global', 'key_test'))
-  console.log(await cacheManager.instance.get('global', 'key test'))
-  console.log(await cacheManager.instance.get('global', 'ttes_key'))*/
+  // generic error handling
+  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
+    try {
+      await next()
+    } catch (error) {
+      ctx.status =
+        error.statusCode || error.status || HttpStatus.INTERNAL_SERVER_ERROR
+      error.status = ctx.status
+      ctx.body = { error }
+      ctx.app.emit('error', error, ctx)
+    }
+  })
+
   const options = {
     origin: '*',
   }
@@ -181,19 +185,6 @@ async function init() {
 
   app.use(router.routes()).use(router.allowedMethods())
 
-  // generic error handling
-  app.use(async (ctx: Koa.Context, next: () => Promise<any>) => {
-    try {
-      await next()
-    } catch (error) {
-      ctx.status =
-        error.statusCode || error.status || HttpStatus.INTERNAL_SERVER_ERROR
-      error.status = ctx.status
-      ctx.body = { error }
-      ctx.app.emit('error', error, ctx)
-    }
-  })
-
   const PORT: number = Number(process.env.PORT) || 8001
   const useSSL =
     process.env.USESSL === 'true' &&
@@ -216,4 +207,5 @@ async function init() {
       })
   // await initLoop()
 }
+
 init()

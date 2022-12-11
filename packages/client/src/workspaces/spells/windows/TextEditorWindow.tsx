@@ -2,7 +2,7 @@ import Editor from '@monaco-editor/react'
 import { useState, useEffect, useRef } from 'react'
 
 import Window from '@components/Window/Window'
-import WindowMessage from '../components/WindowMessage'
+import WindowMessage from '../../components/WindowMessage'
 
 import '../../../screens/Thoth/thoth.module.css'
 import {
@@ -46,7 +46,7 @@ const TextEditor = props => {
         preview: language === 'javascript',
       },
       wordWrap: 'bounded',
-      fontSize: 14,
+
       // fontFamily: '"IBM Plex Mono", sans-serif !important',
     }
 
