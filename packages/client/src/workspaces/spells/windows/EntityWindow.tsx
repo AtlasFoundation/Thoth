@@ -47,8 +47,6 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [discord_bot_name_regex, setDiscordBotNameRegex] = useState('')
   const [discord_bot_name, setDiscordBotName] = useState('')
   const [discord_empty_responses, setDiscordEmptyResponses] = useState('')
-  const [discord_echo_slack, setDiscordEchoSlack] = useState(false)
-  const [discord_echo_format, setDiscordEchoFormat] = useState('')
 
   const [discord_spell_handler_incoming, setDiscordSpellHandlerIncoming] =
     useState('')
@@ -117,7 +115,6 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [slack_bot_token, setSlackBotToken] = useState('')
   const [slack_bot_name, setSlackBotName] = useState('')
   const [slack_port, setSlackPort] = useState('')
-  const [slack_echo_channel, setSlackEchoChannel] = useState('')
   const [slack_spell_handler_incoming, setSlackSpellHandlerIncoming] =
     useState('')
 
@@ -215,8 +212,6 @@ const EntityWindow = ({ id, updateCallback }) => {
         setDiscordBotNameRegex(res.data.discord_bot_name_regex)
         setDiscordBotName(res.data.discord_bot_name)
         setDiscordEmptyResponses(res.data.discord_empty_responses)
-        setDiscordEchoSlack(res.data.discord_echo_slack === true)
-        setDiscordEchoFormat(res.data.discord_echo_format)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
         setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
@@ -269,7 +264,6 @@ const EntityWindow = ({ id, updateCallback }) => {
         setSlackSigningSecret(res.data.slack_signing_secret)
         setSlackBotName(res.data.slack_bot_name)
         setSlackPort(res.data.slack_port)
-        setSlackEchoChannel(res.data.slack_echo_channel)
         setSlackSpellHandlerIncoming(res.data.slack_spell_handler_incoming)
 
         setInstagramEnabled(res.data.instagram_enabled)
@@ -347,8 +341,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_echo_slack,
-      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -399,7 +391,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       slack_bot_token,
       slack_bot_name,
       slack_port,
-      slack_echo_channel,
       slack_spell_handler_incoming,
       instagram_enabled,
       instagram_username,
@@ -446,8 +437,6 @@ const EntityWindow = ({ id, updateCallback }) => {
           setDiscordBotNameRegex(responseData.discord_bot_name_regex)
           setDiscordBotName(responseData.discord_bot_name)
           setDiscordEmptyResponses(responseData.discord_empty_responses)
-          setDiscordEchoSlack(responseData.discord_echo_slack)
-          setDiscordEchoFormat(responseData.discord_echo_format)
           setDiscordSpellHandlerIncoming(
             responseData.discord_spell_handler_incoming
           )
@@ -512,7 +501,6 @@ const EntityWindow = ({ id, updateCallback }) => {
           setSlackBotToken(responseData.slack_bot_token)
           setSlackBotName(responseData.slack_bot_name)
           setSlackPort(responseData.slack_port)
-          setSlackEchoChannel(responseData.slack_echo_channel)
           setSlackSpellHandlerIncoming(
             responseData.slack_spell_handler_incoming
           )
@@ -565,8 +553,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       discord_bot_name_regex,
       discord_bot_name,
       discord_empty_responses,
-      discord_echo_slack,
-      discord_echo_format,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
       discord_spell_handler_feed,
@@ -617,7 +603,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       slack_bot_token,
       slack_bot_name,
       slack_port,
-      slack_echo_channel,
       slack_spell_handler_incoming,
       instagram_enabled,
       instagram_username,
@@ -941,30 +926,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                   defaultValue={discord_empty_responses}
                   onChange={e => {
                     setDiscordEmptyResponses(e.target.value)
-                  }}
-                />
-              </div>
-
-              <div className="form-item">
-                <span className="form-item-label">Echo Slack</span>
-                <input
-                  type="checkbox"
-                  value={discord_echo_slack}
-                  defaultChecked={
-                    discord_echo_slack || discord_echo_slack === 'true'
-                  }
-                  onChange={e => {
-                    setDiscordEchoSlack(e.target.checked)
-                  }}
-                />
-              </div>
-              <div className="form-item">
-                <span className="form-item-label">Echo Format</span>
-                <input
-                  type="text"
-                  defaultValue={discord_echo_format}
-                  onChange={e => {
-                    setDiscordEchoFormat(e.target.value)
                   }}
                 />
               </div>
@@ -1495,16 +1456,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                   defaultValue={slack_bot_name}
                   onChange={e => {
                     setSlackBotName(e.target.value)
-                  }}
-                />
-              </div>
-              <div className="form-item">
-                <span className="form-item-label">Echo Channel</span>
-                <input
-                  type="text"
-                  defaultValue={slack_echo_channel}
-                  onChange={e => {
-                    setSlackEchoChannel(e.target.value)
                   }}
                 />
               </div>

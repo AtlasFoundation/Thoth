@@ -15,8 +15,6 @@ export interface entitiesAttributes {
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
-  discord_echo_slack?: boolean
-  discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -67,7 +65,6 @@ export interface entitiesAttributes {
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
-  slack_echo_channel?: string
   slack_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
@@ -100,8 +97,6 @@ export type entitiesOptionalAttributes =
   | 'discord_bot_name_regex'
   | 'discord_bot_name'
   | 'discord_empty_responses'
-  | 'discord_echo_slack'
-  | 'discord_echo_format'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
   | 'discord_spell_handler_feed'
@@ -152,7 +147,6 @@ export type entitiesOptionalAttributes =
   | 'slack_bot_token'
   | 'slack_bot_name'
   | 'slack_port'
-  | 'slack_echo_channel'
   | 'slack_spell_handler_incoming'
   | 'instagram_enabled'
   | 'instagram_username'
@@ -196,8 +190,6 @@ export class entities
   discord_bot_name_regex?: string
   discord_bot_name?: string
   discord_empty_responses?: string
-  discord_echo_slack?: boolean
-  discord_echo_format?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
   discord_spell_handler_feed?: string
@@ -248,7 +240,6 @@ export class entities
   slack_bot_token?: string
   slack_bot_name?: string
   slack_port?: string
-  slack_echo_channel?: string
   slack_spell_handler_incoming?: string
   instagram_enabled?: boolean
   instagram_username?: string
@@ -320,14 +311,6 @@ export class entities
           allowNull: true,
         },
         discord_empty_responses: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        discord_echo_slack: {
-          type: DataTypes.BOOLEAN,
-          allowNull: true,
-        },
-        discord_echo_format: {
           type: DataTypes.TEXT,
           allowNull: true,
         },
@@ -528,10 +511,6 @@ export class entities
           allowNull: true,
         },
         slack_port: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        slack_echo_channel: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

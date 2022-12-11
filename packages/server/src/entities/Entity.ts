@@ -46,9 +46,7 @@ export class Entity {
     voice_provider: string,
     voice_character: string,
     voice_language_code: string,
-    tiktalknet_url: string,
-    discord_echo_slack: boolean,
-    discord_echo_format: string
+    tiktalknet_url: string
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -73,9 +71,7 @@ export class Entity {
       voice_provider,
       voice_character,
       voice_language_code,
-      tiktalknet_url,
-      discord_echo_slack,
-      discord_echo_format
+      tiktalknet_url
     )
     console.log('Started discord client for agent ' + this.name)
     // const response = await spellHandler(
@@ -328,8 +324,7 @@ export class Entity {
     slack_bot_name: any,
     slack_port: any,
     slack_spell_handler_incoming: any,
-    spell_version: any,
-    slack_echo_channel: any
+    spell_version: any
   ) {
     if (this.slack) {
       throw new Error('Slack already running for this client on this instance')
@@ -348,8 +343,7 @@ export class Entity {
         slack_signing_secret,
         slack_bot_token,
         slack_bot_name,
-        slack_port,
-        slack_echo_channel,
+        slack_port
       },
       this
     )
@@ -589,9 +583,7 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
-        data.tiktalknet_url,
-        data.discord_echo_slack,
-        data.discord_echo_format
+        data.tiktalknet_url
       )
     }
 
@@ -649,8 +641,7 @@ export class Entity {
         data.slack_bot_name,
         data.slack_port,
         data.slack_spell_handler_incoming,
-        data.spell_version,
-        data.slack_echo_channel
+        data.spell_version
       )
     }
 

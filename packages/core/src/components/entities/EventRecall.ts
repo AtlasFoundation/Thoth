@@ -28,25 +28,28 @@ async function getEvent(
   target_count: string | any = 'single',
   max_time_diff = -1
 ) {
-  const response = await axios.get(
-    `${
-      process.env.REACT_APP_API_ROOT_URL ??
-      process.env.API_ROOT_URL ??
-      'https://localhost:8001'
-    }/event`,
-    {
-      params: {
-        type: type,
-        agent: agent,
-        speaker: speaker,
-        client: client,
-        channel: channel,
-        maxCount: maxCount,
-        target_count: target_count,
-        max_time_diff: max_time_diff,
-      },
-    }
-  )
+  const params = {
+    type: type,
+    agent: agent,
+    speaker: speaker,
+    client: client,
+    channel: channel,
+    maxCount: maxCount,
+    target_count: target_count,
+    max_time_diff: max_time_diff,
+  }
+
+  const serverRoot =
+    process.env.REACT_APP_API_ROOT_URL ??
+    process.env.API_ROOT_URL ??
+    'https://localhost:8001'
+
+  console.log('params:', params)
+  console.log('serverRoot:', serverRoot)
+
+  const response = await axios.get(`${serverRoot}/event`, {
+    params,
+  })
   console.log('response.data:', response.data)
   return response.data
 }
