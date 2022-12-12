@@ -429,6 +429,7 @@ const EntityWindow = ({ id, updateCallback }) => {
           console.log('response on update', JSON.parse(res.config.data).data)
           let responseData = res && JSON.parse(res?.config?.data).data
           console.log(responseData, 'responseDataresponseData')
+
           setEnabled(responseData.enabled)
           setDiscordEnabled(responseData.discord_enabled)
           setOpenaiApiKey(responseData.openai_api_key)
@@ -853,7 +854,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               type="password"
               defaultValue={openai_api_key}
               onChange={e => {
-                setOpenAIKey(e.target.value)
+                setOpenaiApiKey(e.target.value)
               }}
             />
           </div>
