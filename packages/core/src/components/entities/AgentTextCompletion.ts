@@ -173,14 +173,12 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
 
     const { success, choice } = resp.data
 
-    if (!success)
+    if (!success) {
+      console.error('Error in text completion', resp.data)
       return {
-        output:
-          'Sorry, I had a completion error:' +
-          JSON.stringify(resp.data) +
-          ' prompt:' +
-          JSON.stringify(prompt),
+        output: 'Sorry, I had an AI-related error...',
       }
+    }
 
     const res =
       success !== 'false' && success !== false

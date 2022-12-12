@@ -218,10 +218,12 @@ export class CustomTextCompletion extends ThothComponent<
 
     const { success, choice } = resp.data
 
-    if (!success)
+    if (!success) {
+      console.error('error:', choice.text)
       return {
-        output: 'Sorry, I had a completion error:' + JSON.stringify(resp.data),
+        output: 'Sorry, I had an AI-related completion error...',
       }
+    }
 
     const res =
       success !== 'false' && success !== false
