@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start:core": "lerna exec --scope @thothai/thoth-core -- yarn start",
-    "dev": "NODE_OPTIONS=--max-old-space-size=892 && NODE_TLS_REJECT_UNAUTHORIZED='0' && (cd packages/server && sudo docker-compose up -d) && (cd packages/server/weaviate && sudo docker-compose up -d) && (cd packages/server/redis && sudo docker-compose up -d) && concurrently \"yarn start:core\" \"sleep 15 && yarn run dev:server\" \"sleep 15 && yarn start:client\" \"sleep 15 && yarn run db:seed\" ",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' && (cd packages/server && sudo docker-compose up -d) && (cd packages/server/weaviate && sudo docker-compose up -d) && (cd packages/server/redis && sudo docker-compose up -d) && concurrently \"yarn start:core\" \"sleep 15 && yarn run dev:server\" \"sleep 15 && yarn start:client\" \"sleep 15 && yarn run db:seed\" ",
     "dev-windows": "cross-env NODE_OPTIONS=--max-old-space-size=8192 yarn run dev-windows-script",
     "dev-windows-script": "(cd packages/server && docker-compose up -d) && (cd packages/server/weaviate && docker-compose up -d) && (cd packages/server/redis && docker-compose up -d) && concurrently \"yarn run dev:server\" \"yarn start:core\" yarn start:client\" yarn run db:seed\" ",
     "dev:client": "concurrently \"yarn start:core\" \"sleep 1 && yarn start:client\"",
@@ -29,7 +29,7 @@
     "start": "run-p start:core start:client",
     "lint": "lerna run lint --parallel",
     "lint:fix": "lerna run lint:fix --parallel",
-    "build": "NODE_OPTIONS=--max-old-space-size=8192 && copyfiles LICENSE.txt client && lerna exec --scope @thothai/thoth-client -- yarn build",
+    "build": "copyfiles LICENSE.txt client && lerna exec --scope @thothai/thoth-client -- yarn build",
     "build:core": "copyfiles LICENSE.txt core && lerna exec --scope @thothai/thoth-core -- yarn build",
     "publish:canary": "lerna exec --scope @thothai/thoth-core -- yarn canary",
     "install:canary": "lerna exec --scope @thothai/thoth-client -- yarn install:canary",

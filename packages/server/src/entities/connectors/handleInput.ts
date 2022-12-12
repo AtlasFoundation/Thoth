@@ -23,7 +23,7 @@ export async function handleInput(
   }
 
   const url = encodeURI(
-    `https://192.168.1.105:8001/spells/${spell_handler}/${spell_version}`
+    `https://0.0.0.0:8001/spells/${spell_handler}/${spell_version}`
   )
 
   const response = await axios.post(`${url}`, {
@@ -56,7 +56,7 @@ export async function handleCustomInput(
   isVoice: boolean,
   agent: string = 'Thales'
 ) {
-  const response = await axios.post(`https://192.168.1.105:8001/custom_message`, {
+  const response = await axios.post(`https://0.0.0.0:8001/custom_message`, {
     message: message,
     sender: sender,
     agent: agent,

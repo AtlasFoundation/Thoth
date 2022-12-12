@@ -1,4 +1,4 @@
-# result=$(curl --location --request PUT 'http://192.168.1.105:8001/setting/client' \
+# result=$(curl --location --request PUT 'http://0.0.0.0:8001/setting/client' \
 # --header 'Content-Type: application/json')
 # echo "Response from server"
 # echo $result

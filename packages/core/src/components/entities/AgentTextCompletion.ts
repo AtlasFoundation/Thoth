@@ -150,13 +150,13 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     })
 
     console.log('filteredStop is', filteredStop)
-	const API_URL = "https://192.168.1.105:8001";
+	const API_URL = "https://0.0.0.0:8001";
 	// const REACT_APP_API_URL = ;
     const resp = await axios.post(
       `${
         process.env.REACT_APP_API_URL ??
         API_URL ??
-        'https://192.168.1.105:8001'
+        'https://0.0.0.0:8001'
       }/text_completion`,
       {
         prompt,

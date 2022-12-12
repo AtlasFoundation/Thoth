@@ -199,7 +199,7 @@ export class CustomTextCompletion extends ThothComponent<
       `${
         process.env.REACT_APP_API_URL ??
         process.env.API_URL ??
-        'https://192.168.1.105:8001'
+        'https://0.0.0.0:8001'
       }/text_completion`,
       {
         prompt: data,
