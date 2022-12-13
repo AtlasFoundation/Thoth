@@ -327,7 +327,7 @@ const createEvent = async (ctx: Koa.Context) => {
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
   const text = ctx.request.query.text as string
-  const character = ctx.request.query.character ?? 'none'
+  let character = ctx.request.query.character ?? 'none'
   console.log('text and character are', text, character)
   const voice_provider = ctx.request.query.voice_provider as string
   const voice_character = ctx.request.query.voice_character as string
@@ -354,7 +354,8 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
         text as string
       )) as string
     } else if (voice_provider === 'google') {
-      url = await tts(text, voice_provider, voice_character)
+      character = character === 'none' ? 'en-US-Wavenet-D' : character
+      url = await tts(text, character as string)
     } else {
       url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
     }

@@ -10,6 +10,7 @@ import { debounce } from '@/utils/debounce'
 import EditorWindow from './windows/EditorWindow/'
 import Inspector from './windows/InspectorWindow'
 import Playtest from './windows/PlaytestWindow'
+import AvatarWindow from './windows/AvatarWindow'
 import StateManager from '@/workspaces/spells/windows/StateManagerWindow'
 
 import TextEditor from './windows/TextEditorWindow'
@@ -27,6 +28,7 @@ import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
 import SettingsWindow from './windows/SettingsWindow'
+import { ConstructionOutlined } from '@mui/icons-material'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -149,8 +151,8 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <EventManagerWindow {...props} />
         case 'entityManager':
           return <EntityManagerWindow />
-        case 'eventManager':
-          return <EventManagerWindow {...props} />
+        case 'avatar':
+          return <AvatarWindow {...props} />
         case 'settings':
           return <SettingsWindow {...props} />
         default:

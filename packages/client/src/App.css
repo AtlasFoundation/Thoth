@@ -80,7 +80,7 @@ body,
 
 .connection .main-path {
   stroke-width: 2px;
-  stroke: var(--primary);
+  stroke: var(--glow);
   filter: drop-shadow(0px 1px 0px var(--dark-0))
     drop-shadow(0px -1px 0px var(--dark-0))
     drop-shadow(-1px 0px 0px var(--dark-0))
@@ -308,6 +308,10 @@ input[type='text'] {
   font-family: 'IBM Plex Mono', monospace !important;
   font-size: 11px;
   height: var(--c4);
+}
+
+input[type='text']:focus-visible {
+    outline: 1px solid var(--glow)
 }
 
 .App {

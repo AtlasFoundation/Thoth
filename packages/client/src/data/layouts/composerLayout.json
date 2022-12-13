@@ -103,6 +103,12 @@
                 "id": "#22",
                 "name": "Playtest",
                 "component": "playtest"
+              },
+              {
+                "type": "tab",
+                "id": "#418",
+                "name": "Avatar",
+                "component": "avatar"
               }
             ]
           }

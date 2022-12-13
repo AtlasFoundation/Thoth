@@ -17,14 +17,17 @@ export default defineConfig(async command => {
   const returned = {
     plugins: [PkgConfig(), react()],
     server: {
-      hmr: false,
+      hmr: true,
       host: true,
       port: process.env.PORT || 3003,
-      https: process.env.USE_SSL==="true" ? {
-        key: fs.readFileSync('./certs/key.pem'),
-        cert: fs.readFileSync('./certs/cert.pem'),
-        maxSessionMemory: 100,
-      } : null,
+      https:
+        process.env.USE_SSL === 'true'
+          ? {
+              key: fs.readFileSync('./certs/key.pem'),
+              cert: fs.readFileSync('./certs/cert.pem'),
+              maxSessionMemory: 100,
+            }
+          : null,
     },
     resolve: {
       alias: {
@@ -38,12 +41,10 @@ export default defineConfig(async command => {
     optimizeDeps: {
       esbuildOptions: {
         define: {
-          global: 'globalThis'
+          global: 'globalThis',
         },
-        plugins: [
-          NodeGlobalsPolyfillPlugin({ buffer: true })
-        ]
-      }
+        plugins: [NodeGlobalsPolyfillPlugin({ buffer: true })],
+      },
     },
     build: {
       target: 'esnext',

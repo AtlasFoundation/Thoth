@@ -93,6 +93,7 @@ export type EventPayload = Record<string, any>
 export interface EditorContext extends EngineContext {
   onTrigger: (node: ThothNode | string, callback: Function) => Function
   sendToPlaytest: (data: string) => void
+  sendToAvatar: (data: string) => void
   sendToInspector: (data: EventPayload) => void
   sendToDebug: (data: EventPayload) => void
   onInspector: (node: ThothNode, callback: Function) => Function

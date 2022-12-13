@@ -56,6 +56,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     $PROCESS,
     $TRIGGER,
     $REFRESH_EVENT_TABLE,
+    $SEND_TO_AVATAR,
   } = events
 
   const onTrigger = (node, callback) => {
@@ -118,6 +119,10 @@ const ThothInterfaceProvider = ({ children, tab }) => {
 
   const sendToPlaytest = data => {
     publish($PLAYTEST_PRINT(tab.id), data)
+  }
+
+  const sendToAvatar = data => {
+    publish($SEND_TO_AVATAR(tab.id), data)
   }
 
   const onPlaytest = callback => {
@@ -331,6 +336,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     storeEvent,
     getWikipediaSummary,
     queryGoogle,
+    sendToAvatar,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>

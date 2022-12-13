@@ -106,9 +106,9 @@
             "children": [
               {
                 "type": "tab",
-                "id": "#22",
-                "name": "Playtest",
-                "component": "playtest"
+                "id": "#418",
+                "name": "Avatar",
+                "component": "avatar"
               }
             ]
           }

@@ -84,6 +84,7 @@ class speechUtils {
     this.socket.on('speechData', (data: any) => {
       const dataFinal = undefined || data.results[0].isFinal
 
+      console.log('Speech data', data)
       if (dataFinal === true) {
         let finalString = data.results[0].alternatives[0].transcript
         console.log("Google Speech sent 'final' Sentence and it is:")
@@ -121,6 +122,9 @@ class speechUtils {
       this.context = null
       this.AudioContext = null
     })
+    this.socket.off('speechData')
+    this.socket.off('connect')
+    this.socket.off('messages')
   }
 
   downsampleBuffer = (buffer: any, sampleRate: any, outSampleRate: any) => {

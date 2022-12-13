@@ -43,7 +43,7 @@
   color: var(--green);
 }
 .node-title {
-  font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
+font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
   /* text-transform: uppercase; */
   letter-spacing: 0.1em;
   font-weight: 900;
@@ -98,7 +98,7 @@
 .node.selected {
   color: var(--dark-5);
   background-color: rgba(70, 70, 70, 0.95);
-  border-color: var(--primary);
+  border-color: var(--glow);
   /* backdrop-filter: blur(15px); */
 }
 .node.error {
