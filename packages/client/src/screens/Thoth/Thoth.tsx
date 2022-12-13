@@ -28,7 +28,6 @@ const Thoth = ({ empty = false }) => {
 
   useEffect(() => {
     if (!tabs) return
-    console.log('tabs :::: ', tabs)
 
     // If there are still tabs, grab one at random to open to for now.
     // We should do better at this.  Probably with some kind of tab ordering.
@@ -41,7 +40,6 @@ const Thoth = ({ empty = false }) => {
 
   useEffect(() => {
     if (!spellName) return
-    console.log('OPENING TAb')
 
     // Return if navigating to the spell that is already active
     if (activeTab && activeTab.spellId === spellName) return

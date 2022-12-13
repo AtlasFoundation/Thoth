@@ -52,7 +52,6 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [discord_spell_handler_update, setDiscordSpellHandlerUpdate] =
     useState('')
-  const [discord_spell_handler_feed, setDiscordSpellHandlerFeed] = useState('')
   const [discord_spell_handler_metadata, setDiscordSpellHandlerMetadata] =
     useState('')
   const [
@@ -214,7 +213,6 @@ const EntityWindow = ({ id, updateCallback }) => {
         setDiscordEmptyResponses(res.data.discord_empty_responses)
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
-        setDiscordSpellHandlerFeed(res.data.discord_spell_handler_feed)
 
         setTwitterClientEnable(res.data.twitter_client_enable === true)
         setTwitterToken(res.data.twitter_token)
@@ -343,7 +341,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       discord_empty_responses,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
-      discord_spell_handler_feed,
       use_voice,
       voice_provider,
       voice_character,
@@ -444,7 +441,6 @@ const EntityWindow = ({ id, updateCallback }) => {
           setDiscordSpellHandlerUpdate(
             responseData.discord_spell_handler_update
           )
-          setDiscordSpellHandlerFeed(responseData.discord_spell_handler_feed)
           
           setTwitterClientEnable(responseData.twitter_client_enable)
           setTwitterToken(responseData.twitter_token)
@@ -556,7 +552,6 @@ const EntityWindow = ({ id, updateCallback }) => {
       discord_empty_responses,
       discord_spell_handler_incoming,
       discord_spell_handler_update,
-      discord_spell_handler_feed,
       use_voice,
       voice_provider,
       voice_character,
@@ -960,25 +955,6 @@ const EntityWindow = ({ id, updateCallback }) => {
                   value={discord_spell_handler_update}
                   onChange={event => {
                     setDiscordSpellHandlerUpdate(event.target.value)
-                  }}
-                >
-                  {spellList.length > 0 &&
-                    spellList.map((spell, idx) => (
-                      <option value={spell.name} key={idx}>
-                        {spell.name}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="form-item agent-select">
-                <span className="form-item-label">Event Feed Handler</span>
-                <select
-                  name="spellHandlerFeed"
-                  id="spellHandlerFeed"
-                  value={discord_spell_handler_feed}
-                  onChange={event => {
-                    setDiscordSpellHandlerFeed(event.target.value)
                   }}
                 >
                   {spellList.length > 0 &&

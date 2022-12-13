@@ -45,6 +45,7 @@ const executeHandler = async (ctx: Koa.Context) => {
       'conversation',
       agent,
       'web',
+      agent,
       id,
       agent,
       out.defaultGreeting
@@ -159,7 +160,6 @@ const getEvent = async (ctx: Koa.Context) => {
   const client = ctx.request.query.client
   const channel = ctx.request.query.channel
   const maxCount = parseInt(ctx.request.query.maxCount as string)
-  const target_count = parseInt(ctx.request.query.target_count as string)
   const max_time_diff = parseInt(ctx.request.query.max_time_diff as string)
 
   const event = await database.instance.getEvents(
@@ -168,13 +168,9 @@ const getEvent = async (ctx: Koa.Context) => {
     speaker,
     client,
     channel,
-    true,
     maxCount,
-    target_count,
     max_time_diff
   )
-
-  console.log('event, query:', ctx.request.query, 'conv:', event)
 
   return (ctx.body = event)
 }
@@ -259,16 +255,18 @@ const createEvent = async (ctx: Koa.Context) => {
   const agent = ctx.request.body.agent
   const speaker = ctx.request.body.speaker
   const client = ctx.request.body.client
+  const sender = ctx.request.body.sender
   const channel = ctx.request.body.channel
   const text = ctx.request.body.text
   const type = ctx.request.body.type
-  console.log('Creating event:', agent, speaker, client, channel, text, type)
+  console.log('Creating event:', agent, speaker, sender, client, channel, text, type)
   await database.instance.createEvent(
     type,
     agent,
+    speaker,
+    sender,
     client,
     channel,
-    speaker,
     text
   )
 

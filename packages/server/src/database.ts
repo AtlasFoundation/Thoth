@@ -49,8 +49,8 @@ export class database {
       host: process.env.PGHOST,
       ssl: PGSSL
         ? {
-          rejectUnauthorized: false,
-        }
+            rejectUnauthorized: false,
+          }
         : false,
     })
     this.client.connect()
@@ -71,19 +71,21 @@ export class database {
   async createEvent(
     type: string,
     agent: any,
+    speaker: any,
+    sender: any,
     client: any,
     channel: any,
-    sender: any,
     text: string | any[]
   ) {
     const query =
-      'INSERT INTO events(type, agent, client, channel, sender, text, date) VALUES($1, $2, $3, $4, $5, $6, $7)'
+      'INSERT INTO events(type, agent, speaker, sender, client, channel, text, date) VALUES($1, $2, $3, $4, $5, $6, $7, $8)'
     const values = [
       type,
       agent,
+      speaker,
+      sender,
       client,
       channel,
-      sender,
       text,
       new Date().toUTCString(),
     ]
@@ -93,48 +95,88 @@ export class database {
   async getEvents(
     type: string,
     agent: any,
-    sender: any,
-    client: any,
+    speaker: any,
+    client: any = null,
     channel: any,
-    asString: boolean = true,
     maxCount: number = 10,
-    target_count: string | null,
-    max_time_diff: number
+    max_time_diff: number = -1
   ) {
-    // TODO: Make this better and more flexible, this hand sql query sucks. use sequelize
-    let query, values
-    if (!channel) {
-      query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND type=$4 ORDER BY id desc'
-      values = [agent, client, sender, type]
-    } else if (!sender) {
-      query =
-        'SELECT * FROM events WHERE agent=$1 AND client=$2 AND channel=$3 AND type=$4 ORDER BY id desc'
-      values = [agent, client, channel, type]
-    } else {
-      if (target_count === 'single') {
-        query =
-          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 AND channel=$4 AND type=$5 ORDER BY id desc'
-      } else {
-        query =
-          'SELECT * FROM events WHERE agent=$1 AND client=$2 AND sender=$3 OR sender=$1 AND channel=$4 AND type=$5 ORDER BY id desc'
+    // write a function that returns the query and values based on the params, and ignores them if they are null or undefined
+    // then you can just call that function and pass in the params, and it will return the query and values
+    function getQueryAndValues(type, agent, speaker, client, channel) {
+      // if the variable is empty, then we want to search all for our SQL query (is this *?)
+      // if the variable is not empty, then we want to search for that specific value
+
+      // this is the query that we will return
+      let query = ''
+
+      // this is the values that we will return
+      const values = []
+
+      // if the type is not empty, then we want to add it to the query
+      if (type) {
+        query += 'type = $1'
+        values.push(type)
       }
-      values = [agent, client, sender, channel, type]
-    }
-    const row = await this.client.query(query, values)
-    if (!row || !row.rows || row.rows.length === 0) {
-      console.log('rows are null, returning')
-      return asString ? '' : []
+
+      // if the agent is not empty, then we want to add it to the query
+      if (agent) {
+        // if the query is not empty, then we want to add an AND to the query
+        if (query) {
+          query += ' AND '
+        }
+
+        query += 'agent = $2'
+        values.push(agent)
+      }
+
+      // if the client is not empty, then we want to add it to the query
+      if (client) {
+        // if the query is not empty, then we want to add an AND to the query
+        if (query) {
+          query += ' AND '
+        }
+
+        query += 'client = $3'
+        values.push(client)
+      }
+
+      // if the speaker is not empty, then we want to add it to the query
+      if (speaker) {
+        // if the query is not empty, then we want to add an AND to the query
+        if (query) {
+          query += ' AND '
+        }
+
+        query += 'speaker = $4'
+        values.push(speaker)
+      }
+
+      if (channel) {
+        // if the query is not empty, then we want to add an AND to the query
+        if (query) {
+          query += ' AND '
+        }
+        
+        query += 'channel = $5'
+        values.push(channel)
+      }
+
+      // return the query and values
+      return { query, values }
     }
 
-    // row.rows.sort(function (
-    //   a: { date: string | number | Date },
-    //   b: { date: string | number | Date }
-    // ) {
-    //   return new Date(b.date) - new Date(a.date)
-    // })
+    // call the function and pass in the params
+    const { query, values } = getQueryAndValues(type, agent, speaker, client, channel)
 
-    console.log('got ' + row.rows.length + ' rows')
+    // then you can just use the query and values in the query
+    const row = await this.client.query(
+      `SELECT * FROM events WHERE ${query} ORDER BY date DESC LIMIT ${maxCount}`,
+      values
+    )
+
+    // if no values are returned, return an empty array
+    if (!row || !row.rows || row.rows.length <= 0) return ''
 
     const now = new Date()
     const max_length = maxCount
@@ -151,25 +193,17 @@ export class database {
         }
       }
 
+      // TODO: this is horrible hardcode, we should rewrite this to be more generic and not have to hardcode the types
       data +=
-        (type === 'conversation' || 'history'
-          ? row.rows[i].sender + ': '
-          : '') +
-        row.rows[i].text +
-        (type === 'conversation' || 'history'
-          ? '\n'
-          : type === 'facts'
-            ? '. '
-            : '')
+        (type === 'conversation' || 'history' ? row.rows[i].sender + ': ' : '') +
+        row.rows[i].text + '\n'
       count++
       if (count >= max_length) {
         break
       }
     }
-    console.log('returning data', data)
-    return asString
-      ? data.split('\n').reverse().join('\n')
-      : data.split('\n').reverse()
+
+    return data.split('\n').reverse().join('\n')
   }
   async getAllEvents() {
     const query = 'SELECT * FROM events'

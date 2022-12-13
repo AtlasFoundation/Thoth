@@ -17,7 +17,6 @@ export interface entitiesAttributes {
   discord_empty_responses?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
-  discord_spell_handler_feed?: string
   use_voice?: boolean
   voice_provider?: string
   voice_character?: string
@@ -99,7 +98,6 @@ export type entitiesOptionalAttributes =
   | 'discord_empty_responses'
   | 'discord_spell_handler_incoming'
   | 'discord_spell_handler_update'
-  | 'discord_spell_handler_feed'
   | 'use_voice'
   | 'voice_provider'
   | 'voice_character'
@@ -192,7 +190,6 @@ export class entities
   discord_empty_responses?: string
   discord_spell_handler_incoming?: string
   discord_spell_handler_update?: string
-  discord_spell_handler_feed?: string
   use_voice?: boolean
   voice_provider?: string
   voice_character?: string
@@ -343,10 +340,6 @@ export class entities
           allowNull: true,
         },
         discord_spell_handler_update: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        discord_spell_handler_feed: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

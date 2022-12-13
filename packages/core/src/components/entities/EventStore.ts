@@ -24,9 +24,10 @@ export async function createEvent(
   type: string,
   agent: string,
   speaker: string,
-  text: string,
+  sender: string,
   client: string,
-  channel: string
+  channel: string,
+  text: string
 ) {
   const response = await axios.post(
     `${
@@ -38,9 +39,10 @@ export async function createEvent(
       type,
       agent,
       speaker,
-      text,
+      sender,
       client,
       channel,
+      text,
     }
   )
   console.log('Created event', response.data)
@@ -134,9 +136,10 @@ export class EventStore extends ThothComponent<Promise<void>> {
         type,
         agent,
         speaker,
-        primary,
+        speaker,
         client,
-        channel
+        channel,
+        primary
       )
     }
 
@@ -144,10 +147,11 @@ export class EventStore extends ThothComponent<Promise<void>> {
       respAgent = await createEvent(
         type,
         agent,
+        speaker,
         agent,
-        secondary,
         client,
-        channel
+        channel,
+        secondary
       )
     }
     if (!silent) node.display(respUser?.data + '|' + respAgent?.data)

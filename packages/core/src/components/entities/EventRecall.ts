@@ -25,7 +25,6 @@ async function getEvent(
   client: string,
   channel: string,
   maxCount = 10,
-  target_count: string | any = 'single',
   max_time_diff = -1
 ) {
   const params = {
@@ -35,7 +34,6 @@ async function getEvent(
     client: client,
     channel: channel,
     maxCount: maxCount,
-    target_count: target_count,
     max_time_diff: max_time_diff,
   }
 
@@ -44,13 +42,10 @@ async function getEvent(
     process.env.API_ROOT_URL ??
     'https://localhost:8001'
 
-  console.log('params:', params)
-  console.log('serverRoot:', serverRoot)
-
   const response = await axios.get(`${serverRoot}/event`, {
     params,
   })
-  console.log('response.data:', response.data)
+
   return response.data
 }
 
@@ -103,24 +98,13 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
       icon: 'moon',
     })
 
-    const target_count = new InputControl({
-      dataKey: 'target_count',
-      name: 'Target Count',
-      icon: 'moon',
-    })
-
     const max_time_diff = new InputControl({
       dataKey: 'max_time_diff',
       name: 'Max Time Difference',
       icon: 'moon',
     })
 
-    node.inspector
-      .add(nameInput)
-      .add(max_count)
-      .add(type)
-      .add(target_count)
-      .add(max_time_diff)
+    node.inspector.add(nameInput).add(max_count).add(type).add(max_time_diff)
 
     return node
       .addInput(agentInput)
@@ -150,7 +134,6 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
 
     const maxCountData = node.data?.max_count as string
     const maxCount = maxCountData ? parseInt(maxCountData) : 10
-    const target_count = node.data?.target_count as string
     const max_time_diffData = node.data?.max_time_diff as string
     const max_time_diff = max_time_diffData ? parseInt(max_time_diffData) : -1
 
@@ -161,7 +144,6 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
       client,
       channel,
       maxCount,
-      target_count,
       max_time_diff
     )
     if (!silent) node.display(type + ' | :' + conv || 'Not found')

@@ -53,8 +53,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
           const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
-          console.log('Saving diff', jsonDiff)
-          if (jsonDiff == [] || !jsonDiff) return
+          if (!jsonDiff) return
 
           const response = await saveDiff({
             name: spellRef.current.name,
@@ -122,7 +121,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
 
     doc.on('op batch', (op, origin) => {
       if (origin) return
-      console.log('UPDATED GRAPH', spellData.graph)
       editor.loadGraph(doc.data.graph, true)
     })
 
