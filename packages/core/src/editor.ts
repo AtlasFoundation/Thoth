@@ -127,7 +127,6 @@ export const initEditor = function ({
       const { workspaceType } = component
 
       if (isProd && (component as any).dev) return null
-      if (component.deprecated) return null
       if (component.hide) return null
       if (workspaceType && workspaceType !== tabType) return null
       return [component.category]
@@ -214,9 +213,9 @@ export const initEditor = function ({
     const graph = JSON.parse(JSON.stringify(_graph))
     await engine.abort()
     editor.fromJSON(graph)
-
+    // @todo need to revisit this and actually focus on a node in the graph using zoomAt.  This is a hack to get the graph to render in the right place using zoomAt(node).
+    editor.view.area.translate(-100, 3000);	
     editor.view.resize()
-    if (!reloading) AreaPlugin.zoomAt(editor)
   }
 
   // Start the engine off on first load
