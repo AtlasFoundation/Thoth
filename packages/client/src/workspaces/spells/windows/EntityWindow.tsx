@@ -870,7 +870,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Discord API Key</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={discord_api_key}
                   onChange={e => {
                     setDiscordApiKey(e.target.value)
@@ -987,7 +987,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Bearer Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={twitter_token}
                   onChange={e => {
                     setTwitterToken(e.target.value)
@@ -1019,7 +1019,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   Twitter App Token Secret
                 </span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={twitter_app_token_secret}
                   onChange={e => {
                     setTwitterAppTokenSecret(e.target.value)
@@ -1029,7 +1029,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Twitter Access Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={twitter_access_token}
                   onChange={e => {
                     setTwitterAccessToken(e.target.value)
@@ -1041,7 +1041,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   Twitter Access Token Secret
                 </span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={twitter_access_token_secret}
                   onChange={e => {
                     setTwitterAccessTokenSecret(e.target.value)
@@ -1178,7 +1178,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Bot Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={telegram_bot_token}
                   onChange={e => {
                     setTelegramBotToken(e.target.value)
@@ -1245,7 +1245,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Bot App Secret Id</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={reddit_app_secret_id}
                   onChange={e => {
                     setRedditAppSecretId(e.target.value)
@@ -1332,7 +1332,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Zoom Password</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={zoom_password}
                   onChange={e => {
                     setZoomPassword(e.target.value)
@@ -1389,7 +1389,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={slack_token}
                   onChange={e => {
                     setSlackToken(e.target.value)
@@ -1399,7 +1399,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Signing Secret</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={slack_signing_secret}
                   onChange={e => {
                     setSlackSigningSecret(e.target.value)
@@ -1419,7 +1419,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Bot Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={slack_bot_token}
                   onChange={e => {
                     setSlackBotToken(e.target.value)
@@ -1486,7 +1486,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Password</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={instagram_password}
                   onChange={e => {
                     setInstagramPassword(e.target.value)
@@ -1554,7 +1554,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Page Access Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={messenger_page_access_token}
                   onChange={e => {
                     setMessengerPageAccessToken(e.target.value)
@@ -1564,7 +1564,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Verify Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={messenger_verify_token}
                   onChange={e => {
                     setMessengerVerifyToken(e.target.value)
@@ -1641,7 +1641,7 @@ const EntityWindow = ({ id, updateCallback }) => {
               <div className="form-item">
                 <span className="form-item-label">Auth Token</span>
                 <input
-                  type="text"
+                  type="password"
                   defaultValue={twilio_auth_token}
                   onChange={e => {
                     setTwilioAuthToken(e.target.value)
