@@ -11,6 +11,10 @@ import { EventStore } from './entities/EventStore'
 import { InputDestructureComponent } from './entities/InputDestructure'
 import { InputRestructureComponent } from './entities/InputRestructure'
 import { Request } from './entities/Request'
+import { CheckBalanceForERC20 } from './ethereum/CheckBalanceForERC20'
+import { CheckEthBalance } from './ethereum/CheckEthBalance'
+import { CheckForRecentTransactionsFromWallet } from './ethereum/CheckForRecentTransactionsFromWallet'
+import { GetRecentTransactions } from './ethereum/GetRecentTransactions'
 import { InputComponent } from './io/Input'
 import { Output } from './io/Output'
 import { TriggerIn } from './io/TriggerIn'
@@ -135,6 +139,11 @@ export const components = {
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
   waitForAll: () => new WaitForAll(),
+  checkEthBalance: () => new CheckEthBalance(),
+  checkBalanceForERC20: () => new CheckBalanceForERC20(),
+  getRecentTransactions: () => new GetRecentTransactions(),
+  checkForRecentTransactionsFromWallet: () =>
+    new CheckForRecentTransactionsFromWallet(),
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {
