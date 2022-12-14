@@ -73,6 +73,16 @@ export class InputRestructureComponent extends ThothComponent<
     const channelId = new Rete.Input('channel', 'channel', stringSocket)
     const entity = new Rete.Input('entity', 'entity', stringSocket)
     const roomInfo = new Rete.Input('roomInfo', 'roomInfo', arraySocket)
+    const private_key = new Rete.Input(
+      'eth_private_key',
+      'private_key',
+      stringSocket
+    )
+    const public_address = new Rete.Input(
+      'eth_public_address',
+      'public_address',
+      stringSocket
+    )
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const agentSoc = new Rete.Output('output', 'output', agentSocket)
 
@@ -83,6 +93,8 @@ export class InputRestructureComponent extends ThothComponent<
       .addInput(channelId)
       .addInput(entity)
       .addInput(roomInfo)
+      .addInput(private_key)
+      .addInput(public_address)
       .addInput(input)
       .addInput(dataInput)
       .addOutput(agentSoc)
@@ -111,6 +123,8 @@ export class InputRestructureComponent extends ThothComponent<
         ChannelID: agent.channel,
         Entity: agent.entity,
         RoomInfo: agent.roomInfo,
+        eth_private_key: agent.eth_private_key,
+        eth_public_address: agent.eth_public_address,
       },
     }
   }

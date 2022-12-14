@@ -43,6 +43,8 @@ export class instagram_client {
             'instagram',
             thread_v2_id,
             settings.entity,
+            settings.eth_private_key,
+            settings.eth_public_address,
             [],
             'msg'
           )

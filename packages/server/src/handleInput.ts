@@ -7,14 +7,7 @@ export async function handleInput(
   clientName: any,
   channelId: any
 ) {
-  console.log(message,
-    speaker,
-    agent,
-    res,
-    clientName,
-    channelId)
   const text = "echo " + message
   if (res) res.status(200).send(JSON.stringify({ result: text }))
-  console.log(agent + '>>> ' + text)
   return text
 }

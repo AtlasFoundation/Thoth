@@ -46,7 +46,9 @@ export class Entity {
     voice_provider: string,
     voice_character: string,
     voice_language_code: string,
-    tiktalknet_url: string
+    tiktalknet_url: string,
+    eth_private_key,
+    eth_public_address
   ) {
     console.log('initializing discord, spell_handler:', spell_handler)
     if (this.discord)
@@ -71,7 +73,9 @@ export class Entity {
       voice_provider,
       voice_character,
       voice_language_code,
-      tiktalknet_url
+      tiktalknet_url,
+      eth_private_key,
+      eth_public_address
     )
     console.log('Started discord client for agent ' + this.name)
     // const response = await spellHandler(
@@ -278,7 +282,9 @@ export class Entity {
     loop_interval: string,
     loop_spell_handler: string,
     spell_version: string,
-    agent_name: string
+    agent_name: string,
+    eth_private_key,
+    eth_public_address
   ) {
     if (this.loopHandler) {
       throw new Error('Loop already running for this client on this instance')
@@ -299,6 +305,8 @@ export class Entity {
           'loop',
           'loop',
           this,
+          eth_private_key,
+          eth_public_address,
           [],
           'auto'
         )
@@ -357,7 +365,9 @@ export class Entity {
     instagram_bot_name_regex: string,
     instagram_spell_handler_incoming: string,
     spell_version: string,
-    entity: any
+    entity: any,
+    eth_private_key,
+    eth_public_address
   ) {
     if (this.instagram) {
       throw new Error(
@@ -379,6 +389,8 @@ export class Entity {
         instagram_bot_name,
         instagram_bot_name_regex,
         instagram_spell_handler_incoming,
+        eth_private_key,
+        eth_public_address
       },
       entity
     )
@@ -566,7 +578,9 @@ export class Entity {
         data.loop_interval,
         data.loop_spell_handler,
         data.spell_version,
-        data.loop_agent_name
+        data.loop_agent_name,
+        data.eth_private_key,
+        data.eth_public_address
       )
     }
 
@@ -583,7 +597,9 @@ export class Entity {
         data.voice_provider,
         data.voice_character,
         data.voice_language_code,
-        data.tiktalknet_url
+        data.tiktalknet_url,
+        data.eth_private_key,
+        data.eth_public_address
       )
     }
 
@@ -604,7 +620,7 @@ export class Entity {
         data.twitter_spell_handler_incoming,
         data.twitter_spell_handler_auto,
         data.spell_version,
-        data
+        data,
       )
     }
 
@@ -653,7 +669,9 @@ export class Entity {
         data.instagram_bot_name_regex,
         data.instagram_spell_handler_incoming,
         data.spell_version,
-        data
+        data,
+        data.eth_private_key,
+        data.eth_public_address
       )
     }
 

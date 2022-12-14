@@ -133,6 +133,8 @@ export const CreateSpellHandler = async (props: {
     client: string,
     channelId: string,
     entity: any,
+    eth_private_key: string,
+    eth_public_address: string,
     roomInfo: {
       user: string
       inConversation: boolean
@@ -150,6 +152,8 @@ export const CreateSpellHandler = async (props: {
       Entity: entity,
       RoomInfo: roomInfo,
       Channel: channel,
+      eth_private_key,
+      eth_public_address
     } as any
 
     // TODO: Remove this line

@@ -390,26 +390,29 @@ export class discord_client {
       isBot: boolean
       info3d: string
     }[] = []
-    for (const [memberID, member] of channel.members) {
-      roomInfo.push({
-        user: member.user.username,
-        inConversation: this.isInConversation(member.user.id),
-        isBot: member.user.bot,
-        info3d: '',
-      })
-    }
+    if (channel && channel.members)
+      for (const [memberID, member] of channel.members) {
+        roomInfo.push({
+          user: member.user.username,
+          inConversation: this.isInConversation(member.user.id),
+          isBot: member.user.bot,
+          info3d: '',
+        })
+      }
 
     if (content.startsWith('!ping ')) {
       content = content.replace('!ping ', '')
     }
 
-    const response = await this.handleInput(
+    const response = await this.spellHandler(
       content,
       message.author.username,
       this.discord_bot_name,
       'discord',
       message.channel.id,
       this.entity,
+      this.eth_private_key,
+      this.eth_public_address,
       roomInfo,
       'msg'
     )
@@ -1274,7 +1277,7 @@ export class discord_client {
 
   client = Discord.Client as any
   entity = undefined
-  handleInput = null
+  spellHandler = null
   discord_starting_words: string[] = []
   discord_bot_name_regex: string = ''
   discord_bot_name: string = 'Bot'
@@ -1291,30 +1294,36 @@ export class discord_client {
     discord_bot_name_regex: string,
     discord_bot_name: string | RegExp,
     discord_empty_responses: string,
-    handleInput: (
+    spellHandler: (
       message: string | undefined,
       speaker: string,
       agent: string,
       client: string,
       channelId: string,
       entity: number,
+      eth_private_key: string,
+      eth_public_address: string,
       roomInfo: {
         user: string
         inConversation: boolean
         isBot: boolean
         info3d: string
       }[],
-      channel: string
+      channel: string,
     ) => Promise<unknown>,
     use_voice,
     voice_provider,
     voice_character,
     voice_language_code,
-    tiktalknet_url
+    tiktalknet_url,
+    eth_private_key,
+    eth_public_address
   ) => {
     console.log('creating discord client')
     this.entity = entity
-    this.handleInput = handleInput
+    this.spellHandler = spellHandler
+    this.eth_private_key = eth_private_key,
+    this.eth_public_address = eth_public_address,
     this.use_voice = use_voice
     this.voice_provider = voice_provider
     this.voice_character = voice_character
@@ -1384,7 +1393,7 @@ export class discord_client {
         this.client,
         this.discord_bot_name,
         this.entity,
-        this.handleInput,
+        this.spellHandler,
         this.voice_provider,
         this.voice_character,
         this.voice_language_code,
@@ -1455,7 +1464,7 @@ export class discord_client {
     //         }, 1000 * 3600 * 4),
     //         responded: false,
     //       }
-    //       // const resp = await handleInput(
+    //       // const resp = await spellHandler(
     //       //   'Tell me about ' + 'butterlifes',
     //       //   'bot',
     //       //    this.discord_bot_name ?? 'Agent',

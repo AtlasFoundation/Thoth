@@ -9,6 +9,8 @@ export interface entitiesAttributes {
   updated_at?: string
   dirty?: boolean
   openai_api_key?: string
+  eth_private_key?: string,
+  eth_public_address?: string,
   discord_enabled?: boolean
   discord_api_key?: string
   discord_starting_words?: string
@@ -90,6 +92,8 @@ export type entitiesPk = 'id'
 export type entitiesId = entities[entitiesPk]
 export type entitiesOptionalAttributes =
   | 'openai_api_key'
+  | 'eth_private_key'
+  | 'eth_public_address'
   | 'discord_enabled'
   | 'discord_api_key'
   | 'discord_starting_words'
@@ -182,6 +186,8 @@ export class entities
   enabled?: boolean
   updated_at?: string
   openai_api_key?: string
+  eth_private_key?: string
+  eth_public_address?: string
   discord_enabled?: boolean
   discord_api_key?: string
   discord_starting_words?: string
@@ -284,6 +290,14 @@ export class entities
           allowNull: true,
         },
         openai_api_key: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        eth_private_key: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        eth_public_address: {
           type: DataTypes.TEXT,
           allowNull: true,
         },

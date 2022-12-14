@@ -140,6 +140,8 @@ export type Agent = {
   client: string
   channel: string
   entity: number
+  eth_private_key: string
+  eth_public_address: string
   roomInfo?: {
     user: string
     inConversation: boolean

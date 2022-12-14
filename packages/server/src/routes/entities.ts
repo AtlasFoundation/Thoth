@@ -343,6 +343,7 @@ const getEntityImage = async (ctx: Koa.Context) => {
 
 const customMessage = async (ctx: Koa.Context) => {
   console.log('got custom message:', ctx.request.body)
+  throw new Error('not implemented well')
   const sender = ctx.request.body?.sender as string
   const agent = ctx.request.body?.agent as string
   const message = (ctx.request.body?.message as string).trim().toLowerCase()

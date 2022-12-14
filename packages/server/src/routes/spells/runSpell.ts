@@ -49,6 +49,8 @@ export const buildThothInterface = (
         },
         {} as Record<string, any>
       )
+
+      console.log('processing code for server', code, inputs, data, state)
       // eslint-disable-next-line no-new-func
       const result = new Function('"use strict";return (' + code + ')')()(
         flattenedInputs,

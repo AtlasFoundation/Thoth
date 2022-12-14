@@ -33,6 +33,9 @@ const EntityWindow = ({ id, updateCallback }) => {
 
   const [enabled, setEnabled] = useState(false)
   const [openai_api_key, setOpenaiApiKey] = useState('')
+  const [eth_private_key, setEthPrivateKey] = useState('')
+  const [eth_public_address, setEthPublicAddress] = useState('')
+
   const [discord_enabled, setDiscordEnabled] = useState(false)
   const [discord_api_key, setDiscordApiKey] = useState('')
 
@@ -214,6 +217,9 @@ const EntityWindow = ({ id, updateCallback }) => {
         setDiscordSpellHandlerIncoming(res.data.discord_spell_handler_incoming)
         setDiscordSpellHandlerUpdate(res.data.discord_spell_handler_update)
 
+        setEthPrivateKey(res.data.eth_private_key)
+        setEthPublicAddress(res.data.eth_public_address)
+
         setTwitterClientEnable(res.data.twitter_client_enable === true)
         setTwitterToken(res.data.twitter_token)
         setTwitterId(res.data.twitter_id)
@@ -334,6 +340,8 @@ const EntityWindow = ({ id, updateCallback }) => {
       enabled,
       discord_enabled,
       openai_api_key,
+      eth_private_key,
+      eth_public_address,
       discord_api_key,
       discord_starting_words,
       discord_bot_name_regex,
@@ -640,6 +648,78 @@ const EntityWindow = ({ id, updateCallback }) => {
     link.parentNode.removeChild(link)
   }
 
+  function ChatBox({
+    spell_handler,
+    client,
+    channelId,
+    entity,
+    speaker,
+    agent,
+    channel,
+    eth_private_key,
+    eth_public_address
+  }) {
+    const [messages, setMessages] = useState(["Welcome to the room!"]);
+  
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+  
+      // Get the value of the input element
+      const input = event.target.elements.message;
+      const value = input.value;
+
+      try {
+        const spell_version = "latest";
+        const url = encodeURI(
+            `https://localhost:8001/spells/${spell_handler}/${spell_version}`
+          )
+          const response = await axios.post(`${url}`, {
+            Input: {
+              Input: value,
+              Speaker: speaker,
+              Agent: agent,
+              Client: client,
+              ChannelID: channelId,
+              Entity: entity,
+              Channel: channel,
+              eth_private_key,
+              eth_public_address
+            },
+          }).then((response) => {
+            const data = response.data;
+            
+            // get the output from data
+            const outputs = data.outputs;
+
+            // get the first key from outputs
+            const outputKey = Object.keys(outputs)[0];
+
+            // get the output from outputs
+            const output = outputs[outputKey];
+
+            setMessages([...messages, output]);
+          });
+        console.log(response);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+  
+    return (
+      <div style={{ width: "80%" }}>
+        {messages.map((message) => (
+          <div>{message}</div>
+        ))}
+  
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="message">Message:</label>
+          <input type="text" name="message" />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    );
+  }
+
   return !loaded ? (
     <>Loading...</>
   ) : (
@@ -654,6 +734,17 @@ const EntityWindow = ({ id, updateCallback }) => {
           }}
         />
       </div>
+      <ChatBox
+        client={'EntityWindow'}
+        spell_handler={discord_spell_handler_incoming}
+        channelId={'EntityWindow'}
+        entity={id}
+        speaker={'Speaker'}
+        agent={'Agent'}
+        channel={'EntityWindow'}
+        eth_private_key={eth_private_key}
+        eth_public_address={eth_public_address}
+      />
       <div className="form-item">
         <span className="form-item-label">Voice Enabled</span>
         <input
@@ -850,6 +941,28 @@ const EntityWindow = ({ id, updateCallback }) => {
               defaultValue={openai_api_key}
               onChange={e => {
                 setOpenaiApiKey(e.target.value)
+              }}
+            />
+          </div>
+          <div className="form-item">
+            <span className="form-item-label">Ethereum Private Key</span>
+            {/*password input field that, when changed, sets the openai key*/}
+            <input
+              type="password"
+              defaultValue={eth_private_key}
+              onChange={e => {
+                setEthPrivateKey(e.target.value)
+              }}
+            />
+          </div>
+          <div className="form-item">
+            <span className="form-item-label">Ethereum Public Address</span>
+            {/*password input field that, when changed, sets the openai key*/}
+            <input
+              type="input"
+              defaultValue={eth_public_address}
+              onChange={e => {
+                setEthPublicAddress(e.target.value)
               }}
             />
           </div>

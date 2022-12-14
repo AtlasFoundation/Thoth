@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable no-console */
 import Rete from 'rete'
 import { v4 as uuidv4 } from 'uuid'
@@ -32,6 +33,8 @@ type InputReturn = {
     isBot: boolean
     info3d: string
   }[]
+  eth_private_key: string
+  eth_public_address: string
   channel_type: string
 }
 
@@ -52,6 +55,8 @@ export class InputDestructureComponent extends ThothComponent<
         client: 'output',
         channel: 'output',
         entity: 'output',
+        eth_private_key: 'output',
+        eth_public_address: 'output',
         roomInfo: 'output',
         channel_type: 'output',
         trigger: 'option',
@@ -79,6 +84,16 @@ export class InputDestructureComponent extends ThothComponent<
     const client = new Rete.Output('client', 'client', stringSocket)
     const channelId = new Rete.Output('channel', 'channel', stringSocket)
     const entity = new Rete.Output('entity', 'entity', stringSocket)
+    const private_key = new Rete.Output(
+      'eth_private_key',
+      'private_key',
+      stringSocket
+    )
+    const public_address = new Rete.Output(
+      'eth_public_address',
+      'public_address',
+      stringSocket
+    )
     const roomInfo = new Rete.Output('roomInfo', 'roomInfo', arraySocket)
     const channel_type = new Rete.Output(
       'channel_type',
@@ -97,6 +112,8 @@ export class InputDestructureComponent extends ThothComponent<
       .addOutput(entity)
       .addOutput(roomInfo)
       .addOutput(channel_type)
+      .addOutput(private_key)
+      .addOutput(public_address)
       .addOutput(out)
       .addOutput(dataOutput)
   }
@@ -123,6 +140,8 @@ export class InputDestructureComponent extends ThothComponent<
       channel: (input as any)['ChannelID'] ?? 'TestChannel',
       entity: (input as any)['Entity'],
       roomInfo: (input as any)['RoomInfo'],
+      eth_private_key: (input as any)['eth_private_key'],
+      eth_public_address: (input as any)['eth_public_address'],
       channel_type: (input as any)['Channel'],
     }
   }
