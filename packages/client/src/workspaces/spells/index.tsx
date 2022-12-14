@@ -36,7 +36,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   const { getSpellDoc } = useSharedb()
   const { user } = useAuth()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
-  const { editor, serialize } = useEditor()
+  const { editor, serialize, setDirtyGraph } = useEditor()
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
   const preferences = useSelector((state: RootState) => state.preferences)
@@ -51,6 +51,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
+          setDirtyGraph(true)
           publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
         }
       }, 2000)

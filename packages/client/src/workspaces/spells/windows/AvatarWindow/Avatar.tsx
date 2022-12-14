@@ -21,7 +21,7 @@ function randomsomesuch() {
   return (Math.random() - 0.5) / 10
 }
 
-const Avatar = ({ speechUrl }) => {
+const Avatar = ({ speechUrl, pause, unpause }) => {
   const { scene, camera } = useThree()
   const gltf = useGLTF(
     `${process.env.REACT_APP_FILE_SERVER_URL}/files/VU-VRM-elf.vrm`
@@ -180,6 +180,8 @@ const Avatar = ({ speechUrl }) => {
   useEffect(() => {
     console.log('SPEECH URL CHANGED', speechUrl)
     if (!speechUrl) return
+
+    pause()
 
     const url = `${process.env.REACT_APP_FILE_SERVER_URL}/${speechUrl}`
     let interval
@@ -370,11 +372,6 @@ const Avatar = ({ speechUrl }) => {
             VRMExpressionPresetName.Angry,
             expressionoof
           )
-
-          lookAtTarget.position.x = camera.position.x
-          lookAtTarget.position.y =
-            (camera.position.y - camera.position.y - camera.position.y) / 2 +
-            0.5
         }
         // do something with the frequency data
       }, 10) // update the frequency data every 10 milliseconds
@@ -382,6 +379,7 @@ const Avatar = ({ speechUrl }) => {
       source.onended = () => {
         clearInterval(interval)
         audioContext.close()
+        unpause()
       }
     }
 
@@ -402,7 +400,7 @@ const Avatar = ({ speechUrl }) => {
   return null
 }
 
-const AvatarFrame = ({ speechUrl }) => (
+const AvatarFrame = ({ speechUrl, pause, unpause }) => (
   <Canvas>
     <OrbitControls target={[0.0, 1.45, 0.0]} screenSpacePanning={true} />
     <directionalLight
@@ -411,7 +409,7 @@ const AvatarFrame = ({ speechUrl }) => (
       intensity={0.3}
     />
     <ambientLight intensity={0.65} />
-    <Avatar speechUrl={speechUrl} />
+    <Avatar speechUrl={speechUrl} pause={pause} unpause={unpause} />
   </Canvas>
 )
 

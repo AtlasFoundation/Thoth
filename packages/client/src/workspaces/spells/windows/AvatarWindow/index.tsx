@@ -3,16 +3,30 @@ import Switch from '@mui/material/Switch'
 import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
+import css from '@/screens/Thoth/thoth.module.css'
 import SpeechUtils from '../../../../speechUtils'
 import { usePubSub } from '@/contexts/PubSubProvider'
 import Avatar from './Avatar'
 import { CollectionsOutlined } from '@mui/icons-material'
+import Scrollbars from 'react-custom-scrollbars-2'
+import Editor from '@monaco-editor/react'
+import { useAppSelector } from '@/state/hooks'
+import { selectStateBySpellId, upsertLocalState } from '@/state/localState'
+import { useDispatch } from 'react-redux'
 
 const AvatarWindow = ({ tab }) => {
+  const scrollbars = useRef<any>()
   const [recording, setRecording] = useState<boolean>(false)
   const [file, setFile] = useState<string | null>(null)
+  const [openData, setOpenData] = useState<boolean>(false)
+
+  const dispatch = useDispatch()
+
+  const localState = useAppSelector(state =>
+    selectStateBySpellId(state.localState, tab.spellId)
+  )
 
   const { publish, subscribe, events } = usePubSub()
   const { $PLAYTEST_INPUT, $SEND_TO_AVATAR } = events
@@ -31,7 +45,44 @@ const AvatarWindow = ({ tab }) => {
   }, [])
 
   const receiveData = data => {
-    publish($PLAYTEST_INPUT(tab.id), data)
+    let toSend = data
+    if (localState?.playtestData !== '{}') {
+      const json = localState?.playtestData.replace(
+        /(['"])?([a-z0-9A-Z_]+)(['"])?:/g,
+        '"$2": '
+      )
+
+      // IMPLEMENT THIS: https://www.npmjs.com/package/json5
+
+      // todo could throw an error here
+      if (!json) return
+
+      toSend = {
+        input: data,
+        ...JSON.parse(json),
+      }
+    }
+
+    publish($PLAYTEST_INPUT(tab.id), toSend)
+  }
+
+  const options = {
+    minimap: {
+      enabled: false,
+    },
+    wordWrap: 'bounded',
+    fontSize: 14,
+  }
+
+  const handleEditorWillMount = monaco => {
+    monaco.editor.defineTheme('sds-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [],
+      colors: {
+        'editor.background': '#272727',
+      },
+    })
   }
 
   useEffect(() => {
@@ -44,6 +95,23 @@ const AvatarWindow = ({ tab }) => {
     setRecording(event.target.checked)
   }
 
+  const onDataChange = dataText => {
+    console.log('new data text', dataText)
+    dispatch(upsertLocalState({ spellId: tab.spellId, playtestData: dataText }))
+  }
+
+  const toggleData = () => {
+    setOpenData(!openData)
+  }
+
+  const pause = () => {
+    setRecording(false)
+  }
+
+  const unpause = () => {
+    setRecording(true)
+  }
+
   const toolbar = (
     <>
       <FormGroup>
@@ -52,12 +120,31 @@ const AvatarWindow = ({ tab }) => {
           label="Record"
         />
       </FormGroup>
+      <button className="small" onClick={toggleData}>
+        Data
+      </button>
     </>
   )
 
   return (
     <Window toolbar={toolbar}>
-      <Avatar speechUrl={file} />
+      <div
+        className={css['playtest-output']}
+        style={{ display: openData ? '' : 'none', height: '150px' }}
+      >
+        <Scrollbars ref={ref => (scrollbars.current = ref)}>
+          <Editor
+            theme="sds-dark"
+            language="javascript"
+            value={localState?.playtestData}
+            options={options}
+            defaultValue={localState?.playtestData || '{}'}
+            onChange={onDataChange}
+            beforeMount={handleEditorWillMount}
+          />
+        </Scrollbars>
+      </div>
+      <Avatar speechUrl={file} pause={pause} unpause={unpause} />
     </Window>
   )
 }

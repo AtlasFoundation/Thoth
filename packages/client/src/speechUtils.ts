@@ -26,6 +26,7 @@ class speechUtils {
 
   finalWord = false
   removeLastSentence = true
+  paused = false
 
   streamStreaming = false
 
@@ -65,6 +66,8 @@ class speechUtils {
       this.input.connect(this.processor)
 
       this.processor.onaudioprocess = (e: any) => {
+        if (this.paused) return
+        console.log('AUDIO PROCESS')
         this.microphoneProcess(e)
       }
     }
@@ -101,6 +104,16 @@ class speechUtils {
     const left = e.inputBuffer.getChannelData(0)
     const left16 = this.downsampleBuffer(left, 44100, 16000)
     this.socket.emit('binaryData', left16)
+  }
+
+  pause() {
+    console.log('RECORDING PAUSED')
+    this.paused = true
+  }
+
+  unpause() {
+    console.log('RECODING UNPAUSED')
+    this.paused = false
   }
 
   stopRecording = () => {

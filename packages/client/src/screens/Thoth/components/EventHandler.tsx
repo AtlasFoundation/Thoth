@@ -58,7 +58,8 @@ const EventHandler = ({ pubSub, tab }) => {
     spellRef.current = spell
   }, [spell])
 
-  const { serialize, getEditor, undo, redo, del } = useEditor()
+  const { serialize, getEditor, undo, redo, del, dirtyGraph, setDirtyGraph } =
+    useEditor()
 
   const { events, subscribe } = pubSub
 
@@ -229,9 +230,13 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const onProcess = () => {
     const editor = getEditor()
-    if (!editor) return
+    if (!editor || !dirtyGraph) return
 
-    editor.runProcess()
+    console.log('RUNNING PROCESS')
+
+    editor.runProcess(() => {
+      setDirtyGraph(false)
+    })
   }
 
   const onUndo = () => {

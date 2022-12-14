@@ -73,9 +73,6 @@ export async function initSpeechServer(ignoreDotEnv: boolean) {
     client.on('endGoogleCloudStream', function (data: any) {
       stopRecognitionStream()
     })
-    client.on('disconnect', () => {
-      stopRecognitionStream()
-    })
 
     client.on('binaryData', function (data: any) {
       try {
