@@ -1,8 +1,9 @@
 {
   "global": {
-    "tabSetTabStripHeight": 24,
-    "splitterSize": 4
+    "splitterSize": 4,
+    "tabSetTabStripHeight": 24
   },
+  "borders": [],
   "layout": {
     "type": "row",
     "id": "#root",
@@ -23,7 +24,7 @@
       {
         "type": "row",
         "id": "#9",
-        "weight": 60,
+        "weight": 53.03349282296651,
         "children": [
           {
             "type": "tabset",
@@ -38,8 +39,7 @@
                 "enableClose": false,
                 "className": "editor-tab"
               }
-            ],
-            "active": true
+            ]
           },
           {
             "type": "tabset",
@@ -66,12 +66,12 @@
       {
         "type": "row",
         "id": "#7",
-        "weight": 25,
+        "weight": 31.966507177033492,
         "children": [
           {
             "type": "tabset",
             "id": "#14",
-            "weight": 100,
+            "weight": 62.108108108108105,
             "children": [
               {
                 "type": "tab",
@@ -102,7 +102,7 @@
           {
             "type": "tabset",
             "id": "#6",
-            "weight": 50,
+            "weight": 87.89189189189189,
             "children": [
               {
                 "type": "tab",
@@ -110,11 +110,11 @@
                 "name": "Avatar",
                 "component": "avatar"
               }
-            ]
+            ],
+            "active": true
           }
         ]
       }
     ]
-  },
-  "borders": []
+  }
 }
