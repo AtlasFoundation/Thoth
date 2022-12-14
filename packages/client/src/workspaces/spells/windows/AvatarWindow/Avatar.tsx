@@ -1,14 +1,15 @@
 // i really dont like this.  But three vrm, is super grumpy/.
-// @ts-nocheck
 import React, { Suspense, useEffect, useRef, useState } from 'react'
-import * as ReactDOM from 'react-dom'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF } from '@react-three/drei'
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader'
-import { VRM, VRMSchema, VRMUtils } from '@pixiv/three-vrm'
-import { Object3D } from 'three'
-import { useControls } from 'leva'
-import { FaSortNumericDown } from 'react-icons/fa'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import {
+  VRM,
+  VRMExpressionPresetName,
+  VRMHumanBoneName,
+  VRMLoaderPlugin,
+  VRMUtils,
+} from '@pixiv/three-vrm'
 /*
 
 inspired by https://twitter.com/yeemachine/status/1414993821583118341
@@ -25,6 +26,10 @@ const Avatar = ({ speechUrl }) => {
     `${process.env.REACT_APP_FILE_SERVER_URL}/files/VU-VRM-elf.vrm`
   )
 
+  useEffect(() => {
+    console.log('SPEECH URL', speechUrl)
+  }, [speechUrl])
+
   // settings
   const talktime = true
   let mouththreshold = 10
@@ -39,104 +44,102 @@ const Avatar = ({ speechUrl }) => {
   let expressionease = 100
   let expressionintensity = 0.75
 
-  const avatar = useRef<VRM>()
-  const [bonesStore, setBones] = useState<{ [part: string]: Object3D }>({})
+  let avatar
 
   useEffect(() => {
     if (gltf) {
-      // @ts-ignore
-      VRMUtils.removeUnnecessaryJoints(gltf.scene)
-      VRM.from(gltf as unknown as GLTF).then(vrm => {
-        camera.position.set(0.0, 1.45, 0.4)
-        avatar.current = vrm
-        vrm.lookAt.target = camera
+      const loader = new GLTFLoader()
 
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Hips).rotation.y =
-          Math.PI
-        vrm.springBoneManager.reset()
-
-        // un-T-pose
-        vrm.humanoid.getBoneNode(
-          VRMSchema.HumanoidBoneName.RightUpperArm
-        ).rotation.z = 250
-
-        vrm.humanoid.getBoneNode(
-          VRMSchema.HumanoidBoneName.RightLowerArm
-        ).rotation.z = -0.2
-
-        vrm.humanoid.getBoneNode(
-          VRMSchema.HumanoidBoneName.LeftUpperArm
-        ).rotation.z = -250
-
-        vrm.humanoid.getBoneNode(
-          VRMSchema.HumanoidBoneName.LeftLowerArm
-        ).rotation.z = 0.2
-
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Head).rotation.x =
-          randomsomesuch()
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Head).rotation.y =
-          randomsomesuch()
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Head).rotation.z =
-          randomsomesuch()
-
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Neck).rotation.x =
-          randomsomesuch()
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Neck).rotation.y =
-          randomsomesuch()
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Neck).rotation.z =
-          randomsomesuch()
-
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Spine).rotation.x =
-          randomsomesuch()
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Spine).rotation.y =
-          randomsomesuch()
-        vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Spine).rotation.z =
-          randomsomesuch()
-
-        vrm.springBoneManager.reset()
-
-        const bones = {
-          neck: vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Neck),
-          hips: vrm.humanoid.getBoneNode(VRMSchema.HumanoidBoneName.Hips),
-          LeftShoulder: vrm.humanoid.getBoneNode(
-            VRMSchema.HumanoidBoneName.LeftShoulder
-          ),
-          RightShoulder: vrm.humanoid.getBoneNode(
-            VRMSchema.HumanoidBoneName.RightShoulder
-          ),
-        }
-
-        function blink() {
-          var blinktimeout = Math.floor(Math.random() * 250) + 50
-
-          setTimeout(() => {
-            vrm.blendShapeProxy.setValue(
-              VRMSchema.BlendShapePresetName.BlinkL,
-              0
-            )
-            vrm.blendShapeProxy.setValue(
-              VRMSchema.BlendShapePresetName.BlinkR,
-              0
-            )
-          }, blinktimeout)
-
-          vrm.blendShapeProxy.setValue(VRMSchema.BlendShapePresetName.BlinkL, 1)
-          vrm.blendShapeProxy.setValue(VRMSchema.BlendShapePresetName.BlinkR, 1)
-        }
-
-        ;(function loop() {
-          var rand = Math.round(Math.random() * 10000) + 1000
-          setTimeout(function () {
-            console.log('BLINK')
-            blink()
-            loop()
-          }, rand)
-        })()
-
-        // bones.RightShoulder.rotation.z = -Math.PI / 4
-
-        setBones(bones)
+      loader.register(parser => {
+        return new VRMLoaderPlugin(parser)
       })
+
+      loader.load(
+        `${process.env.REACT_APP_FILE_SERVER_URL}/files/VU-VRM-elf.vrm`,
+        gltf => {
+          const vrm = gltf.userData.vrm
+
+          VRMUtils.removeUnnecessaryJoints(gltf.scene)
+          VRMUtils.rotateVRM0(vrm)
+
+          camera.position.set(0.0, 1.45, 0.4)
+          vrm.lookAt.target = camera
+
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Hips).rotation.y =
+            Math.PI
+          vrm.springBoneManager.reset()
+
+          // un-T-pose
+          vrm.humanoid.getRawBoneNode(
+            VRMHumanBoneName.RightUpperArm
+          ).rotation.z = 250
+
+          vrm.humanoid.getRawBoneNode(
+            VRMHumanBoneName.RightLowerArm
+          ).rotation.z = -0.2
+
+          vrm.humanoid.getRawBoneNode(
+            VRMHumanBoneName.LeftUpperArm
+          ).rotation.z = -250
+
+          vrm.humanoid.getRawBoneNode(
+            VRMHumanBoneName.LeftLowerArm
+          ).rotation.z = 0.2
+
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.x =
+            randomsomesuch()
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.y =
+            randomsomesuch()
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.z =
+            randomsomesuch()
+
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.x =
+            randomsomesuch()
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.y =
+            randomsomesuch()
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.z =
+            randomsomesuch()
+
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Spine).rotation.x =
+            randomsomesuch()
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Spine).rotation.y =
+            randomsomesuch()
+          vrm.humanoid.getRawBoneNode(VRMHumanBoneName.Spine).rotation.z =
+            randomsomesuch()
+
+          vrm.springBoneManager.reset()
+
+          function blink() {
+            var blinktimeout = Math.floor(Math.random() * 250) + 50
+            setTimeout(() => {
+              vrm.expressionManager.setValue(
+                VRMExpressionPresetName.BlinkLeft,
+                0
+              )
+              vrm.expressionManager.setValue(
+                VRMExpressionPresetName.BlinkRight,
+                0
+              )
+            }, blinktimeout)
+
+            vrm.expressionManager.setValue(VRMExpressionPresetName.BlinkLeft, 1)
+            vrm.expressionManager.setValue(
+              VRMExpressionPresetName.BlinkRight,
+              1
+            )
+          }
+
+          ;(function loop() {
+            var rand = Math.round(Math.random() * 10000) + 1000
+            setTimeout(function () {
+              blink()
+              loop()
+            }, rand)
+          })()
+
+          avatar = vrm
+        }
+      )
     }
   }, [scene, gltf, camera])
 
@@ -191,30 +194,20 @@ const Avatar = ({ speechUrl }) => {
 
         // move the interface slider
 
-        const currentVrm = avatar.current
-
         // mic based / endless animations (do stuff)
 
-        if (currentVrm != undefined) {
+        if (avatar != undefined) {
           if (talktime == true) {
             // todo: more vowelshapes
             var voweldamp = 53
             var vowelmin = 12
             if (inputvolume > mouththreshold * 2) {
-              console.log(
-                'Setting blende rproxy shape',
-                ((average - vowelmin) / voweldamp) * (mouthboost / 10),
-                currentVrm.blendShapeProxy
-              )
-              currentVrm.blendShapeProxy.setValue(
-                VRMSchema.BlendShapePresetName.A,
+              avatar.expressionManager.setValue(
+                VRMExpressionPresetName.Aa,
                 ((average - vowelmin) / voweldamp) * (mouthboost / 10)
               )
             } else {
-              currentVrm.blendShapeProxy.setValue(
-                VRMSchema.BlendShapePresetName.A,
-                0
-              )
+              avatar.expressionManager.setValue(VRMExpressionPresetName.Aa, 0)
             }
           }
 
@@ -225,99 +218,87 @@ const Avatar = ({ speechUrl }) => {
           var springback = 1.001
 
           if (average > 1 * bodythreshold) {
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Head
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.x +=
+              (Math.random() - 0.5) / damping
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.x /=
+              springback
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.y +=
+              (Math.random() - 0.5) / damping
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.y /=
+              springback
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.z +=
+              (Math.random() - 0.5) / damping
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Head).rotation.z /=
+              springback
+
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.x +=
+              (Math.random() - 0.5) / damping
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.x /=
+              springback
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.y +=
+              (Math.random() - 0.5) / damping
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.y /=
+              springback
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.z +=
+              (Math.random() - 0.5) / damping
+            avatar.humanoid.getRawBoneNode(VRMHumanBoneName.Neck).rotation.z /=
+              springback
+
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.UpperChest
             ).rotation.x += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Head
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.UpperChest
             ).rotation.x /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Head
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.UpperChest
             ).rotation.y += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Head
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.UpperChest
             ).rotation.y /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Head
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.UpperChest
             ).rotation.z += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Head
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.UpperChest
             ).rotation.z /= springback
 
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Neck
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.RightShoulder
             ).rotation.x += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Neck
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.RightShoulder
             ).rotation.x /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Neck
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.RightShoulder
             ).rotation.y += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Neck
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.RightShoulder
             ).rotation.y /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Neck
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.RightShoulder
             ).rotation.z += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.Neck
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.RightShoulder
             ).rotation.z /= springback
 
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.UpperChest
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.LeftShoulder
             ).rotation.x += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.UpperChest
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.LeftShoulder
             ).rotation.x /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.UpperChest
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.LeftShoulder
             ).rotation.y += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.UpperChest
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.LeftShoulder
             ).rotation.y /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.UpperChest
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.LeftShoulder
             ).rotation.z += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.UpperChest
-            ).rotation.z /= springback
-
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.RightShoulder
-            ).rotation.x += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.RightShoulder
-            ).rotation.x /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.RightShoulder
-            ).rotation.y += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.RightShoulder
-            ).rotation.y /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.RightShoulder
-            ).rotation.z += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.RightShoulder
-            ).rotation.z /= springback
-
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.LeftShoulder
-            ).rotation.x += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.LeftShoulder
-            ).rotation.x /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.LeftShoulder
-            ).rotation.y += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.LeftShoulder
-            ).rotation.y /= springback
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.LeftShoulder
-            ).rotation.z += (Math.random() - 0.5) / damping
-            currentVrm.humanoid.getBoneNode(
-              VRMSchema.HumanoidBoneName.LeftShoulder
+            avatar.humanoid.getRawBoneNode(
+              VRMHumanBoneName.LeftShoulder
             ).rotation.z /= springback
           }
 
@@ -329,8 +310,8 @@ const Avatar = ({ speechUrl }) => {
           if (expressionyay < 0) {
             expressionyay = 0
           }
-          currentVrm.blendShapeProxy.setValue(
-            VRMSchema.BlendShapePresetName.Fun,
+          avatar.expressionManager.setValue(
+            VRMExpressionPresetName.Happy,
             expressionyay
           )
           expressionoof += (Math.random() - 0.5) / expressionease
@@ -340,8 +321,8 @@ const Avatar = ({ speechUrl }) => {
           if (expressionoof < 0) {
             expressionoof = 0
           }
-          currentVrm.blendShapeProxy.setValue(
-            VRMSchema.BlendShapePresetName.Angry,
+          avatar.expressionManager.setValue(
+            VRMExpressionPresetName.Angry,
             expressionoof
           )
         }
@@ -363,8 +344,8 @@ const Avatar = ({ speechUrl }) => {
   }, [speechUrl])
 
   useFrame(({ clock }, delta) => {
-    if (avatar.current) {
-      avatar.current.update(delta)
+    if (avatar) {
+      avatar.update(delta)
     }
   })
 
@@ -376,9 +357,7 @@ const AvatarFrame = ({ speechUrl }) => (
     <OrbitControls target={[0.0, 1.45, 0.0]} screenSpacePanning={true} />
     <spotLight position={[0, 2, -1]} intensity={0.4} />
     <ambientLight intensity={0.65} />
-    <Suspense fallback={null}>
-      <Avatar speechUrl={speechUrl} />
-    </Suspense>
+    <Avatar speechUrl={speechUrl} />
   </Canvas>
 )
 
