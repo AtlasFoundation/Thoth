@@ -354,8 +354,7 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
         text as string
       )) as string
     } else if (voice_provider === 'google') {
-      character = character === 'none' ? 'en-US-Wavenet-D' : character
-      url = await tts(text, character as string)
+      url = await tts(text, voice_character as string)
     } else {
       url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
     }
