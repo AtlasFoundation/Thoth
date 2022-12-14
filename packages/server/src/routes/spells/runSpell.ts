@@ -50,7 +50,6 @@ export const buildThothInterface = (
         {} as Record<string, any>
       )
 
-      console.log('processing code for server', code, inputs, data, state)
       // eslint-disable-next-line no-new-func
       const result = new Function('"use strict";return (' + code + ')')()(
         flattenedInputs,
@@ -63,12 +62,14 @@ export const buildThothInterface = (
 }
 
 export const extractModuleInputKeys = (data: Graph) => {
-  return Object.values(data.nodes).reduce((inputKeys, node: Node) => {
+  const inputValues = Object.values(data.nodes).reduce((inputKeys, node: Node) => {
     if (node.name !== 'Universal Input') return inputKeys
     if (node.data.name && !node.data.useDefault) inputKeys.push(node.data.name)
-
     return inputKeys
   }, [] as string[])
+  console.log('*********************** INPUT VALUES')
+  console.log(inputValues)
+  return inputValues
 }
 
 export function extractNodes(nodes: Record<string, Node>, map: Set<unknown>) {

@@ -245,7 +245,6 @@ export class database {
       const { agent, sender, client, channel, text, type, date } = data
       const query = `UPDATE events SET agent = $1, sender = $2, client = $3, channel = $4, text = $5, type = $6, date = $7 WHERE id = $8`
       const values = [agent, sender, client, channel, text, type, date, id]
-      console.log('query :: ', query)
       const res = await this.client.query(query, values)
       return res.rowCount
     } else return 0
@@ -313,7 +312,6 @@ export class database {
   async deleteEntity(id: any) {
     const query = 'DELETE FROM entities WHERE id=$1'
     const values = [id]
-    console.log('query called', query, values)
     return await this.client.query(query, values)
   }
   async getLastUpdatedInstances() {
@@ -349,7 +347,6 @@ export class database {
   async createEntity() {
     const query = 'INSERT INTO entities (personality) VALUES ($1)'
     const values = ['common']
-    console.log('called ', query)
     try {
       return await this.client.query(query, values)
     } catch (e) {
@@ -357,12 +354,10 @@ export class database {
     }
   }
   async updateEntity(id: any, data: { [x: string]: any; dirty?: any }) {
-    console.log('updateEntity', id, data)
     const check = 'SELECT * FROM entities WHERE id=$1'
     const cvalues = [id]
 
     const rows = await this.client.query(check, cvalues)
-    console.log('rows', id, data)
 
     if (rows && rows.rows && rows.rows.length > 0) {
       data.dirty = 'true'
@@ -376,7 +371,6 @@ export class database {
 
       const query = 'UPDATE entities SET ' + q + ' updated_at=$1 WHERE id=$2'
       const values = [new Date().toUTCString(), id]
-      console.log('called ', query)
       try {
         return await this.client.query(query, values)
       } catch (e) {
@@ -396,7 +390,6 @@ export class database {
       q = q.slice(0, q.lastIndexOf(','))
 
       const query = `INSERT INTO entities(${cols}) VALUES (${q})`
-      console.log('called ', query)
       try {
         return await this.client.query(query)
       } catch (e) {
@@ -415,8 +408,6 @@ export class database {
     while (await this.documentIdExists(id)) {
       id = randomInt(0, 100000)
     }
-
-    console.log('document store id:', id)
 
     const query =
       'INSERT INTO documents(id, title, description, is_included, store_id) VALUES($1, $2, $3, $4, $5)'
@@ -1482,7 +1473,6 @@ export class database {
     password: string,
     user_id: string
   ) {
-    console.log('credentials:', email, username, password, user_id)
     if (
       !email ||
       !username ||
@@ -1499,7 +1489,6 @@ export class database {
     const values = [user_id]
 
     const rows = await this.client.query(query, values)
-    console.log('rows.rows.length:', rows.rows.length)
     if (rows && rows.rows && rows.rows.length > 0 && !rows.rows[0].email) {
       if (
         rows.rows[0].username ||

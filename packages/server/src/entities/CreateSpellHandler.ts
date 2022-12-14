@@ -16,14 +16,6 @@ export const CreateSpellHandler = async (props: {
   version: string
 }) => {
   // TODO: create a proper engine interface with the proper methods types on it.
-  console.log(
-    'Creating Spell Handler',
-    'spell:',
-    props.spell,
-    'version:',
-    props.version
-  )
-
   const engine = initSharedEngine({
     name: 'demo@0.1.0',
     components: getComponents(),
@@ -221,6 +213,5 @@ export const CreateSpellHandler = async (props: {
       return undefined
     }
   }
-  console.log('spellHandler is', spellHandler)
   return spellHandler
 }

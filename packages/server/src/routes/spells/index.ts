@@ -29,10 +29,8 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   let activeSpell
 
   if (version === 'latest') {
-    console.log('latest')
     activeSpell = rootSpell
   } else {
-    console.log('getting active spell')
     activeSpell = await creatorToolsDatabase.deployedSpells.findOne({
       where: { name: spell, version },
     })
@@ -47,9 +45,8 @@ const runSpellHandler = async (ctx: Koa.Context) => {
     )
   }
 
-  // TODO use test spells if body option is given
-  // const activeSpell = getTestSpell(spell)
   const graph = activeSpell.graph as Graph
+
   const modules = activeSpell.modules as Module[]
 
   const gameState = {
@@ -60,8 +57,26 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   const thoth = buildThothInterface(ctx, gameState)
 
   const inputKeys = extractModuleInputKeys(graph) as string[]
+  
+  const spellInputs = ctx.request.body.inputs;
 
-  const outputs = await runSpell(graph, inputKeys as any, thoth, modules)
+  const inputs = inputKeys.reduce((inputs, expectedInput: string) => {
+    const requestInput = spellInputs
+
+    if (requestInput) {
+      inputs[expectedInput] = [requestInput]
+
+      return inputs
+    } else {
+      return ctx.body = { 'error': `Spell expects a value for ${expectedInput} to be provided `}
+      // throw new CustomError(
+      //   'input-failed',
+      //   error
+      // )
+    }
+  }, {} as Record<string, unknown>)
+
+  const outputs = await runSpell(graph, inputs, thoth, modules)
 
   const newGameState = thoth.getCurrentGameState()
   const body = { spell: activeSpell.name, outputs, gameState: newGameState }
@@ -69,13 +84,10 @@ const runSpellHandler = async (ctx: Koa.Context) => {
 }
 
 const saveHandler = async (ctx: Koa.Context) => {
-  console.log('ctx.request is', ctx.request)
   const body =
     typeof ctx.request.body === 'string'
       ? JSON.parse(ctx.request.body)
       : ctx.request.body
-
-  console.log('ctx.request.body is', ctx.request.body)
 
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
 
@@ -320,16 +332,12 @@ const getdeployedSpellsHandler = async (ctx: Koa.Context) => {
 }
 
 const getDeployedSpellHandler = async (ctx: Koa.Context) => {
-  console.log('handling')
-  console.log('ctx.request', ctx.request.body)
-  console.log('ctx.params', ctx.params)
   const name = ctx.params.name ?? 'default'
   const version = ctx.params.version ?? 'latest'
 
   const spell = await creatorToolsDatabase.deployedSpells.findOne({
     where: { name: name, version: version },
   })
-  console.log('done')
   return (ctx.body = spell)
 }
 

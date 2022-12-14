@@ -660,21 +660,18 @@ const EntityWindow = ({ id, updateCallback }) => {
     eth_public_address
   }) {
     const [messages, setMessages] = useState(["Welcome to the room!"]);
-  
+    const [value, setValue] = useState("");
     const handleSubmit = async (event) => {
       event.preventDefault();
-  
-      // Get the value of the input element
-      const input = event.target.elements.message;
-      const value = input.value;
-
+      console.log('value is: ', value)
       try {
         const spell_version = "latest";
         const url = encodeURI(
             `https://localhost:8001/spells/${spell_handler}/${spell_version}`
           )
+          console.log('url is: ', url)
           const response = await axios.post(`${url}`, {
-            Input: {
+            inputs: {
               Input: value,
               Speaker: speaker,
               Agent: agent,
@@ -698,8 +695,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             const output = outputs[outputKey];
 
             setMessages([...messages, output]);
+            console.log(response);
           });
-        console.log(response);
       } catch (error) {
         console.error(error);
       }
@@ -713,7 +710,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   
         <form onSubmit={handleSubmit}>
           <label htmlFor="message">Message:</label>
-          <input type="text" name="message" />
+          <input type="text" name="message" value={value} onChange={(e) => { setValue(e.target.value); }} />
           <button type="submit">Send</button>
         </form>
       </div>

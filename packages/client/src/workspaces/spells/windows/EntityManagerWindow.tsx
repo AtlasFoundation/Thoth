@@ -46,6 +46,8 @@ const EntityManagerWindow = () => {
       <React.Fragment>
           {data &&
             (data as any).map((value) => {
+              console.log('entity value is ', value)
+              console.log('entity value id is ', value.id)
               return (
                 <EntityWindow
                   id={value.id}
