@@ -21,3 +21,4 @@ packages/server/files/
 .env.*.local
 
 .dfx
+package-lock.json
