@@ -16,12 +16,11 @@
   },
   "scripts": {
     "start:core": "lerna exec --scope @thothai/thoth-core -- yarn start",
-    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' && (cd packages/server && sudo docker-compose up -d) && (cd packages/server/weaviate && sudo docker-compose up -d) && (cd packages/server/redis && sudo docker-compose up -d) && concurrently \"yarn start:core\" \"sleep 15 && yarn run dev:server\" \"sleep 15 && yarn start:client\" \"sleep 15 && yarn run db:seed\" ",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' && (cd packages/server && sudo docker-compose up -d) && (cd packages/server/weaviate && sudo docker-compose up -d) && (cd packages/server/redis && sudo docker-compose up -d) && concurrently \"yarn start:core\" \"sleep 15 && yarn run dev:server\" \"sleep 15 && yarn start:client\"",
     "dev-windows": "cross-env NODE_OPTIONS=--max-old-space-size=8192 yarn run dev-windows-script",
-    "dev-windows-script": "(cd packages/server && docker-compose up -d) && (cd packages/server/weaviate && docker-compose up -d) && (cd packages/server/redis && docker-compose up -d) && concurrently \"yarn run dev:server\" \"yarn start:core\" yarn start:client\" yarn run db:seed\" ",
+    "dev-windows-script": "(cd packages/server && docker-compose up -d) && (cd packages/server/weaviate && docker-compose up -d) && (cd packages/server/redis && docker-compose up -d) && concurrently \"yarn run dev:server\" \"yarn start:core\" yarn start:client\"",
     "dev:client": "concurrently \"yarn start:core\" \"sleep 1 && yarn start:client\"",
     "dev:server": "lerna exec --scope @thothai/thoth-server -- yarn run dev",
-    "db:seed": "npx sequelize-cli db:seed:all --url 'postgres://thoth:thoth_default_pw@localhost:5432/thoth'",
     "start:client": "lerna exec --scope @thothai/thoth-client -- yarn start",
     "start:sharedb": "lerna exec --scope @thothai/thoth-sharedb -- yarn start",
     "stop:client": "lerna exec --scope @thothai/client -- yarn stop",
@@ -53,7 +52,7 @@
     "rollup-plugin-node-builtins": "^2.1.2"
   },
   "dependencies": {
-    "@discordjs/opus": "^0.7.0",
+    "@discordjs/opus": "^0.8.0",
     "@discordjs/voice": "^0.9.0",
     "@google-cloud/text-to-speech": "^3.4.0",
     "@plotdb/json0": "^0.0.5",
@@ -82,7 +81,7 @@
     "prettier": "^2.4.1",
     "prism-media": "^1.3.2",
     "redis": "^4.1.0",
-    "rete-react-render-plugin": "^0.2.1",
+    "rete-react-render-plugin": "^0.3.0",
     "sodium": "^3.0.2",
     "stream": "^0.0.2",
     "topic-detection": "^0.1.2",

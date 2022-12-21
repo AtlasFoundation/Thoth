@@ -47,7 +47,7 @@ export class IsNullOrUndefined extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const action = inputs['string'][0]
+    const action = inputs['string'][0] ?? inputs['string']
     const is =
       action === null || action === undefined || (action as string).length <= 0
     console.log('found null or empty input:', is)

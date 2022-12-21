@@ -33,7 +33,7 @@ export const runSpell = async ({
       state,
     }
     const response = await authRequest({
-      url: `game/chains/${spellId}/${version}`,
+      url: `spells/${spellId}/${version}`,
       data: JSON.stringify(data),
     })
 

@@ -74,7 +74,7 @@ export const spellApi = rootApi.injectEndpoints({
     }),
     runSpell: builder.mutation<Record<string, any>, RunSpell>({
       query: ({ spellId, version = 'latest', inputs, state = {} }) => ({
-        url: `game/chains/${spellId}/${version}`,
+        url: `spells/${spellId}/${version}`,
         method: 'POST',
         body: {
           ...inputs,

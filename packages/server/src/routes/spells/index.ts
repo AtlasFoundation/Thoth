@@ -1,4 +1,3 @@
-import axios from 'axios'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
 import { creatorToolsDatabase } from '../../databases/creatorTools'
@@ -25,29 +24,18 @@ const runSpellHandler = async (ctx: Koa.Context) => {
     where: { name: spell },
   })
 
-  // eslint-disable-next-line functional/no-let
-  let activeSpell
-
-  if (version === 'latest') {
-    activeSpell = rootSpell
-  } else {
-    activeSpell = await creatorToolsDatabase.deployedSpells.findOne({
-      where: { name: spell, version },
-    })
-  }
-
   //todo validate spell has an input trigger?
 
-  if (!activeSpell?.graph) {
+  if (!rootSpell?.graph) {
     throw new CustomError(
       'not-found',
       `Spell with name ${spell} and version ${version} not found`
     )
   }
 
-  const graph = activeSpell.graph as Graph
+  const graph = rootSpell.graph as Graph
 
-  const modules = activeSpell.modules as Module[]
+  const modules = rootSpell.modules as Module[]
 
   const gameState = {
     ...rootSpell?.gameState,
@@ -79,7 +67,7 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   const outputs = await runSpell(graph, inputs, thoth, modules)
 
   const newGameState = thoth.getCurrentGameState()
-  const body = { spell: activeSpell.name, outputs, gameState: newGameState }
+  const body = { spell: rootSpell.name, outputs, gameState: newGameState }
   ctx.body = body
 }
 
@@ -288,59 +276,6 @@ const deleteHandler = async (ctx: Koa.Context) => {
   }
 }
 
-const deploySpellHandler = async (ctx: Koa.Context) => {
-  const name = ctx.params.name
-  const body =
-    typeof ctx.request.body === 'string'
-      ? JSON.parse(ctx.request.body)
-      : ctx.request.body
-
-  const spell = await creatorToolsDatabase.spells.findOne({ where: { name } })
-  if (!spell) throw new CustomError('input-failed', 'spell not found')
-
-  const lastDeployedSpell = await creatorToolsDatabase.deployedSpells.findOne({
-    where: { name },
-    order: [['version', 'desc']],
-  })
-
-  const newVersion: number = lastDeployedSpell
-    ? lastDeployedSpell.version + 1
-    : 1
-
-  const newDeployedSpell = await creatorToolsDatabase.deployedSpells.create({
-    name: spell.name,
-    graph: spell.graph,
-    versionName: body?.versionName,
-    userId: 'global', //ctx.state.user?.id ?? ctx.query.userId,
-    version: newVersion,
-    message: body?.message,
-    modules: spell.modules,
-  })
-
-  return (ctx.body = newDeployedSpell.id)
-}
-
-const getdeployedSpellsHandler = async (ctx: Koa.Context) => {
-  const name = ctx.params.name
-
-  const spells = await creatorToolsDatabase.deployedSpells.findAll({
-    where: { name },
-    attributes: { exclude: ['graph'] },
-    order: [['version', 'desc']],
-  })
-  return (ctx.body = spells)
-}
-
-const getDeployedSpellHandler = async (ctx: Koa.Context) => {
-  const name = ctx.params.name ?? 'default'
-  const version = ctx.params.version ?? 'latest'
-
-  const spell = await creatorToolsDatabase.deployedSpells.findOne({
-    where: { name: name, version: version },
-  })
-  return (ctx.body = spell)
-}
-
 export const spells: Route[] = [
   {
     path: '/game/spells/save',
@@ -377,21 +312,6 @@ export const spells: Route[] = [
     path: '/game/spells/exists',
     access: noAuth,
     post: postSpellExistsHandler,
-  },
-  {
-    path: '/game/spells/:name/deploy',
-    access: noAuth,
-    post: deploySpellHandler,
-  },
-  {
-    path: '/game/spells/deployed/:name',
-    access: noAuth,
-    get: getdeployedSpellsHandler,
-  },
-  {
-    path: '/game/spells/deployed/:name/:version',
-    access: noAuth,
-    get: getDeployedSpellHandler,
   },
   {
     path: '/spells/:spell/:version',

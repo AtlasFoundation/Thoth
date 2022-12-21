@@ -534,25 +534,6 @@ const getEntityData = async (ctx: Koa.Context) => {
   return (ctx.body = { agent: data })
 }
 
-const chatEntity = async (ctx: Koa.Context) => {
-  const speaker = ctx.request.body.speaker as string
-  const agent = ctx.request?.body?.agent as string
-
-  const personality = ''
-  const facts = ''
-  let out = undefined
-
-  if (!(await database.instance.entityExists(agent))) {
-    out = await createWikipediaEntity(speaker, agent, personality, facts)
-  }
-
-  if (out === undefined) {
-    out = {}
-  }
-
-  return (ctx.body = out)
-}
-
 const getEntitiesInfo = async (ctx: Koa.Context) => {
   const id = (ctx.request.query.id as string)
     ? parseInt(ctx.request.query.id as string)
@@ -724,11 +705,6 @@ export const entities: Route[] = [
     path: '/custom_message',
     access: noAuth,
     post: customMessage,
-  },
-  {
-    path: '/chat_agent',
-    access: noAuth,
-    post: chatEntity,
   },
   {
     path: '/entities_info',

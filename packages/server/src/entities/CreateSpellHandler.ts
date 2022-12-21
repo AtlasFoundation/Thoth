@@ -37,21 +37,8 @@ export const CreateSpellHandler = async (props: {
     where: { name: spell },
   })
 
-  // eslint-disable-next-line functional/no-let
-  let activeSpell
-
-  if (version === 'latest') {
-    console.log('latest')
-    activeSpell = rootSpell
-  } else {
-    console.log('getting active spell')
-    activeSpell = await creatorToolsDatabase.deployedSpells.findOne({
-      where: { name: spell, version },
-    })
-  }
-
   //todo validate spell has an input trigger?
-  if (!activeSpell?.graph) {
+  if (!rootSpell?.graph) {
     throw new CustomError(
       'not-found',
       `Spell with name ${spell} and version ${version} not found`
@@ -59,9 +46,9 @@ export const CreateSpellHandler = async (props: {
   }
 
   // TODO use test spells if body option is given
-  // const activeSpell = getTestSpell(spell)
-  const graph = activeSpell.graph as Graph
-  const modules = activeSpell.modules as Module[]
+  // const rootSpell = getTestSpell(spell)
+  const graph = rootSpell.graph as Graph
+  const modules = rootSpell.modules as Module[]
 
   const gameState = {
     ...rootSpell?.gameState,

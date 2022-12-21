@@ -135,7 +135,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     const matchBeginningStringArray = (
       (node.data.matchBeginningString ?? '') as string
     )
-      .trim()
       .toLowerCase()
       .split(', ')
     if (
@@ -146,7 +145,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     }
 
     const matchEndStringArray = ((node.data.matchEndString ?? '') as string)
-      .trim()
       .toLowerCase()
       .split(', ')
 
@@ -155,7 +153,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     }
 
     const matchAnyStringArray = ((node.data.matchAnyString ?? '') as string)
-      .trim()
       .toLowerCase()
       .split(', ')
 
@@ -166,7 +163,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     const notMatchBeginningStringArray = (
       (node.data.notMatchBeginningString ?? '') as string
     )
-      .trim()
       .toLowerCase()
       .split(', ')
     if (
@@ -179,7 +175,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     const notMatchEndStringArray = (
       (node.data.notMatchEndString ?? '') as string
     )
-      .trim()
       .toLowerCase()
       .split(', ')
 
@@ -190,7 +185,6 @@ export class ComplexStringMatcher extends ThothComponent<Promise<void>> {
     const notMatchAnyStringArray = (
       (node.data.notMatchAnyString ?? '') as string
     )
-      .trim()
       .toLowerCase()
       .split(', ')
 

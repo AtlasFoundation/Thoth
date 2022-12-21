@@ -6,11 +6,6 @@ import { spells as _spells } from './spells'
 import type { eventsAttributes, eventsCreationAttributes } from './events'
 import { events as _events } from './events'
 import type {
-  deployedSpellsAttributes,
-  deployedSpellsCreationAttributes,
-} from './deployedSpells'
-import { deployedSpells as _deployedSpells } from './deployedSpells'
-import type {
   documentsAttributes,
   documentsCreationAttributes,
 } from './documents'
@@ -36,11 +31,6 @@ import type {
 } from './configuration_setting'
 import { configurationSettings as _configurationSettings } from './configuration_setting'
 import type {
-  scopeSettingAttributes,
-  scopeSettingCreationAttributes,
-} from './scope_settings'
-import { scopeSettings as _scopeSettings } from './scope_settings'
-import type {
   authUsersAttributes,
   authUsersAttributesCreationAttributes,
 } from './authUsers'
@@ -54,13 +44,11 @@ export {
   _entities as entities,
   _spells as spells,
   _events as events,
-  _deployedSpells as deployedSpells,
   _documents as documents,
   _documentsStore as documentsStore,
   _contentObj as contentObj,
   _clientSettings as clientSettings,
   _configurationSettings as configurationSettings,
-  _scopeSettings as scopeSettings,
   _authUsers as authUsers,
   _handled_history as handled_history,
 }
@@ -72,8 +60,6 @@ export type {
   spellsCreationAttributes,
   eventsAttributes,
   eventsCreationAttributes,
-  deployedSpellsAttributes,
-  deployedSpellsCreationAttributes,
   documentsAttributes,
   documentsCreationAttributes,
   documentsStoreAttributes,
@@ -84,8 +70,6 @@ export type {
   clientSettingAttributes,
   configurationSettingAttributes,
   configurationSettingCreationAttributes,
-  scopeSettingAttributes,
-  scopeSettingCreationAttributes,
   authUsersAttributes,
   handled_historyAttributes,
 }
@@ -94,13 +78,11 @@ export function initModels(sequelize: Sequelize) {
   const entities = _entities.initModel(sequelize)
   const spells = _spells.initModel(sequelize)
   const events = _events.initModel(sequelize)
-  const deployedSpells = _deployedSpells.initModel(sequelize)
   const documentsStore = _documentsStore.initModel(sequelize)
   const documents = _documents.initModel(sequelize)
   const contentObj = _contentObj.initModel(sequelize)
   const clientSettings = _clientSettings.initModel(sequelize)
   const configurationSettings = _configurationSettings.initModel(sequelize)
-  const scopeSettings = _scopeSettings.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
   const handled_history = _handled_history.initModel(sequelize)
 
@@ -108,13 +90,11 @@ export function initModels(sequelize: Sequelize) {
     entities: entities,
     spells: spells,
     events: events,
-    deployedSpells: deployedSpells,
     contentObj: contentObj,
     documents: documents,
     documentsStore: documentsStore,
     clientSettings: clientSettings,
     configurationSettings: configurationSettings,
-    scopeSettings: scopeSettings,
     authUsers: authUsers,
     handled_history: handled_history,
   }
