@@ -3,7 +3,6 @@ import { createNode } from 'rete-context-menu-plugin/src/utils'
 
 import WindowToolbar from '@/components/Window/WindowToolbar'
 import { Editor, useEditor } from '../../../contexts/EditorProvider'
-import Deployment from './Deployment'
 import Select from '@components/Select/Select'
 import css from './editorwindow.module.css'
 
@@ -100,12 +99,6 @@ const EditorWindow = ({ tab }) => {
       */}
         <Editor tab={tab} />
       </div>
-      <Deployment
-        open={deployOpen}
-        setOpen={setDeployOpen}
-        close={closeDeploy}
-        spellId={tab.spellId}
-      />
     </div>
   )
 }

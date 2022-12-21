@@ -21,24 +21,10 @@ import type {
 } from './content_objects'
 import { contentObj as _contentObj } from './content_objects'
 import type {
-  clientSettingCreationAttributes,
-  clientSettingAttributes,
-} from './client_settings'
-import { clientSettings as _clientSettings } from './client_settings'
-import type {
-  configurationSettingAttributes,
-  configurationSettingCreationAttributes,
-} from './configuration_setting'
-import { configurationSettings as _configurationSettings } from './configuration_setting'
-import type {
   authUsersAttributes,
   authUsersAttributesCreationAttributes,
 } from './authUsers'
 import { authUsers as _authUsers } from './authUsers'
-import {
-  handled_history as _handled_history,
-  handled_historyAttributes,
-} from './handled_history'
 
 export {
   _entities as entities,
@@ -47,10 +33,7 @@ export {
   _documents as documents,
   _documentsStore as documentsStore,
   _contentObj as contentObj,
-  _clientSettings as clientSettings,
-  _configurationSettings as configurationSettings,
   _authUsers as authUsers,
-  _handled_history as handled_history,
 }
 
 export type {
@@ -66,12 +49,7 @@ export type {
   documentsStoreCreationAttributes,
   contentObjAttributes,
   contentObjCreationAttributes,
-  clientSettingCreationAttributes,
-  clientSettingAttributes,
-  configurationSettingAttributes,
-  configurationSettingCreationAttributes,
   authUsersAttributes,
-  handled_historyAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -81,10 +59,7 @@ export function initModels(sequelize: Sequelize) {
   const documentsStore = _documentsStore.initModel(sequelize)
   const documents = _documents.initModel(sequelize)
   const contentObj = _contentObj.initModel(sequelize)
-  const clientSettings = _clientSettings.initModel(sequelize)
-  const configurationSettings = _configurationSettings.initModel(sequelize)
   const authUsers = _authUsers.initModel(sequelize)
-  const handled_history = _handled_history.initModel(sequelize)
 
   return {
     entities: entities,
@@ -93,9 +68,6 @@ export function initModels(sequelize: Sequelize) {
     contentObj: contentObj,
     documents: documents,
     documentsStore: documentsStore,
-    clientSettings: clientSettings,
-    configurationSettings: configurationSettings,
     authUsers: authUsers,
-    handled_history: handled_history,
   }
 }
