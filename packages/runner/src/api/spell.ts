@@ -3,7 +3,7 @@ import { authRequest } from './axios'
 export const getSpell = async (spellId: string) => {
   try {
     const response = await authRequest({
-      url: `/game/spells/${spellId}`,
+      url: `/spells/${spellId}`,
     })
 
     return response.data

@@ -304,7 +304,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   useEffect(() => {
     ;(async () => {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_ROOT_URL}/game/spells?userId=${user?.id}`
+        `${process.env.REACT_APP_API_ROOT_URL}/spells?userId=${user?.id}`
       )
       setSpellList(res.data)
     })()

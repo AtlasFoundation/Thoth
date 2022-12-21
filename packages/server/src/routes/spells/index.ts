@@ -278,43 +278,43 @@ const deleteHandler = async (ctx: Koa.Context) => {
 
 export const spells: Route[] = [
   {
-    path: '/game/spells/save',
+    path: '/spells/save',
     access: noAuth,
     post: saveHandler,
   },
   {
-    path: '/game/spells/saveDiff',
+    path: '/spells/saveDiff',
     access: noAuth,
     post: saveDiffHandler,
   },
   {
-    path: '/game/spells',
+    path: '/spells',
     access: noAuth,
     post: newHandler,
   },
   {
-    path: '/game/spells/:name',
+    path: '/spells/:name',
     access: noAuth,
     patch: patchHandler,
     delete: deleteHandler,
   },
   {
-    path: '/game/spells',
+    path: '/spells',
     access: noAuth,
     get: getSpellsHandler,
   },
   {
-    path: '/game/spells/:name',
+    path: '/spells/:name',
     access: noAuth,
     get: getSpellHandler,
   },
   {
-    path: '/game/spells/exists',
+    path: '/spells/exists',
     access: noAuth,
     post: postSpellExistsHandler,
   },
   {
-    path: '/spells/:spell/:version',
+    path: '/:spell/:version',
     access: noAuth,
     post: runSpellHandler,
   },
