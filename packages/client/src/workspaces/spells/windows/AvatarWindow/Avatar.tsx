@@ -24,7 +24,7 @@ function randomsomesuch() {
 const Avatar = ({ speechUrl, pause, unpause }) => {
   const { scene, camera } = useThree()
   const gltf = useGLTF(
-    `${process.env.REACT_APP_FILE_SERVER_URL}/files/VU-VRM-elf.vrm`
+    `${process.env.REACT_APP_FILE_SERVER_URL}/files/shawbot_modified.vrm`
   )
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
       })
 
       loader.load(
-        `${process.env.REACT_APP_FILE_SERVER_URL}/files/VU-VRM-elf.vrm`,
+        `${process.env.REACT_APP_FILE_SERVER_URL}/files/shawbot_modified.vrm`,
         gltf => {
           const vrm = gltf.userData.vrm
 

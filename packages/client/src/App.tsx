@@ -20,7 +20,7 @@ function App() {
           <Route element={<ThothPageLayout />}>
             <Route path="/home/*" element={<HomeScreen />} />
             <Route path="/" element={<Thoth />} />
-            <Route path="/thoth/*" element={<Admin />} />
+            <Route path="/thoth/*" element={<Thoth />} />
             <Route path="/:spellName" element={<Thoth />} />
           </Route>
       </Route>
