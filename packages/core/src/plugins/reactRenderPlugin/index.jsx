@@ -41,6 +41,7 @@ function install(editor, { component: NodeComponent = Node }) {
   })
 
   editor.on('connectioncreated connectionremoved', connection => {
+    console.log('connectioncreated?', connection)
     connection.output.node.update()
     connection.input.node.update()
   })
