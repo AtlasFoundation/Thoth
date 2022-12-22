@@ -6,7 +6,6 @@ import {
 import { useContext, createContext, useRef, useEffect } from 'react'
 
 import { completion as _completion } from '../../services/game-api/text'
-import { invokeInference } from '../../utils/huggingfaceHelper'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useFetchFromImageCacheMutation } from '@/state/api/visualGenerationsApi'
 import { useGetSpellQuery, useRunSpellMutation } from '@/state/api/spells'

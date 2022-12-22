@@ -694,8 +694,8 @@ const EntityWindow = ({ id, updateCallback }) => {
   
     return (
       <div style={{ width: "80%" }}>
-        {messages.map((message) => (
-          <div>{message}</div>
+        {messages.map((message, index) => (
+          <div key={index}>{message}</div>
         ))}
   
         <form onSubmit={handleSubmit}>
