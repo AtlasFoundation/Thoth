@@ -316,7 +316,6 @@ const customMessage = async (ctx: Koa.Context) => {
   const agent = ctx.request.body?.agent as string
   const message = (ctx.request.body?.message as string).trim().toLowerCase()
   const spell_handler = ctx.request.body?.spell_handler as string
-  const spell_version = (ctx.request.body?.spell_version as string) ?? 'latest'
   const channel = ctx.request.body?.channel as string
   let isVoice = (ctx.request.body?.isVoice as string | undefined) === 'true'
   const voice_provider = ctx.request.body?.voice_provider as string
@@ -327,7 +326,6 @@ const customMessage = async (ctx: Koa.Context) => {
 
   const spellHandler = await CreateSpellHandler({
     spell: spell_handler,
-    version: spell_version,
   })
 
   const response = await spellHandler(
@@ -539,8 +537,7 @@ const handleCustomInput = async (ctx: Koa.Context) => {
       client,
       channelId,
       1,
-      'default',
-      'latest'
+      'default'
     ),
   })
 }

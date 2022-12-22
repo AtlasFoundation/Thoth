@@ -23,7 +23,7 @@ function App() {
     <ThothPageWrapper tabs={tabs} activeTab={activeTab}>
       <Routes>
         <Route path="/" element={<Thoth />} />
-        <Route path="/thoth/:spellName" element={<Thoth />} />
+        <Route path="/:spellName" element={<Thoth />} />
         <Route path="/home/*" element={<HomeScreen />} />
         <Route
           path="admin/*"

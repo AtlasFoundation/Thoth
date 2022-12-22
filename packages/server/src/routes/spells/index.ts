@@ -16,7 +16,7 @@ import { Op } from 'sequelize'
 export const modules: Record<string, unknown> = {}
 
 const runSpellHandler = async (ctx: Koa.Context) => {
-  const { spell, version } = ctx.params
+  const { spell } = ctx.params
   const { userGameState = {} } = ctx.request.body
 
   let rootSpell = await creatorToolsDatabase.spells.findOne({
@@ -28,7 +28,7 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   if (!rootSpell?.graph) {
     throw new CustomError(
       'not-found',
-      `Spell with name ${spell} and version ${version} not found`
+      `Spell with name ${spell} not found`
     )
   }
 
@@ -274,28 +274,22 @@ export const spells: Route[] = [
     post: saveDiffHandler,
   },
   {
-    path: '/spells',
-    post: newHandler,
-  },
-  {
     path: '/spells/:name',
     patch: patchHandler,
     delete: deleteHandler,
+    get: getSpellHandler,
   },
   {
     path: '/spells',
     get: getSpellsHandler,
-  },
-  {
-    path: '/spells/:name',
-    get: getSpellHandler,
+    post: newHandler,
   },
   {
     path: '/spells/exists',
     post: postSpellExistsHandler,
   },
   {
-    path: '/:spell/:version',
+    path: '/spells/:spell',
     post: runSpellHandler,
   },
 ]

@@ -13,7 +13,6 @@ import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
 
 export const CreateSpellHandler = async (props: {
   spell: any
-  version: string
 }) => {
   // TODO: create a proper engine interface with the proper methods types on it.
   const engine = initSharedEngine({
@@ -27,11 +26,7 @@ export const CreateSpellHandler = async (props: {
   if (!props.spell || props.spell === undefined) {
     props.spell = 'default'
   }
-  if (!props.version || props.version === undefined) {
-    props.version = 'latest'
-  }
-
-  const { spell, version = 'latest' } = props
+  const { spell } = props
 
   rootSpell = await creatorToolsDatabase.spells.findOne({
     where: { name: spell },
@@ -41,7 +36,7 @@ export const CreateSpellHandler = async (props: {
   if (!rootSpell?.graph) {
     throw new CustomError(
       'not-found',
-      `Spell with name ${spell} and version ${version} not found`
+      `Spell with name ${spell} not found`
     )
   }
 

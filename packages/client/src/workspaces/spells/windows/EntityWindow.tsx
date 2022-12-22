@@ -636,9 +636,8 @@ const EntityWindow = ({ id, updateCallback }) => {
       event.preventDefault();
       console.log('value is: ', value)
       try {
-        const spell_version = "latest";
         const url = encodeURI(
-            `https://localhost:8001/spells/${spell_handler}/${spell_version}`
+            `https://localhost:8001/spells/${spell_handler}`
           )
           console.log('url is: ', url)
           const response = await axios.post(`${url}`, {
