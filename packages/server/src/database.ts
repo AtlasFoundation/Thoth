@@ -1,14 +1,5 @@
-// @ts-nocheck
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-inferrable-types */
-/* eslint-disable require-await */
-/* eslint-disable no-empty */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable camelcase */
-/* eslint-disable no-param-reassign */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+import { CreateEventArgs, GetEventArgs } from '@thothai/thoth-core/types'
 import pg from 'pg'
-import { isValidObject } from './utils/utils'
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -41,7 +32,6 @@ export class database {
         : false,
     })
     this.client.connect()
-    await this.client.query('SELECT NOW()')
   }
 
   async firstInit() {
@@ -55,15 +45,18 @@ export class database {
     }
   }
 
-  async createEvent(
-    type: string,
-    agent: any,
-    speaker: any,
-    sender: any,
-    client: any,
-    channel: any,
-    text: string | any[]
-  ) {
+// create a type called CreateEventArgs in typescript
+
+
+  async createEvent({
+    type,
+    agent,
+    speaker,
+    sender,
+    client,
+    channel,
+    text
+  }: CreateEventArgs) {
     const query =
       'INSERT INTO events(type, agent, speaker, sender, client, channel, text, date) VALUES($1, $2, $3, $4, $5, $6, $7, $8)'
     const values = [
@@ -79,21 +72,15 @@ export class database {
 
     await this.client.query(query, values)
   }
-  async getEvents(
-    type: string,
-    agent: any,
-    speaker: any,
-    client: any = null,
-    channel: any,
-    maxCount: number = 10,
-    max_time_diff: number = -1
-  ) {
-    // write a function that returns the query and values based on the params, and ignores them if they are null or undefined
-    // then you can just call that function and pass in the params, and it will return the query and values
-    function getQueryAndValues(type, agent, speaker, client, channel) {
-      // if the variable is empty, then we want to search all for our SQL query (is this *?)
-      // if the variable is not empty, then we want to search for that specific value
-
+  async getEvents({
+    type,
+    agent,
+    speaker,
+    client = null,
+    channel,
+    maxCount = 10,
+    max_time_diff = -1
+  }: GetEventArgs) {
       // this is the query that we will return
       let query = ''
 
@@ -149,12 +136,6 @@ export class database {
         values.push(channel)
       }
 
-      // return the query and values
-      return { query, values }
-    }
-
-    // call the function and pass in the params
-    const { query, values } = getQueryAndValues(type, agent, speaker, client, channel)
 
     // then you can just use the query and values in the query
     const row = await this.client.query(
@@ -330,15 +311,6 @@ export class database {
     const values = [new Date(), id]
 
     await this.client.query(query, values)
-  }
-  async createEntity() {
-    const query = 'INSERT INTO entities (personality) VALUES ($1)'
-    const values = ['common']
-    try {
-      return await this.client.query(query, values)
-    } catch (e) {
-      throw new Error(e)
-    }
   }
   async updateEntity(id: any, data: { [x: string]: any; dirty?: any }) {
     const check = 'SELECT * FROM entities WHERE id=$1'

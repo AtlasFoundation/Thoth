@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { createNode } from 'rete-context-menu-plugin/src/utils'
 
-import WindowToolbar from '@/components/Window/WindowToolbar'
 import { Editor, useEditor } from '../../../contexts/EditorProvider'
 import Select from '@components/Select/Select'
 import css from './editorwindow.module.css'

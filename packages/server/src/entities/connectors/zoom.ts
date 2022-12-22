@@ -51,6 +51,7 @@ export class zoom_client {
       }
     }
   }
+  destroy() {}
 }
 
 export class zoom {

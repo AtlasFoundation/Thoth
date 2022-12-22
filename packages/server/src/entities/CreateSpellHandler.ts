@@ -6,14 +6,13 @@ import {
 import { creatorToolsDatabase } from '../databases/creatorTools'
 import { CustomError } from '../utils/CustomError'
 import { Graph, ModuleComponent } from '../routes/spells/types'
-import { initSharedEngine, getComponents } from '@thothai/thoth-core/server'
+import { initSharedEngine, getComponents } from '@thothai/thoth-core/dist/server'
 import { Module } from '../routes/spells/module'
 import { ModuleType } from '@thothai/thoth-core/types'
 import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
 
 export const CreateSpellHandler = async (props: {
   spell: any
-  version: string
 }) => {
   // TODO: create a proper engine interface with the proper methods types on it.
   const engine = initSharedEngine({
@@ -27,11 +26,7 @@ export const CreateSpellHandler = async (props: {
   if (!props.spell || props.spell === undefined) {
     props.spell = 'default'
   }
-  if (!props.version || props.version === undefined) {
-    props.version = 'latest'
-  }
-
-  const { spell, version = 'latest' } = props
+  const { spell } = props
 
   rootSpell = await creatorToolsDatabase.spells.findOne({
     where: { name: spell },
@@ -41,7 +36,7 @@ export const CreateSpellHandler = async (props: {
   if (!rootSpell?.graph) {
     throw new CustomError(
       'not-found',
-      `Spell with name ${spell} and version ${version} not found`
+      `Spell with name ${spell} not found`
     )
   }
 
@@ -140,23 +135,25 @@ export const CreateSpellHandler = async (props: {
     // This resets everything and makes it work, BUT it is very slow
     // We need to reset the task outputs (and tasks in general) without
     // calling this function here
-
     let error = null
-    const inputs = inputKeys.reduce((inputs, expectedInput: string) => {
-      const requestInput = spellInputs
+    const inputs = inputKeys.reduce(
+      (inputs, expectedInput: string, idx: number) => {
+        const requestInput = spellInputs
 
-      if (requestInput) {
-        inputs[expectedInput] = [requestInput]
+        if (requestInput) {
+          inputs[expectedInput] = [requestInput]
 
-        return inputs
-      } else {
-        error = `Spell expects a value for ${expectedInput} to be provided `
-        // throw new CustomError(
-        //   'input-failed',
-        //   error
-        // )
-      }
-    }, {} as Record<string, unknown>)
+          return inputs
+        } else {
+          error = `Spell expects a value for ${expectedInput} to be provided `
+          // throw new CustomError(
+          //   'input-failed',
+          //   error
+          // )
+        }
+      },
+      {} as Record<string, unknown>
+    )
 
     engine.tasks.forEach((task: Task) => {
       task.reset()

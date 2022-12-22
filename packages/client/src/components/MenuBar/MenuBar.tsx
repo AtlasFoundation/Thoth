@@ -42,7 +42,6 @@ const MenuBar = () => {
     $CREATE_TEXT_EDITOR,
     $CREATE_CONSOLE,
     $CREATE_EVENT_MANAGER,
-    $CREATE_SETTINGS_WINDOW,
     $SERIALIZE,
     $EXPORT,
     $UNDO,
@@ -101,11 +100,10 @@ const MenuBar = () => {
   const onCreateSearchCorpus = () => {
     publish($CREATE_SEARCH_CORPUS(activeTabRef.current?.id))
   }
-
   const onEntityManagerCreate = () => {
     publish($CREATE_ENT_MANAGER(activeTabRef.current?.id))
   }
-
+  
   const onPlaytestCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_PLAYTEST(activeTabRef.current.id))
@@ -119,11 +117,6 @@ const MenuBar = () => {
   const onTextEditorCreate = () => {
     if (!activeTabRef.current) return
     publish($CREATE_TEXT_EDITOR(activeTabRef.current.id))
-  }
-
-  const onSettingsCreate = () => {
-    if (!activeTabRef.current) return
-    publish($CREATE_SETTINGS_WINDOW(activeTabRef.current.id))
   }
 
   const onExport = () => {
