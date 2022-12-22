@@ -24,7 +24,7 @@ function randomsomesuch() {
 const Avatar = ({ speechUrl, pause, unpause }) => {
   const { scene, camera } = useThree()
   const gltf = useGLTF(
-    `${process.env.REACT_APP_FILE_SERVER_URL}/files/shawbot_modified.vrm`
+    `${process.env.REACT_APP_FILE_SERVER_URL}/files/avatar.vrm`
   )
 
   useEffect(() => {
@@ -60,7 +60,7 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
       })
 
       loader.load(
-        `${process.env.REACT_APP_FILE_SERVER_URL}/files/shawbot_modified.vrm`,
+        `${process.env.REACT_APP_FILE_SERVER_URL}/files/avatar.vrm`,
         gltf => {
           const vrm = gltf.userData.vrm
 
@@ -78,12 +78,13 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
 
           if (!avatar || !avatar.current) return
 
-          camera.position.set(0.0, 1.45, 0.3)
+          camera.position.set(0.0, 1, 1)
+          camera.fov = 20
           vrm.lookAt.target = camera
 
           // vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips).rotation.y =
           //   Math.PI
-          vrm.springBoneManager.reset()
+          vrm.springBoneManager?.reset()
 
           // un-T-pose
           vrm.humanoid.getNormalizedBoneNode(
@@ -126,7 +127,7 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
             VRMHumanBoneName.Spine
           ).rotation.z = randomsomesuch()
 
-          vrm.springBoneManager.reset()
+          vrm.springBoneManager?.reset()
 
           function blink() {
             var blinktimeout = Math.floor(Math.random() * 250) + 50
@@ -402,9 +403,9 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
 
 const AvatarFrame = ({ speechUrl, pause, unpause }) => (
   <Canvas>
-    <OrbitControls target={[0.0, 1.45, 0.0]} screenSpacePanning={true} />
+    <OrbitControls target={[0.0, 1.25, 0.0]} screenSpacePanning={true} />
     <directionalLight
-      args={['0xffffff']}
+      args={['0xFFFFFF']}
       position={[1.0, 1.0, 1.0]}
       intensity={0.3}
     />

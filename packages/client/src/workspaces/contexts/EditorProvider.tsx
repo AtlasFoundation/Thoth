@@ -96,16 +96,11 @@ const EditorProvider = ({ children }) => {
     // set editor to the map
     setEditor(newEditor)
 
-    if (tab.type === 'spell') {
-      // copy spell in case it is read onl
-      const spell = JSON.parse(JSON.stringify(_spell))
-      newEditor.loadGraph(spell.graph)
-    }
+    // copy spell in case it is read onl
+    const spell = JSON.parse(JSON.stringify(_spell))
+    console.log('spell', spell)
 
-    if (tab.type === 'module') {
-      const moduleDoc = await thoth.getModule(tab.module)
-      newEditor.loadGraph(moduleDoc.toJSON().data)
-    }
+    newEditor.loadGraph(spell.graph)
   }
 
   const run = () => {

@@ -11,6 +11,7 @@ function install(editor, { component: NodeComponent = Node }) {
       const Component = component.component || NodeComponent
       const root = createRoot(el); 
       node.update = () =>
+        new Promise(resolve => {
           root.render(
             <Component
               node={node}
@@ -19,6 +20,8 @@ function install(editor, { component: NodeComponent = Node }) {
               bindControl={bindControl}
             />
           )
+          resolve()
+        })
       node._reactComponent = true
       node.update()
     }
@@ -30,7 +33,10 @@ function install(editor, { component: NodeComponent = Node }) {
     const root = createRoot(el); 
 
     control.update = () =>
-        root.render(<Component {...control.props} />)
+        new Promise(resolve => {
+          root.render(<Component {...control.props} />)
+          resolve()
+        })
     control.update()
   })
 

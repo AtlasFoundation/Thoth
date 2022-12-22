@@ -1,16 +1,15 @@
 import { NodeEditor } from 'rete'
 import ConnectionPlugin from 'rete-connection-plugin'
-import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
+// import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
 import ContextMenuPlugin from 'rete-context-menu-plugin'
 import { Data } from 'rete/types/core/data'
-
+import { createRoot } from 'react-dom/client'
 import { EventsTypes, EditorContext } from '../types'
 import { ThothNode } from './../types'
 import { getComponents } from './components/components'
 import { initSharedEngine, ThothEngine } from './engine'
 // import CommentPlugin from './plugins/commentPlugin'
 import AreaPlugin from './plugins/areaPlugin'
-import cachePlugin from './plugins/cachePlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
 import errorPlugin from './plugins/errorPlugin'
@@ -20,7 +19,7 @@ import KeyCodePlugin from './plugins/keyCodePlugin'
 import LifecyclePlugin from './plugins/lifecyclePlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import { ModuleManager } from './plugins/modulePlugin/module-manager'
-import ReactRenderPlugin from './plugins/reactRenderPlugin/index'
+import ReactRenderPlugin from 'rete-react-render-plugin'
 import SocketGenerator from './plugins/socketGenerator'
 import SocketPlugin from './plugins/socketPlugin'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
@@ -41,7 +40,6 @@ export class ThothEditor extends NodeEditor<EventsTypes> {
   moduleManager: ModuleManager
   runProcess: (callback?: Function) => Promise<void>
   onSpellUpdated: (spellId: string, callback: Function) => Function
-  refreshEventTable: () => void
 }
 
 /*
@@ -100,11 +98,12 @@ export const initEditor = function ({
   // connection plugin is used to render conections between nodes
   editor.use(ConnectionPlugin)
   // @seang: temporarily disabling because dependencies of ConnectionReroutePlugin are failing validation on server import of thoth-core
-  editor.use(ConnectionReroutePlugin)
+  // editor.use(ConnectionReroutePlugin)
   // React rendering for the editor
   editor.use(ReactRenderPlugin, {
     // this component parameter is a custom default style for nodes
     component: node as any,
+    createRoot
   })
   // renders a context menu on right click that shows available nodes
   editor.use(LifecyclePlugin)
@@ -141,21 +140,8 @@ export const initEditor = function ({
   editor.use(DisplayPlugin)
   editor.use(InspectorPlugin)
   editor.use(AreaPlugin, {
-    scaleExtent: { min: 0.25, max: 10 },
+    scaleExtent: { min: 0.025, max: 2 },
   })
-
-  // if the user presses f, the editor will focus on the selected node
-  // if no node is selected, it will focus on the first node
-  if (typeof window !== 'undefined') {
-    window.addEventListener('keydown', (e: any) => {
-      if (e.key === 'f') {
-        console.log('f pressed')
-        // const { area } = editor.view
-
-        // area.zoom(area.transform.k, 0, 0, null)
-      }
-    })
-  }
 
   // The engine is used to process/run the rete graph
 
@@ -173,17 +159,12 @@ export const initEditor = function ({
     return thoth.onSubspellUpdated(spellId, callback)
   }
 
-  editor.refreshEventTable = () => {
-    return thoth.refreshEventTable()
-  }
-
   editor.use(KeyCodePlugin)
 
   if (client && feathers) {
     editor.use(SocketPlugin, { client })
   } else {
     // WARNING: ModulePlugin needs to be initialized before TaskPlugin during engine setup
-    editor.use(cachePlugin)
     editor.use(ModulePlugin, { engine, modules: {} } as unknown as void)
     editor.use(TaskPlugin)
   }
@@ -233,8 +214,8 @@ export const initEditor = function ({
     const graph = JSON.parse(JSON.stringify(_graph))
     await engine.abort()
     editor.fromJSON(graph)
-    // @todo need to revisit this and actually focus on a node in the graph using zoomAt.  This is a hack to get the graph to render in the right place using zoomAt(node).
-    editor.view.area.translate(-100, 3000);	
+    console.log('graph is loaded', graph)
+    editor.view.area.translate(0, 0);	
     editor.view.resize()
   }
 

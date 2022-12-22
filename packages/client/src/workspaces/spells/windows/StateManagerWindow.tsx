@@ -116,9 +116,6 @@ const StateManager = ({ tab, ...props }) => {
     </>
   )
 
-  if (tab.type === 'module')
-    return <WindowMessage content="Modules do not support game state" />
-
   return (
     <Window toolbar={toolbar}>
       <Editor
