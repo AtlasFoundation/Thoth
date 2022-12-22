@@ -38,6 +38,8 @@ const StartScreen = () => {
     } */
     // TODO check for proper values here and throw errors
 
+    console.log('spellData', spellData)
+
     // Create new spell
     await newSpell({
       graph: spellData.graph,

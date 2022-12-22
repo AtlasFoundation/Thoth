@@ -5,11 +5,6 @@ import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  adjectives,
-  colors,
-  uniqueNamesGenerator,
-} from 'unique-names-generator'
 
 function isJson(str) {
   try {
@@ -198,7 +193,6 @@ const EntityWindow = ({ id, updateCallback }) => {
         const res = await axios.get(
           `${process.env.REACT_APP_API_ROOT_URL}/entity?instanceId=` + id
         )
-        console.log('res is', res.data)
         setEnabled(res.data.enabled === true)
         setDiscordEnabled(res.data.discord_enabled === true)
         setUseVoice(res.data.use_voice === true)
@@ -628,17 +622,13 @@ const EntityWindow = ({ id, updateCallback }) => {
       twilio_empty_responses,
       twilio_spell_handler_incoming,
     }
-    const fileName = uniqueNamesGenerator({
-      dictionaries: [adjectives, colors],
-      separator: '-',
-      length: 2,
-    })
+    const fileName = discord_bot_name ?? twitter_id ?? twilio_bot_name ?? 'entity'
     const json = JSON.stringify(_data)
     const blob = new Blob([json], { type: 'application/json' })
     const url = window.URL.createObjectURL(new Blob([blob]))
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `${fileName}.thoth`)
+    link.setAttribute('download', `${fileName}.ent.json`)
     // Append to html link element page
     document.body.appendChild(link)
     // Start download

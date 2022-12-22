@@ -139,8 +139,21 @@ export const initEditor = function ({
   editor.use(DisplayPlugin)
   editor.use(InspectorPlugin)
   editor.use(AreaPlugin, {
-    scaleExtent: { min: 0.25, max: 2 },
+    scaleExtent: { min: 0.25, max: 10 },
   })
+
+  // if the user presses f, the editor will focus on the selected node
+  // if no node is selected, it will focus on the first node
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', (e: any) => {
+      if (e.key === 'f') {
+        console.log('f pressed')
+        const { area } = editor.view
+
+        area.zoom(area.transform.k, 0, 0, null)
+      }
+    })
+  }
 
   // The engine is used to process/run the rete graph
 

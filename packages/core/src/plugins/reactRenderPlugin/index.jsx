@@ -12,7 +12,6 @@ function install(editor, { component: NodeComponent = Node }) {
 
       node.update = () =>
         new Promise(res => {
-          console.log('Rendering!', Component)
           ReactDOM.render(
             <Component
               node={node}

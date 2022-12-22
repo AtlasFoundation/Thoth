@@ -9,7 +9,6 @@ import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
 import { changeActive } from '@/state/tabs'
 import { RootState } from '@/state/store'
-import { LoginTab } from './LoginTab'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
@@ -17,7 +16,7 @@ const Tab = ({ tab, activeTab }) => {
   const tabs = useSelector((state: RootState) => selectAllTabs(state.tabs))
   const active = tab.id === activeTab?.id
 
-  const title = `${tab.type}- ${tab.name.split('--')[0]}`
+  const title = `${tab.name.split('--')[0]}`
   const tabClass = classnames({
     [css['tabbar-tab']]: true,
     [css['active']]: active,

@@ -2,12 +2,6 @@ import { useEffect, useRef } from 'react'
 import { GraphData, Spell } from '@thothai/thoth-core/types'
 
 import {
-  uniqueNamesGenerator,
-  adjectives,
-  colors,
-} from 'unique-names-generator'
-
-import {
   useSaveSpellMutation,
   useGetSpellQuery,
   useSaveDiffMutation,
@@ -23,13 +17,6 @@ import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
-
-// Config for unique name generator
-const customConfig = {
-  dictionaries: [adjectives, colors],
-  separator: ' ',
-  length: 2,
-}
 
 const EventHandler = ({ pubSub, tab }) => {
   // only using this to handle events, so not rendering anything with it.
@@ -61,10 +48,6 @@ const EventHandler = ({ pubSub, tab }) => {
   const { serialize, getEditor, undo, redo, del } = useEditor()
 
   const { events, subscribe } = pubSub
-
-  useEffect(() => {
-    console.log('using effect')
-  }, [])
 
   const {
     $DELETE,
@@ -243,7 +226,6 @@ const EventHandler = ({ pubSub, tab }) => {
     console.log('ON EXPORT')
     const spell = { ...spellRef.current }
     spell.graph = serialize() as GraphData
-    spell.name = uniqueNamesGenerator(customConfig)
 
     const json = JSON.stringify(spell)
 
@@ -251,7 +233,7 @@ const EventHandler = ({ pubSub, tab }) => {
     const url = window.URL.createObjectURL(new Blob([blob]))
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `${spell.name}.thoth`)
+    link.setAttribute('download', `${spell.name}.spell.json`)
 
     // Append to html link element page
     document.body.appendChild(link)
@@ -295,8 +277,6 @@ const EventHandler = ({ pubSub, tab }) => {
 
   useEffect(() => {
     if (!tab && !spell && !client) return
-
-    console.log('TAB ID I EVENT HANDLER', tab.id)
 
     const subscriptions = Object.entries(handlerMap).map(([event, handler]) => {
       return subscribe(event, handler)
