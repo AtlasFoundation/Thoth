@@ -16,7 +16,9 @@
   },
   "scripts": {
     "start:core": "lerna exec --scope @thothai/thoth-core -- yarn start",
-    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' && (cd packages/server && sudo docker-compose up -d) && (cd packages/server/weaviate && sudo docker-compose up -d) && (cd packages/server/redis && sudo docker-compose up -d) && concurrently \"yarn start:core\" \"sleep 15 && yarn run dev:server\" \"sleep 15 && yarn start:client\"",
+    "start:containers": "concurrently \"cd packages/server && docker-compose up\" \"cd packages/server/weaviate && docker-compose up\" \"cd packages/server/redis && docker-compose up\"",
+    "start:apps": "concurrently \"yarn start:core\" \"sleep 25 && yarn run dev:server\" \"sleep 25 && yarn start:client\"",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 && NODE_TLS_REJECT_UNAUTHORIZED='0' concurrently \"yarn run start:containers\" \"yarn run start:apps\"",
     "dev-windows": "cross-env NODE_OPTIONS=--max-old-space-size=8192 yarn run dev-windows-script",
     "dev-windows-script": "(cd packages/server && docker-compose up -d) && (cd packages/server/weaviate && docker-compose up -d) && (cd packages/server/redis && docker-compose up -d) && concurrently \"yarn run dev:server\" \"yarn start:core\" yarn start:client\"",
     "dev:client": "concurrently \"yarn start:core\" \"sleep 1 && yarn start:client\"",
@@ -40,20 +42,20 @@
     "yarn": "^1.18.0"
   },
   "resolutions": {
-    "@types/react": "17.0.2"
+    "@types/react": "^18.0.0"
   },
   "devDependencies": {
     "@types/wav": "^1.0.1",
     "concurrently": "^7.1.0",
     "cross-env": "^7.0.3",
     "lerna": "^4.0.0",
-    "react": "^17.0.2",
+    "react": "^18.2.0",
     "rimraf": "^3.0.2",
     "rollup-plugin-node-builtins": "^2.1.2"
   },
   "dependencies": {
     "@discordjs/opus": "^0.8.0",
-    "@discordjs/voice": "^0.9.0",
+    "@discordjs/voice": "^0.11.0",
     "@google-cloud/text-to-speech": "^3.4.0",
     "@plotdb/json0": "^0.0.5",
     "@slack/bolt": "^3.11.3",
@@ -67,6 +69,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "ethers": "^5.7.2",
     "ffmpeg-static": "^5.0.0",
+    "jodit-react": "^1.3.11",
     "json0-ot-diff": "^1.1.2",
     "natural": "^5.2.2",
     "node-telegram-bot-api": "^0.57.0",
@@ -78,10 +81,13 @@
     "prettier": "^2.4.1",
     "prism-media": "^1.3.2",
     "redis": "^4.1.0",
-    "rete": "github:latitudegames/rete",
-    "rete-react-render-plugin": "^0.2.1",
+    "regenerator-runtime": "^0.13.11",
+    "rete": "https://github.com/AtlasFoundation/rete.git",
+    "socket.io-client": "^4.5.0",
     "stream": "^0.0.2",
+    "ts-node": "^10.9.1",
     "tweetnacl": "^1.0.3",
+    "unirest": "^0.6.0",
     "wav": "^1.0.2",
     "xmldoc": "^1.1.4"
   }

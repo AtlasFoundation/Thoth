@@ -15,6 +15,7 @@ const isSpeechHandlerAttachedToConnection = (
   return Boolean(
     (connection.receiver.speaking as any)
       .listeners('start')
+      //@ts-ignore
       .find(func => func.name === 'handleSpeechEventOnConnectionReceiver')
   )
 }

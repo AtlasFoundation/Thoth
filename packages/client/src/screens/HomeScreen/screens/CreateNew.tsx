@@ -71,7 +71,7 @@ const CreateNew = () => {
         }
       }
 
-      navigate(`/thoth/${name}`)
+      navigate(`/${name}`)
     } catch (err) {
       console.log('ERROR!!', err)
     }

@@ -42,7 +42,8 @@ const EventHandler = ({ pubSub, tab }) => {
     spellRef.current = spell
   }, [spell])
 
-  const { serialize, getEditor, undo, redo, del } = useEditor()
+  const { serialize, getEditor, undo, redo, del, dirtyGraph, setDirtyGraph } =
+    useEditor()
 
   const { events, subscribe } = pubSub
 
@@ -56,6 +57,7 @@ const EventHandler = ({ pubSub, tab }) => {
     $CREATE_SEARCH_CORPUS,
     $CREATE_ENT_MANAGER,
     $CREATE_SETTINGS_WINDOW,
+    $CREATE_MESSAGE_REACTION_EDITOR,
     $CREATE_PLAYTEST,
     $CREATE_INSPECTOR,
     $CREATE_CONSOLE,
@@ -166,7 +168,14 @@ const EventHandler = ({ pubSub, tab }) => {
   }
 
   const createEntityManager = () => {
-    createOrFocus(windowTypes.ENT_MANAGER, 'Ent Manager')
+    createOrFocus(windowTypes.ENT_MANAGER, 'Agent Manager')
+  }
+
+  const createMessageReactionEditor = () => {
+    createOrFocus(
+      windowTypes.MESSAGE_REACTION_EDITOR,
+      'Message Reaction Editor'
+    )
   }
 
   const createPlaytest = () => {
@@ -200,9 +209,13 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const onProcess = () => {
     const editor = getEditor()
-    if (!editor) return
+    if (!editor || !dirtyGraph) return
 
-    editor.runProcess()
+    console.log('RUNNING PROCESS')
+
+    editor.runProcess(() => {
+      setDirtyGraph(false)
+    })
   }
 
   const onUndo = () => {
@@ -254,6 +267,7 @@ const EventHandler = ({ pubSub, tab }) => {
     [$SAVE_SPELL(tab.id)]: saveSpell,
     [$CREATE_STATE_MANAGER(tab.id)]: createStateManager,
     [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
+    [$CREATE_MESSAGE_REACTION_EDITOR(tab.id)]: createMessageReactionEditor,
     [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
     [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
     [$CREATE_PLAYTEST(tab.id)]: createPlaytest,

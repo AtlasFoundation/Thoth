@@ -38,27 +38,26 @@ export type ImageCacheResponse = {
 }
 
 export type CreateEventArgs = {
-  type: string,
-  agent: string,
-  speaker: string,
-  text: string,
-  client: string,
+  type: string
+  agent: string
+  speaker: string
+  sender: string
+  text: string
+  client: string
   channel: string
 }
 
 export type GetEventArgs = {
-  type: string,
-  agent: string,
-  speaker: string,
-  client: string,
-  channel: string,
+  type: string
+  agent: string
+  speaker: string
+  client: string
+  channel: string
   maxCount: number
+  max_time_diff: number
 }
 
 export type EngineContext = {
-  completion: (
-    body: ModelCompletionOpts
-  ) => Promise<string | OpenAIResultChoice | undefined>
   getCurrentGameState: () => Record<string, unknown>
   setCurrentGameState: (state: Record<string, unknown>) => void
   updateCurrentGameState: (update: Record<string, unknown>) => void
@@ -67,11 +66,6 @@ export type EngineContext = {
     spellId: string,
     state: Record<string, any>
   ) => Record<string, any>
-  readFromImageCache: (
-    caption: string,
-    cacheTag?: string,
-    topK?: number
-  ) => Promise<ImageCacheResponse>
   processCode: (
     code: unknown,
     inputs: ThothWorkerInputs,
@@ -79,15 +73,17 @@ export type EngineContext = {
     state: Record<string, any>
   ) => any | void
   queryGoogle: (query: string) => Promise<string>
-  getEvent: (args: GetEventArgs) => Promise<string | string[] | null | Record<string, any>>
+  getEvent: (
+    args: GetEventArgs
+  ) => Promise<string | string[] | null | Record<string, any>>
   storeEvent: (args: CreateEventArgs) => Promise<any>
   getWikipediaSummary: (keyword: string) => Promise<Record<string, any> | null>
-
 }
 
 export type EventPayload = Record<string, any>
 
 export interface EditorContext extends EngineContext {
+  sendToAvatar: (data: any) => void
   onTrigger: (node: ThothNode | string, callback: Function) => Function
   sendToPlaytest: (data: string) => void
   sendToInspector: (data: EventPayload) => void
@@ -167,7 +163,7 @@ export type DataSocketType = {
 export type ThothNode = Node & {
   inspector: Inspector
   display: (content: string) => void
-  outputs: { name: string;[key: string]: unknown }[]
+  outputs: { name: string; [key: string]: unknown }[]
   category?: string
   displayName?: string
   info: string
@@ -301,9 +297,9 @@ export type WorkerReturn =
   | Promise<never[] | { entities: { name: string; type: string }[] }>
   | Promise<{ element: unknown } | undefined>
   | Promise<
-    | { result: { error: unknown;[key: string]: unknown } }
-    | { result?: undefined }
-  >
+      | { result: { error: unknown; [key: string]: unknown } }
+      | { result?: undefined }
+    >
   | Promise<{ text: unknown }>
   | Promise<{ boolean: boolean }>
   | Promise<null | undefined>
@@ -324,13 +320,12 @@ export type ThothWorker = (
 
 export interface PubSubBase
   extends CountSubscriptions,
-  ClearAllSubscriptions,
-  GetSubscriptions,
-  Publish,
-  Subscribe,
-  Unsubscribe {
+    ClearAllSubscriptions,
+    GetSubscriptions,
+    Publish,
+    Subscribe,
+    Unsubscribe {
   name: string
-  version: string
 }
 
 interface CountSubscriptions {

@@ -1,10 +1,8 @@
-import { authRequest } from './axios'
+import axios from 'axios'
 
 export const getSpell = async (spellId: string) => {
   try {
-    const response = await authRequest({
-      url: `/spells/${spellId}`,
-    })
+    const response = await axios.get(`/spells/${spellId}`)
 
     return response.data
   } catch (err) {
@@ -18,12 +16,10 @@ type RunSpellArguments = {
   spellId: string
   inputs: Record<string, any>
   state?: Record<string, any>
-  version?: string
 }
 
 export const runSpell = async ({
   spellId,
-  version = 'latest',
   inputs,
   state = {},
 }: RunSpellArguments) => {
@@ -32,8 +28,8 @@ export const runSpell = async ({
       inputs,
       state,
     }
-    const response = await authRequest({
-      url: `spells/${spellId}/${version}`,
+    const response = await axios({
+      url: `spells/${spellId}`,
       data: JSON.stringify(data),
     })
 

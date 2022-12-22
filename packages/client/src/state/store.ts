@@ -16,6 +16,7 @@ import {
 import storage from 'redux-persist/lib/storage'
 
 import { spellApi } from './api/spells'
+import { rootApi } from './api/api'
 
 const persistConfig = {
   key: 'root',
@@ -34,7 +35,7 @@ export const store = configureStore({
       // serializableCheck: {
       //   ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       // },
-    }).concat(spellApi.middleware),
+    }).concat(rootApi.middleware),
 })
 
 setupListeners(store.dispatch)

@@ -46,6 +46,11 @@ export type SearchSchema = {
   description: string
 }
 
+export type ClassifierSchema = {
+  type: string
+  examples: string[] | string
+}
+
 type MessagingWebhookBody = {
   MessageSid: string
   Body: string
