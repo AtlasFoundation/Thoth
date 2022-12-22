@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box'
 import { SimpleAccordion } from '../../../components/Accordion'
 import CodeControl from './CodeControl'
 import css from './datacontrols.module.css'
@@ -24,6 +25,7 @@ const controlMap = {
   spellSelect: SpellSelect,
   outputGenerator: OutputGenerator,
   slider: StubComponent,
+
   socketGenerator: SocketGenerator,
   playtest: PlaytestControl,
   switch: SwitchControl,
@@ -74,17 +76,27 @@ const DataControls = ({
 
         if (control.component === 'info' && !control?.data?.info) return null
 
-        return (
-          <SimpleAccordion
+        /* <SimpleAccordion
             heading={control.name || key}
             defaultExpanded={true}
             expanded={control.expanded}
             setExpanded={setExpanded}
             key={key}
             icon={control.icon}
+          > */
+
+        return (
+          <Box
+            sx={{
+              padding: '15px',
+              borderRadius: '5px',
+            }}
           >
+            <p style={{ margin: 0, marginBottom: '10px' }}>
+              {control.name || key}
+            </p>
             <Component {...controlProps} />
-          </SimpleAccordion>
+          </Box>
         )
       })}
     </>

@@ -9,6 +9,7 @@ import CreateTab from './CreateTab'
 import css from './tabBar.module.css'
 import { changeActive } from '@/state/tabs'
 import { RootState } from '@/state/store'
+import Icon from '../Icon/Icon'
 
 const Tab = ({ tab, activeTab }) => {
   const dispatch = useDispatch()
@@ -27,17 +28,17 @@ const Tab = ({ tab, activeTab }) => {
     const updatedTabs = tabs.map(t =>
       t.id === tab.id
         ? {
-          id: t.id,
-          changes: {
-            active: true,
-          },
-        }
+            id: t.id,
+            changes: {
+              active: true,
+            },
+          }
         : {
-          id: t.id,
-          changes: {
-            active: false,
-          },
-        }
+            id: t.id,
+            changes: {
+              active: false,
+            },
+          }
     )
     dispatch(changeActive(updatedTabs))
     navigate('/thoth')
@@ -50,10 +51,18 @@ const Tab = ({ tab, activeTab }) => {
     dispatch(closeTab(tab.id))
   }
 
+  const iconStyle = {
+    position: 'relative',
+    right: 8,
+    top: 1,
+    color: 'var(--yellow)',
+  }
+
   return (
     <div className={tabClass} onClick={onClick}>
+      <Icon name="ankh" style={iconStyle} />
       <p>{title}</p>
-      <span onClick={onClose}>
+      <span onClick={onClose} className={css['tab-close']}>
         <VscClose />
       </span>
     </div>

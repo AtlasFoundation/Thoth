@@ -37,6 +37,8 @@ export const events = {
   $SAVE_SPELL_DIFF: tabId => `saveSpellDiff:${tabId}`,
   $CREATE_SETTINGS_WINDOW: tabId => `createSettingsWindow:${tabId}`,
   $CREATE_STATE_MANAGER: tabId => `createStateManage:${tabId}`,
+  $CREATE_MESSAGE_REACTION_EDITOR: tabId =>
+    `createMessageReactionEditor:${tabId}`,
   $CREATE_PLAYTEST: tabId => `createPlaytest:${tabId}`,
   $CREATE_INSPECTOR: tabId => `createInspector:${tabId}`,
   $CREATE_TEXT_EDITOR: tabId => `createTextEditor:${tabId}`,
@@ -51,6 +53,8 @@ export const events = {
   $UNDO: tabId => `undo:${tabId}`,
   $REDO: tabId => `redo:${tabId}`,
   $DELETE: tabId => `delete:${tabId}`,
+  $REFRESH_EVENT_TABLE: tabId => `refreshEventTable:${tabId}`,
+  $SEND_TO_AVATAR: tabId => `sendToAvatar:${tabId}`,
 }
 
 const PubSubProvider = ({ children }) => {

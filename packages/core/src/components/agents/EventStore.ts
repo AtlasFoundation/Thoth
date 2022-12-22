@@ -4,10 +4,10 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
-import axios from 'axios'
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
@@ -15,39 +15,10 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { InputControl } from '../../dataControls/InputControl'
-import { triggerSocket, stringSocket } from '../../sockets'
+import { triggerSocket, stringSocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info = 'Event Store is used to store events for an agent and user'
-
-export async function createEvent(
-  type: string,
-  agent: string,
-  speaker: string,
-  sender: string,
-  client: string,
-  channel: string,
-  text: string
-) {
-  const response = await axios.post(
-    `${
-      process.env.REACT_APP_API_ROOT_URL ??
-      process.env.API_ROOT_URL ??
-      'https://0.0.0.0:8001'
-    }/event`,
-    {
-      type,
-      agent,
-      speaker,
-      sender,
-      client,
-      channel,
-      text,
-    }
-  )
-  console.log('Created event', response.data)
-  return response.data
-}
 
 export class EventStore extends ThothComponent<Promise<void>> {
   constructor() {
@@ -65,8 +36,7 @@ export class EventStore extends ThothComponent<Promise<void>> {
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
-    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const factsInp = new Rete.Input('primary', 'Primary Event', stringSocket)
 
     const nameInput = new InputControl({
@@ -87,18 +57,14 @@ export class EventStore extends ThothComponent<Promise<void>> {
       'Secondary Event (Opt)',
       stringSocket
     )
-    const clientInput = new Rete.Input('client', 'Client', stringSocket)
-    const channelInput = new Rete.Input('channel', 'Channel', stringSocket)
+
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
 
     return node
       .addInput(factsInp)
       .addInput(factaInp)
-      .addInput(clientInput)
       .addInput(agentInput)
-      .addInput(speakerInput)
-      .addInput(channelInput)
       .addInput(dataInput)
       .addOutput(dataOutput)
   }
@@ -109,16 +75,12 @@ export class EventStore extends ThothComponent<Promise<void>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const speaker = inputs['speaker'][0] as string
-    const agent = inputs['agent'][0] as string
+    const { storeEvent } = thoth
+    const agent = inputs['agent'][0] as Agent
     const primary = ((inputs['primary'] && inputs['primary'][0]) ||
       inputs['primary']) as string
     const secondary = ((inputs['secondary'] && inputs['secondary'][0]) ||
       inputs['secondary']) as string
-    const channel = ((inputs['channel'] && inputs['channel'][0]) ||
-      inputs['channel']) as string
-    const client = ((inputs['client'] && inputs['client'][0]) ||
-      inputs['client']) as string
 
     if (!primary) return console.log('Event null, so skipping')
 
@@ -131,29 +93,34 @@ export class EventStore extends ThothComponent<Promise<void>> {
     let respUser
     let respAgent
 
+    const { speaker, client, channel } = agent
+
     if (primary) {
-      respUser = await createEvent(
+      respUser = await storeEvent({
         type,
-        agent,
+        agent: agent.agent,
         speaker,
-        speaker,
+        sender: speaker,
+        text: primary,
         client,
         channel,
-        primary
-      )
+      })
     }
 
     if (secondary) {
-      respAgent = await createEvent(
+      respAgent = await storeEvent({
         type,
-        agent,
+        agent: agent.agent,
         speaker,
-        agent,
+        sender: agent.agent,
+        text: secondary,
         client,
         channel,
-        secondary
-      )
+      })
     }
     if (!silent) node.display(respUser?.data + '|' + respAgent?.data)
+
+    // If we are on the client, we want to refresh the event table UI
+    if (this?.editor?.refreshEventTable) this.editor.refreshEventTable()
   }
 }

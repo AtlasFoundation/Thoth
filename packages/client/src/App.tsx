@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import ThothPageWrapper from './components/ThothPage/ThothPageWrapper'
+import ThothPageLayout from './components/ThothPageLayout/ThothPageLayout'
 import HomeScreen from './screens/HomeScreen/HomeScreen'
 import Admin from './screens/Admin/routes'
 import Thoth from './screens/Thoth/Thoth'
@@ -8,33 +8,23 @@ import Thoth from './screens/Thoth/Thoth'
 import 'flexlayout-react/style/dark.css'
 import './design-globals/design-globals.css'
 import './App.css'
-import { activeTabSelector, selectAllTabs } from './state/tabs'
-import { useSelector } from 'react-redux'
-import { RootState } from './state/store'
+
+import MainLayout from './components/MainLayout/MainLayout'
 
 //These need to be imported last to override styles.
 
 function App() {
-  // Use our routes
-  const tabs = useSelector((state: RootState) => selectAllTabs(state.tabs))
-  const activeTab = useSelector(activeTabSelector)
-
   return (
-    <ThothPageWrapper tabs={tabs} activeTab={activeTab}>
-      <Routes>
-        <Route path="/" element={<Thoth />} />
-        <Route path="/:spellName" element={<Thoth />} />
-        <Route path="/home/*" element={<HomeScreen />} />
-        <Route
-          path="admin/*"
-          element={
-            <React.Suspense fallback={<>...</>}>
-              <Admin />
-            </React.Suspense>
-          }
-        />
-      </Routes>
-    </ThothPageWrapper>
+    <Routes>
+        <Route element={<MainLayout />}>
+          <Route element={<ThothPageLayout />}>
+            <Route path="/home/*" element={<HomeScreen />} />
+            <Route path="/" element={<Thoth />} />
+            <Route path="/thoth/*" element={<Admin />} />
+            <Route path="/:spellName" element={<Thoth />} />
+          </Route>
+      </Route>
+    </Routes>
   )
 }
 

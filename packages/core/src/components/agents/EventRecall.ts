@@ -4,10 +4,11 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
+// require('isomorphic-fetch');
 import Rete from 'rete'
 
 import {
+  Agent,
   EngineContext,
   NodeData,
   ThothNode,
@@ -15,39 +16,8 @@ import {
   ThothWorkerOutputs,
 } from '../../../types'
 import { InputControl } from '../../dataControls/InputControl'
-import { triggerSocket, stringSocket, anySocket } from '../../sockets'
+import { triggerSocket, anySocket, agentSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
-
-async function getEvent(
-  type: string,
-  agent: string,
-  speaker: null | string,
-  client: string,
-  channel: string,
-  maxCount = 10,
-  max_time_diff = -1
-) {
-  const params = {
-    type: type,
-    agent: agent,
-    speaker: speaker,
-    client: client,
-    channel: channel,
-    maxCount: maxCount,
-    max_time_diff: max_time_diff,
-  }
-
-  const serverRoot =
-    process.env.REACT_APP_API_ROOT_URL ??
-    process.env.API_ROOT_URL ??
-    'https://0.0.0.0:8001'
-
-  const response = await axios.get(`${serverRoot}/event`, {
-    params,
-  })
-
-  return response.data
-}
 
 const info = 'Event Recall is used to get conversation for an agent and user'
 
@@ -70,13 +40,11 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     this.category = 'Agents'
     this.display = true
     this.info = info
+    this.runFromCache = true
   }
 
   builder(node: ThothNode) {
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
-    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
-    const clientInput = new Rete.Input('client', 'Client', stringSocket)
-    const channelInput = new Rete.Input('channel', 'Channel', stringSocket)
+    const agentInput = new Rete.Input('agent', 'Agent', agentSocket)
     const out = new Rete.Output('output', 'Event', anySocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
@@ -108,9 +76,6 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
 
     return node
       .addInput(agentInput)
-      .addInput(speakerInput)
-      .addInput(clientInput)
-      .addInput(channelInput)
       .addInput(dataInput)
       .addOutput(dataOutput)
       .addOutput(out)
@@ -122,10 +87,12 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const speaker = inputs['speaker'] && (inputs['speaker'][0] as string)
-    const agent = inputs['agent'] && (inputs['agent'][0] as string)
-    const client = inputs['client'] && (inputs['client'][0] as string)
-    const channel = inputs['channel'] && (inputs['channel'][0] as string)
+    const { getEvent } = thoth
+
+    const agentObj = inputs['agent'] && (inputs['agent'][0] as Agent)
+
+    const { speaker, client, channel, agent } = agentObj
+
     const typeData = node?.data?.type as string
     const type =
       typeData !== undefined && typeData.length > 0
@@ -137,19 +104,19 @@ export class EventRecall extends ThothComponent<Promise<InputReturn>> {
     const max_time_diffData = node.data?.max_time_diff as string
     const max_time_diff = max_time_diffData ? parseInt(max_time_diffData) : -1
 
-    const conv = await getEvent(
+    const event = await getEvent({
       type,
       agent,
       speaker,
       client,
       channel,
       maxCount,
-      max_time_diff
-    )
-    if (!silent) node.display(type + ' | :' + conv || 'Not found')
+      max_time_diff,
+    })
+    if (!silent) node.display(`Event ${type} found` || 'Not found')
 
     return {
-      output: conv ?? '',
+      output: event ?? '',
     }
   }
 }

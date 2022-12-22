@@ -12,6 +12,7 @@ export type CustomErrorCodes =
 // eslint-disable-next-line functional/no-class
 export class CustomError extends Error {
   public code: CustomErrorCodes
+  public status: number
   public message: string
   public details?: string
   public constructor(
@@ -24,6 +25,7 @@ export class CustomError extends Error {
     this.code = code
     this.message = message
     this.details = details
+    this.status = mapStatusCode(code)
     /* eslint-enable functional/no-this-expression */
   }
 }

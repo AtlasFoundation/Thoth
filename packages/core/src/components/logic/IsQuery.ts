@@ -3,7 +3,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /* eslint-disable no-console */
 /* eslint-disable require-await */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
 import Rete from 'rete'
 
 import {
@@ -51,12 +50,6 @@ export class IsQuery extends ThothComponent<void> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const str = inputs['input'][0]
-
-    const parameters = {
-      candidate_labels: ['greeting', 'question', 'statement'],
-    }
-
     const is = false
     this._task.closed = is ? ['false'] : ['true']
     /*

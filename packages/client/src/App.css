@@ -49,6 +49,11 @@ body,
   background: #7027dd;
 }
 
+.socket.output.agent,
+.socket.input.agent {
+  background: #0e10a4;
+}
+
 .socket {
   height: var(--small);
   width: var(--small);
@@ -75,7 +80,7 @@ body,
 
 .connection .main-path {
   stroke-width: 2px;
-  stroke: var(--primary);
+  stroke: var(--glow);
   filter: drop-shadow(0px 1px 0px var(--dark-0))
     drop-shadow(0px -1px 0px var(--dark-0))
     drop-shadow(-1px 0px 0px var(--dark-0))
@@ -305,6 +310,10 @@ input[type='text'] {
   height: var(--c4);
 }
 
+input[type='text']:focus-visible {
+    outline: 1px solid var(--glow)
+}
+
 .App {
   width: calc(100% - 180px);
 }
@@ -411,7 +420,6 @@ input[type='text'] {
 }
 
 .search-corpus-btn {
-  height: var(--c20);
   background-color: #2e2e2e;
   border: none;
   margin: 0 0.4rem;
@@ -420,10 +428,6 @@ input[type='text'] {
 .admin-container {
   margin-left: 11em;
   margin-top: 1em;
-}
-
-.agent-select {
-  margin: 1em 0;
 }
 
 .agentFields {
@@ -443,7 +447,6 @@ input[type='text'] {
   order: 2;
 }
 
-.form-text-area,
 .agent-Manager select {
   background: #fff;
   color: #636363;
@@ -451,11 +454,6 @@ input[type='text'] {
 
 .dialogInput {
   min-height: 100px;
-}
-.personalityInput,
-.MonologueInput,
-.FactsInput {
-  min-height: 50px;
 }
 .gettingsInput {
   min-height: 80px;
@@ -531,4 +529,8 @@ input[type='text'] {
 .adminActive div {
   background-color: #05c807 !important;
   color: red !important;
+}
+
+.input-title, .output-title, div.item {
+    font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
 }

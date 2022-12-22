@@ -177,7 +177,7 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     if (!success) {
       console.error('Error in text completion', resp.data)
       return {
-        output: 'Sorry, I had an AI-related error...',
+        output: '<error>',
       }
     }
 

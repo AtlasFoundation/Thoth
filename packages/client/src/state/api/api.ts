@@ -6,9 +6,6 @@ export const rootApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: thothApiRootUrl,
   }),
-  tagTypes: ['Spell', 'Spells', 'Version'],
+  tagTypes: ['Spell', 'Spells'],
   endpoints: () => ({}),
 })
-
-console.log("rootApi is")
-console.log(rootApi)
