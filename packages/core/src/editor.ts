@@ -10,7 +10,6 @@ import { getComponents } from './components/components'
 import { initSharedEngine, ThothEngine } from './engine'
 // import CommentPlugin from './plugins/commentPlugin'
 import AreaPlugin from './plugins/areaPlugin'
-import cachePlugin from './plugins/cachePlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
 import errorPlugin from './plugins/errorPlugin'
@@ -41,7 +40,6 @@ export class ThothEditor extends NodeEditor<EventsTypes> {
   moduleManager: ModuleManager
   runProcess: (callback?: Function) => Promise<void>
   onSpellUpdated: (spellId: string, callback: Function) => Function
-  refreshEventTable: () => void
 }
 
 /*
@@ -173,17 +171,12 @@ export const initEditor = function ({
     return thoth.onSubspellUpdated(spellId, callback)
   }
 
-  editor.refreshEventTable = () => {
-    return thoth.refreshEventTable()
-  }
-
   editor.use(KeyCodePlugin)
 
   if (client && feathers) {
     editor.use(SocketPlugin, { client })
   } else {
     // WARNING: ModulePlugin needs to be initialized before TaskPlugin during engine setup
-    editor.use(cachePlugin)
     editor.use(ModulePlugin, { engine, modules: {} } as unknown as void)
     editor.use(TaskPlugin)
   }

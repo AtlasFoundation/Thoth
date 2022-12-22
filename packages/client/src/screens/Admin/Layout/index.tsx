@@ -25,7 +25,7 @@ const StyledLink = styled(NavLink)({
 const AdminDashboard = () => {
   const location = useLocation()
   return (
-    <Box component="div" sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
         }}
       >
         <Toolbar />
-        <Box component="div" sx={{ overflow: 'auto' }}>
+        <Box sx={{ overflow: 'auto' }}>
           <List>
             <StyledLink to={'config'}>
               <ListItem selected={location.pathname === '/admin/config'} button>

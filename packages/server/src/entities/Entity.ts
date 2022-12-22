@@ -41,6 +41,7 @@ export class Entity {
     discord_bot_name: string,
     discord_empty_responses: string,
     spell_handler: string,
+    spell_version: string,
     use_voice: boolean,
     voice_provider: string,
     voice_character: string,
@@ -55,6 +56,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: spell_handler,
+      version: spell_version,
     })
 
     this.discord = new discord_client()
@@ -109,6 +111,7 @@ export class Entity {
     twitter_bot_name_regex: any,
     twitter_spell_handler_incoming: any,
     twitter_spell_handler_auto: any,
+    spell_version: string,
     entity: any
   ) {
     console.log('initializing Twitter:', twitter_token)
@@ -119,9 +122,11 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: twitter_spell_handler_incoming,
+      version: spell_version,
     })
     const spellHandlerAuto = await CreateSpellHandler({
       spell: twitter_spell_handler_auto,
+      version: spell_version,
     })
 
     this.twitter = new twitter_client()
@@ -160,6 +165,7 @@ export class Entity {
     telegram_bot_name: string,
     entity: any,
     spell_handler: string,
+    spell_version: string
   ) {
     console.log('initializing telegram:', telegram_bot_token)
     if (this.telegram)
@@ -169,6 +175,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: spell_handler,
+      version: spell_version,
     })
 
     this.telegram = new telegram_client()
@@ -192,6 +199,7 @@ export class Entity {
     reddit_bot_name: string,
     reddit_bot_name_regex: string,
     reddit_spell_handler_incoming: string,
+    spell_version: string,
     entity: any
   ) {
     console.log('initializing reddit:', reddit_app_id)
@@ -201,6 +209,7 @@ export class Entity {
 
     const spellHandler = CreateSpellHandler({
       spell: reddit_spell_handler_incoming,
+      version: spell_version,
     })
 
     this.reddit = new reddit_client()
@@ -233,6 +242,7 @@ export class Entity {
     voice_character: string,
     voice_language_code: string,
     tiktalknet_url: string,
+    spell_version: string,
     entity: any
   ) {
     if (this.zoom) {
@@ -241,6 +251,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: zoom_spell_handler_incoming,
+      version: spell_version,
     })
 
     this.zoom = new zoom_client()
@@ -270,6 +281,7 @@ export class Entity {
   async startLoop(
     loop_interval: string,
     loop_spell_handler: string,
+    spell_version: string,
     agent_name: string,
     eth_private_key,
     eth_public_address
@@ -282,6 +294,7 @@ export class Entity {
     if (typeof loopInterval === 'number' && loopInterval > 0) {
       const spellHandler = await CreateSpellHandler({
         spell: loop_spell_handler,
+        version: spell_version,
       })
 
       this.loopHandler = setInterval(async () => {
@@ -319,6 +332,7 @@ export class Entity {
     slack_bot_name: any,
     slack_port: any,
     slack_spell_handler_incoming: any,
+    spell_version: any
   ) {
     if (this.slack) {
       throw new Error('Slack already running for this client on this instance')
@@ -326,6 +340,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: slack_spell_handler_incoming,
+      version: spell_version,
     })
 
     this.slack = new slack_client()
@@ -349,6 +364,7 @@ export class Entity {
     instagram_bot_name: string,
     instagram_bot_name_regex: string,
     instagram_spell_handler_incoming: string,
+    spell_version: string,
     entity: any,
     eth_private_key,
     eth_public_address
@@ -361,6 +377,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: instagram_spell_handler_incoming,
+      version: spell_version,
     })
 
     this.instagram = new instagram_client()
@@ -391,6 +408,7 @@ export class Entity {
     messenger_bot_name: string,
     messenger_bot_name_regex: string,
     messenger_spell_handler_incoming: string,
+    spell_version: string,
     entity: any
   ) {
     if (this.messenger) {
@@ -401,6 +419,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: messenger_spell_handler_incoming,
+      version: spell_version,
     })
 
     this.messenger = new messenger_client()
@@ -431,6 +450,7 @@ export class Entity {
     twilio_bot_name: any,
     twilio_empty_responses: any,
     twilio_spell_handler_incoming: any,
+    spell_version: any
   ) {
     if (this.twilio) {
       throw new Error('Twlio already running for this client on this instance')
@@ -438,6 +458,7 @@ export class Entity {
 
     const spellHandler = await CreateSpellHandler({
       spell: twilio_spell_handler_incoming,
+      version: spell_version,
     })
 
     this.twilio = new twilio_client()
@@ -556,6 +577,7 @@ export class Entity {
       this.startLoop(
         data.loop_interval,
         data.loop_spell_handler,
+        data.spell_version,
         data.loop_agent_name,
         data.eth_private_key,
         data.eth_public_address
@@ -570,6 +592,7 @@ export class Entity {
         data.discord_bot_name,
         data.discord_empty_responses,
         data.discord_spell_handler_incoming,
+        data.spell_version,
         data.use_voice,
         data.voice_provider,
         data.voice_character,
@@ -596,6 +619,7 @@ export class Entity {
         data.twitter_bot_name_regex,
         data.twitter_spell_handler_incoming,
         data.twitter_spell_handler_auto,
+        data.spell_version,
         data,
       )
     }
@@ -606,6 +630,7 @@ export class Entity {
         data.telegram_bot_name,
         data,
         data.telegram_spell_handler_incoming,
+        data.spell_version
       )
     }
 
@@ -619,6 +644,7 @@ export class Entity {
         data.voice_character,
         data.voice_language_code,
         data.tiktalknet_url,
+        data.spell_version,
         data
       )
     }
@@ -631,6 +657,7 @@ export class Entity {
         data.slack_bot_name,
         data.slack_port,
         data.slack_spell_handler_incoming,
+        data.spell_version
       )
     }
 
@@ -641,6 +668,7 @@ export class Entity {
         data.instagram_bot_name,
         data.instagram_bot_name_regex,
         data.instagram_spell_handler_incoming,
+        data.spell_version,
         data,
         data.eth_private_key,
         data.eth_public_address
@@ -654,6 +682,7 @@ export class Entity {
         data.messenger_bot_name,
         data.messenger_bot_name_regex,
         data.messenger_spell_handler_incoming,
+        data.spell_version,
         data
       )
     }
@@ -666,6 +695,7 @@ export class Entity {
         data.twilio_bot_name,
         data.twilio_empty_responses,
         data.twilio_spell_handler_incoming,
+        data.spell_version
       )
     }
   }

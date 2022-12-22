@@ -50,7 +50,6 @@ const SocketGenerator = ({ updateData, control, initialValue }) => {
     const newSockets = initialValue.filter(
       socket => !data.ignored.some(ignored => ignored.name === socket.name)
     )
-    console.log('SOCKETS', newSockets)
     setSockets(newSockets)
   }, [initialValue])
 
@@ -73,8 +72,6 @@ const SocketGenerator = ({ updateData, control, initialValue }) => {
       connectionType: data.connectionType,
       socketType: data.socketType,
     }
-
-    console.log('Adding socket', newSocket)
 
     const newSockets = [...sockets, newSocket]
 

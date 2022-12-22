@@ -74,7 +74,7 @@ const StartScreen = () => {
 
   const openSpell = async spell => {
     // dispatch(openTab({ name: spell.name, spellId: spell.name, type: 'spell' }))
-    navigate(`/${spell.name}`)
+    navigate(`/thoth/${spell.name}`)
   }
 
   const [selectedSpell, setSelectedSpell] = useState(null)

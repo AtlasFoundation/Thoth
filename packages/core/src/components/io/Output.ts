@@ -19,7 +19,7 @@ export class Output extends ThothComponent<void> {
     super('Output')
 
     this.task = {
-      // runOneInput: true,
+      runOneInput: true,
       outputs: {
         text: 'output',
         trigger: 'option',
@@ -61,14 +61,7 @@ export class Output extends ThothComponent<void> {
       defaultValue: node.data.sendToPlaytest || false,
     })
 
-    const avatarControl = new SwitchControl({
-      dataKey: 'sendToAvatar',
-      name: 'Send to Avatar',
-      label: 'Avatar',
-      defaultValue: node.data.sendToAvatar || false,
-    })
-
-    node.inspector.add(nameInput).add(switchControl).add(avatarControl)
+    node.inspector.add(switchControl).add(nameInput)
     // need to automate this part!  Wont workw without a socket key
     node.data.socketKey = node?.data?.socketKey || uuidv4()
 
@@ -85,20 +78,16 @@ export class Output extends ThothComponent<void> {
     { silent, thoth }: { silent: boolean; thoth: EditorContext }
   ) {
     if (!inputs.input) throw new Error('No input provided to output component')
+    console.log({ inputs })
 
     const text = inputs.input.filter(Boolean)[0] as string
 
     //just need a new check here for playtest send boolean
-    const { sendToPlaytest, sendToAvatar } = thoth
+    const { sendToPlaytest } = thoth
 
     if (node.data.sendToPlaytest && sendToPlaytest) {
       sendToPlaytest(text)
     }
-
-    if (node.data.sendToAvatar && sendToAvatar) {
-      sendToAvatar(text)
-    }
-
     if (!silent) node.display(text as string)
 
     return {

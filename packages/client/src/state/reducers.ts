@@ -5,7 +5,6 @@ import tabReducer from './tabs'
 import configreducer from './admin/config/configState'
 import scopeSlice from './admin/scope/scopeState'
 import clientSlice from './admin/clientS/clientState'
-import localStateSlice from './localState'
 import preferencesReducer from './preferences'
 
 const reducers = combineReducers({
@@ -15,7 +14,6 @@ const reducers = combineReducers({
   config: configreducer,
   scope: scopeSlice,
   client: clientSlice,
-  localState: localStateSlice,
 })
 
 export default reducers

@@ -1,24 +1,21 @@
-import ContentObject from '@/workspaces/agents/windows/ContentObject'
+import ContentObject from '@/workspaces/spells/windows/ContentObject';
 import Modal from '../../Modal/Modal'
 
 const ContentObjEditModal = ({ contents, getContentObjects }) => {
+
   return (
-    <Modal title="Edit Content Objects" icon="add">
+    <Modal title='Edit Content Objects' icon='add'>
       <form>
-        {contents.length > 0 ? (
+        {contents.length > 0 ?
           contents.map(content => (
-            <ContentObject
-              content={content}
-              getContentObjects={getContentObjects}
-              key={content.id}
-            />
-          ))
-        ) : (
-          <p>No content objects exists</p>
-        )}
+            <ContentObject content={content} getContentObjects={getContentObjects} key={content.id} />
+          )
+          ) : (
+            <p>No content objects exists</p>
+          )}
       </form>
     </Modal>
-  )
+  );
 }
 
-export default ContentObjEditModal
+export default ContentObjEditModal;

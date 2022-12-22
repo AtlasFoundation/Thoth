@@ -6,6 +6,7 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios from 'axios'
 import Rete from 'rete'
+//@ts-ignore
 import xmldoc from 'xmldoc'
 
 import {
@@ -49,15 +50,15 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
     const output = new Rete.Output('output', 'Output', arraySocket)
 
     const feedUrl = new InputControl({
-      dataKey: 'feedUrl',
+      dataKey: 'feed_url',
       name: 'Feed URL',
     })
     const toDocument = new BooleanControl({
-      dataKey: 'toDocument',
+      dataKey: 'to_document',
       name: 'To Document',
     })
     const fetchWay = new BooleanControl({
-      dataKey: 'fetchWay',
+      dataKey: 'fetch_way',
       name: 'Fetch Way',
     })
 
@@ -72,24 +73,23 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    const feedUrl = node?.data?.feedUrl as string
-    const toDocument = node?.data?.toDocument
-    const fetchWay = node?.data?.fetchWay as string
+    const feed_url = node?.data?.feed_url as string
+    const to_document = node?.data?.to_document
+    const fetch_way = node?.data?.fetch_way as string
 
-    if (feedUrl === undefined || !feedUrl || feedUrl?.length <= 0) {
+    if (feed_url === undefined || !feed_url || feed_url?.length <= 0) {
       return {
         output: [],
       }
     }
 
-    const url = feedUrl.split('|')
+    const url = feed_url.split('|')
     let urls: any[] = []
 
     if (url.length === 1) {
       urls.push(url[0])
     } else {
-      // eslint-disable-next-line camelcase
-      if (fetchWay === 'random' || fetchWay === 'rnd') {
+      if (fetch_way === 'random' || fetch_way === 'rnd') {
         urls.push(url[Math.floor(Math.random() * url.length)])
       } else {
         urls = url
@@ -115,8 +115,7 @@ export class RSSGet extends ThothComponent<Promise<WorkerReturn>> {
       }
 
       if (isJson(resp.data)) {
-        // eslint-disable-next-line camelcase
-        if (toDocument === true || toDocument === 'true') {
+        if (to_document === true || to_document === 'true') {
           for (let i = 0; i < resp.data.items.length; i++) {
             const object = {
               title: resp.data.items[i].title,

@@ -135,9 +135,11 @@ export class SpellComponent extends ThothComponent<
     inputs: ThothWorkerInputs,
     _outputs: { [key: string]: string },
     {
+      module,
       thoth,
       silent,
     }: {
+      module: { outputs: ModuleWorkerOutput[] }
       thoth: EngineContext
       silent: Boolean
     }

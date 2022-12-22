@@ -64,7 +64,6 @@ export class DocumentSetMass extends ThothComponent<void> {
   ) {
     const storeId = inputs['storeId']?.[0]
     let documents = inputs['documents']
-    // eslint-disable-next-line camelcase
     const store_name = node?.data?.store_name as string
 
     if (typeof documents === 'string') {

@@ -7,7 +7,7 @@ const CodeControl = () => {
     createOrFocus(windowTypes.TEXT_EDITOR, 'Text Editor')
   }
 
-  return <button onClick={onClick}></button>
+  return <button onClick={onClick}>Edit code in editor</button>
 }
 
 export default CodeControl

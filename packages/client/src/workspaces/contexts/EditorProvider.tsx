@@ -55,15 +55,12 @@ const Context = createContext({
   redo: () => {},
   del: () => {},
   centerNode: (nodeId: number): void => {},
-  dirtyGraph: false,
-  setDirtyGraph: (isDirty: boolean): void => {},
 })
 
 export const useEditor = () => useContext(Context)
 
 const EditorProvider = ({ children }) => {
   const [editor, setEditorState] = useState<ThothEditor | null>(null)
-  const [dirtyGraph, setDirtyGraph] = useState<boolean>(true)
   const editorRef = useRef<ThothEditor | null>(null)
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
@@ -173,8 +170,6 @@ const EditorProvider = ({ children }) => {
     del,
     setContainer,
     centerNode,
-    dirtyGraph,
-    setDirtyGraph,
   }
 
   return <Context.Provider value={publicInterface}>{children}</Context.Provider>

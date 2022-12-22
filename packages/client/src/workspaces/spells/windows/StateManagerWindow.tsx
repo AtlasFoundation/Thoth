@@ -5,7 +5,7 @@ import { useGetSpellQuery } from '../../../state/api/spells'
 import Window from '../../../components/Window/Window'
 
 import '../../../screens/Thoth/thoth.module.css'
-import WindowMessage from '../../components/WindowMessage'
+import WindowMessage from '../components/WindowMessage'
 import { usePubSub } from '@/contexts/PubSubProvider'
 
 import { RootState } from '@/state/store'

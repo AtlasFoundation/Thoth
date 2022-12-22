@@ -88,8 +88,6 @@ function install(editor: ThothEditor) {
 
       // Probably need to reset this when spells change
       editor.tasks.push(task)
-
-      return task
     }
   })
 }

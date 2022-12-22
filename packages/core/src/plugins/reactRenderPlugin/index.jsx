@@ -1,5 +1,5 @@
 import React from 'react'
-import {createRoot} from 'react-dom/client'
+import ReactDOM from 'react-dom'
 
 import { Node } from './Node'
 
@@ -9,16 +9,20 @@ function install(editor, { component: NodeComponent = Node }) {
     ({ el, node, component, bindSocket, bindControl }) => {
       if (component.render && component.render !== 'react') return
       const Component = component.component || NodeComponent
-      const root = createRoot(el); 
+
       node.update = () =>
-          root.render(
+        new Promise(res => {
+          ReactDOM.render(
             <Component
               node={node}
               editor={editor}
               bindSocket={bindSocket}
               bindControl={bindControl}
-            />
+            />,
+            el,
+            res
           )
+        })
       node._reactComponent = true
       node.update()
     }
@@ -27,10 +31,11 @@ function install(editor, { component: NodeComponent = Node }) {
   editor.on('rendercontrol', ({ el, control }) => {
     if (control.render && control.render !== 'react') return
     const Component = control.component
-    const root = createRoot(el); 
 
     control.update = () =>
-        root.render(<Component {...control.props} />)
+      new Promise(res => {
+        ReactDOM.render(<Component {...control.props} />, el, res)
+      })
     control.update()
   })
 
