@@ -9,13 +9,9 @@ import koaBody from 'koa-body'
 import Router from '@koa/router'
 import axios from 'axios'
 import {
-  includeInFields,
   removePunctuation,
-  simplifyWords,
 } from '../utils/utils'
 import { database } from '../database'
-// todo fix this import
-import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
 import keyword_extractor from 'keyword-extractor'
 import * as fs from 'fs'
 import https from 'https'
@@ -41,7 +37,6 @@ export async function initSearchCorpus(ignoreDotEnv: boolean) {
 
   if (!database.instance || database.instance === undefined) {
     new database().connect()
-    await initClassifier()
   }
 
   const app: Koa = new Koa()

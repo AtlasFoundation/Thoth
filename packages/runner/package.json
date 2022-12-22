@@ -15,8 +15,7 @@
   "contributors": [],
   "bugs": {},
   "directories": {
-    "lib": "src",
-    "config": "config/"
+    "lib": "src"
   },
   "scripts": {
     "lint": "eslint src/. test/. --config .eslintrc.json --ext .ts --fix",

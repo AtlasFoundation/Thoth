@@ -12,7 +12,6 @@ import { diff } from '@/utils/json0'
 import { useSnackbar } from 'notistack'
 import { sharedb } from '@/config'
 import { useSharedb } from '@/contexts/SharedbProvider'
-import { useAuth } from '@/contexts/AuthProvider'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import { RootState } from '@/state/store'
@@ -26,10 +25,8 @@ const EventHandler = ({ pubSub, tab }) => {
 
   const [saveSpellMutation] = useSaveSpellMutation()
   const [saveDiff] = useSaveDiffMutation()
-  const { user } = useAuth()
   const { data: spell } = useGetSpellQuery({
     spellId: tab.spellId,
-    userId: user?.id as string,
   })
   const preferences = useSelector(
     (state: RootState) => state.preferences
@@ -77,7 +74,6 @@ const EventHandler = ({ pubSub, tab }) => {
     const response = await saveSpellMutation({
       ...currentSpell,
       graph,
-      user: user?.id,
     })
 
     if ('error' in response) {

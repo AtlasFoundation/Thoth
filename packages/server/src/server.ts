@@ -3,8 +3,6 @@ config()
 //@ts-ignore
 import cors from '@koa/cors'
 import Router from '@koa/router'
-// todo fix this import
-import { initClassifier } from '@thothai/thoth-core/src/utils/textClassifier'
 import HttpStatus from 'http-status-codes'
 import Koa from 'koa'
 import koaBody from 'koa-body'
@@ -20,7 +18,6 @@ import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
 import spawnPythonServer from './systems/pythonServer'
-import { auth } from './routes/middleware/auth'
 import { initWeaviateClient } from './systems/weaviateClient'
 import cors_server from './cors-server'
 
@@ -61,7 +58,6 @@ async function init() {
   await database.instance.firstInit()
 
   await initFileServer()
-  await initClassifier()
   await initTextToSpeech()
   new cacheManager()
   await initWeaviateClient(
@@ -106,9 +102,6 @@ async function init() {
   // Middleware used by every request. For route-specific middleware, add it to you route middleware specification
   app.use(koaBody({ multipart: true }))
 
-  // Middleware used to handle authentication
-  app.use(auth.isValidToken)
-
   const createRoute = (
     method: Method,
     path: string,
@@ -141,21 +134,17 @@ async function init() {
   }
 
   type MiddlewareParams = {
-    access: string | string[] | Middleware
     middleware: Middleware[] | undefined
   }
 
-  const routeMiddleware = ({ access, middleware = [] }: MiddlewareParams) => {
-    if (!access) return [...middleware]
-    if (typeof access === 'function') return [access, ...middleware]
-    if (typeof access === 'string') return [...middleware]
+  const routeMiddleware = ({ middleware = [] }: MiddlewareParams) => {
     return [...middleware]
   }
 
   // Create Koa routes from the routes defined in each module
   routes.forEach(route => {
-    const { method, path, access, middleware, handler } = route
-    const _middleware = routeMiddleware({ access, middleware })
+    const { method, path, middleware, handler } = route
+    const _middleware = routeMiddleware({ middleware })
     if (method && handler) {
       createRoute(method, path, _middleware, handler)
     }

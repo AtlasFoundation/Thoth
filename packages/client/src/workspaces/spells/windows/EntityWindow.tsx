@@ -1,27 +1,8 @@
-//@ts-nocheck
-
-import { useAuth } from '@/contexts/AuthProvider'
 import axios from 'axios'
 import { useSnackbar } from 'notistack'
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-function isJson(str) {
-  try {
-    JSON.parse(str)
-  } catch (e) {
-    return false
-  }
-  return true
-}
-
-function capitalizeFirstLetter(word) {
-  if (!word || word === undefined) word = ''
-  return word.charAt(0).toUpperCase() + word.slice(1)
-}
 
 const EntityWindow = ({ id, updateCallback }) => {
-  const { user } = useAuth()
   const { enqueueSnackbar } = useSnackbar()
 
   const [loaded, setLoaded] = useState(false)
@@ -35,7 +16,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [discord_api_key, setDiscordApiKey] = useState('')
 
   const [use_voice, setUseVoice] = useState(false)
-  const [voice_provider, setVoiceProvider] = useState(false)
+  const [voice_provider, setVoiceProvider] = useState('')
   const [voice_character, setVoiceCharacter] = useState('')
   const [voice_language_code, setVoiceLanguageCode] = useState('')
   const [voice_default_phrases, setVoiceDefaultPhrases] = useState('')
@@ -77,13 +58,13 @@ const EntityWindow = ({ id, updateCallback }) => {
     useState('')
   const [twitter_spell_handler_auto, setTwitterSpellHandlerAuto] = useState('')
 
-  const [telegram_enabled, setTelegramEnabled] = useState('')
+  const [telegram_enabled, setTelegramEnabled] = useState(false)
   const [telegram_bot_token, setTelegramBotToken] = useState('')
   const [telegram_bot_name, setTelegramBotName] = useState('')
   const [telegram_spell_handler_incoming, setTelegramSpellHandlerIncoming] =
     useState('')
 
-  const [reddit_enabled, setRedditEnabled] = useState('')
+  const [reddit_enabled, setRedditEnabled] = useState(false)
   const [reddit_app_id, setRedditAppId] = useState('')
   const [reddit_app_secret_id, setRedditAppSecretId] = useState('')
   const [reddit_oauth_token, setRedditOauthToken] = useState('')
@@ -92,7 +73,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [reddit_spell_handler_incoming, setRedditSpellHandlerIncoming] =
     useState('')
 
-  const [zoom_enabled, setZoomEnabled] = useState('')
+  const [zoom_enabled, setZoomEnabled] = useState(false)
   const [zoom_invitation_link, setZoomInvitationLink] = useState('')
   const [zoom_password, setZoomPassword] = useState('')
   const [zoom_bot_name, setZoomBotName] = useState('')
@@ -123,7 +104,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   const [instagram_spell_handler_incoming, setInstagramSpellHandlerIncoming] =
     useState('')
 
-  const [messenger_enabled, setMessengerEnabled] = useState('')
+  const [messenger_enabled, setMessengerEnabled] = useState(false)
   const [messenger_page_access_token, setMessengerPageAccessToken] =
     useState('')
   const [messenger_verify_token, setMessengerVerifyToken] = useState('')
@@ -186,7 +167,7 @@ const EntityWindow = ({ id, updateCallback }) => {
     }
   }
 
-  const [spellList, setSpellList] = useState('')
+  const [spellList, setSpellList] = useState([] as any[])
   useEffect(() => {
     if (!loaded) {
       ;(async () => {
@@ -298,7 +279,7 @@ const EntityWindow = ({ id, updateCallback }) => {
   useEffect(() => {
     ;(async () => {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_ROOT_URL}/spells?userId=${user?.id}`
+        `${process.env.REACT_APP_API_ROOT_URL}/spells`
       )
       setSpellList(res.data)
     })()
@@ -736,8 +717,8 @@ const EntityWindow = ({ id, updateCallback }) => {
         <span className="form-item-label">Voice Enabled</span>
         <input
           type="checkbox"
-          value={use_voice}
-          defaultChecked={use_voice || use_voice === 'true'}
+          value={use_voice ? 'true' : 'false'}
+          defaultChecked={use_voice}
           onChange={e => {
             setUseVoice(e.target.checked)
           }}
@@ -773,7 +754,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
-                <option defaultValue hidden></option>
+                <option hidden></option>
                 <option value={'en-US-Standard-A'}>en-US-Standard-A</option>
                 <option value={'en-US-Standard-B'}>en-US-Standard-B</option>
                 <option value={'en-US-Standard-C'}>en-US-Standard-C</option>
@@ -804,7 +785,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
-                <option defaultValue hidden></option>
+                <option hidden></option>
                 <option value={'101-dalmatians-lucky'}>
                   101-dalmatians-lucky
                 </option>
@@ -849,7 +830,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                   setVoiceCharacter(event.target.value)
                 }}
               >
-                <option defaultValue hidden></option>
+                <option hidden></option>
                 <option value={'1_ztAbe5YArCMwyyQ_G9lUiz74ym5xJKC'}>
                   test voice 1
                 </option>
@@ -957,8 +938,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Discord Enabled</span>
             <input
               type="checkbox"
-              value={discord_enabled}
-              defaultChecked={discord_enabled || discord_enabled === 'true'}
+              value={discord_enabled ? 'true' : 'false'}
+              defaultChecked={discord_enabled}
               onChange={e => {
                 setDiscordEnabled(e.target.checked)
               }}
@@ -1072,9 +1053,9 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Twitter Client Enabled</span>
             <input
               type="checkbox"
-              value={twitter_client_enable}
+              value={twitter_client_enable ? 'true' : 'false'}
               defaultChecked={
-                twitter_client_enable || twitter_client_enable === 'true'
+                twitter_client_enable
               }
               onChange={e => {
                 setTwitterClientEnable(e.target.checked)
@@ -1152,9 +1133,9 @@ const EntityWindow = ({ id, updateCallback }) => {
                 <span className="form-item-label">Twitter Enable Tweets</span>
                 <input
                   type="checkbox"
-                  value={twitter_enable_twits}
+                  value={twitter_enable_twits ? 'true' : 'false'}
                   defaultChecked={
-                    twitter_enable_twits || twitter_enable_twits === 'true'
+                    twitter_enable_twits
                   }
                   onChange={e => {
                     setTwitterEnableTwits(e.target.checked)
@@ -1265,8 +1246,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Telegram Client Enabled</span>
             <input
               type="checkbox"
-              value={telegram_enabled}
-              defaultChecked={telegram_enabled || telegram_enabled === 'true'}
+              value={telegram_enabled ? 'true' : 'false'}
+              defaultChecked={telegram_enabled}
               onChange={e => {
                 setTelegramEnabled(e.target.checked)
               }}
@@ -1322,8 +1303,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Reddit Client Enabled</span>
             <input
               type="checkbox"
-              value={reddit_enabled}
-              defaultChecked={reddit_enabled || reddit_enabled === 'true'}
+              value={reddit_enabled ? 'true' : 'false'}
+              defaultChecked={reddit_enabled}
               onChange={e => {
                 setRedditEnabled(e.target.checked)
               }}
@@ -1409,8 +1390,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Zoom Client Enabled</span>
             <input
               type="checkbox"
-              value={zoom_enabled}
-              defaultChecked={zoom_enabled || zoom_enabled === 'true'}
+              value={zoom_enabled ? 'true' : 'false'}
+              defaultChecked={zoom_enabled}
               onChange={e => {
                 setZoomEnabled(e.target.checked)
               }}
@@ -1476,8 +1457,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Slack Client Enabled</span>
             <input
               type="checkbox"
-              value={slack_enabled}
-              defaultChecked={slack_enabled || slack_enabled === 'true'}
+              value={slack_enabled ? 'true' : 'false'}
+              defaultChecked={slack_enabled}
               onChange={e => {
                 setSlackEnabled(e.target.checked)
               }}
@@ -1563,8 +1544,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Instagram Client Enabled</span>
             <input
               type="checkbox"
-              value={instagram_enabled}
-              defaultChecked={instagram_enabled || instagram_enabled === 'true'}
+              value={instagram_enabled ? 'true' : 'false'}
+              defaultChecked={instagram_enabled}
               onChange={e => {
                 setInstagramEnabled(e.target.checked)
               }}
@@ -1625,7 +1606,7 @@ const EntityWindow = ({ id, updateCallback }) => {
                     setInstagramSpellHandlerIncoming(event.target.value)
                   }}
                 >
-                  <option defaultValue hidden></option>
+                  <option hidden></option>
                   {spellList.length > 0 &&
                     spellList.map((spell, idx) => (
                       <option value={spell.name} key={idx}>
@@ -1641,8 +1622,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Messenger Client Enabled</span>
             <input
               type="checkbox"
-              value={messenger_enabled}
-              defaultChecked={messenger_enabled || messenger_enabled === 'true'}
+              value={messenger_enabled ? 'true' : 'false'}
+              defaultChecked={messenger_enabled}
               onChange={e => {
                 setMessengerEnabled(e.target.checked)
               }}
@@ -1718,8 +1699,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Twilio Client Enabled</span>
             <input
               type="checkbox"
-              value={twilio_enabled}
-              defaultChecked={twilio_enabled || twilio_enabled === 'true'}
+              value={twilio_enabled ? 'true' : 'false'}
+              defaultChecked={twilio_enabled}
               onChange={e => {
                 setTwilioEnabled(e.target.checked)
               }}
@@ -1807,8 +1788,8 @@ const EntityWindow = ({ id, updateCallback }) => {
             <span className="form-item-label">Loop Enabled</span>
             <input
               type="checkbox"
-              value={loop_enabled}
-              defaultChecked={loop_enabled || loop_enabled === 'true'}
+              value={loop_enabled ? 'true' : 'false'}
+              defaultChecked={loop_enabled}
               onChange={e => {
                 setLoopEnabled(e.target.checked)
               }}

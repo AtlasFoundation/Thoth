@@ -1,10 +1,8 @@
 import { ThothComponent } from '../../types'
-import { AddAgent } from './entities/AddAgent'
 import { AgentTextCompletion } from './entities/AgentTextCompletion'
 import { CacheManagerDelete } from './entities/CacheManagerDelete'
 import { CacheManagerGet } from './entities/CacheManagerGet'
 import { CacheManagerSet } from './entities/CacheManagerSet'
-import { CreateOrGetAgent } from './entities/CreateOrGetAgent'
 import { CustomTextCompletion } from './entities/CustomTextCompletion'
 import { EventRecall } from './entities/EventRecall'
 import { EventStore } from './entities/EventStore'
@@ -17,6 +15,7 @@ import { CheckForRecentTransactionsFromWallet } from './ethereum/CheckForRecentT
 import { GetRecentTransactions } from './ethereum/GetRecentTransactions'
 import { InputComponent } from './io/Input'
 import { Output } from './io/Output'
+import { SpellComponent } from './io/Spell'
 import { TriggerIn } from './io/TriggerIn'
 import { TriggerOut } from './io/TriggerOut'
 import { BooleanGate } from './logic/BooleanGate'
@@ -31,11 +30,7 @@ import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
 import { Classifier } from './ml/Classifier'
-import { Generator } from './ml/Generator'
-import { KeywordExtractor } from './ml/KeywordExtractor'
-import { NamedEntityRecognition } from './ml/NamedEntityRecognition'
 import { SentenceMatcher } from './ml/SentenceMatcher'
-import { SummarizeFacts } from './ml/SummarizeFacts'
 import { TextToSpeech } from './ml/TextToSpeech'
 import { DocumentDelete } from './search/DocumentDelete'
 import { DocumentEdit } from './search/DocumentEdit'
@@ -46,7 +41,6 @@ import { DocumentStoreGet } from './search/DocumentStoreGet'
 import { RSSGet } from './search/RSSGet'
 import { Search } from './search/Search'
 import { VectorSearch } from './search/VectorSearch'
-import { SpellComponent } from './services/Spell'
 import { StateRead } from './state/StateRead'
 import { StateWrite } from './state/StateWrite'
 import { ComplexStringMatcher } from './strings/ComplexStringMatcher'
@@ -84,13 +78,9 @@ export const components = {
   complexStringMatcher: () => new ComplexStringMatcher(),
   echo: () => new Echo(),
   variableReplacer: () => new VariableReplacer(),
-  SummarizeFacts: () => new SummarizeFacts(),
   textToSpeech: () => new TextToSpeech(),
   agentTextCompletion: () => new AgentTextCompletion(),
   customTextCompletion: () => new CustomTextCompletion(),
-  keywordExtractor: () => new KeywordExtractor(),
-  namedEntityRecognition: () => new NamedEntityRecognition(),
-  createOrGetAgent: () => new CreateOrGetAgent(),
   Classifier: () => new Classifier(),
   isNullOrUndefined: () => new IsNullOrUndefined(),
   isQuery: () => new IsQuery(),
@@ -122,9 +112,7 @@ export const components = {
   numberVariable: () => new NumberVariable(),
   booleanVariable: () => new BooleanVariable(),
   arrayVariable: () => new ArrayVariable(),
-  addAgent: () => new AddAgent(),
   logicalOperator: () => new LogicalOperator(),
-  generator: () => new Generator(),
   inputComponent: () => new InputComponent(),
   inputDestructureComponent: () => new InputDestructureComponent(),
   inputRestructureComponent: () => new InputRestructureComponent(),

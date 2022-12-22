@@ -73,10 +73,6 @@ const TabBar = ({ tabs, activeTab }) => {
       <div className={css['tabbar-section']}>
         <CreateTab />
       </div>
-
-      <div className={css['tabbar-user']}>
-        {/* <LoginTab /> */}
-      </div>
     </div>
   )
 }

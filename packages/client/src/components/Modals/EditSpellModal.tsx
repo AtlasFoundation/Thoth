@@ -4,13 +4,11 @@ import { usePatchSpellMutation } from '../../state/api/spells'
 import { useForm } from 'react-hook-form'
 import Modal from '../Modal/Modal'
 import css from './modalForms.module.css'
-import { useAuth } from '@/contexts/AuthProvider'
 import { closeTab, openTab } from '@/state/tabs'
 import { useDispatch } from 'react-redux'
 
 const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
   const [error, setError] = useState('')
-  const { user } = useAuth()
   const [patchSpell, { isLoading }] = usePatchSpellMutation()
   const { enqueueSnackbar } = useSnackbar()
   const dispatch = useDispatch()
@@ -25,7 +23,6 @@ const EditSpellModal = ({ closeModal, spellId, name, tab }) => {
   const onSubmit = handleSubmit(async data => {
     const response: any = await patchSpell({
       spellId: tab.spellId,
-      userId: user?.id as string,
       update: data,
     })
 

@@ -40,7 +40,7 @@ export class SpellComponent extends ThothComponent<
       outputs: {},
       closed: [] as { [key: string]: string }[],
     }
-    this.category = 'Core'
+    this.category = 'I/O'
     this.info = info
     this.noBuildUpdate = true
     this.display = true

@@ -27,7 +27,6 @@ export interface DeployedSpellVersion {
 
 export interface DeployArgs {
   spellId: string
-  userId: string
   message: string
 }
 
@@ -38,7 +37,6 @@ export interface GetDeployArgs {
 
 export interface PatchArgs {
   spellId: string
-  userId: string
   update: Partial<Spell>
 }
 
@@ -51,24 +49,22 @@ export interface RunSpell {
 
 export interface UserSpellArgs {
   spellId: string
-  userId: string
 }
 
 export const spellApi = rootApi.injectEndpoints({
   endpoints: builder => ({
     getSpells: builder.query<Spell[], string>({
       providesTags: ['Spells'],
-      query: userId => ({
+      query: () => ({
         url: `spells`,
-        params: { userId },
       }),
     }),
     getSpell: builder.query<Spell, UserSpellArgs>({
       providesTags: ['Spell'],
-      query: ({ spellId, userId }) => {
+      query: ({ spellId }) => {
         return {
           url: `spells/${spellId}`,
-          params: { userId },
+          params: { },
         }
       },
     }),
@@ -106,7 +102,6 @@ export const spellApi = rootApi.injectEndpoints({
         const baseQueryOptions = {
           url: 'spells/save',
           body: spell,
-          params: { userId: user },
           method: 'POST',
         }
 
@@ -129,32 +124,29 @@ export const spellApi = rootApi.injectEndpoints({
     }),
     patchSpell: builder.mutation<Spell, PatchArgs>({
       invalidatesTags: ['Spell'],
-      query({ spellId, userId, update }) {
+      query({ spellId, update }) {
         return {
           url: `spells/${spellId}`,
           body: {
             ...update,
           },
-          params: { userId },
           method: 'PATCH',
         }
       },
     }),
     deleteSpell: builder.mutation<string[], UserSpellArgs>({
       invalidatesTags: ['Spells'],
-      query: ({ spellId, userId }) => ({
+      query: ({ spellId }) => ({
         url: `spells/${spellId}`,
-        params: { userId },
         method: 'DELETE',
       }),
     }),
     deploySpell: builder.mutation<DeployedSpellVersion, DeployArgs>({
       invalidatesTags: ['Version'],
-      query({ spellId, userId, ...update }) {
+      query({ spellId, ...update }) {
         return {
           url: `spells/${spellId}/deploy`,
           body: update,
-          params: { userId },
           method: 'POST',
         }
       },

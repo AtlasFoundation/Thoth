@@ -35,7 +35,6 @@ export class discord_client {
 
   //Event that is triggered when a new user is added to the server
   async handleGuildMemberAdd(user: { user: { id: any; username: any } }) {
-    const userId = user.user.id
     const username = user.user.username
 
     const dateNow = new Date()
@@ -67,7 +66,6 @@ export class discord_client {
 
   //Event that is triggered when a user is removed from the server
   async handleGuildMemberRemove(user: { user: { id: any; username: any } }) {
-    const userId = user.user.id
     const username = user.user.username
 
     const dateNow = new Date()
@@ -527,7 +525,7 @@ export class discord_client {
   presenceUpdate = async (
     client: any,
     oldMember: { status: any },
-    newMember: { status: string | boolean; userId: any }
+    newMember: { status: string | boolean }
   ) => {
     if (!oldMember || !newMember) {
       log('Cannot update presence, oldMember or newMember is null')

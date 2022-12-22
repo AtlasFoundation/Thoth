@@ -17,7 +17,6 @@ import { usePubSub } from '@/contexts/PubSubProvider'
 import { useSharedb } from '@/contexts/SharedbProvider'
 import { sharedb } from '@/config'
 import { ThothComponent } from '@thothai/thoth-core/types'
-import { useAuth } from '@/contexts/AuthProvider'
 import EntityManagerWindow from './windows/EntityManagerWindow'
 import EventManagerWindow from './windows/EventManager'
 import SearchCorpus from './windows/SearchCorpusWindow'
@@ -32,7 +31,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
   const { events, publish } = usePubSub()
   const { getSpellDoc } = useSharedb()
-  const { user } = useAuth()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
   const [saveDiff] = useSaveDiffMutation()
   const { editor } = useEditor()
@@ -61,7 +59,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           })
           loadSpell({
             spellId: tab.spellId,
-            userId: user?.id as string,
           })
 
           if ('error' in response) {
@@ -75,15 +72,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
 
     return unsubscribe as () => void
   }, [editor, preferences.autoSave])
-
-  // useEffect(() => {
-  //   if (!editor?.on) return
-  //   const unsubscribe = editor.on('save', () =>
-  //     publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
-  //   )
-
-  //   return unsubscribe as () => void
-  // }, [editor])
 
   useEffect(() => {
     if (!editor?.on) return
@@ -131,7 +119,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     if (!tab || !tab.spellId) return
     loadSpell({
       spellId: tab.spellId,
-      userId: user?.id as string,
     })
   }, [tab])
 

@@ -1,6 +1,5 @@
 import vm2 from 'vm2'
 import { EngineContext, ThothWorkerInputs } from '@thothai/thoth-core/types'
-import { completion } from './api/completion'
 import { runSpell } from './api/spell'
 
 export const buildThothInterface = (
@@ -13,11 +12,6 @@ export const buildThothInterface = (
   }
 
   return {
-    // would be good to get a proper type in here
-    async completion(request: Record<string, any>) {
-      const response = await completion(request)
-      return response
-    },
     getCurrentGameState: () => gameState,
     setCurrentGameState: (state: Record<string, any>) => {
       gameState = state
@@ -31,9 +25,6 @@ export const buildThothInterface = (
     },
     async runSpell(inputs: Record<string, any>, spellId: string) {
       return runSpell({ spellId, inputs })
-    },
-    async readFromImageCache() {
-      return { images: [] }
     },
     processCode: (
       code: unknown,

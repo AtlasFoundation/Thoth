@@ -5,7 +5,6 @@ import {
   adaptV4Theme,
 } from '@mui/material/styles'
 
-import AuthProvider from './AuthProvider'
 import FeathersProvider from './FeathersProvider'
 import PubSubProvider from './PubSubProvider'
 import SharedbProvider from './SharedbProvider'
@@ -29,7 +28,6 @@ const providers = [
   PubSubProvider,
   [ThemeProvider, { theme: darkTheme }],
   ToastProvider,
-  AuthProvider,
   FeathersProvider,
   WebSocketProvider,
   SharedbProvider,
