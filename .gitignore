@@ -22,3 +22,4 @@ packages/server/files/
 
 .dfx
 package-lock.json
+yarn.lock
