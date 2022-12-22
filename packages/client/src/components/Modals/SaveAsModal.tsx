@@ -45,7 +45,7 @@ const EditSpellModal = ({ tab, closeModal }) => {
     
     // close current tab and navigate to the new spell
     dispatch(closeTab(tab.id))
-    navigate(`/${data.name}`)
+    navigate(`/thoth/${data.name}`)
 
     closeModal()
   })

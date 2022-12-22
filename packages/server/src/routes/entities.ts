@@ -1,9 +1,8 @@
 // @ts-nocheck
 import { database } from '../database'
 import { handleInput } from '../entities/connectors/handleInput'
-import 'regenerator-runtime/runtime'
 //@ts-ignore
-// import weaviate from 'weaviate-client'
+import weaviate from 'weaviate-client'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
 import { Route } from '../types'
@@ -14,10 +13,10 @@ import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
 import { tts_tiktalknet } from '../systems/tiktalknet'
-import { stringIsAValidUrl } from '../utils/utils'
+import fs from 'fs'
+import path from 'path'
 import { CreateSpellHandler } from '../entities/CreateSpellHandler'
-import queryGoogleSearch from './utils/queryGoogle'
-import { CustomError } from '../utils/CustomError'
+import { stringIsAValidUrl } from '../utils/utils'
 
 export const modules: Record<string, unknown> = {}
 
@@ -71,6 +70,7 @@ const getEntityHandler = async (ctx: Koa.Context) => {
 
       data = {
         id: newId,
+        personality: '',
         enabled: true,
       }
     }
@@ -140,7 +140,7 @@ const getEvent = async (ctx: Koa.Context) => {
     max_time_diff
   )
 
-  return (ctx.body = { event })
+  return (ctx.body = event)
 }
 
 const getAllEvents = async (ctx: Koa.Context) => {
@@ -156,7 +156,7 @@ const getAllEvents = async (ctx: Koa.Context) => {
 
 const getSortedEventsByDate = async (ctx: Koa.Context) => {
   try {
-    const sortOrder = ctx.request.query.order as string
+    const sortOrder = ctx.request.query.order as st
     if (!['asc', 'desc'].includes(sortOrder)) {
       ctx.status = 400
       return (ctx.body = 'invalid sort order')
@@ -227,10 +227,8 @@ const createEvent = async (ctx: Koa.Context) => {
   const channel = ctx.request.body.channel
   const text = ctx.request.body.text
   const type = ctx.request.body.type
-  console.log('Creating event:', agent, speaker, client, channel, text, type)
-
-  // Todo needs error handling
-  await events.createEvent({
+  console.log('Creating event:', agent, speaker, sender, client, channel, text, type)
+  await database.instance.createEvent(
     type,
     agent,
     speaker,
@@ -238,19 +236,17 @@ const createEvent = async (ctx: Koa.Context) => {
     client,
     channel,
     text
-})
+  )
 
   return (ctx.body = 'ok')
 }
 
 const getTextToSpeech = async (ctx: Koa.Context) => {
-  const text = ctx.request.query.text as string
-  let character = ctx.request.query.character ?? 'none'
-  console.log('text and character are', text, character)
-  const voice_provider = ctx.request.query.voice_provider as string
-  const voice_character = ctx.request.query.voice_character as string
-  // const voice_language_code = ctx.request.query.voice_language_code
-  const tiktalknet_url = ctx.request.query.tiktalknet_url as string
+  const text = ctx.request.query.text
+  const voice_provider = ctx.request.query.voice_provider
+  const voice_character = ctx.request.query.voice_character
+  const voice_language_code = ctx.request.query.voice_language_code
+  const tiktalknet_url = ctx.request.query.tiktalknet_url
 
   console.log('text and character are', text, voice_character)
   const cache = await cacheManager.instance.get(
@@ -265,14 +261,19 @@ const getTextToSpeech = async (ctx: Koa.Context) => {
 
   if (!cache && cache.length <= 0) {
     if (voice_provider === 'uberduck') {
-      url = (await getAudioUrl(
+      url = await getAudioUrl(
         process.env.UBER_DUCK_KEY as string,
         process.env.UBER_DUCK_SECRET_KEY as string,
         voice_character as string,
         text as string
-      )) as string
+      )
     } else if (voice_provider === 'google') {
-      url = await tts(text, voice_character as string)
+      url = await tts(
+        text,
+        voice_provider,
+        voice_character,
+        voice_language_code
+      )
     } else {
       url = await tts_tiktalknet(text, voice_character, tiktalknet_url)
     }
@@ -315,6 +316,7 @@ const customMessage = async (ctx: Koa.Context) => {
   const agent = ctx.request.body?.agent as string
   const message = (ctx.request.body?.message as string).trim().toLowerCase()
   const spell_handler = ctx.request.body?.spell_handler as string
+  const spell_version = (ctx.request.body?.spell_version as string) ?? 'latest'
   const channel = ctx.request.body?.channel as string
   let isVoice = (ctx.request.body?.isVoice as string | undefined) === 'true'
   const voice_provider = ctx.request.body?.voice_provider as string
@@ -325,19 +327,18 @@ const customMessage = async (ctx: Koa.Context) => {
 
   const spellHandler = await CreateSpellHandler({
     spell: spell_handler,
+    version: spell_version,
   })
 
-  // warning coerced into string, but may not be
-  const response = (await spellHandler(
+  const response = await spellHandler(
     message,
     sender,
     agent,
     'discord',
     channel,
     [],
-    [],
-    'room'
-  )) as string
+    []
+  )
 
   if (isVoice) {
     if (
@@ -415,7 +416,7 @@ const textCompletion = async (ctx: Koa.Context) => {
   const sender = (ctx.request.body.sender as string) ?? 'User'
   const agent = (ctx.request.body.agent as string) ?? 'Agent'
   const prompt = (ctx.request.body.prompt as string)
-    .replace('{agent}', agent)
+    .replace('{agent}')
     .replace('{speaker}', sender)
   let stop = (ctx.request.body.stop ?? ['']) as string[]
   const openaiApiKey = ctx.request.body.apiKey as string
@@ -432,8 +433,11 @@ const textCompletion = async (ctx: Koa.Context) => {
     }
   }
 
-  const { success, choice } = await makeCompletion(modelName, {
-    prompt: prompt.trim(),
+  console.log('prompt:', prompt)
+  console.log('stop:', stop)
+
+  const { success, choice, error } = await makeCompletion(modelName, {
+    prompt: prompt,
     temperature: temperature,
     max_tokens: maxTokens,
     top_p: topP,
@@ -465,32 +469,30 @@ const hfRequest = async (ctx: Koa.Context) => {
   return (ctx.body = { succes: success, data: data })
 }
 
-// const makeWeaviateRequest = async (ctx: Koa.Context) => {
-//   const keyword = ctx.request.body.keyword as string
+const makeWeaviateRequest = async (ctx: Koa.Context) => {
+  const keyword = ctx.request.body.keyword as string
 
-//   const client = weaviate.client({
-//     scheme: 'http',
-//     host: 'semantic-search-wikipedia-with-weaviate.api.vectors.network:8080/',
-//   })
+  const client = weaviate.client({
+    scheme: 'http',
+    host: 'semantic-search-wikipedia-with-weaviate.api.vectors.network:8080/',
+  })
 
-//   const res = await client.graphql
-//     .get()
-//     .withNearText({
-//       concepts: [keyword],
-//       certainty: 0.75,
-//     })
-//     .withClassName('Paragraph')
-//     .withFields('title content inArticle { ... on Article {  title } }')
-//     .withLimit(3)
-//     .do()
+  const res = await client.graphql
+    .get()
+    .withNearText({
+      concepts: [keyword],
+      certainty: 0.75,
+    })
+    .withClassName('Paragraph')
+    .withFields('title content inArticle { ... on Article {  title } }')
+    .withLimit(3)
+    .do()
 
-//   console.log('RESPONSE', res)
-
-//   if (res?.data?.Get !== undefined) {
-//     return (ctx.body = { data: res.data.Get })
-//   }
-//   return (ctx.body = { data: '' })
-// }
+  if (res.data.Get !== undefined) {
+    return (ctx.body = { data: res.data.Get })
+  }
+  return (ctx.body = { data: '' })
+}
 
 const getEntityData = async (ctx: Koa.Context) => {
   const agent = ctx.request.query.agent as string
@@ -537,7 +539,8 @@ const handleCustomInput = async (ctx: Koa.Context) => {
       client,
       channelId,
       1,
-      'default'
+      'default',
+      'latest'
     ),
   })
 }
@@ -582,18 +585,6 @@ const register = async (ctx: Koa.Context) => {
     return (ctx.body = { error: 'invalid credentials' })
   } else {
     return (ctx.body = 'ok')
-  }
-}
-
-const queryGoogle = async (ctx: Koa.Context) => {
-  console.log('QUERY', ctx.request?.body?.query)
-  if (!ctx.request?.body?.query)
-    throw new CustomError('input-failed', 'No query provided in request body')
-  const query = ctx.request.body?.query as string
-  const result = await queryGoogleSearch(query)
-
-  ctx.body = {
-    result,
   }
 }
 
@@ -655,10 +646,10 @@ export const entities: Route[] = [
     path: '/hf_request',
     post: hfRequest,
   },
-  // {
-  //   path: '/weaviate',
-  //   post: makeWeaviateRequest,
-  // },
+  {
+    path: '/weaviate',
+    post: makeWeaviateRequest,
+  },
   {
     path: '/custom_message',
     post: customMessage,
@@ -674,10 +665,6 @@ export const entities: Route[] = [
   {
     path: '/login',
     post: login,
-  },
-  {
-    path: '/query_google',
-    post: queryGoogle,
   },
   {
     path: '/register',

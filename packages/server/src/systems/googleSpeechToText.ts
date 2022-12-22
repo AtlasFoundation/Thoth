@@ -18,7 +18,6 @@ const request = {
     languageCode: languageCode,
     profanityFilter: false,
     enableWordTimeOffsets: true,
-    enableAutomaticPunctuation: true,
     // speechContexts: [{
     //     phrases: ["hi","hello"]
     //    }]
@@ -81,12 +80,9 @@ export async function initSpeechServer(ignoreDotEnv: boolean) {
           recognizeStream !== undefined &&
           recognizeStream.destroyed === false
         ) {
-          // console.log('received data:', data)
           recognizeStream.write(data)
         }
-      } catch (e) {
-        console.log('error in binaryData :::: ', e)
-      }
+      } catch (e) { }
     })
 
     function startRecognitionStream(client: any) {
@@ -96,7 +92,6 @@ export async function initSpeechServer(ignoreDotEnv: boolean) {
           console.log(err)
         })
         .on('data', data => {
-          console.log('data :::: ', data)
           client.emit('speechData', data)
           if (data.results[0] && data.results[0].isFinal) {
             stopRecognitionStream()

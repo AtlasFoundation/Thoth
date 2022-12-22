@@ -33,7 +33,6 @@ export abstract class ThothComponent<
   // Original interface for task and _task: IComponentWithTask from the Rete Task Plugin
   task: TaskOptions
   _task: ThothTask
-  cache: Record<string, any>
   // Original Class: https://github.com/latitudegames/rete/blob/master/src/component.ts
   editor: ThothEditor | null = null
   data: unknown = {}
@@ -42,9 +41,6 @@ export abstract class ThothComponent<
   display: boolean
   dev = false
   hide = false
-  runFromCache = false
-  deprecated = false
-  deprecationMessage: string | undefined
   module: ModuleOptions
   contextMenuName: string | undefined
   workspaceType: 'module' | 'spell' | null | undefined

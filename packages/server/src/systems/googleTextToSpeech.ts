@@ -8,11 +8,7 @@ export async function initTextToSpeech() {
   client = new TextToSpeechClient()
 }
 
-export async function tts(
-  input: string,
-  character = 'en-US-Wavenet-D',
-  languageCode = 'en-US'
-) {
+export async function tts(input: string, character = "en-GB-Standard-B", languageCode = 'en-GB') {
   if (!client || client === undefined) {
     client = new TextToSpeechClient()
   }
@@ -22,11 +18,12 @@ export async function tts(
     voice: {
       languageCode: languageCode,
       name: character,
+      ssmlGender: 1 /*Male*/,
     },
     audioConfig: { audioEncoding: 2 /*MP3*/ },
   }
 
-  console.log('ttsRequest is', ttsRequest)
+  console.log("ttsRequest is", ttsRequest)
 
   const fileName = makeid(8) + '.mp3'
   const outputFile = 'files/' + fileName

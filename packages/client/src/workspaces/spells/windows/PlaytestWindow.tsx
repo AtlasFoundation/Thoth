@@ -1,20 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import Editor from '@monaco-editor/react'
-import { useDispatch, useSelector } from 'react-redux'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import { useHotkeys } from 'react-hotkeys-hook'
 
-import {
-  upsertLocalState,
-  selectStateBySpellId,
-  addLocalState,
-} from '@/state/localState'
-import { usePubSub } from '@/contexts/PubSubProvider'
-import Window from '@/components/Window/Window'
-import css from '@/screens/Thoth/thoth.module.css'
+import { usePubSub } from '../../../contexts/PubSubProvider'
+import Window from '../../../components/Window/Window'
+import css from '../../../screens/Thoth/thoth.module.css'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
-import { useAppSelector } from '@/state/hooks'
 
 const Input = props => {
   const ref = useRef() as React.MutableRefObject<HTMLInputElement>
@@ -49,16 +41,9 @@ const Playtest = ({ tab }) => {
   const scrollbars = useRef<any>()
   const [history, setHistory] = useState([])
   const [value, setValue] = useState('')
-  const [openData, setOpenData] = useState<boolean>(false)
 
   const { publish, subscribe, events } = usePubSub()
   const FeathersContext = useFeathers()
-  const dispatch = useDispatch()
-
-  const localState = useAppSelector(state =>
-    selectStateBySpellId(state.localState, tab.spellId)
-  )
-
   const client = FeathersContext?.client
   const { $PLAYTEST_INPUT, $PLAYTEST_PRINT } = events
 
@@ -70,8 +55,6 @@ const Playtest = ({ tab }) => {
     },
     [history]
   )
-
-  // Keep scrollbar at bottom of its window
   useEffect(() => {
     if (!scrollbars.current) return
     scrollbars.current.scrollToBottom()
@@ -83,33 +66,7 @@ const Playtest = ({ tab }) => {
     return unsubscribe as () => void
   }, [subscribe, printToConsole, $PLAYTEST_PRINT])
 
-  // Sync up localState into data field for persistence
-  useEffect(() => {
-    // Set up a default for the local state here
-    if (!localState) {
-      dispatch(addLocalState({ spellId: tab.spellId, playtestData: '{}' }))
-      return
-    }
-  }, [localState])
-
-  const options = {
-    minimap: {
-      enabled: false,
-    },
-    wordWrap: 'bounded',
-    fontSize: 14,
-  }
-
-  const handleEditorWillMount = monaco => {
-    monaco.editor.defineTheme('sds-dark', {
-      base: 'vs-dark',
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': '#272727',
-      },
-    })
-  }
+  const printItem = (text, key) => <li key={key}>{text}</li>
 
   const onSend = () => {
     const newHistory = [...history, `You: ${value}`]
@@ -123,32 +80,8 @@ const Playtest = ({ tab }) => {
       })
     }
 
-    let toSend = value
-
-    if (localState?.playtestData !== '{}') {
-      const json = localState?.playtestData.replace(
-        /(['"])?([a-z0-9A-Z_]+)(['"])?:/g,
-        '"$2": '
-      )
-
-      // IMPLEMENT THIS: https://www.npmjs.com/package/json5
-
-      // todo could throw an error here
-      if (!json) return
-
-      toSend = {
-        input: value,
-        ...JSON.parse(json),
-      }
-    }
-
-    publish($PLAYTEST_INPUT(tab.id), toSend)
+    publish($PLAYTEST_INPUT(tab.id), value)
     setValue('')
-  }
-
-  const onDataChange = dataText => {
-    console.log('new data text', dataText)
-    dispatch(upsertLocalState({ spellId: tab.spellId, playtestData: dataText }))
   }
 
   const onChange = e => {
@@ -157,10 +90,6 @@ const Playtest = ({ tab }) => {
 
   const onClear = () => {
     setHistory([])
-  }
-
-  const toggleData = () => {
-    setOpenData(!openData)
   }
 
   const toolbar = (
@@ -172,9 +101,6 @@ const Playtest = ({ tab }) => {
       <button className="small" onClick={onClear}>
         Clear
       </button>
-      <button className="small" onClick={toggleData}>
-        Data
-      </button>
     </React.Fragment>
   )
 	if (document.getElementById("api-key")){
@@ -185,43 +111,14 @@ const Playtest = ({ tab }) => {
 		});
 	}
 
-  const printItem = (text, key) => <li key={key}>{text}</li>
-
   return (
     <Window toolbar={toolbar}>
-      {/*  This will slide down here and show another text area where you can input a javascript object for injection into the playtest.  Good for things that dont change often.  Ideal for Agents. */}
       <div style={{ display: 'flex', height: '100%', flexDirection: 'column' }}>
-        <div
-          className={css['playtest-output']}
-          style={{ display: openData ? '' : 'none' }}
-        >
-          <Scrollbars ref={ref => (scrollbars.current = ref)}>
-            <Editor
-              theme="sds-dark"
-              language="javascript"
-              value={localState?.playtestData}
-              options={options}
-              defaultValue={localState?.playtestData || '{}'}
-              onChange={onDataChange}
-              beforeMount={handleEditorWillMount}
-            />
-          </Scrollbars>
-        </div>
-        <div
-          style={{
-            height: 'var(--c1)',
-            backgroundColor: 'var(--dark-3)',
-            display: openData ? '' : 'none',
-          }}
-        ></div>
         <div className={css['playtest-output']}>
           <Scrollbars ref={ref => (scrollbars.current = ref)}>
             <ul>{history.map(printItem)}</ul>
           </Scrollbars>
         </div>
-        <label htmlFor="" style={{ marginTop: 10 }}>
-          Input
-        </label>
         <Input onChange={onChange} value={value} onSend={onSend} />
       </div>
     </Window>

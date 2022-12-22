@@ -4,13 +4,16 @@ import { useModal } from '@/contexts/ModalProvider'
 import Icon, { componentCategories } from '../../../components/Icon/Icon'
 import Window from '../../../components/Window/Window'
 import DataControls from '../DataControls'
-import WindowMessage from '../../components/WindowMessage'
+import WindowMessage from '../components/WindowMessage'
 import { useInspector } from '@/workspaces/contexts/InspectorProvider'
 import { InspectorData } from '@thothai/thoth-core/types'
+// import { RootState } from '@/state/store'
+
+// import { useSelector } from 'react-redux'
+// import { toggleDoNotShowUnlockWarning } from '@/state/preferences'
 
 const Inspector = props => {
   const { inspectorData, saveInspector } = useInspector()
-
   const [width, setWidth] = useState()
   const { openModal } = useModal()
   // const preferences = useSelector((state: RootState) => state.preferences)

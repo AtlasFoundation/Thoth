@@ -123,11 +123,13 @@ export class InputComponent extends ThothComponent<InputReturn> {
 
     node.inspector.add(nameInput).add(togglePlaytest).add(toggleDefault)
 
-    node.data.defaultValue = node.data.defaultValue ?? 'Input text here'
+    const value = node.data.text ? node.data.text : 'Input text here'
+
+    node.data.defaultValue = value
 
     const defaultInput = new TextInputControl({
       editor: this.editor,
-      key: 'defaultValue',
+      key: 'text',
       value: node.data.defaultValue,
       label: 'Default value',
     })
@@ -175,7 +177,7 @@ export class InputComponent extends ThothComponent<InputReturn> {
 
     // fallback to default value at the end
     return {
-      output: node.data.defaultValue as string,
+      output: node.data.text as string,
     }
   }
 }

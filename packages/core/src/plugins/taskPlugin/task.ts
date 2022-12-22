@@ -28,9 +28,9 @@ type RunOptions = {
 
 export type TaskOutputTypes = 'option' | 'output'
 
-// const hasTrigger = (task: Task) => {
-//   return Object.values(task.component.task.outputs).includes('option')
-// }
+const hasTrigger = (task: Task) => {
+  return Object.values(task.component.task.outputs).includes('option')
+}
 
 export class Task {
   node: NodeData
@@ -93,8 +93,8 @@ export class Task {
       garbage = [] as Task[],
       propagate = true,
       fromSocket,
-      // fromNode,
-      // fromTask,
+      fromNode,
+      fromTask,
     } = options
 
     // garbage means that the nodes output value will be reset after it is all done.
@@ -117,16 +117,16 @@ export class Task {
 
         We assume here that his nodes worker does not need to access ALL values simultaneously, but is only interested in one. There is a task option which enables this functionality just in case we have use cases that don't want this behaviour.
       */
-
       await Promise.all(
         this.getInputs('output').map(async key => {
           const inputPromises = this.inputs[key]
-            // .filter((con: ThothReteInput) => {
-            //   // only filter inputs to remove ones that are not the origin if a task option is true
-            //   if (this.component.task.runOneInput) return false
-            //   // if (!this.component.task.runOneInput || !fromNode) return true
-            //   return true
-            // })
+            .filter((con: ThothReteInput) => {
+              // only filter inputs to remove ones that are not the origin if a task option is true
+              //console.log('HAS TRIGGER', fromTask && hasTrigger(fromTask))
+              if (!this.component.task.runOneInput || !fromNode) return true
+              // if (fromTask.)
+              return con.task.node.id === fromNode.id
+            })
             .map(async (con: ThothReteInput) => {
               await con.task.run(data, {
                 needReset: false,

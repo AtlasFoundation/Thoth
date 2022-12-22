@@ -4,6 +4,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 //@ts-nocheck
 import axios from 'axios'
 
+// TODO: Refactor and remove this, replace with Thoth completion node
+
 export async function MakeCompletionRequest(
   data: any,
   speaker: any,
@@ -72,33 +74,21 @@ async function makeOpenAIGPT3Request(
   }
 }
 
-type CompletionData = {
-  prompt: string
-  temperature: number
-  max_tokens: number
-  top_p: number
-  frequency_penalty: number
-  presence_penalty: number
-  stop: string[]
-  apiKey?: string
-}
-
 export async function makeCompletion(
   engine: string,
-  data: CompletionData
+  data: {
+    prompt: string
+    temperature: number
+    max_tokens: number
+    top_p: number
+    frequency_penalty: number
+    presence_penalty: number
+    stop: string[],
+    apiKey: string
+  }
 ): Promise<any> {
-  const {
-    prompt,
-    temperature = 0.7,
-    max_tokens = 256,
-    top_p = 1,
-    frequency_penalty = 0,
-    presence_penalty = 0,
-    stop,
-    apiKey,
-  } = data
-
-  const API_KEY = apiKey || process.env.OPENAI_API_KEY
+  const API_KEY = (data.apiKey !== '' && data.apiKey !== null && data.apiKey)
+    ?? process.env.OPENAI_API_KEY
 
   const headers = {
     'Content-Type': 'application/json',
@@ -106,32 +96,26 @@ export async function makeCompletion(
   }
 
   const _data: any = {}
-  _data.prompt = prompt
-  if (temperature && temperature !== undefined) {
-    _data.temperature = temperature
+  _data.prompt = data.prompt
+  if (data.temperature && data.temperature !== undefined) {
+    _data.temperature = data.temperature
   }
-  if (max_tokens && max_tokens !== undefined) {
-    _data.max_tokens = max_tokens
+  if (data.max_tokens && data.max_tokens !== undefined) {
+    _data.max_tokens = data.max_tokens
   }
-  if (top_p && top_p !== undefined) {
-    _data.top_p = top_p
+  if (data.top_p && data.top_p !== undefined) {
+    _data.top_p = data.top_p
   }
-  if (frequency_penalty && frequency_penalty !== undefined) {
-    _data.frequency_penalty = frequency_penalty
+  if (data.frequency_penalty && data.frequency_penalty !== undefined) {
+    _data.frequency_penalty = data.frequency_penalty
   }
-  if (presence_penalty && presence_penalty !== undefined) {
-    _data.presence_penalty = presence_penalty
+  if (data.presence_penalty && data.presence_penalty !== undefined) {
+    _data.presence_penalty = data.presence_penalty
   }
-  _data.stop = stop
+  _data.stop = data.stop
 
   try {
-    const gptEngine = engine ?? 'text-davinci-002'
-    console.log(
-      'MAKING REQUEST TO',
-      `https://api.openai.com/v1/engines/${gptEngine}/completions`
-    )
-    console.log('BODY', _data)
-
+    const gptEngine = engine ?? 'davinci'
     const resp = await axios.post(
       `https://api.openai.com/v1/engines/${gptEngine}/completions`,
       _data,
@@ -143,7 +127,6 @@ export async function makeCompletion(
       return { success: true, choice }
     }
   } catch (err) {
-    console.log('ERROR')
     console.error(err)
     return { success: false }
   }

@@ -20,10 +20,12 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "unirest": ["@types/unirest.d.ts"],
       "gpt-3-encoder": ["@types/gpt-3-encoder.d.ts"],
-      "weaviate-client": ["@types/weaviate-client.d.ts"],
-      "ot-json0": ["@types/ot-json0.d.ts"]
+      "ot-json0": ["@types/ot-json0.d.ts"],
+      "@thothai/thoth-core": ["@types/thoth-core.d.ts"],
+      "@thothai/thoth-core/dist/server": [
+        "@thothai/thoth-core/dist/server.d.ts"
+      ]
     },
     "noImplicitAny": false,
     "strictNullChecks": false

@@ -2,13 +2,13 @@
 /* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import 'regenerator-runtime/runtime'
+
 import glob from 'glob'
 import weaviate from 'weaviate-client'
 import wiki from 'wikipedia'
 
+import { MakeCompletionRequest } from '../../utils/MakeCompletionRequest'
 import { database } from '../../database'
-
 
 const client = weaviate.client({
   scheme: 'http',
@@ -18,7 +18,7 @@ const client = weaviate.client({
 export const searchWikipedia = async keyword => {
   // if keywords contains more than three words, summarize with GPT-3
   if (keyword.trim().split(' ').length > 3) {
-
+    
   // Search for it, and accept suggestion if there is one
   const searchResults = await wiki.search(keyword)
 

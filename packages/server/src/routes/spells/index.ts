@@ -4,22 +4,22 @@ import { creatorToolsDatabase } from '../../databases/creatorTools'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 import {
-  SpellRunner,
+  buildThothInterface,
   extractModuleInputKeys,
-} from '@thothai/thoth-core/dist/server'
-import { buildThothInterface } from './buildThothInterface'
+  runSpell,
+} from './runSpell'
+import { Graph, Module } from './types'
 
 import otJson0 from 'ot-json0'
 import { Op } from 'sequelize'
-import { GraphData, Spell as SpellType } from '@thothai/thoth-core/types'
 
 export const modules: Record<string, unknown> = {}
 
 const runSpellHandler = async (ctx: Koa.Context) => {
-  const { spell } = ctx.params
+  const { spell, version } = ctx.params
   const { userGameState = {} } = ctx.request.body
 
-  const rootSpell = await creatorToolsDatabase.spells.findOne({
+  let rootSpell = await creatorToolsDatabase.spells.findOne({
     where: { name: spell },
   })
 
@@ -28,62 +28,46 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   if (!rootSpell?.graph) {
     throw new CustomError(
       'not-found',
-      `Spell with name ${spell} not found`
+      `Spell with name ${spell} and version ${version} not found`
     )
   }
 
-  // TODO use test spells if body option is given
-  // const rootSpell = getTestSpell(spell)
-  const graph = rootSpell.graph as GraphData
-  // const modules = rootSpell.modules as Module[]
+  const graph = rootSpell.graph as Graph
 
-  // Build the interface
-  const thothInterface = buildThothInterface(ctx, userGameState)
+  const modules = rootSpell.modules as Module[]
 
-  // Extract any keys from the graphs inputs
+  const gameState = {
+    ...rootSpell?.gameState,
+    ...userGameState,
+  }
+
+  const thoth = buildThothInterface(ctx, gameState)
+
   const inputKeys = extractModuleInputKeys(graph) as string[]
+  
+  const spellInputs = ctx.request.body.inputs;
 
-  // We should report on them here
-  const inputs = inputKeys.reduce(
-    (acc: { [x: string]: any[] }, input: string) => {
-      const requestInput = ctx.request.body[input]
+  const inputs = inputKeys.reduce((inputs, expectedInput: string) => {
+    const requestInput = spellInputs
 
-      if (requestInput) {
-        acc[input] = requestInput
-      } else {
-        throw new CustomError('input-failed', `Missing required input ${input}`)
-      }
-      return acc
-    },
-    {} as Record<string, unknown>
-  )
+    if (requestInput) {
+      inputs[expectedInput] = [requestInput]
 
-  const spellToRun = {
-    // TOTAL HACK HERE
-    ...(rootSpell as any).toJSON(),
-    gameState: userGameState,
-  }
+      return inputs
+    } else {
+      return ctx.body = { 'error': `Spell expects a value for ${expectedInput} to be provided `}
+      // throw new CustomError(
+      //   'input-failed',
+      //   error
+      // )
+    }
+  }, {} as Record<string, unknown>)
 
-  // Initialize the spell runner
-  const spellRunner = new SpellRunner({ thothInterface })
+  const outputs = await runSpell(graph, inputs, thoth, modules)
 
-  // Load the spell in to the spell runner
-  await spellRunner.loadSpell(spellToRun as SpellType)
-
-  try {
-    // Get the outputs from running the spell
-    const outputs = await spellRunner.defaultRun(inputs)
-
-    // Get the updated state
-    const state = thothInterface.getCurrentGameState()
-
-    // Return the response
-    ctx.body = { spell: rootSpell.name, outputs, state }
-  } catch (err) {
-    // return any errors
-    console.error(err)
-    throw new CustomError('server-error', err.message)
-  }
+  const newGameState = thoth.getCurrentGameState()
+  const body = { spell: rootSpell.name, outputs, gameState: newGameState }
+  ctx.body = body
 }
 
 const saveHandler = async (ctx: Koa.Context) => {
@@ -97,6 +81,13 @@ const saveHandler = async (ctx: Koa.Context) => {
   const spell = await creatorToolsDatabase.spells.findOne({
     where: { id: body.id },
   })
+
+  if (spell) {
+    throw new CustomError(
+      'input-failed',
+      'A spell with that name already exists.'
+    )
+  }
 
   if (!spell) {
     const newSpell = await creatorToolsDatabase.spells.create({
@@ -129,11 +120,16 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
     throw new CustomError('input-failed', 'No diff provided in request body')
 
   try {
-    const spellUpdate = otJson0.type.apply(spell.toJSON(), diff)
+    const newGraph = otJson0.type.apply(spell.graph, diff)
 
-    const updatedSpell = await creatorToolsDatabase.spells.update(spellUpdate, {
-      where: { name },
-    })
+    const updatedSpell = await creatorToolsDatabase.spells.update(
+      {
+        graph: newGraph,
+      },
+      {
+        where: { name },
+      }
+    )
 
     ctx.response.status = 200
     ctx.body = updatedSpell
@@ -202,7 +198,6 @@ const getSpellsHandler = async (ctx: Koa.Context) => {
 }
 
 const getSpellHandler = async (ctx: Koa.Context) => {
-  console.log('GETTING SPELLLLLLLL')
   const name = ctx.params.name
   try {
     const spell = await creatorToolsDatabase.spells.findOne({
@@ -279,22 +274,28 @@ export const spells: Route[] = [
     post: saveDiffHandler,
   },
   {
+    path: '/spells',
+    post: newHandler,
+  },
+  {
     path: '/spells/:name',
     patch: patchHandler,
     delete: deleteHandler,
-    get: getSpellHandler,
   },
   {
     path: '/spells',
     get: getSpellsHandler,
-    post: newHandler,
+  },
+  {
+    path: '/spells/:name',
+    get: getSpellHandler,
   },
   {
     path: '/spells/exists',
     post: postSpellExistsHandler,
   },
   {
-    path: '/spells/:spell',
+    path: '/:spell/:version',
     post: runSpellHandler,
   },
 ]

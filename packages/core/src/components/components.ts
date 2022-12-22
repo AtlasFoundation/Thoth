@@ -1,14 +1,14 @@
 import { ThothComponent } from '../../types'
-import { AgentTextCompletion } from './agents/AgentTextCompletion'
-import { CacheManagerDelete } from './agents/CacheManagerDelete'
-import { CacheManagerGet } from './agents/CacheManagerGet'
-import { CacheManagerSet } from './agents/CacheManagerSet'
-import { CustomTextCompletion } from './agents/CustomTextCompletion'
-import { EventRecall } from './agents/EventRecall'
-import { EventStore } from './agents/EventStore'
-import { InputDestructureComponent } from './agents/InputDestructure'
-import { InputRestructureComponent } from './agents/InputRestructure'
-import { Request } from './agents/Request'
+import { AgentTextCompletion } from './entities/AgentTextCompletion'
+import { CacheManagerDelete } from './entities/CacheManagerDelete'
+import { CacheManagerGet } from './entities/CacheManagerGet'
+import { CacheManagerSet } from './entities/CacheManagerSet'
+import { CustomTextCompletion } from './entities/CustomTextCompletion'
+import { EventRecall } from './entities/EventRecall'
+import { EventStore } from './entities/EventStore'
+import { InputDestructureComponent } from './entities/InputDestructure'
+import { InputRestructureComponent } from './entities/InputRestructure'
+import { Request } from './entities/Request'
 import { CheckBalanceForERC20 } from './ethereum/CheckBalanceForERC20'
 import { CheckEthBalance } from './ethereum/CheckEthBalance'
 import { CheckForRecentTransactionsFromWallet } from './ethereum/CheckForRecentTransactionsFromWallet'
@@ -26,7 +26,6 @@ import { IsNullOrUndefined } from './logic/IsNullOrUndefined'
 import { IsQuery } from './logic/IsQuery'
 import { IsVariableTrue } from './logic/IsVariableTrue'
 import { LogicalOperator } from './logic/LogicalOperator'
-import { OrGate } from './logic/OrGate'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
 import { WhileLoop } from './logic/WhileLoop'
@@ -39,12 +38,9 @@ import { DocumentGet } from './search/DocumentGet'
 import { DocumentSet } from './search/DocumentSet'
 import { DocumentSetMass } from './search/DocumentSetMass'
 import { DocumentStoreGet } from './search/DocumentStoreGet'
-import { GetWikipediaSummary } from './search/GetWikipediaSummary'
-import { QueryGoogle } from './search/QueryGoogle'
 import { RSSGet } from './search/RSSGet'
 import { Search } from './search/Search'
 import { VectorSearch } from './search/VectorSearch'
-import { WeaviateWikipedia } from './search/WeaviateWikipedia'
 import { StateRead } from './state/StateRead'
 import { StateWrite } from './state/StateWrite'
 import { ComplexStringMatcher } from './strings/ComplexStringMatcher'
@@ -56,13 +52,9 @@ import { StringCombiner } from './strings/StringCombiner'
 import { StringEvaluator } from './strings/StringEvaluator'
 import { StringProcessor } from './strings/StringProcessor'
 import { Alert } from './utility/AlertMessage'
-import { Cast } from './utility/Cast'
-import { Destructure } from './utility/Destructure'
 import { Echo } from './utility/Echo'
 import { InputsToJSON } from './utility/InputsToJSON'
 import { InRange } from './utility/InRange'
-import { Log } from './utility/Log'
-import { Merge } from './utility/Merge'
 import { VariableReplacer } from './utility/VariableReplacer'
 import { ArrayVariable } from './variable/ArrayVariable'
 import { BooleanVariable } from './variable/BooleanVariable'
@@ -79,12 +71,10 @@ import { StringVariable } from './variable/StringVariable'
 export const components = {
   alert: () => new Alert(),
   booleanGate: () => new BooleanGate(),
-  cast: () => new Cast(),
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
   sentenceMatcher: () => new SentenceMatcher(),
-  destructure: () => new Destructure(),
   complexStringMatcher: () => new ComplexStringMatcher(),
   echo: () => new Echo(),
   variableReplacer: () => new VariableReplacer(),
@@ -104,8 +94,8 @@ export const components = {
   documentEdit: () => new DocumentEdit(),
   documentDelete: () => new DocumentDelete(),
   documentSet: () => new DocumentSet(),
-  documentSetMass: () => new DocumentSetMass(),
   documentStoreGet: () => new DocumentStoreGet(),
+  documentSetMass: () => new DocumentSetMass(),
   rssGet: () => new RSSGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
@@ -142,12 +132,6 @@ export const components = {
   getRecentTransactions: () => new GetRecentTransactions(),
   checkForRecentTransactionsFromWallet: () =>
     new CheckForRecentTransactionsFromWallet(),
-  weaviateWikipedia: () => new WeaviateWikipedia(),
-  getWikipediaSummary: () => new GetWikipediaSummary(),
-  merge: () => new Merge(),
-  orGate: () => new OrGate(),
-  log: () => new Log(),
-  queryGoogle: () => new QueryGoogle(),
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {

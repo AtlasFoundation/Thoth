@@ -14,7 +14,6 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "noUnusedLocals": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],

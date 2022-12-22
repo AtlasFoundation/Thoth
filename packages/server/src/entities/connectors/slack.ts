@@ -108,7 +108,8 @@ export class slack_client {
         !this.messageReactionUpdate(data[i])
       ) {
         this.message_reactions[data[i].reaction] = await CreateSpellHandler({
-          spell: data[i].spell_handler
+          spell: data[i].spell_handler,
+          version: 'latest',
         })
       }
       this.prevData = data
