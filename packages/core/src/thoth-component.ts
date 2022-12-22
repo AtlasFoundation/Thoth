@@ -34,7 +34,7 @@ export abstract class ThothComponent<
   task: TaskOptions
   _task: ThothTask
   cache: Record<string, any>
-  // Original Class: https://github.com/latitudegames/rete/blob/master/src/component.ts
+  // Original Class: https://github.com/AtlasFoundation/rete/blob/master/src/component.ts
   editor: ThothEditor | null = null
   data: unknown = {}
   category: string
@@ -43,8 +43,6 @@ export abstract class ThothComponent<
   dev = false
   hide = false
   runFromCache = false
-  deprecated = false
-  deprecationMessage: string | undefined
   module: ModuleOptions
   contextMenuName: string | undefined
   workspaceType: 'module' | 'spell' | null | undefined

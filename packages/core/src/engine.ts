@@ -17,7 +17,7 @@ export interface ThothEngine extends Engine {
   moduleManager?: any
 }
 export abstract class ThothEngineComponent<WorkerReturnType> {
-  // Original Class: https://github.com/latitudegames/rete/blob/master/src/engine/component.ts
+  // Original Class: https://github.com/AtlasFoundation/rete/blob/master/src/engine/component.ts
   name: string
   data: unknown = {}
   engine: Engine | null = null

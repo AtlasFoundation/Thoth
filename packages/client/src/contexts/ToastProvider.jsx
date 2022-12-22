@@ -23,8 +23,6 @@ const useStyles = makeStyles(() => ({
 const ToastProvider = ({ children }) => {
   const classes = useStyles()
 
-  console.log('TOIAST CLASSES', classes)
-
   return (
     <SnackbarProvider
       maxSnack="3"

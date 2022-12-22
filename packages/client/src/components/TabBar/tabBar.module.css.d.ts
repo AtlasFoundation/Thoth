@@ -8,7 +8,6 @@ interface CssExports {
   'tabbar-tab': string;
   'tabbar-user': string;
   'th-tabbar': string;
-  'thoth-logo': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

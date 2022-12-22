@@ -8,7 +8,6 @@ interface CssExports {
   'menu-panel': string;
   'preference-active': string;
   'preference-notActive': string;
-  'thoth-logo': string;
 }
 export const cssExports: CssExports;
 export default cssExports;

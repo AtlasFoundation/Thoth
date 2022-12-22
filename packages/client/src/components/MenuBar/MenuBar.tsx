@@ -209,13 +209,6 @@ const MenuBar = () => {
         },
       },
     },
-    dev: {
-      items: {
-        serialize: {
-          onClick: onSerialize,
-        },
-      },
-    },
     windows: {
       items: {
         text_editor: {
@@ -230,7 +223,7 @@ const MenuBar = () => {
         search_corpus: {
           onClick: onCreateSearchCorpus,
         },
-        ent_manager: {
+        agent_manager: {
           onClick: onEntityManagerCreate,
         },
         playtest: {
@@ -342,7 +335,6 @@ const MenuBar = () => {
 
   return (
     <ul className={css['menu-bar']}>
-      <img className={css['thoth-logo']} alt="Thoth logo" src={thothlogo} />
       {Object.keys(menuBarItems).map((item, index) => (
         <ListItem
           item={menuBarItems[item]}

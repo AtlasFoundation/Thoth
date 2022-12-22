@@ -87,6 +87,7 @@ const DataControls = ({
 
         return (
           <Box
+            key={key}
             sx={{
               padding: '15px',
               borderRadius: '5px',

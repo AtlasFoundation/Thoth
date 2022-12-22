@@ -77,7 +77,6 @@ const LayoutProvider = ({ children, tab }) => {
   }, [currentModel])
 
   const createModel = json => {
-    console.log('creating model', json)
     const model = Model.fromJson(json)
     updateCurrentModel(model)
 

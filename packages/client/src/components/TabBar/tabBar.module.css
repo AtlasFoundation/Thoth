@@ -15,16 +15,6 @@
   align-items: center;
   height: var(--c4);
 }
-/* .tabbar-section:last-child {
-  justify-content: flex-end;
-} */
-.thoth-logo {
-  position: relative;
-  top: 2px;
-  margin-left: calc(var(--c2) + 2px);
-  margin-right: var(--c3);
-  height: var(--c2);
-}
 
 .tabbar-tab {
   position: relative;

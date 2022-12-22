@@ -80,12 +80,7 @@ const TabManager = ({ children }) => {
     openNew = true,
   }) => {
     // don't open a new tab if one is already open
-    if (!openNew && type === 'module') {
-      const tabOpened = await switchTab(null, { module: { $eq: moduleName } })
-      if (tabOpened) return
-    }
-
-    if (!openNew && type === 'spell') {
+    if (!openNew) {
       const tabOpened = await switchTab(null, { spell: { $eq: spellId } })
       if (tabOpened) return
     }
