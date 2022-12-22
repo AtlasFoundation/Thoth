@@ -148,9 +148,9 @@ export const initEditor = function ({
     window.addEventListener('keydown', (e: any) => {
       if (e.key === 'f') {
         console.log('f pressed')
-        const { area } = editor.view
+        // const { area } = editor.view
 
-        area.zoom(area.transform.k, 0, 0, null)
+        // area.zoom(area.transform.k, 0, 0, null)
       }
     })
   }
