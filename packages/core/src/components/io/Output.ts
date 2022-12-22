@@ -71,7 +71,7 @@ export class Output extends ThothComponent<void> {
       .addOutput(triggerOutput)
   }
 
-  async worker(
+  worker(
     node: NodeData,
     inputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,

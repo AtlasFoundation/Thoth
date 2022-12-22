@@ -1,9 +1,8 @@
 // modified from https://www.npmjs.com/package/arxiv-api
 import axios from 'axios'
 import _ from 'lodash'
-
-const util = require('util')
-const { parseString } = require('xml2js')
+import util from 'util'
+import { parseString } from 'xml2js'
 
 const PREFIXES = {
   ALL: 'all',
@@ -42,7 +41,7 @@ module.exports = {
 
 const parseStringPromisified = util.promisify(parseString)
 
-const get_arxiv_url = ({ searchQuery, sortBy, sortOrder, start, maxResults }) =>
+const getArxivUrl = ({ searchQuery, sortBy, sortOrder, start, maxResults }) =>
   `http://export.arxiv.org/api/query?search_query=${searchQuery}&start=${start}&max_results=${maxResults}${
     sortBy ? `&sortBy=${sortBy}` : ''
   }${sortOrder ? `&sortOrder=${sortOrder}` : ''}`
@@ -52,16 +51,20 @@ const get_arxiv_url = ({ searchQuery, sortBy, sortOrder, start, maxResults }) =>
  * @param {Object} entry.
  * @returns {Object} formatted arXiv entry object.
  */
-function parseArxivObject(entry) {
+function parseArxivObject(entry: any) {
   return {
     id: _.get(entry, 'id[0]', ''),
     title: _.get(entry, 'title[0]', ''),
     summary: _.get(entry, 'summary[0]', '').trim(),
-    authors: _.get(entry, 'author', []).map(author => author.name),
-    links: _.get(entry, 'link', []).map(link => link.$),
+    authors: _.get(entry, 'author', []).map(
+      (author: { name: any }) => author.name
+    ),
+    links: _.get(entry, 'link', []).map((link: { $: any }) => link.$),
     published: _.get(entry, 'published[0]', ''),
     updated: _.get(entry, 'updated[0]', ''),
-    categories: _.get(entry, 'category', []).map(category => category.$),
+    categories: _.get(entry, 'category', []).map(
+      (category: { $: any }) => category.$
+    ),
   }
 }
 
@@ -136,7 +139,7 @@ async function search({
   }
   const searchQuery = searchQueryParams.map(parseTags).join(SEPARATORS.OR)
   const response = await axios.get(
-    get_arxiv_url({ searchQuery, sortBy, sortOrder, start, maxResults })
+    getArxivUrl({ searchQuery, sortBy, sortOrder, start, maxResults })
   )
   const parsedData = await parseStringPromisified(response.data)
   return _.get(parsedData, 'feed.entry', []).map(parseArxivObject)
@@ -146,17 +149,17 @@ async function search({
   const papers = await search({
     searchQueryParams: [
       {
-        include: includeQueries.map(query => {
+        include: (includeQueries as any).map((query: any) => {
           return { name: query }
         }),
-        exclude: excludeQueries.map(query => {
+        exclude: (excludeQueries as any).map((query: any) => {
           return { name: query }
         }),
       },
     ],
     start: 0,
     maxResults: 10,
-  })
+  } as any)
 
   for (const article in papers) {
     console.log(papers[article].title)
@@ -165,7 +168,7 @@ async function search({
   console.log(papers)
 })()
 
-export async function getArticle(id) {
+export async function getArticle(id: any) {
   // ID is expected to be in [S2PaperId | DOI | ArXivId]
   const response = await fetch(`https://api.semanticscholar.org/v1/paper/${id}`)
   const data = await response.text()

@@ -222,12 +222,12 @@ export const initEditor = function ({
     if (callback) callback()
   }
 
-  editor.loadGraph = async (_graph: Data, reloading = false) => {
+  editor.loadGraph = async (_graph: Data) => {
     const graph = JSON.parse(JSON.stringify(_graph))
     await engine.abort()
     editor.fromJSON(graph)
     // @todo need to revisit this and actually focus on a node in the graph using zoomAt.  This is a hack to get the graph to render in the right place using zoomAt(node).
-    editor.view.area.translate(-100, 3000);	
+    editor.view.area.translate(0, 0)
     editor.view.resize()
   }
 
