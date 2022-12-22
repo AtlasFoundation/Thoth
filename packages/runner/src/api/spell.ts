@@ -3,7 +3,7 @@ import { authRequest } from './axios'
 export const getSpell = async (spellId: string) => {
   try {
     const response = await authRequest({
-      url: `/game/spells/${spellId}`,
+      url: `/spells/${spellId}`,
     })
 
     return response.data
@@ -33,7 +33,7 @@ export const runSpell = async ({
       state,
     }
     const response = await authRequest({
-      url: `game/chains/${spellId}/${version}`,
+      url: `spells/${spellId}/${version}`,
       data: JSON.stringify(data),
     })
 

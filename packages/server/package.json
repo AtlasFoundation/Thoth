@@ -4,12 +4,11 @@
   "private": true,
   "description": "Backend server for the for AI storytelling toolset, Thoth.",
   "main": "index.js",
-  "author": "tech@latitude.io",
-  "license": "ISC",
+  "license": "Apache 2.0",
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rm -rf dist",
-    "dev": "concurrently \"nodemon src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\" \"sleep 10 && yarn run seed\"",
+    "dev": "concurrently \"nodemon src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\"",
     "speech": "nodemon src/speech-server.ts",
     "search": "nodemon src/search-server.ts",
     "entity-server": "nodemon src/entity-server.ts",
@@ -25,8 +24,7 @@
     "reset": "rm -rf ./node_modules && rm yarn.lock && yarn install",
     "start": "pm2-runtime start ecosystem.config.yml --env production",
     "stop": "pid=$(lsof -ti tcp:8001) && [[ $pid ]] && kill -9 $pid fi",
-    "tsc:noEmit": "tsc --noEmit",
-    "seed": "sh ../../scripts/seed_dev.sh"
+    "tsc:noEmit": "tsc --noEmit"
   },
   "dependencies": {
     "@google-cloud/speech": "^4.10.0",

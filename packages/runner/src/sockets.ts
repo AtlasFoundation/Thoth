@@ -10,7 +10,7 @@ import { buildThothInterface } from './thothInterface'
 const getUserInfo = async (sessionId: string) => {
   try {
     const response = await axios({
-      url: 'https://api.latitude.io/user/info',
+      url: 'https://api.thoth.io/user/info',
       headers: {
         Authorization: `session ${sessionId}`,
       },

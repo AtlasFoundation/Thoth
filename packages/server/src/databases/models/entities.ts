@@ -4,7 +4,6 @@ import { DataTypes, Model, Optional } from 'sequelize'
 export interface entitiesAttributes {
   id?: number
   instanceId?: number
-  personality?: string
   enabled?: boolean
   updated_at?: string
   dirty?: boolean
@@ -182,7 +181,6 @@ export class entities
 {
   id?: number
   instanceId?: number
-  personality?: string
   enabled?: boolean
   updated_at?: string
   openai_api_key?: string
@@ -275,10 +273,6 @@ export class entities
         },
         dirty: {
           type: DataTypes.BOOLEAN,
-          allowNull: true,
-        },
-        personality: {
-          type: DataTypes.TEXT,
           allowNull: true,
         },
         enabled: {

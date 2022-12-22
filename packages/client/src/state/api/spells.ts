@@ -59,7 +59,7 @@ export const spellApi = rootApi.injectEndpoints({
     getSpells: builder.query<Spell[], string>({
       providesTags: ['Spells'],
       query: userId => ({
-        url: `game/spells`,
+        url: `spells`,
         params: { userId },
       }),
     }),
@@ -67,14 +67,14 @@ export const spellApi = rootApi.injectEndpoints({
       providesTags: ['Spell'],
       query: ({ spellId, userId }) => {
         return {
-          url: `game/spells/${spellId}`,
+          url: `spells/${spellId}`,
           params: { userId },
         }
       },
     }),
     runSpell: builder.mutation<Record<string, any>, RunSpell>({
       query: ({ spellId, version = 'latest', inputs, state = {} }) => ({
-        url: `game/chains/${spellId}/${version}`,
+        url: `spells/${spellId}/${version}`,
         method: 'POST',
         body: {
           ...inputs,
@@ -85,14 +85,14 @@ export const spellApi = rootApi.injectEndpoints({
     saveDiff: builder.mutation<void, Diff>({
       invalidatesTags: ['Spell'],
       query: diffData => ({
-        url: 'game/spells/saveDiff',
+        url: 'spells/saveDiff',
         method: 'POST',
         body: diffData,
       }),
     }),
     spellExists: builder.mutation<boolean, string>({
       query: name => ({
-        url: 'game/spells/exists',
+        url: 'spells/exists',
         method: 'POST',
         body: {
           name,
@@ -104,7 +104,7 @@ export const spellApi = rootApi.injectEndpoints({
       // needed to use queryFn as query option didnt seem to allow async functions.
       async queryFn({ user, ...spell }, { dispatch }, extraOptions, baseQuery) {
         const baseQueryOptions = {
-          url: 'game/spells/save',
+          url: 'spells/save',
           body: spell,
           params: { userId: user },
           method: 'POST',
@@ -122,7 +122,7 @@ export const spellApi = rootApi.injectEndpoints({
     newSpell: builder.mutation<Spell, Partial<Spell>>({
       invalidatesTags: ['Spells'],
       query: spellData => ({
-        url: 'game/spells',
+        url: 'spells',
         method: 'POST',
         body: spellData,
       }),
@@ -131,7 +131,7 @@ export const spellApi = rootApi.injectEndpoints({
       invalidatesTags: ['Spell'],
       query({ spellId, userId, update }) {
         return {
-          url: `game/spells/${spellId}`,
+          url: `spells/${spellId}`,
           body: {
             ...update,
           },
@@ -143,7 +143,7 @@ export const spellApi = rootApi.injectEndpoints({
     deleteSpell: builder.mutation<string[], UserSpellArgs>({
       invalidatesTags: ['Spells'],
       query: ({ spellId, userId }) => ({
-        url: `game/spells/${spellId}`,
+        url: `spells/${spellId}`,
         params: { userId },
         method: 'DELETE',
       }),
@@ -152,7 +152,7 @@ export const spellApi = rootApi.injectEndpoints({
       invalidatesTags: ['Version'],
       query({ spellId, userId, ...update }) {
         return {
-          url: `game/spells/${spellId}/deploy`,
+          url: `spells/${spellId}/deploy`,
           body: update,
           params: { userId },
           method: 'POST',
@@ -162,13 +162,13 @@ export const spellApi = rootApi.injectEndpoints({
     getDeployments: builder.query<DeployedSpellVersion[], string>({
       providesTags: ['Version'],
       query: spellId => ({
-        url: `game/spells/deployed/${spellId}`,
+        url: `spells/${spellId}`,
       }),
     }),
     getDeployment: builder.query<DeployedSpellVersion, GetDeployArgs>({
       providesTags: ['Version'],
       query: ({ spellId, version }) => ({
-        url: `game/spells/deployed/${spellId}/${version}`,
+        url: `spells/${spellId}/${version}`,
       }),
     }),
   }),
