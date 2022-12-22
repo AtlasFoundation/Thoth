@@ -12,18 +12,14 @@ export async function handleInput(
   channelId: string,
   entity: number,
   spell_handler: string,
-  spell_version: string = 'latest',
   channel: string = 'msg'
 ) {
   if (spell_handler === undefined) {
     spell_handler = 'default'
   }
-  if (spell_version === undefined) {
-    spell_version = 'latest'
-  }
 
   const url = encodeURI(
-    `https://0.0.0.0:8001/spells/${spell_handler}/${spell_version}`
+    `https://0.0.0.0:8001/spells/${spell_handler}`
   )
 
   const response = await axios.post(`${url}`, {

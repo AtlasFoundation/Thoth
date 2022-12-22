@@ -5,7 +5,7 @@
     ".eslintrc.json",
     ".prettierrc",
     "src/",
-    "node_modules/@thothai/"
+    "../core/dist/"
   ],
   "execMap": {
     "ts": "node -r ts-node/register"
@@ -14,5 +14,5 @@
   "restartable": "rs",
   "verbose": true,
   "ext": "js,json,ts",
-  "ignore": ["*.test.ts", "*.spec.ts"]
+  "ignore": ["*.test.ts", "*.spec.ts", "*.d.ts"]
 }

@@ -1,4 +1,4 @@
-import thothCore from '@thothai/thoth-core/server'
+import thothCore from '@thothai/thoth-core/dist/server'
 import { ThothWorkerInputs } from '@thothai/thoth-core/types'
 import Koa from 'koa'
 import { Module } from './module'

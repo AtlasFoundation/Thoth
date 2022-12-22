@@ -18,9 +18,7 @@ export interface Diff {
 
 export interface DeployedSpellVersion {
   spellId: string
-  version: string
   message?: string
-  versionName?: string
   url?: string
   graph?: GraphData
 }
@@ -32,7 +30,6 @@ export interface DeployArgs {
 
 export interface GetDeployArgs {
   spellId: string
-  version: string
 }
 
 export interface PatchArgs {
@@ -42,7 +39,6 @@ export interface PatchArgs {
 
 export interface RunSpell {
   spellId: string
-  version?: string
   inputs: Record<string, any>
   state?: Record<string, any>
 }
@@ -69,8 +65,8 @@ export const spellApi = rootApi.injectEndpoints({
       },
     }),
     runSpell: builder.mutation<Record<string, any>, RunSpell>({
-      query: ({ spellId, version = 'latest', inputs, state = {} }) => ({
-        url: `spells/${spellId}/${version}`,
+      query: ({ spellId, inputs, state = {} }) => ({
+        url: `spells/${spellId}`,
         method: 'POST',
         body: {
           ...inputs,
@@ -159,8 +155,8 @@ export const spellApi = rootApi.injectEndpoints({
     }),
     getDeployment: builder.query<DeployedSpellVersion, GetDeployArgs>({
       providesTags: ['Version'],
-      query: ({ spellId, version }) => ({
-        url: `spells/${spellId}/${version}`,
+      query: ({ spellId }) => ({
+        url: `spells/${spellId}`,
       }),
     }),
   }),
