@@ -4,13 +4,8 @@ import {
   ThothWorkerInputs,
 } from '@thothai/thoth-core/types'
 import { useContext, createContext, useRef, useEffect } from 'react'
-
-import { completion as _completion } from '../../services/game-api/text'
-import { invokeInference } from '../../utils/huggingfaceHelper'
 import { usePubSub } from '../../contexts/PubSubProvider'
-import { useFetchFromImageCacheMutation } from '@/state/api/visualGenerationsApi'
 import { useGetSpellQuery, useRunSpellMutation } from '@/state/api/spells'
-import { useAuth } from '@/contexts/AuthProvider'
 
 const Context = createContext<EditorContext>(undefined!)
 
@@ -19,13 +14,10 @@ export const useThothInterface = () => useContext(Context)
 const ThothInterfaceProvider = ({ children, tab }) => {
   const { events, publish, subscribe } = usePubSub()
   const spellRef = useRef<Spell | null>(null)
-  const [fetchFromImageCache] = useFetchFromImageCacheMutation()
-  const { user } = useAuth()
   const [_runSpell] = useRunSpellMutation()
   const { data: _spell } = useGetSpellQuery(
     {
       spellId: tab.spellId,
-      userId: user?.id as string,
     },
     {
       skip: !tab.spellId,
@@ -120,21 +112,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     })
   }
 
-  const completion = async body => {
-    const result = await _completion(body)
-    return result
-  }
-
-  const readFromImageCache = async (caption, cacheTag, topK) => {
-    const result = await fetchFromImageCache({
-      caption,
-      cacheTag,
-      topK,
-    })
-    if ('error' in result) throw new Error('Error reading from image cache')
-    return result.data
-  }
-
   const processCode = (code, inputs, data, state) => {
     const flattenedInputs = Object.entries(inputs as ThothWorkerInputs).reduce(
       (acc, [key, value]) => {
@@ -222,8 +199,6 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     sendToPlaytest,
     onPlaytest,
     clearTextEditor,
-    completion,
-    readFromImageCache,
     getCurrentGameState,
     setCurrentGameState,
     updateCurrentGameState,

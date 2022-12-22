@@ -103,6 +103,13 @@ const Playtest = ({ tab }) => {
       </button>
     </React.Fragment>
   )
+	if (document.getElementById("api-key")){
+		document.getElementById("api-key")?.addEventListener("keydown", function(event) {
+			if (event.key === "Enter") {
+			event.preventDefault();
+			}
+		});
+	}
 
   return (
     <Window toolbar={toolbar}>

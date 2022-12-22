@@ -2,7 +2,6 @@
 import { SearchSchema } from 'src/types'
 import weaviate from 'weaviate-client'
 import * as fs from 'fs'
-import { classifyText } from '../../../core/src/utils/textClassifier'
 import path from 'path'
 import { database } from '../database'
 import axios from 'axios'

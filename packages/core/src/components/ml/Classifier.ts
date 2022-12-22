@@ -85,7 +85,7 @@ export class Classifier extends ThothComponent<Promise<InputReturn>> {
       `${
         process.env.REACT_APP_API_URL ??
         process.env.API_URL ??
-        'https://localhost:8001'
+        'https://0.0.0.0:8001'
       }/hf_request`,
       {
         inputs: inputData as string,

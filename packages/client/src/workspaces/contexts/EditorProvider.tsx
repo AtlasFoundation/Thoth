@@ -20,8 +20,6 @@ import { MyNode } from '../../components/Node/Node'
 import gridimg from '@/grid.png'
 import { usePubSub } from '../../contexts/PubSubProvider'
 import { useThothInterface } from './ThothInterfaceProvider'
-// TODO fix this path import
-import { useAuth } from '@/contexts/AuthProvider'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers } from '@/config'
 
@@ -178,7 +176,6 @@ const EditorProvider = ({ children }) => {
 }
 
 const RawEditor = ({ tab, children }) => {
-  const { user } = useAuth()
   const [getSpell, { data: spell, isLoading }] = useLazyGetSpellQuery()
   const [loaded, setLoaded] = useState(false)
   const { buildEditor } = useEditor()
@@ -191,7 +188,6 @@ const RawEditor = ({ tab, children }) => {
     if (tab?.spellId)
       getSpell({
         spellId: tab.spellId,
-        userId: user?.id as string,
       })
   }, [tab])
 

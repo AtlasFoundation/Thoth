@@ -40,7 +40,7 @@ async function getEvent(
   const serverRoot =
     process.env.REACT_APP_API_ROOT_URL ??
     process.env.API_ROOT_URL ??
-    'https://localhost:8001'
+    'https://0.0.0.0:8001'
 
   const response = await axios.get(`${serverRoot}/event`, {
     params,

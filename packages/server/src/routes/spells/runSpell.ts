@@ -1,7 +1,6 @@
 import thothCore from '@thothai/thoth-core/server'
 import { ThothWorkerInputs } from '@thothai/thoth-core/types'
 import Koa from 'koa'
-import { CompletionRequest, completionsParser } from '../completions'
 import { Module } from './module'
 import { Graph, Module as ModuleType, ModuleComponent, Node } from './types'
 
@@ -16,14 +15,6 @@ export const buildThothInterface = (
   let gameState = { ...initialGameState }
 
   return {
-    completion: async (request: CompletionRequest) => {
-      const response = await completionsParser({
-        ...request,
-        prompt: request.prompt?.trim(),
-        stop: request.stop,
-      })
-      return response?.result || ''
-    },
     getCurrentGameState: () => {
       return gameState
     },
@@ -67,8 +58,6 @@ export const extractModuleInputKeys = (data: Graph) => {
     if (node.data.name && !node.data.useDefault) inputKeys.push(node.data.name)
     return inputKeys
   }, [] as string[])
-  console.log('*********************** INPUT VALUES')
-  console.log(inputValues)
   return inputValues
 }
 
@@ -94,8 +83,6 @@ export const runSpell = async (
   thoth: Record<string, unknown>,
   modules?: ModuleType[]
 ) => {
-  console.log('************ RUN SPELL')
-  console.log(inputs)
   // The module is an interface that the module system uses to write data to
   // used internally by the module plugin, and we make use of it here too.
   // TODO: Test runing nested modules and watch out for unexpected behaviour

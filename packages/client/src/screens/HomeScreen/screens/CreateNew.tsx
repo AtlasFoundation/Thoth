@@ -11,12 +11,10 @@ import { useNavigate } from 'react-router-dom'
 import { useNewSpellMutation } from '@/state/api/spells'
 import Panel from '../../../components/Panel/Panel'
 import emptyImg from '../empty.png'
-// import langImg from '../lang.png'
 import css from '../homeScreen.module.css'
 import TemplatePanel from '../components/TemplatePanel'
 import defaultGraph from '../../../data/graphs/default'
 import { GraphData } from '@thothai/thoth-core/types'
-import { useAuth } from '@/contexts/AuthProvider'
 
 const customConfig = {
   dictionaries: [adjectives, colors],
@@ -44,22 +42,18 @@ const CreateNew = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [newSpell] = useNewSpellMutation()
-  const { user } = useAuth()
   const {
     register,
     handleSubmit,
-    // formState: { errors },
   } = useForm()
 
   const onCreate = handleSubmit(async data => {
     try {
       const placeholderName = uniqueNamesGenerator(customConfig)
       const name = data.name || placeholderName
-      console.log('SELECTED GRAPH', selectedTemplate)
       const response = await newSpell({
         graph: selectedTemplate?.graph,
         name,
-        user: user?.id,
       })
 
       if ('error' in response) {
@@ -78,13 +72,6 @@ const CreateNew = () => {
       }
 
       navigate(`/thoth/${name}`)
-      // dispatch(
-      //   openTab({
-      //     name: name,
-      //     spellId: name,
-      //     type: 'spell',
-      //   })
-      // )
     } catch (err) {
       console.log('ERROR!!', err)
     }

@@ -20,11 +20,6 @@ import type {
   contentObjCreationAttributes,
 } from './content_objects'
 import { contentObj as _contentObj } from './content_objects'
-import type {
-  authUsersAttributes,
-  authUsersAttributesCreationAttributes,
-} from './authUsers'
-import { authUsers as _authUsers } from './authUsers'
 
 export {
   _entities as entities,
@@ -33,7 +28,6 @@ export {
   _documents as documents,
   _documentsStore as documentsStore,
   _contentObj as contentObj,
-  _authUsers as authUsers,
 }
 
 export type {
@@ -49,7 +43,6 @@ export type {
   documentsStoreCreationAttributes,
   contentObjAttributes,
   contentObjCreationAttributes,
-  authUsersAttributes,
 }
 
 export function initModels(sequelize: Sequelize) {
@@ -59,7 +52,6 @@ export function initModels(sequelize: Sequelize) {
   const documentsStore = _documentsStore.initModel(sequelize)
   const documents = _documents.initModel(sequelize)
   const contentObj = _contentObj.initModel(sequelize)
-  const authUsers = _authUsers.initModel(sequelize)
 
   return {
     entities: entities,
@@ -68,6 +60,5 @@ export function initModels(sequelize: Sequelize) {
     contentObj: contentObj,
     documents: documents,
     documentsStore: documentsStore,
-    authUsers: authUsers,
   }
 }

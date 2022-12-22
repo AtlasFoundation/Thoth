@@ -10,16 +10,13 @@ import { usePubSub } from '@/contexts/PubSubProvider'
 
 import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
-import { useAuth } from '@/contexts/AuthProvider'
 
 const StateManager = ({ tab, ...props }) => {
   const { publish, events } = usePubSub()
-  const { user } = useAuth()
   const preferences = useSelector((state: RootState) => state.preferences)
   const { data: spell } = useGetSpellQuery(
     {
       spellId: tab.spellId,
-      userId: user?.id as string,
     },
     {
       skip: !tab.spellId,

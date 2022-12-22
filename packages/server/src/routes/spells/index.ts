@@ -1,7 +1,6 @@
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
 import { creatorToolsDatabase } from '../../databases/creatorTools'
-import { noAuth } from '../middleware/auth'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 import {
@@ -83,7 +82,7 @@ const saveHandler = async (ctx: Koa.Context) => {
     where: { id: body.id },
   })
 
-  if (spell && spell.userId?.toString() !== 'global') {
+  if (spell) {
     throw new CustomError(
       'input-failed',
       'A spell with that name already exists.'
@@ -96,7 +95,6 @@ const saveHandler = async (ctx: Koa.Context) => {
       graph: body.graph,
       gameState: body.gameState || {},
       modules: body.modules || [],
-      userId: 'global', // ctx.state.user?.id ?? ctx.query.userId,
     })
     return (ctx.body = { id: newSpell.id })
   } else {
@@ -169,7 +167,6 @@ const newHandler = async (ctx: Koa.Context) => {
     graph: body.graph,
     gameState: {},
     modules: [],
-    userId: 'global', //ctx.state.user?.id ?? body.user,
   })
 
   return (ctx.body = newSpell)
@@ -177,11 +174,9 @@ const newHandler = async (ctx: Koa.Context) => {
 
 const patchHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
-  const userId = 'global' //ctx.state.user?.id ?? ctx.query.userId
   const spell = await creatorToolsDatabase.spells.findOne({
     where: {
       name,
-      userId,
     },
   })
   if (!spell) throw new CustomError('input-failed', 'spell not found')
@@ -193,10 +188,6 @@ const patchHandler = async (ctx: Koa.Context) => {
 
 const getSpellsHandler = async (ctx: Koa.Context) => {
   let queryBody: any = {}
-  if (ctx.query.userId)
-    queryBody['where'] = {
-      userId: 'global', //ctx.query.userId,
-    }
   const spells = await creatorToolsDatabase.spells.findAll({
     ...queryBody,
     attributes: {
@@ -215,7 +206,6 @@ const getSpellHandler = async (ctx: Koa.Context) => {
 
     if (!spell) {
       const newSpell = await creatorToolsDatabase.spells.create({
-        userId: 'global', //ctx.state.user?.id ?? ctx.query.userId,
         name,
         graph: { id: 'demo@0.1.0', nodes: {} },
         gameState: {},
@@ -223,9 +213,7 @@ const getSpellHandler = async (ctx: Koa.Context) => {
       })
       ctx.body = newSpell
     } else {
-      let userId = 'global' // ctx.state.user?.id ?? ctx.query.userId
-      if (spell?.userId !== userId) throw new Error('spell not found')
-      else ctx.body = spell
+      ctx.body = spell
     }
   } catch (e) {
     console.error(e)
@@ -263,7 +251,7 @@ const postSpellExistsHandler = async (ctx: Koa.Context) => {
 const deleteHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
   const spell = await creatorToolsDatabase.spells.findOne({
-    where: { name, userId: 'global' }, // ctx.state.user?.id ?? ctx.query.userId },
+    where: { name },
   })
   if (!spell) throw new CustomError('input-failed', 'spell not found')
 
@@ -279,43 +267,35 @@ const deleteHandler = async (ctx: Koa.Context) => {
 export const spells: Route[] = [
   {
     path: '/spells/save',
-    access: noAuth,
     post: saveHandler,
   },
   {
     path: '/spells/saveDiff',
-    access: noAuth,
     post: saveDiffHandler,
   },
   {
     path: '/spells',
-    access: noAuth,
     post: newHandler,
   },
   {
     path: '/spells/:name',
-    access: noAuth,
     patch: patchHandler,
     delete: deleteHandler,
   },
   {
     path: '/spells',
-    access: noAuth,
     get: getSpellsHandler,
   },
   {
     path: '/spells/:name',
-    access: noAuth,
     get: getSpellHandler,
   },
   {
     path: '/spells/exists',
-    access: noAuth,
     post: postSpellExistsHandler,
   },
   {
     path: '/:spell/:version',
-    access: noAuth,
     post: runSpellHandler,
   },
 ]

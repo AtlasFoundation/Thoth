@@ -1,12 +1,10 @@
 // @ts-nocheck
-import { createWikipediaEntity } from '../entities/connectors/wikipedia'
 import { database } from '../database'
 import { handleInput } from '../entities/connectors/handleInput'
 //@ts-ignore
 import weaviate from 'weaviate-client'
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
-import { noAuth } from './middleware/auth'
 import { Route } from '../types'
 import axios from 'axios'
 import { cacheManager } from '../cacheManager'
@@ -30,28 +28,7 @@ const executeHandler = async (ctx: Koa.Context) => {
   const id = ctx.request.body.id
   const msg = 'Hello'
   const spell_handler = ctx.request.body.handler ?? 'default'
-  if (message.includes('/become')) {
-    let out: any = {}
-    if (!(await database.instance.entityExists(agent))) {
-      out = await createWikipediaEntity('Speaker', agent, '', '')
-    }
 
-    if (out === undefined) {
-      out = {}
-    }
-
-    out.defaultGreeting = await msg
-    database.instance.createEvent(
-      'conversation',
-      agent,
-      'web',
-      agent,
-      id,
-      agent,
-      out.defaultGreeting
-    )
-    return (ctx.body = out)
-  }
   ctx.body = await handleInput(
     message,
     speaker,
@@ -62,15 +39,6 @@ const executeHandler = async (ctx: Koa.Context) => {
     entityId
   )
 }
-
-const createWikipediaEntityHandler = async (ctx: Koa.Context) => {
-  const { agent, speaker } = ctx.request.body
-
-  const out = await createWikipediaEntity(speaker, agent, '', '')
-
-  return (ctx.body = out)
-}
-
 const getEntitiesHandler = async (ctx: Koa.Context) => {
   try {
     let data = await database.instance.getEntities()
@@ -623,107 +591,83 @@ const register = async (ctx: Koa.Context) => {
 export const entities: Route[] = [
   {
     path: '/execute',
-    access: noAuth,
     post: executeHandler,
   },
   {
-    path: '/createWikipediaEntity',
-    access: noAuth,
-    post: createWikipediaEntityHandler,
-  },
-  {
     path: '/entities',
-    access: noAuth,
     get: getEntitiesHandler,
   },
   {
     path: '/entity',
-    access: noAuth,
     get: getEntityHandler,
     post: addEntityHandler,
   },
   {
     path: '/entity/:id',
-    access: noAuth,
     delete: deleteEntityHandler,
   },
   {
     path: '/event',
-    access: noAuth,
     get: getEvent,
     post: createEvent,
   },
   {
     path: '/event/:id',
-    access: noAuth,
     delete: deleteEvent,
     put: updateEvent,
   },
   {
     path: '/events',
-    access: noAuth,
     get: getAllEvents,
   },
   {
     path: '/events_sorted',
-    access: noAuth,
     get: getSortedEventsByDate,
   },
   {
     path: '/text_to_speech',
-    access: noAuth,
     get: getTextToSpeech,
   },
   {
     path: '/get_entity_image',
-    access: noAuth,
     get: getEntityImage,
   },
   {
     path: '/cache_manager',
-    access: noAuth,
     get: getFromCache,
     delete: deleteFromCache,
     post: setInCache,
   },
   {
     path: '/text_completion',
-    access: noAuth,
     post: textCompletion,
   },
   {
     path: '/hf_request',
-    access: noAuth,
     post: hfRequest,
   },
   {
     path: '/weaviate',
-    access: noAuth,
     post: makeWeaviateRequest,
   },
   {
     path: '/custom_message',
-    access: noAuth,
     post: customMessage,
   },
   {
     path: '/entities_info',
-    access: noAuth,
     get: getEntitiesInfo,
   },
   {
     path: '/handle_custom_input',
-    access: noAuth,
     post: handleCustomInput,
   },
   {
     path: '/login',
-    access: noAuth,
     post: login,
   },
   {
     path: '/register',
-    access: noAuth,
     post: register,
   },
 ]
