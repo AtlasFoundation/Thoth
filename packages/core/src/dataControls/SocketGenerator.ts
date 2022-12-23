@@ -28,7 +28,7 @@ export class SocketGeneratorControl extends DataControl {
     const name = nameInput || `${socketType} ${connectionType}s`
 
     const options = {
-      dataKey: connectionType + 's',
+      dataKey: name + connectionType + 's',
       name,
       component: 'socketGenerator',
       icon,

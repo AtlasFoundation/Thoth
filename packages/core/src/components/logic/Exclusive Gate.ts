@@ -50,6 +50,8 @@ export class ExclusiveGate extends ThothComponent<void> {
       (input: any) => !!input
     ) as DataSocketType[]
 
+    console.log('inputs', inputs)
+
     console.log('nodeInputs', nodeInputs)
 
     // get the name of the first nodeInput with socketType triggerInput
@@ -63,18 +65,14 @@ export class ExclusiveGate extends ThothComponent<void> {
 
     console.log('shortName', shortName)
 
-    const dataInput = (
-      nodeInputs.find(
-        input =>
-          input.socketType === 'anySocket' && input.name.includes(shortName)
-      ) as any
-    )[0]
+    const dataInput = nodeInputs.find(
+      input =>
+        input.socketType === 'anySocket' && input.name.includes(shortName)
+    ) as any
 
     console.log('dataInput', dataInput)
 
-    const output = inputs[dataInput.name][0]
-
-    console.log('output', output)
+    const output = inputs[dataInput.name]
 
     return {
       output,

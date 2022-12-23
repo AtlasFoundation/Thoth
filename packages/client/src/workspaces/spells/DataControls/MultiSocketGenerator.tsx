@@ -91,7 +91,7 @@ const SocketGenerator = ({ updateData, control, initialValue }) => {
     const newSocket = {
       name: socket + ' ' + (socketType === 'anySocket' ? 'data' : socketType.replace('Socket', '')) + (index > 0 ? ' ' + index : ''),
       taskType: data.taskType,
-      socketKey: socket + index > 0 ? '_' + index : '',
+      socketKey: socket + ' ' + (socketType === 'anySocket' ? 'data' : socketType.replace('Socket', '')) + (index > 0 ? ' ' + index : ''),
       connectionType: data.connectionType,
       socketType: socketType,
     }

@@ -73,7 +73,7 @@ const DataControls = ({
 
         return (
           <Box
-            key={nodeId + key}
+            key={control.name + nodeId + key}
             sx={{
               padding: '15px',
               borderRadius: '5px',

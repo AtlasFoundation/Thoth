@@ -45,16 +45,18 @@ function install(editor: IRunContextEditor) {
 
       if (nodeInputs && nodeInputs.length !== 0) {
         // get inputs from node.inputs
-        const inputMap = {} as Record<string, Input>
-        node.inputs.forEach((value, key) => {
-          inputMap[key] = value
-        })
+        // const inputMap = {} as Record<string, Input>
+        // node.inputs.forEach((value, key) => {
+        //   inputMap[key] = value
+        // })
 
         nodeInputs.forEach(socket => {
           // If the input key is already on the node, return
-          if (inputMap[socket.socketKey]) return
+          // if (inputMap[socket.socketKey]) return
           const input = new Rete.Input(
-            socket.socketKey ? socket.socketKey : socket.name,
+            socket.socketKey && socket.socketKey !== ''
+              ? socket.socketKey
+              : socket.name,
             socket.name,
             sockets[socket.socketType],
             socket.socketType === 'triggerSocket'
