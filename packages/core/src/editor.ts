@@ -8,7 +8,7 @@ import { EventsTypes, EditorContext } from '../types'
 import { ThothNode } from './../types'
 import { getComponents } from './components/components'
 import { initSharedEngine, ThothEngine } from './engine'
-// import CommentPlugin from './plugins/commentPlugin'
+import CommentPlugin from './plugins/commentPlugin'
 import AreaPlugin from './plugins/areaPlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
@@ -168,9 +168,9 @@ export const initEditor = function ({
 
   // editor.use(SelectionPlugin, { enabled: true })
 
-  // editor.use(CommentPlugin, {
-  //   margin: 20, // indent for new frame comments by default 30 (px)
-  // })
+  editor.use(CommentPlugin, {
+    margin: 20, // indent for new frame comments by default 30 (px)
+  })
 
   // WARNING all the plugins from the editor get installed onto the component and modify it.  This effects the components registered in the engine, which already have plugins installed.
   components.forEach((c: any) => {
@@ -188,6 +188,7 @@ export const initEditor = function ({
   editor.on(['click'], () => {
     editor.selected.list = []
   })
+
 
   editor.bind('run')
   editor.bind('save')
