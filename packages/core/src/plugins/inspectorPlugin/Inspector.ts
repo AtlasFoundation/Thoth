@@ -185,11 +185,6 @@ export class Inspector {
     this.node.data.dataControls = cache
   }
 
-  handleLock(update: Record<string, any>) {
-    if (!('nodeLocked' in update.data)) return
-    this.node.data.nodeLocked = update.data.nodeLocked
-  }
-
   handleDefaultTrigger(update: Record<string, any>) {
     this.editor.nodes
       .filter((node: ThothNode) => node.name === 'Module Trigger In')
@@ -209,7 +204,6 @@ export class Inspector {
 
     const { data } = update
 
-    this.handleLock(update)
     this.handleDefaultTrigger(update)
 
     // Send data to a possibel node global handler

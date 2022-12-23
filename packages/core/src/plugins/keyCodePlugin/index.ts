@@ -12,7 +12,6 @@ function install(editor: IRunContextEditor) {
 
   editor.on('delete', () => {
     if (!currentNode) return
-    if (currentNode.data.nodeLocked) return
     editor.removeNode(currentNode)
   })
 }
