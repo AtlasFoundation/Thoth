@@ -35,7 +35,6 @@
     "@green-api/whatsapp-bot": "0.2.5",
     "@types/deep-equal": "^1.0.1",
     "axios": "0.27.0",
-    "cross-fetch": "^3.1.5",
     "deep-equal": "^2.0.5",
     "discord.js": "^13.6.0",
     "dotenv-flow": "3.2.0",
@@ -85,6 +84,7 @@
     "uuid": "^8.3.2",
     "weaviate-client": "2.12.1",
     "wikipedia": "^1.1.6",
+    "xhr2": "^0.2.1",
     "xvfb": "0.4.0"
   },
   "peerDependencies": {

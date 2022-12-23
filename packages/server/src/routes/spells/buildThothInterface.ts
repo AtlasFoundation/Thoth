@@ -57,7 +57,7 @@ export const buildThothInterface = (
         console.log({ err })
         throw new CustomError(
           'server-error',
-          'Error in spell runner: processCode component.'
+          'Error in spell runner: processCode component: ' + code
         )
       }
     },

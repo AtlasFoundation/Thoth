@@ -1,12 +1,4 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
-/* eslint-disable no-async-promise-executor */
-/* eslint-disable camelcase */
-/* eslint-disable @typescript-eslint/no-inferrable-types */
-/* eslint-disable no-console */
-/* eslint-disable require-await */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
 import Rete from 'rete'
 
 import {
@@ -150,32 +142,39 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     })
 
     console.log('filteredStop is', filteredStop)
-	const API_URL = "https://0.0.0.0:8001";
-	// const REACT_APP_API_URL = ;
-    const resp = await axios.post(
-      `${
-        process.env.REACT_APP_API_URL ??
-        API_URL ??
-        'https://0.0.0.0:8001'
+    const API_URL = "https://0.0.0.0:8001";
+    // instead of axios.post, use fetch
+    const resp = await fetch(
+      `${process.env.REACT_APP_API_URL ??
+      API_URL ??
+      'https://0.0.0.0:8001'
       }/text_completion`,
       {
-        prompt,
-        modelName,
-        temperature,
-        maxTokens,
-        topP,
-        frequencyPenalty,
-        presencePenalty,
-        stop: filteredStop,
-        apiKey,
-      }
-    )
-    console.log('resp.data is ', resp.data)
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt,
+          modelName,
+          temperature,
+          maxTokens,
+          topP,
+          frequencyPenalty,
+          presencePenalty,
+          stop: filteredStop,
+          apiKey,
+        })
+      })
 
-    const { success, choice } = resp.data
+      const data = await resp.json()
+
+    console.log('resp.data is ', data)
+
+    const { success, choice } = data
 
     if (!success) {
-      console.error('Error in text completion', resp.data)
+      console.error('Error in text completion', data)
       return {
         output: '<error>',
       }
@@ -184,7 +183,7 @@ export class AgentTextCompletion extends ThothComponent<Promise<WorkerReturn>> {
     const res =
       success !== 'false' && success !== false
         ? choice.text
-        : 'Sorry, I had an error!'
+        : '<error>'
 
     console.log('success:', success, 'choice:', choice.text, 'res:', res)
 

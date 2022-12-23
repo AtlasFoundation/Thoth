@@ -11,6 +11,7 @@ import {
   VRMUtils,
 } from '@pixiv/three-vrm'
 import { Object3D } from 'three'
+
 /*
 
 inspired by https://twitter.com/yeemachine/status/1414993821583118341
@@ -23,9 +24,7 @@ function randomsomesuch() {
 
 const Avatar = ({ speechUrl, pause, unpause }) => {
   const { scene, camera } = useThree()
-  const gltf = useGLTF(
-    `${process.env.REACT_APP_FILE_SERVER_URL}/files/avatar.vrm`
-  )
+  const gltf = useGLTF(`/avatar.vrm`)
 
   useEffect(() => {
     console.log('SPEECH URL', speechUrl)
@@ -59,8 +58,7 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
         return new VRMLoaderPlugin(parser)
       })
 
-      loader.load(
-        `${process.env.REACT_APP_FILE_SERVER_URL}/files/avatar.vrm`,
+      loader.load(`/avatar.vrm`,
         gltf => {
           const vrm = gltf.userData.vrm
 
@@ -190,12 +188,11 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
     // @ts-ignore
     const audioContext = new AudioContext() || new webkitAudioContext()
 
-    const request = new XMLHttpRequest()
-    request.open('GET', url, true)
-    request.responseType = 'arraybuffer'
-    request.onload = function () {
-      audioContext.decodeAudioData(request.response, onDecoded)
-    }
+    // rewrite the xhr to use fetch
+    fetch(url)
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+      .then(buffer => onDecoded(buffer))
 
     function onDecoded(buffer) {
       const source = audioContext.createBufferSource()
@@ -383,8 +380,6 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
         unpause()
       }
     }
-
-    request.send()
 
     return () => {
       if (audioContext.state !== 'closed') audioContext.close()
