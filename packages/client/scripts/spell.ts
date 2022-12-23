@@ -1,5 +1,5 @@
 const spell = {
-  id: "demo@1.0.0",
+  id: "demo@0.1.0",
   nodes: {
     2: {
       id: 2,

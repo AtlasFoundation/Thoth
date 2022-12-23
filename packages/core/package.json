@@ -69,7 +69,7 @@
     "rete": "^1.5.0-rc1",
     "rete-area-plugin": "^0.2.1",
     "rete-connection-plugin": "^0.9.0",
-    "rete-context-menu-plugin-react": "^0.0.8",
+    "rete-context-menu-plugin": "^0.6.0-rc.1",
     "rete-module-plugin": "^0.4.2",
     "similarity": "^1.2.1",
     "snoostream": "1.0.1",

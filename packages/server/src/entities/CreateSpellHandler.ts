@@ -16,7 +16,7 @@ export const CreateSpellHandler = async (props: {
 }) => {
   // TODO: create a proper engine interface with the proper methods types on it.
   const engine = initSharedEngine({
-    name: 'demo@1.0.0',
+    name: 'demo@0.1.0',
     components: getComponents(),
     server: true,
     modules: {},

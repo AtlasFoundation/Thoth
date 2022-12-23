@@ -1,1 +1,1 @@
-declare module "rete-context-menu-plugin-react"
+declare module "rete-context-menu-plugin"

@@ -1,9 +1,7 @@
 import { NodeEditor } from 'rete'
 import ConnectionPlugin from 'rete-connection-plugin'
 // import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
-import ContextMenuPlugin, { 
-  ReactMenu,
-} from 'rete-context-menu-plugin-react'
+import ContextMenuPlugin from 'rete-context-menu-plugin'
 import { Data } from 'rete/types/core/data'
 import { createRoot } from 'react-dom/client'
 import { EventsTypes, EditorContext } from '../types'
@@ -73,7 +71,7 @@ export const initEditor = function ({
   const components = getComponents()
 
   // create the main edtor
-  const editor = new ThothEditor('demo@1.0.0', container)
+  const editor = new ThothEditor('demo@0.1.0', container)
 
   editorTabMap[tab.id] = editor
 
@@ -111,10 +109,8 @@ export const initEditor = function ({
   // renders a context menu on right click that shows available nodes
   editor.use(LifecyclePlugin)
   editor.use(ContextMenuPlugin, {
-    Menu: ReactMenu, // required
     searchBar: false,
-    searchKeep: title => true,
-    delay: 100,
+    delay: 0,
     rename(component: { contextMenuName: any; name: any }) {
       return component.contextMenuName || component.name
     },
@@ -147,7 +143,7 @@ export const initEditor = function ({
   // The engine is used to process/run the rete graph
 
   const engine = initSharedEngine({
-    name: 'demo@1.0.0',
+    name: 'demo@0.1.0',
     components,
     server: false,
     modules: {},

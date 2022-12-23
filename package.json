@@ -83,7 +83,7 @@
     "redis": "^4.1.0",
     "regenerator-runtime": "^0.13.11",
     "rete": "^1.5.0-rc1",
-    "rete-context-menu-plugin-react": "^0.0.8",
+    "rete-context-menu-plugin": "^0.6.0-rc.1",
     "socket.io-client": "^4.5.0",
     "stream": "^0.0.2",
     "ts-node": "^10.9.1",
