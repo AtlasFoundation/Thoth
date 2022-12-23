@@ -16,7 +16,7 @@ class RunSpell {
   constructor({ thothInterface }: RunSpellConstructor) {
     // Initialize the engine
     this.engine = initSharedEngine({
-      name: 'demo@0.1.0',
+      name: 'demo@1.0.0',
       components: getComponents(),
       server: true,
       modules: {},

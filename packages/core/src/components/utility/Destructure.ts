@@ -1,10 +1,15 @@
-import { SocketGeneratorControl } from './../../dataControls/SocketGenerator';
 import Rete from 'rete'
 
-import { NodeData, ThothNode, ThothWorkerInputs, ThothWorkerOutputs } from '../../../types'
+import {
+  NodeData,
+  ThothNode,
+  ThothWorkerInputs,
+  ThothWorkerOutputs,
+} from '../../../types'
 import { TaskOptions } from '../../plugins/taskPlugin/task'
 import { objectSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
+import { SocketGeneratorControl } from './../../dataControls/SocketGenerator'
 
 const info = `Destructure properties out of an object`
 
@@ -15,10 +20,10 @@ export class Destructure extends ThothComponent<void> {
 
     this.task = {
       outputs: {
-        trigger: 'option'
+        trigger: 'option',
       },
-      init: () => { },
-      onRun: () => { },
+      init: () => {},
+      onRun: () => {},
     } as TaskOptions
     this.category = 'Utility'
     this.info = info
@@ -34,19 +39,23 @@ export class Destructure extends ThothComponent<void> {
 
     const socketGenerator = new SocketGeneratorControl({
       connectionType: 'output',
-      name: 'Property Name'
-
+      name: 'Property Name',
     })
 
     node.inspector.add(socketGenerator)
-    return node.addInput(dataInput).addInput(objectInput).addOutput(outputTrigger)
+    return node
+      .addInput(dataInput)
+      .addInput(objectInput)
+      .addOutput(outputTrigger)
   }
 
   // the worker contains the main business logic of the node.  It will pass those results
   // to the outputs to be consumed by any connected components
-  worker(node: NodeData,
+  worker(
+    node: NodeData,
     inputs: ThothWorkerInputs,
-    outputs: ThothWorkerOutputs,) {
+    outputs: ThothWorkerOutputs
+  ) {
     // @ts-ignore
     const object = inputs.object[0] as Record<string, any>
 
@@ -55,7 +64,7 @@ export class Destructure extends ThothComponent<void> {
       return acc
     }, {} as Record<any, any>)
 
-    console.log("Destructured output", output)
+    console.log('Destructured output', output)
 
     return output
   }

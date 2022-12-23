@@ -59,30 +59,6 @@ const Inspector = props => {
     saveInspector(newData)
   }
 
-  // const onLock = () => {
-  //   if (
-  //     !preferences.doNotShowUnlockWarning &&
-  //     inspectorData?.data.nodeLocked &&
-  //     inspectorData?.category === 'I/O'
-  //   ) {
-  //     openModal({
-  //       modal: 'infoModal',
-  //       content: 'Editing this node could break connection with your app.',
-  //       title: 'Warning',
-  //       checkbox: {
-  //         onClick: () => dispatch(toggleDoNotShowUnlockWarning()),
-  //         label: 'Do not show this again',
-  //       },
-  //     })
-  //   }
-
-  //   const data = {
-  //     nodeLocked: !inspectorData?.data.nodeLocked,
-  //   }
-
-  //   updateData(data)
-  // }
-
   const toolbar = (
     <>
       <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>

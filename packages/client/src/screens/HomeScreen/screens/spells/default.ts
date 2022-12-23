@@ -1,5 +1,5 @@
 const graph = {
-  id: 'demo@0.1.0',
+  id: 'demo@1.0.0',
   nodes: {
     '124': {
       id: 124,

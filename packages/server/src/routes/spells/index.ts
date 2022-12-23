@@ -107,7 +107,6 @@ const saveHandler = async (ctx: Koa.Context) => {
     })
     return (ctx.body = { id: newSpell.id })
   } else {
-    console.log('body is', body)
     if(Object.keys(body.graph.nodes).length === 0){
       console.warn('Skipping save of spell with no nodes.')
       throw new CustomError('input-failed', 'No nodes provided in request body')
@@ -218,7 +217,7 @@ const getSpellHandler = async (ctx: Koa.Context) => {
     if (!spell) {
       const newSpell = await creatorToolsDatabase.spells.create({
         name,
-        graph: { id: 'demo@0.1.0', nodes: {} },
+        graph: { id: 'demo@1.0.0', nodes: {} },
         gameState: {},
         modules: [],
       })
