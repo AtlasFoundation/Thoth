@@ -64,18 +64,6 @@ const TextEditor = props => {
     }
   }, [textEditorData])
 
-  // debounce for delayed save
-  useEffect(() => {
-    if (!typing) return
-    if (!preferences.autoSave) return
-    const delayDebounceFn = setTimeout(() => {
-      save(code)
-      setTyping(false)
-    }, 2500)
-
-    return () => clearTimeout(delayDebounceFn)
-  }, [code])
-
   const save = code => {
     const update = {
       ...data,

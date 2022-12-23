@@ -1,7 +1,9 @@
 import { NodeEditor } from 'rete'
 import ConnectionPlugin from 'rete-connection-plugin'
 // import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
-import ContextMenuPlugin from 'rete-context-menu-plugin'
+import ContextMenuPlugin, { 
+  ReactMenu,
+} from 'rete-context-menu-plugin-react'
 import { Data } from 'rete/types/core/data'
 import { createRoot } from 'react-dom/client'
 import { EventsTypes, EditorContext } from '../types'
@@ -109,8 +111,10 @@ export const initEditor = function ({
   // renders a context menu on right click that shows available nodes
   editor.use(LifecyclePlugin)
   editor.use(ContextMenuPlugin, {
+    Menu: ReactMenu, // required
     searchBar: false,
-    delay: 0,
+    searchKeep: title => true,
+    delay: 100,
     rename(component: { contextMenuName: any; name: any }) {
       return component.contextMenuName || component.name
     },
