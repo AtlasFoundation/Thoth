@@ -69,16 +69,11 @@ const DataControls = ({
 
         if (!Component) return null
 
-        const setExpanded = state => {
-          control.expanded = state
-          updateControl({ [control.dataKey]: control })
-        }
-
         if (control.component === 'info' && !control?.data?.info) return null
 
         return (
           <Box
-            key={key}
+            key={nodeId + key}
             sx={{
               padding: '15px',
               borderRadius: '5px',
@@ -87,7 +82,7 @@ const DataControls = ({
             <p style={{ margin: 0, marginBottom: '10px' }}>
               {control.name || key}
             </p>
-            <Component key={key} {...controlProps} />
+            <Component key={nodeId + control.name} {...controlProps} />
           </Box>
         )
       })}
