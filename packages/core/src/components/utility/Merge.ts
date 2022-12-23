@@ -1,11 +1,16 @@
-import { SocketGeneratorControl } from '../../dataControls/SocketGenerator';
 import Rete from 'rete'
 
-import { NodeData, ThothNode, ThothWorkerInputs, ThothWorkerOutputs } from '../../../types'
+import {
+  NodeData,
+  ThothNode,
+  ThothWorkerInputs,
+  ThothWorkerOutputs,
+} from '../../../types'
+import { InputControl } from '../../dataControls/InputControl'
+import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { TaskOptions } from '../../plugins/taskPlugin/task'
 import { objectSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
-import { InputControl } from '../../dataControls/InputControl';
 
 const info = `Merge can take in any number of properties in the form of named sockets, and compose them together iinto an object.  Additionally, another object can be added in, in which case merge will add in any proprties from that object, but overwrite them with any from the sockets.`
 
@@ -17,10 +22,10 @@ export class Merge extends ThothComponent<void> {
     this.task = {
       outputs: {
         trigger: 'option',
-        object: 'output'
+        object: 'output',
       },
-      init: () => { },
-      onRun: () => { },
+      init: () => {},
+      onRun: () => {},
     } as TaskOptions
     this.category = 'Utility'
     this.info = info
@@ -28,7 +33,11 @@ export class Merge extends ThothComponent<void> {
 
   builder(node: ThothNode): ThothNode {
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
-    const objectInput = new Rete.Input('object', 'Object (optional)', objectSocket)
+    const objectInput = new Rete.Input(
+      'object',
+      'Object (optional)',
+      objectSocket
+    )
     const outputTrigger = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const objectOutput = new Rete.Output('object', 'Object', objectSocket)
 
@@ -45,29 +54,38 @@ export class Merge extends ThothComponent<void> {
 
     node.inspector.add(nameInput).add(socketGenerator)
 
-    node.addInput(dataInput).addInput(objectInput).addOutput(outputTrigger).addOutput(objectOutput)
+    node
+      .addInput(dataInput)
+      .addInput(objectInput)
+      .addOutput(outputTrigger)
+      .addOutput(objectOutput)
     return node
   }
 
-  worker(node: NodeData,
+  worker(
+    node: NodeData,
     inputs: ThothWorkerInputs,
-    outputs: ThothWorkerOutputs,) {
+    outputs: ThothWorkerOutputs
+  ) {
     const object = inputs.object[0] as Record<string, any>
-    const combinedInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
-      if (key === 'object') return acc
-      acc[key] = value[0]
-      return acc
-    }, {} as Record<string, any>)
+    const combinedInputs = Object.entries(inputs).reduce(
+      (acc, [key, value]) => {
+        if (key === 'object') return acc
+        acc[key] = value[0]
+        return acc
+      },
+      {} as Record<string, any>
+    )
 
     const combined = {
       ...object,
-      ...combinedInputs
+      ...combinedInputs,
     }
 
-    console.log("COMBINED OBJECT", combined)
+    console.log('COMBINED OBJECT', combined)
 
     return {
-      object: combined
+      object: combined,
     }
   }
 }

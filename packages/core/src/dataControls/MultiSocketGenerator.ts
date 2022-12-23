@@ -1,16 +1,18 @@
 import { DataControl } from '../plugins/inspectorPlugin'
 
-export class SocketGeneratorControl extends DataControl {
+// MultiSocketGeneratorControl is a DataControl that allows you to socket groups
+// So one (+) can create multiple sockets at once.
+export class MultiSocketGeneratorControl extends DataControl {
   connectionType: string
   constructor({
-    socketType = 'anySocket',
+    socketTypes = ['anySocket'],
     taskType = 'output',
     ignored = [],
     icon = 'properties',
     connectionType,
     name: nameInput,
   }: {
-    socketType?: string
+    socketTypes?: string[]
     taskType?: string
     ignored?: string[]
     icon?: string
@@ -25,16 +27,16 @@ export class SocketGeneratorControl extends DataControl {
         "connectionType of your generator must be defined and of the value 'input' or 'output'."
       )
 
-    const name = nameInput || `${socketType} ${connectionType}s`
+    const name = nameInput || `${socketTypes.join('|')} ${connectionType}s`
 
     const options = {
       dataKey: connectionType + 's',
       name,
-      component: 'socketGenerator',
+      component: 'multiSocketGenerator',
       icon,
       data: {
         ignored,
-        socketType,
+        socketTypes,
         taskType,
         connectionType,
       },

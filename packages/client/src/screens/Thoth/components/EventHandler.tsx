@@ -129,34 +129,34 @@ const EventHandler = ({ pubSub, tab }) => {
       diff: jsonDiff,
     })
 
-    if (preferences.autoSave) {
-      if ('error' in response) {
-        enqueueSnackbar('Error saving spell', {
-          variant: 'error',
-        })
-        return
-      }
+    // if (preferences.autoSave) {
+    //   if ('error' in response) {
+    //     enqueueSnackbar('Error saving spell', {
+    //       variant: 'error',
+    //     })
+    //     return
+    //   }
 
-      enqueueSnackbar('Spell saved', {
-        variant: 'success',
-      })
-    }
+    //   enqueueSnackbar('Spell saved', {
+    //     variant: 'success',
+    //   })
+    // }
 
-    if (feathersFlag) {
-      try {
-        await client.service('spell-runner').update(currentSpell.name, {
-          diff: jsonDiff,
-        })
-        enqueueSnackbar('Spell saved', {
-          variant: 'success',
-        })
-      } catch {
-        enqueueSnackbar('Error saving spell', {
-          variant: 'error',
-        })
-        return
-      }
-    }
+    // if (feathersFlag) {
+    //   try {
+    //     await client.service('spell-runner').update(currentSpell.name, {
+    //       diff: jsonDiff,
+    //     })
+    //     enqueueSnackbar('Spell saved', {
+    //       variant: 'success',
+    //     })
+    //   } catch {
+    //     enqueueSnackbar('Error saving spell', {
+    //       variant: 'error',
+    //     })
+    //     return
+    //   }
+    // }
   }
 
   const createStateManager = () => {

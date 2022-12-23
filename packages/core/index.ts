@@ -8,7 +8,7 @@ export { zoomAt } from './src/plugins/areaPlugin/zoom-at'
 export { getComponents } from './src/components/components'
 export { initEditor } from './src/editor'
 export { Task } from './src/plugins/taskPlugin/task'
-export { Socket, Node, Control } from 'rete-react-render-plugin'
+export { Socket, Node, Control } from './src/plugins/reactRenderPlugin'
 
 export default {
   components,

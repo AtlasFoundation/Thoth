@@ -29,6 +29,7 @@ import { LogicalOperator } from './logic/LogicalOperator'
 import { OrGate } from './logic/OrGate'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
+import { ExclusiveGate } from './logic/Exclusive Gate'
 import { WhileLoop } from './logic/WhileLoop'
 import { Classifier } from './ml/Classifier'
 import { SentenceMatcher } from './ml/SentenceMatcher'
@@ -137,6 +138,7 @@ export const components = {
   triggerIn: () => new TriggerIn(),
   triggerOut: () => new TriggerOut(),
   waitForAll: () => new WaitForAll(),
+  exclusiveGate: () => new ExclusiveGate(),
   checkEthBalance: () => new CheckEthBalance(),
   checkBalanceForERC20: () => new CheckBalanceForERC20(),
   getRecentTransactions: () => new GetRecentTransactions(),

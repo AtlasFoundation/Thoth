@@ -16,16 +16,12 @@ export class MyNode extends Node {
     const fullName = node.data.name ? `${name} - ${node.data.name}` : name
     const hasError = node.data.error
     const hasSuccess = node.data.success
-    const nodeLocked = node.data.nodeLocked
 
     return (
       <div
         className={`${css['node']} ${css[selected]} ${css[hasError ? 'error' : '']
           } ${css[hasSuccess ? 'success' : '']}`}
       >
-        {nodeLocked && (
-          <div className={`${css['node-locked']} ${icons['node-lock']}`}></div>
-        )}
         <div
           className={`${css['node-id']} ${hasError ? css['error'] : ''} ${hasSuccess ? css['success'] : ''
             }`}

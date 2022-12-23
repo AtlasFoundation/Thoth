@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box'
-import { SimpleAccordion } from '../../../components/Accordion'
 import CodeControl from './CodeControl'
 import css from './datacontrols.module.css'
 import Info from './Info'
@@ -9,6 +8,7 @@ import LongText from './LongTextControl'
 import OutputGenerator from './OutputGenerator'
 import DropdownSelect from './DropdownSelect'
 import SocketGenerator from './SocketGenerator'
+import MultiSocketGenerator from './MultiSocketGenerator'
 import PlaytestControl from './PlaytestControl'
 import SwitchControl from './SwitchControl'
 import SpellSelect from './SpellSelect'
@@ -25,7 +25,7 @@ const controlMap = {
   spellSelect: SpellSelect,
   outputGenerator: OutputGenerator,
   slider: StubComponent,
-
+  multiSocketGenerator: MultiSocketGenerator,
   socketGenerator: SocketGenerator,
   playtest: PlaytestControl,
   switch: SwitchControl,
@@ -59,7 +59,7 @@ const DataControls = ({
           nodeId,
           width,
           control,
-          name: inspectorData.name,
+          name: inspectorData.name + ' (' + key + ')',
           initialValue: data[control.dataKey] || '',
           updateData,
           tab,
@@ -69,25 +69,11 @@ const DataControls = ({
 
         if (!Component) return null
 
-        const setExpanded = state => {
-          control.expanded = state
-          updateControl({ [control.dataKey]: control })
-        }
-
         if (control.component === 'info' && !control?.data?.info) return null
-
-        /* <SimpleAccordion
-            heading={control.name || key}
-            defaultExpanded={true}
-            expanded={control.expanded}
-            setExpanded={setExpanded}
-            key={key}
-            icon={control.icon}
-          > */
 
         return (
           <Box
-            key={key}
+            key={nodeId + key}
             sx={{
               padding: '15px',
               borderRadius: '5px',
@@ -96,7 +82,7 @@ const DataControls = ({
             <p style={{ margin: 0, marginBottom: '10px' }}>
               {control.name || key}
             </p>
-            <Component {...controlProps} />
+            <Component key={nodeId + control.name} {...controlProps} />
           </Box>
         )
       })}

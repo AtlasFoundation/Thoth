@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { createNode } from 'rete-context-menu-plugin/src/utils'
+import { createNode } from 'rete-context-menu-plugin-react/src/utils'
 
 import { Editor, useEditor } from '../../../contexts/EditorProvider'
 import Select from '@components/Select/Select'

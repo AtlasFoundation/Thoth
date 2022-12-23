@@ -1,7 +1,9 @@
 import { NodeEditor } from 'rete'
 import ConnectionPlugin from 'rete-connection-plugin'
 // import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
-import ContextMenuPlugin from 'rete-context-menu-plugin'
+import ContextMenuPlugin, { 
+  ReactMenu,
+} from 'rete-context-menu-plugin-react'
 import { Data } from 'rete/types/core/data'
 import { createRoot } from 'react-dom/client'
 import { EventsTypes, EditorContext } from '../types'
@@ -19,8 +21,9 @@ import KeyCodePlugin from './plugins/keyCodePlugin'
 import LifecyclePlugin from './plugins/lifecyclePlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import { ModuleManager } from './plugins/modulePlugin/module-manager'
-import ReactRenderPlugin from 'rete-react-render-plugin'
+import ReactRenderPlugin from './plugins/reactRenderPlugin'
 import SocketGenerator from './plugins/socketGenerator'
+import MultiSocketGenerator from './plugins/multiSocketGenerator'
 import SocketPlugin from './plugins/socketPlugin'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
@@ -70,7 +73,7 @@ export const initEditor = function ({
   const components = getComponents()
 
   // create the main edtor
-  const editor = new ThothEditor('demo@0.1.0', container)
+  const editor = new ThothEditor('demo@1.0.0', container)
 
   editorTabMap[tab.id] = editor
 
@@ -108,26 +111,23 @@ export const initEditor = function ({
   // renders a context menu on right click that shows available nodes
   editor.use(LifecyclePlugin)
   editor.use(ContextMenuPlugin, {
-    delay: 0,
+    Menu: ReactMenu, // required
+    searchBar: false,
+    searchKeep: title => true,
+    delay: 100,
     rename(component: { contextMenuName: any; name: any }) {
       return component.contextMenuName || component.name
     },
     nodeItems: (node: ThothNode) => {
-      if (node.data.nodeLocked) {
-        return { Delete: false }
-      }
       return {
         Deleted: true,
         Clone: true,
       }
     },
     allocate: (component: ThothComponent<unknown>) => {
-      const isProd = process.env.NODE_ENV === 'production'
-      //@seang: disabling component filtering in anticipation of needing to treat spells as "top level modules" in the publishing workflow
       const tabType = editor.tab.type
       const { workspaceType } = component
 
-      if (isProd && (component as any).dev) return null
       if (component.hide) return null
       if (workspaceType && workspaceType !== tabType) return null
       return [component.category]
@@ -137,6 +137,7 @@ export const initEditor = function ({
   // This should only be needed on client, not server
   editor.use(DebuggerPlugin)
   editor.use(SocketGenerator)
+  editor.use(MultiSocketGenerator)
   editor.use(DisplayPlugin)
   editor.use(InspectorPlugin)
   editor.use(AreaPlugin, {
@@ -146,7 +147,7 @@ export const initEditor = function ({
   // The engine is used to process/run the rete graph
 
   const engine = initSharedEngine({
-    name: 'demo@0.1.0',
+    name: 'demo@1.0.0',
     components,
     server: false,
     modules: {},
