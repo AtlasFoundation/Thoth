@@ -187,6 +187,7 @@ export const initEditor = function ({
     editor.selected.list = []
   })
 
+
   editor.bind('run')
   editor.bind('save')
 

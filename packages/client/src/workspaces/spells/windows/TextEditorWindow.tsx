@@ -17,12 +17,11 @@ const TextEditor = props => {
   const [data, setData] = useState<TextEditorData | null>(null)
   // const [height, setHeight] = useState<number>()
   const [editorOptions, setEditorOptions] = useState<Record<string, any>>()
-  const [typing, setTyping] = useState<boolean>(false)
   const [language, setLanguage] = useState<string | undefined>(undefined)
   const codeRef = useRef<string>()
   const preferences = useSelector((state: RootState) => state.preferences)
 
-  const { textEditorData, saveTextEditor } = useInspector()
+  const { textEditorData, saveTextEditor, inspectorData } = useInspector()
 
   // const bottomHeight = 50
   const handleEditorWillMount = monaco => {
@@ -57,7 +56,6 @@ const TextEditor = props => {
     if (!textEditorData) return
     setData(textEditorData)
     setCode(textEditorData.data as string)
-    setTyping(false)
 
     if (textEditorData?.options?.language) {
       setLanguage(textEditorData.options.language)
@@ -85,7 +83,6 @@ const TextEditor = props => {
       data: code,
     }
     setData(update)
-    setTyping(true)
   }
 
   const setCode = update => {
@@ -106,7 +103,7 @@ const TextEditor = props => {
     return <WindowMessage content="Component has no editable text" />
 
   return (
-    <Window toolbar={toolbar}>
+    <Window key={inspectorData?.nodeId} toolbar={toolbar}>
       <Editor
         theme="sds-dark"
         // height={height} // This seemed to have been causing issues.
