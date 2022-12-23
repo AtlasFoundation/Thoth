@@ -51,7 +51,7 @@ const runSpellHandler = async (ctx: Koa.Context) => {
       if (requestInput) {
         acc[input] = requestInput
       } else {
-        throw new CustomError('input-failed', `Missing required input ${input}`)
+        acc[input] = null
       }
       return acc
     },
@@ -107,9 +107,15 @@ const saveHandler = async (ctx: Koa.Context) => {
     })
     return (ctx.body = { id: newSpell.id })
   } else {
-    // TODO eventually we should actually validate the body before dumping it in.
-    await spell.update(body)
-    return (ctx.body = { id: spell.id })
+    console.log('body is', body)
+    if(Object.keys(body.graph.nodes).length === 0){
+      console.warn('Skipping save of spell with no nodes.')
+      throw new CustomError('input-failed', 'No nodes provided in request body')
+    } else { 
+      // TODO eventually we should actually validate the body before dumping it in.
+      await spell.update(body)
+      return (ctx.body = { id: spell.id })
+    }
   }
 }
 
