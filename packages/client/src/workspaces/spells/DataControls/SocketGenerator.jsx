@@ -83,9 +83,9 @@ const SocketGenerator = ({ updateData, control, initialValue }) => {
   }
 
   return (
-    <div key={control.name} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       {sockets.map((socket, i) => (
-        <SingleSocket name={socket.name} key={control.name + i} delete={onDelete} />
+        <SingleSocket name={socket.name} key={i} delete={onDelete} />
       ))}
       <AddNewSocket addSocket={addSocket} />
     </div>

@@ -25,10 +25,10 @@ export class SocketGeneratorControl extends DataControl {
         "connectionType of your generator must be defined and of the value 'input' or 'output'."
       )
 
-    const name = nameInput || `${socketType} ${connectionType}s`
+    const name = nameInput || `Socket ${connectionType}s`
 
     const options = {
-      dataKey: name + connectionType + 's',
+      dataKey: connectionType + 's',
       name,
       component: 'socketGenerator',
       icon,
