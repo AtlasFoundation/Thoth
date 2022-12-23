@@ -19,8 +19,9 @@ import KeyCodePlugin from './plugins/keyCodePlugin'
 import LifecyclePlugin from './plugins/lifecyclePlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import { ModuleManager } from './plugins/modulePlugin/module-manager'
-import ReactRenderPlugin from 'rete-react-render-plugin'
+import ReactRenderPlugin from './plugins/reactRenderPlugin'
 import SocketGenerator from './plugins/socketGenerator'
+import MultiSocketGenerator from './plugins/multiSocketGenerator'
 import SocketPlugin from './plugins/socketPlugin'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
@@ -70,7 +71,7 @@ export const initEditor = function ({
   const components = getComponents()
 
   // create the main edtor
-  const editor = new ThothEditor('demo@0.1.0', container)
+  const editor = new ThothEditor('demo@1.0.0', container)
 
   editorTabMap[tab.id] = editor
 
@@ -137,6 +138,7 @@ export const initEditor = function ({
   // This should only be needed on client, not server
   editor.use(DebuggerPlugin)
   editor.use(SocketGenerator)
+  editor.use(MultiSocketGenerator)
   editor.use(DisplayPlugin)
   editor.use(InspectorPlugin)
   editor.use(AreaPlugin, {
@@ -146,7 +148,7 @@ export const initEditor = function ({
   // The engine is used to process/run the rete graph
 
   const engine = initSharedEngine({
-    name: 'demo@0.1.0',
+    name: 'demo@1.0.0',
     components,
     server: false,
     modules: {},

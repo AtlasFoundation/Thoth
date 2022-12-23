@@ -71,7 +71,7 @@ export function extractNodes(nodes: Record<string, Node>, map: Set<unknown>) {
 
 // TODO: create a proper engine interface with the proper methods types on it.
 const engine = initSharedEngine({
-  name: 'demo@0.1.0',
+  name: 'demo@1.0.0',
   components: thothComponents,
   server: true,
   modules: {},

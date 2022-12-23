@@ -24,6 +24,7 @@ export type SocketType =
   | 'objectSocket'
   | 'triggerSocket'
   | 'agentSocket'
+  | 'triggerAndDataSocket'
 
 export const socketNameMap: Record<SocketNameType, SocketType> = {
   'Any type': 'anySocket',
