@@ -148,6 +148,11 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
               1
             )
 
+            console.log(
+              avatar.current.expressionManager.getValue(
+                VRMExpressionPresetName.BlinkLeft
+              )
+            )
             avatar.current.expressionManager.setValue(
               VRMExpressionPresetName.BlinkRight,
               1

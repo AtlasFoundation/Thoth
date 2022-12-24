@@ -12,6 +12,7 @@ export class Socket extends React.Component {
 
   render() {
     const { socket, type } = this.props
+    console.log('socket', socket)
     return (
       <div
         className={`socket ${type} ${kebab(socket.name)}`}
