@@ -198,10 +198,6 @@ const EventHandler = ({ pubSub, tab }) => {
     createOrFocus(windowTypes.EVENT_MANAGER, 'Event Manager')
   }
 
-  const createSettingsWindow = () => {
-    createOrFocus(windowTypes.SETTINGS, 'Settings')
-  }
-
   const onSerialize = () => {
     // eslint-disable-next-line no-console
     console.log(serialize())
@@ -269,7 +265,6 @@ const EventHandler = ({ pubSub, tab }) => {
     [$CREATE_SEARCH_CORPUS(tab.id)]: createSearchCorpus,
     [$CREATE_MESSAGE_REACTION_EDITOR(tab.id)]: createMessageReactionEditor,
     [$CREATE_ENT_MANAGER(tab.id)]: createEntityManager,
-    [$CREATE_SETTINGS_WINDOW(tab.id)]: createSettingsWindow,
     [$CREATE_PLAYTEST(tab.id)]: createPlaytest,
     [$CREATE_INSPECTOR(tab.id)]: createInspector,
     [$CREATE_TEXT_EDITOR(tab.id)]: createTextEditor,

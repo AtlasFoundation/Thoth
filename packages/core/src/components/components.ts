@@ -56,6 +56,7 @@ import { StringAdder } from './strings/StringAdder'
 import { StringCombiner } from './strings/StringCombiner'
 import { StringEvaluator } from './strings/StringEvaluator'
 import { StringProcessor } from './strings/StringProcessor'
+import { ImageGeneration } from './webaverse/ImageGeneration'
 import { Alert } from './utility/AlertMessage'
 import { Cast } from './utility/Cast'
 import { Destructure } from './utility/Destructure'
@@ -150,6 +151,7 @@ export const components = {
   orGate: () => new OrGate(),
   log: () => new Log(),
   queryGoogle: () => new QueryGoogle(),
+  ImageGeneration: () => new ImageGeneration(),
 }
 
 function compare(a: ThothComponent<unknown>, b: ThothComponent<unknown>) {

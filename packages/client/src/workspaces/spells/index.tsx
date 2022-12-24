@@ -26,8 +26,6 @@ import { RootState } from '@/state/store'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
-import SettingsWindow from './windows/SettingsWindow'
-import { ConstructionOutlined } from '@mui/icons-material'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
@@ -158,8 +156,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           return <EntityManagerWindow />
         case 'avatar':
           return <AvatarWindow {...props} />
-        case 'settings':
-          return <SettingsWindow {...props} />
         default:
           return <p></p>
       }
