@@ -34,28 +34,22 @@ export class RandomGate extends ThothComponent<void> {
   
       node.inspector
       .add(outputToggles)
-	// new var of first output in outputToggles
-	console.log("outputToggles", outputToggles)
     return node
       .addInput(dataInput)
   }
 
   // the worker contains the main business logic of the node.  It will pass those results
   // to the outputs to be consumed by any connected components
-  worker(node: NodeData, inputs: ThothWorkerInputs, outputs: ThothWorkerOutputs) {
-	console.log("nodessss", node);
+  worker(node: NodeData, outputs: ThothWorkerOutputs) {
 	// pick a random object from outputs objects
 	const randomOutput = outputs[Object.keys(outputs)[Math.floor(Math.random() * Object.keys(outputs).length)]]
 	const randomName = randomOutput.key as string
-	console.log("outputs", outputs)
-	console.log("randomout", randomOutput)
-	console.log("randomName", randomName)
     const nodeOutputs = node.data.outputs as DataSocketType[]
 	
     // close all outputs
     this._task.closed = [...nodeOutputs.map(out => out.name)]
 	if (this._task.closed.includes(randomName)) {
-		// If the ouputs closed has the incoming text, filter closed outputs to not include it
+		// If the ouputs closed has the incoming trigger, filter closed outputs to not include it
 		this._task.closed = this._task.closed.filter(output => output !== randomName)
 		console.log("this._task.closed", this._task.closed)
 	}
