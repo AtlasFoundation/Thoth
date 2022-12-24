@@ -19,6 +19,7 @@ import { SpellComponent } from './io/Spell'
 import { TriggerIn } from './io/TriggerIn'
 import { TriggerOut } from './io/TriggerOut'
 import { BooleanGate } from './logic/BooleanGate'
+import { RandomGate } from './logic/RandomGate'
 import { Coallesce } from './logic/Coallesce'
 import { Code } from './logic/Code'
 import { ForEach } from './logic/ForEach'
@@ -81,6 +82,7 @@ import { StringVariable } from './variable/StringVariable'
 export const components = {
   alert: () => new Alert(),
   booleanGate: () => new BooleanGate(),
+  randomGate: () => new RandomGate(),
   cast: () => new Cast(),
   coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
