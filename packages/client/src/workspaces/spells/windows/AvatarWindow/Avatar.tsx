@@ -77,7 +77,6 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
           if (!avatar || !avatar.current) return
 
           camera.position.set(0.0, 1, 1)
-          camera.fov = 20
           vrm.lookAt.target = camera
 
           // vrm.humanoid.getNormalizedBoneNode(VRMHumanBoneName.Hips).rotation.y =
@@ -146,12 +145,6 @@ const Avatar = ({ speechUrl, pause, unpause }) => {
             avatar.current.expressionManager.setValue(
               VRMExpressionPresetName.BlinkLeft,
               1
-            )
-
-            console.log(
-              avatar.current.expressionManager.getValue(
-                VRMExpressionPresetName.BlinkLeft
-              )
             )
             avatar.current.expressionManager.setValue(
               VRMExpressionPresetName.BlinkRight,

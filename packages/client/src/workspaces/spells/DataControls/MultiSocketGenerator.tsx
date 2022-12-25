@@ -72,25 +72,11 @@ const SocketGenerator = ({ updateData, control, initialValue }) => {
     const socketTypes = data.socketTypes
     const newSockets = [...sockets]
 
-    const socketTypesMap = {};
-
     // for each socketType, create a newSocket and add it to the sockets array
-    socketTypes.forEach(socketType => {
-      
-      // check if the socketType already exists in the sockets array
-      // if it doesnt, add the key and set the value to 0
-      // if it does, increment the value
-      if (!socketTypesMap[socketType]) {
-        socketTypesMap[socketType] = 0
-      } else {
-        socketTypesMap[socketType]++
-      }
-
-      const index = socketTypesMap[socketType];
-
+    socketTypes.forEach((socketType, i) => {
     const newSocket = {
       name: socket + ' ' + (socketType === 'anySocket' ? 'data' : socketType.replace('Socket', '')) + (index > 0 ? ' ' + index : ''),
-      taskType: data.taskType,
+      taskType: data.taskTypes[i],
       socketKey: socket + ' ' + (socketType === 'anySocket' ? 'data' : socketType.replace('Socket', '')) + (index > 0 ? ' ' + index : ''),
       connectionType: data.connectionType,
       socketType: socketType,

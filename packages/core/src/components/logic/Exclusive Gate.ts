@@ -1,10 +1,10 @@
 import Rete from 'rete'
 
 import {
-  DataSocketType,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
+  ThothWorkerOutputs,
 } from '../../../types'
 import { MultiSocketGeneratorControl } from '../../dataControls/MultiSocketGenerator'
 import { anySocket, triggerSocket } from '../../sockets'
@@ -18,7 +18,10 @@ export class ExclusiveGate extends ThothComponent<void> {
     super('Exclusive Gate')
 
     this.task = {
-      outputs: { default: 'option' },
+      outputs: {
+        trigger: 'option',
+        output: 'output',
+      },
     }
     this.category = 'Logic'
     this.info = info
@@ -29,7 +32,8 @@ export class ExclusiveGate extends ThothComponent<void> {
   builder(node: ThothNode) {
     const multiInputGenerator = new MultiSocketGeneratorControl({
       connectionType: 'input',
-      socketTypes: ['triggerSocket', 'anySocket'],
+      socketTypes: ['anySocket', 'triggerSocket'],
+      taskTypes: ['output', 'option'],
       name: 'Triggers',
     })
 
@@ -45,34 +49,32 @@ export class ExclusiveGate extends ThothComponent<void> {
 
   // the worker contains the main business logic of the node.  It will pass those results
   // to the outputs to be consumed by any connected components
-  worker(node: NodeData, inputs: ThothWorkerInputs) {
-    const nodeInputs = Object.values(inputs as any).filter(
-      (input: any) => !!input
-    ) as DataSocketType[]
+  worker(
+    node: NodeData,
+    inputs: ThothWorkerInputs,
+    outputs: ThothWorkerOutputs,
+    context: {
+      socketInfo: { target: any }
+    }
+  ) {
+    const trigger = context.socketInfo.target
+    //remove ' trigger' from the end of the name
+    const triggerFilterName = trigger.split(' ').slice(0, -1).join(' ')
 
-    console.log('inputs', inputs)
+    const nodeInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
+      acc[key] = value[0]
+      return acc
+    }, {} as Record<string, unknown>)
 
-    console.log('nodeInputs', nodeInputs)
-
-    // get the name of the first nodeInput with socketType triggerInput
-    const triggerInput = nodeInputs.find(
-      input => input.socketType === 'triggerSocket'
+    // get the first input from the nodeInputs object where the key includes triggerFilterName
+    const outputKey = Object.keys(nodeInputs).find(key =>
+      key.includes(triggerFilterName)
     )
 
-    console.log('triggerInput', triggerInput)
-
-    const shortName = triggerInput?.name.split(' ')[0] as string
-
-    console.log('shortName', shortName)
-
-    const dataInput = nodeInputs.find(
-      input =>
-        input.socketType === 'anySocket' && input.name.includes(shortName)
-    ) as any
-
-    console.log('dataInput', dataInput)
-
-    const output = inputs[dataInput.name]
+    if (!outputKey) {
+      return { output: 'error' }
+    }
+    const output = nodeInputs[outputKey]
 
     return {
       output,

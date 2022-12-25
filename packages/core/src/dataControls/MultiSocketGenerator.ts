@@ -5,15 +5,15 @@ import { DataControl } from '../plugins/inspectorPlugin'
 export class MultiSocketGeneratorControl extends DataControl {
   connectionType: string
   constructor({
-    socketTypes = ['anySocket'],
-    taskType = 'output',
+    socketTypes,
+    taskTypes,
     ignored = [],
     icon = 'properties',
     connectionType,
     name: nameInput,
   }: {
-    socketTypes?: string[]
-    taskType?: string
+    socketTypes: string[]
+    taskTypes: string[]
     ignored?: string[]
     icon?: string
     connectionType: 'input' | 'output'
@@ -37,7 +37,7 @@ export class MultiSocketGeneratorControl extends DataControl {
       data: {
         ignored,
         socketTypes,
-        taskType,
+        taskTypes,
         connectionType,
       },
     }
