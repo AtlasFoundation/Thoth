@@ -1,9 +1,4 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
-/* eslint-disable no-console */
-/* eslint-disable require-await */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import axios from 'axios'
 import Rete from 'rete'
 
 import {
@@ -13,7 +8,6 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
-import { InputControl } from '../../dataControls/InputControl'
 import { stringSocket, triggerSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
@@ -111,14 +105,14 @@ export class ImageGeneration extends ThothComponent<Promise<InputReturn>> {
     node: NodeData,
     inputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,
-    { silent, thoth }: { silent: boolean; thoth: EngineContext }
+    { silent }: { silent: boolean; thoth: EngineContext }
   ) {
     const prompt = inputs['prompt'] && inputs['prompt'][0]
     const endpoint = inputs['endpoint'] && inputs['endpoint'][0]
 
     const server = endpoint ?? 'https://stable-diffusion.webaverse.com'
 
-    const imgUrl = await getPrompt(prompt, server);
+    const imgUrl = await getPrompt(prompt, server)
 
     if (!silent) {
       if (!imgUrl) node.display('Error: No data returned', imgUrl)

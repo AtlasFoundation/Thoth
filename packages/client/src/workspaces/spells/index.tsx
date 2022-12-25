@@ -155,7 +155,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
         case 'entityManager':
           return <EntityManagerWindow />
         case 'avatar':
-          return <AvatarWindow {...props} />s
+          return <AvatarWindow {...props} />
         default:
           return <p></p>
       }
