@@ -58,7 +58,7 @@ export class CheckForRecentTransactionsFromWallet extends ThothComponent<void> {
   ) {
     const address = inputs['address'][0] as unknown as string
     const sender = inputs['sender'][0] as unknown as string
-    node.display(address)
+    if (!silent) node.display(address)
 
     const checkForRecentTransactionFromWalletToWallet = async (
       walletAddress,

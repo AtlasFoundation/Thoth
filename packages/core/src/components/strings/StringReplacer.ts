@@ -16,7 +16,6 @@ import {
   EngineContext,
 } from '../../../types'
 import { InputControl } from '../../dataControls/InputControl'
-import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { triggerSocket, stringSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 

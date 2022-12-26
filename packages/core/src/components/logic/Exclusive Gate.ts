@@ -25,6 +25,7 @@ export class ExclusiveGate extends ThothComponent<void> {
     }
     this.category = 'Logic'
     this.info = info
+    this.display = true
   }
 
   node = {}
@@ -53,9 +54,10 @@ export class ExclusiveGate extends ThothComponent<void> {
     node: NodeData,
     inputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,
-    context: { socketInfo: { target: any } }
+    context: { silent: boolean; socketInfo: { target: any } }
   ) {
     const trigger = context.socketInfo.target
+    const silent = context.silent
     //remove ' trigger' from the end of the name
     const triggerFilterName = trigger?.split(' ').slice(0, -1).join(' ')
 
@@ -69,6 +71,8 @@ export class ExclusiveGate extends ThothComponent<void> {
       const outputKey = Object.keys(nodeInputs).find(key =>
         key.includes(triggerFilterName)
       )
+
+      if (!silent) node.display(outputKey ?? 'error')
 
       if (!outputKey) return { output: 'error' }
 

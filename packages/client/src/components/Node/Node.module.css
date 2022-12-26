@@ -107,6 +107,7 @@ font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
 }
 .node.success {
   border-color: var(--green) !important;
+  border: 2px solid var(--green);
 }
 .node.selected .node-title {
   opacity: 1;

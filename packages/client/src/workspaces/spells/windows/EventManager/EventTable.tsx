@@ -206,6 +206,7 @@ function EventTable({ events, updateCallback }) {
             >
               <button><FaFileCsv size={20}/></button>
             </CSVLink>
+            <button style={{position: "relative", right: "90px", top: "-32px" }} name="refresh" onClick={updateCallback} >Refresh</button>
           </Grid>
         </Grid>
       </Grid>

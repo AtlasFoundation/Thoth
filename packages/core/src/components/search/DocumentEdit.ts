@@ -91,6 +91,6 @@ export class DocumentEdit extends ThothComponent<void> {
         storeId,
       }
     )
-    node.display(resp.data)
+    if (!silent) node.display(resp.data)
   }
 }
