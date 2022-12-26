@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "ES2021",
-    "jsx": "preserve"
-  },
-  "exclude": ["node_modules", "**/node_modules/*"]
-}
