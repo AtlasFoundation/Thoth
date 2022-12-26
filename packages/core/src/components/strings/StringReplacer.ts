@@ -15,20 +15,21 @@ import {
   ThothWorkerOutputs,
   EngineContext,
 } from '../../../types'
+import { InputControl } from '../../dataControls/InputControl'
 import { SocketGeneratorControl } from '../../dataControls/SocketGenerator'
 import { triggerSocket, stringSocket } from '../../sockets'
 import { ThothComponent } from '../../thoth-component'
 
 const info =
-  'Variable Replacer is used to replace keywords with new values in a text input.'
+  'String Replacer is used to replace one string with another. Useful for variable injection.'
 
 type WorkerReturn = {
   output: string
 }
 
-export class VariableReplacer extends ThothComponent<Promise<WorkerReturn>> {
+export class StringReplacer extends ThothComponent<Promise<WorkerReturn>> {
   constructor() {
-    super('Variable Replacer')
+    super('String Replacer')
 
     this.task = {
       outputs: {
@@ -37,26 +38,37 @@ export class VariableReplacer extends ThothComponent<Promise<WorkerReturn>> {
       },
     }
 
-    this.category = 'Agents'
+    this.category = 'Strings'
     this.display = true
     this.info = info
   }
 
   builder(node: ThothNode) {
-    const strInput = new Rete.Input('inp', 'Input', stringSocket)
-    const agentInput = new Rete.Input('agent', 'Agent', stringSocket)
-    const speakerInput = new Rete.Input('speaker', 'Speaker', stringSocket)
+    // should be nameable
+    const name = new InputControl({
+      dataKey: 'name',
+      name: 'Name',
+      icon: 'moon',
+    })
+    const match = new InputControl({
+      dataKey: 'match',
+      name: 'Match',
+      icon: 'moon',
+    })
+    const replace = new InputControl({
+      dataKey: 'replace',
+      name: 'Replace',
+      icon: 'moon',
+    })
+
+    node.inspector.add(name).add(match).add(replace)
+
+    const strInput = new Rete.Input('input', 'Input', stringSocket)
+    const agentInput = new Rete.Input('match', 'Match', stringSocket)
+    const speakerInput = new Rete.Input('replace', 'Replace', stringSocket)
     const dataInput = new Rete.Input('trigger', 'Trigger', triggerSocket, true)
     const dataOutput = new Rete.Output('trigger', 'Trigger', triggerSocket)
     const outp = new Rete.Output('output', 'output', stringSocket)
-
-    const inputGenerator = new SocketGeneratorControl({
-      connectionType: 'input',
-      name: 'Input Sockets',
-      ignored: ['trigger'],
-    })
-
-    node.inspector.add(inputGenerator)
 
     return node
       .addInput(strInput)
@@ -73,28 +85,19 @@ export class VariableReplacer extends ThothComponent<Promise<WorkerReturn>> {
     outputs: ThothWorkerOutputs,
     { silent, thoth }: { silent: boolean; thoth: EngineContext }
   ) {
-    let input = rawInputs['inp'][0] as string
-    const agent = rawInputs['agent'][0] as string
-    const speaker = rawInputs['speaker'][0] as string
-    const inputs: any = Object.entries(rawInputs).reduce(
-      (acc, [key, value]) => {
-        console.log('key:', key, 'value:', value)
-        acc[key] = value[0]
-        return acc
-      },
-      {} as Record<string, unknown>
-    )
+    this.name = node?.data?.name as string
 
-    for (const key in inputs) {
-      if (input.includes(key)) {
-        if (key === 'agent') {
-          input = input.replace(key, agent)
-        } else if (key === 'speaker') {
-          input = input.replace(key, speaker)
-        } else {
-          input = input.replace(key, inputs[key])
-        }
-      }
+    let input = rawInputs['input'][0] as string
+
+    const match = ((rawInputs['match'] && rawInputs['match'][0]) ||
+      node?.data?.match) as string
+    const replace = ((rawInputs['replace'] && rawInputs['replace'][0]) ||
+      node?.data?.replace) as string
+
+    try {
+      input = input.replaceAll(match, replace)
+    } catch {
+      console.error('String Replacer Error')
     }
 
     return {

@@ -19,20 +19,20 @@ import { SpellComponent } from './io/Spell'
 import { TriggerIn } from './io/TriggerIn'
 import { TriggerOut } from './io/TriggerOut'
 import { BooleanGate } from './logic/BooleanGate'
-import { RandomGate } from './logic/RandomGate'
-import { Coallesce } from './logic/Coallesce'
 import { Code } from './logic/Code'
+import { ExclusiveGate } from './logic/Exclusive Gate'
 import { ForEach } from './logic/ForEach'
 import { IsNullOrUndefined } from './logic/IsNullOrUndefined'
 import { IsQuery } from './logic/IsQuery'
 import { IsVariableTrue } from './logic/IsVariableTrue'
 import { LogicalOperator } from './logic/LogicalOperator'
 import { OrGate } from './logic/OrGate'
+import { RandomGate } from './logic/RandomGate'
 import { SwitchGate } from './logic/SwitchGate'
 import { WaitForAll } from './logic/WaitForAll'
-import { ExclusiveGate } from './logic/Exclusive Gate'
 import { WhileLoop } from './logic/WhileLoop'
 import { Classifier } from './ml/Classifier'
+import { ImageGeneration } from './ml/ImageGeneration'
 import { SentenceMatcher } from './ml/SentenceMatcher'
 import { TextToSpeech } from './ml/TextToSpeech'
 import { DocumentDelete } from './search/DocumentDelete'
@@ -57,7 +57,7 @@ import { StringAdder } from './strings/StringAdder'
 import { StringCombiner } from './strings/StringCombiner'
 import { StringEvaluator } from './strings/StringEvaluator'
 import { StringProcessor } from './strings/StringProcessor'
-import { ImageGeneration } from './ml/ImageGeneration'
+import { StringReplacer } from './strings/StringReplacer'
 import { Alert } from './utility/AlertMessage'
 import { Cast } from './utility/Cast'
 import { Destructure } from './utility/Destructure'
@@ -66,7 +66,6 @@ import { InputsToJSON } from './utility/InputsToJSON'
 import { InRange } from './utility/InRange'
 import { Log } from './utility/Log'
 import { Merge } from './utility/Merge'
-import { VariableReplacer } from './utility/VariableReplacer'
 import { ArrayVariable } from './variable/ArrayVariable'
 import { BooleanVariable } from './variable/BooleanVariable'
 import { FewshotVariable } from './variable/FewshotVariable'
@@ -84,14 +83,13 @@ export const components = {
   booleanGate: () => new BooleanGate(),
   randomGate: () => new RandomGate(),
   cast: () => new Cast(),
-  coallesce: () => new Coallesce(),
   inRange: () => new InRange(),
   code: () => new Code(),
   sentenceMatcher: () => new SentenceMatcher(),
   destructure: () => new Destructure(),
   complexStringMatcher: () => new ComplexStringMatcher(),
   echo: () => new Echo(),
-  variableReplacer: () => new VariableReplacer(),
+  stringReplacer: () => new StringReplacer(),
   textToSpeech: () => new TextToSpeech(),
   agentTextCompletion: () => new AgentTextCompletion(),
   customTextCompletion: () => new CustomTextCompletion(),

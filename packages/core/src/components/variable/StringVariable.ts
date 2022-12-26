@@ -58,7 +58,7 @@ export class StringVariable extends ThothComponent<InputReturn> {
   ) {
     const _var = node?.data?._var as string
 
-    this.name = (node?.data?.name as string) + ' - ' + _var
+    this.name = node?.data?.name as string
 
     return {
       output: _var,
