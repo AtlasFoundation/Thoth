@@ -1,7 +1,6 @@
 import Rete from 'rete'
 
 import {
-  EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,
@@ -45,6 +44,7 @@ export class Echo extends ThothComponent<Promise<WorkerReturn>> {
       .addOutput(outp)
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await, require-await
   async worker(
     node: NodeData,
     inputs: ThothWorkerInputs,

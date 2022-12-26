@@ -1,11 +1,15 @@
 import { Component, Control } from 'rete'
-import { NodeData, ThothComponent, ThothEditor, ThothNode } from '../../../types'
+
+import {
+  NodeData,
+  ThothComponent,
+  ThothEditor,
+  ThothNode,
+} from '../../../types'
 import { RunButtonControl } from './RunLastArguments'
 
 function install(editor: ThothEditor) {
-
   editor.on('componentregister', (_component: Component) => {
-
     const component = _component as unknown as ThothComponent<unknown>
     const worker = component.worker
     const builder = component.builder
@@ -17,7 +21,11 @@ function install(editor: ThothEditor) {
      */
     component.worker = (node: NodeData, inputs, outputs, context, ...args) => {
       component.cache[node.id] = {
-        node, inputs, outputs, context, ...args
+        node,
+        inputs,
+        outputs,
+        context,
+        ...args,
       }
 
       return worker.apply(component, [node, inputs, outputs, context, ...args])
@@ -28,7 +36,6 @@ function install(editor: ThothEditor) {
      */
     component.builder = (node: ThothNode) => {
       if (component.runFromCache) {
-
         // Run function runs the worker with old args and returns the result.
         const run = async (node: NodeData) => {
           const cache = component.cache[node.id]
@@ -39,8 +46,12 @@ function install(editor: ThothEditor) {
 
           // Since running thos worker invokes the next plugin, task,
           // We have to grab that task, and run the original worker.
-          console.log("RUNNING FROM CACHE: ", component.name)
-          const task = await component.worker.apply(component, [node, inputs, outputs, context])
+          const task = await component.worker.apply(component, [
+            node,
+            inputs,
+            outputs,
+            context,
+          ])
 
           const value = await task.worker(node, inputs, outputs, context)
           return value
@@ -51,10 +62,8 @@ function install(editor: ThothEditor) {
         node.addControl(runControl as Control)
       }
 
-
       return builder.call(component, node)
     }
-
   })
 }
 

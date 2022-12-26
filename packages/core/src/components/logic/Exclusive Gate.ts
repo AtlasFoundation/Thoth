@@ -57,30 +57,43 @@ export class ExclusiveGate extends ThothComponent<void> {
     context: { silent: boolean; socketInfo: { target: any } }
   ) {
     const trigger = context.socketInfo.target
+
+    console.log('context.socketInfo.target', context.socketInfo.target)
+
     const silent = context.silent
     //remove ' trigger' from the end of the name
-    const triggerFilterName = trigger?.split(' ').slice(0, -1).join(' ')
+    const triggerFilterName = trigger?.replace('trigger', '')
 
-    if (triggerFilterName) {
-      const nodeInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
-        acc[key] = value[0]
-        return acc
-      }, {} as Record<string, unknown>)
+    const nodeInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
+      acc[key] = value[0]
+      return acc
+    }, {} as Record<string, unknown>)
 
-      // get the first input from the nodeInputs object where the key includes triggerFilterName
-      const outputKey = Object.keys(nodeInputs).find(key =>
-        key.includes(triggerFilterName)
+    // get the first input from the nodeInputs object where the key includes triggerFilterName
+    const outputKey = Object.keys(nodeInputs).find(key =>
+      key.includes(triggerFilterName)
+    )
+
+    if (!silent)
+      node.display(
+        'triggerFilterName: ' + triggerFilterName + ' | ' + outputKey ?? 'error'
       )
 
-      if (!silent) node.display(outputKey ?? 'error')
+    if (!outputKey) return { output: 'error' }
 
-      if (!outputKey) return { output: 'error' }
+    const output = nodeInputs[outputKey]
 
-      const output = nodeInputs[outputKey]
+    console.log(
+      'nodeInputs',
+      nodeInputs,
+      'outputKey',
+      outputKey,
+      'output',
+      output
+    )
 
-      return {
-        output,
-      }
+    return {
+      output,
     }
   }
 }

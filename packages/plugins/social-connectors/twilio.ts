@@ -9,7 +9,7 @@ import express from 'express'
 import { MessagingRequest } from 'src/types'
 import Twilio from 'twilio'
 
-import { getRandomEmptyResponse, getSetting } from './utils'
+import { getRandomEmptyResponse, getSetting } from '../../server/src/entities/connectors/utils'
 
 export class twilio_client {
   async message(req: MessagingRequest, res: any) {
@@ -129,9 +129,9 @@ export class twilio_client {
     this.haveCustomCommands = settings.haveCustomCommands
     this.custom_commands = settings.custom_commands
 
-    const accountSid = settings.twlio_account_sid
-    const authToken = settings.twlio_auth_token
-    const twilioNumber = settings.twlio_phone_number
+    const accountSid = settings.twilio_account_sid
+    const authToken = settings.twilio_auth_token
+    const twilioNumber = settings.twilio_phone_number
 
     if (!accountSid || !authToken || !twilioNumber)
       return console.warn('No API token for Twilio bot, skipping')
@@ -153,7 +153,7 @@ export class twilio_client {
     console.log('sending sms: ' + body)
     this.client.messages
       .create({
-        from: this.settings.twlio_phone_number,
+        from: this.settings.twilio_phone_number,
         to: toNumber,
         body: body,
       })

@@ -44,6 +44,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     if (!editor?.on) return
     const unsubscribe = editor.on(
       // Comment events:  commentremoved commentcreated addcomment removecomment editcomment connectionpath
+      // @ts-ignore
       'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
         if (tab.type === 'spell' && spellRef.current) {
@@ -69,18 +70,19 @@ const Workspace = ({ tab, tabs, pubSub }) => {
         }
       }, 2000)
     )
-
-    return unsubscribe as () => void
   }, [editor, preferences.autoSave])
 
   useEffect(() => {
     if (!editor?.on) return
 
-    const unsubscribe = editor.on(
+    editor.on(
+      // @ts-ignore
       'nodecreated noderemoved',
       (node: ThothComponent<unknown>) => {
-        if (!spellRef.current) return
-        if (node.category !== 'I/O') return
+        if (!spellRef.current)
+          return
+        if (node.category !== 'I/O')
+          return
         // TODO we can probably send this update to a spell namespace for this spell.
         // then spells can subscribe to only their dependency updates.
         const event = events.$SUBSPELL_UPDATED(spellRef.current.name)
@@ -90,9 +92,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
         }
         publish(event, spell)
       }
-    ) as Function
-
-    return unsubscribe as () => void
+    ) as unknown as Function
   }, [editor])
 
   useEffect(() => {

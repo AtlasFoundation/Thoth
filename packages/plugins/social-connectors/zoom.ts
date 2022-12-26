@@ -7,12 +7,12 @@
 // @ts-nocheck
 import { launch } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
-import { detectOsOption } from './utils'
-import { removeEmojisFromString } from '../../utils/utils'
-import { cacheManager } from '../../cacheManager'
-import { tts } from '../../systems/googleTextToSpeech'
-import { getAudioUrl } from '../../routes/getAudioUrl'
-import { tts_tiktalknet } from '../../systems/tiktalknet'
+import { detectOsOption } from '../../server/src/entities/connectors/utils'
+import { removeEmojisFromString } from '../../server/src/utils/utils'
+import { cacheManager } from '../../server/src/cacheManager'
+import { tts } from '../../server/src/systems/googleTextToSpeech'
+import { getAudioUrl } from '../../server/src/routes/getAudioUrl'
+import { tts_tiktalknet } from '../../server/src/systems/tiktalknet'
 
 export class zoom_client {
   ent = null

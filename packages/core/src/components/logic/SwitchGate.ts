@@ -2,7 +2,6 @@ import Rete from 'rete'
 
 import {
   DataSocketType,
-  EngineContext,
   NodeData,
   ThothNode,
   ThothWorkerInputs,

@@ -1,18 +1,8 @@
-import io from 'socket.io'
+import { IRunContextEditor } from '../../../types'
 
-import { IRunContextEditor, ThothComponent } from '../../../types'
-
-function install(
-  editor: IRunContextEditor,
-  // Need to better type the feathers client here
-  {
-    server = false,
-    socket,
-    client,
-  }: { server?: boolean; socket?: io.Socket; client?: any }
-) {
-  editor.on('componentregister', (component: ThothComponent<unknown>) => {
-    component.worker = async (node, inputs, outputs, context, ta, ...args) => {
+function install(editor: IRunContextEditor) {
+  editor.on('componentregister', (component: any) => {
+    component.worker = (node, inputs, outputs, context) => {
       if (context.socketOutput) {
         return context.socketOutput
       }

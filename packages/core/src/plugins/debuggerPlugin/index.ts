@@ -1,12 +1,11 @@
 import { IRunContextEditor } from '../../../types'
-import { ThothComponent } from '../../thoth-component'
 import { ThothConsole } from './ThothConsole'
 
 function install(
   editor: IRunContextEditor,
   { server = false, throwError }: { server?: boolean; throwError?: Function }
 ) {
-  editor.on('componentregister', (component: ThothComponent<unknown>) => {
+  editor.on('componentregister', (component: any) => {
     const worker = component.worker
 
     component.worker = async (node, inputs, outputs, data, ...args) => {

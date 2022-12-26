@@ -1,33 +1,32 @@
 import discord_client from './connectors/discord'
-import { telegram_client } from './connectors/telegram'
-import { zoom_client } from './connectors/zoom'
 import { twitter_client } from './connectors/twitter'
-import { reddit_client } from './connectors/reddit'
-import { instagram_client } from './connectors/instagram'
-import { messenger_client } from './connectors/messenger'
-import { whatsapp_client } from './connectors/whatsapp'
-import { twilio_client } from './connectors/twilio'
 import { CreateSpellHandler } from './CreateSpellHandler'
 import { cacheManager } from '../cacheManager'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
 import { tts_tiktalknet } from '../systems/tiktalknet'
-import { slack_client } from './connectors/slack'
-
+// import { telegram_client } from './connectors/telegram'
+// import { twilio_client } from './connectors/twilio'
+// import { slack_client } from './connectors/slack'
+// import { zoom_client } from './connectors/zoom'
+// import { reddit_client } from './connectors/reddit'
+// import { instagram_client } from './connectors/instagram'
+// import { messenger_client } from './connectors/messenger'
+// import { whatsapp_client } from './connectors/whatsapp'
 export class Entity {
   name = ''
   //Clients
   discord: discord_client | null
-  telegram: telegram_client | null
-  zoom: zoom_client | null
   twitter: twitter_client | null
-  reddit: reddit_client | null
-  instagram: instagram_client | null
-  messenger: messenger_client | null
-  whatsapp: whatsapp_client | null
-  twilio: twilio_client | null
-  slack: slack_client | null
+  // telegram: telegram_client | null
+  // twilio: twilio_client | null
+  // slack: slack_client | null
+  // zoom: zoom_client | null
+  // reddit: reddit_client | null
+  // instagram: instagram_client | null
+  // messenger: messenger_client | null
+  // whatsapp: whatsapp_client | null
   id: any
 
   router: any
@@ -155,117 +154,117 @@ export class Entity {
     console.log('Stopped twitter client for agent ' + this)
   }
 
-  async startTelegram(
-    telegram_bot_token: string,
-    telegram_bot_name: string,
-    entity: any,
-    spell_handler: string,
-  ) {
-    console.log('initializing telegram:', telegram_bot_token)
-    if (this.telegram)
-      throw new Error(
-        'Telegram already running for this entity on this instance'
-      )
+  // async startTelegram(
+  //   telegram_bot_token: string,
+  //   telegram_bot_name: string,
+  //   entity: any,
+  //   spell_handler: string,
+  // ) {
+  //   console.log('initializing telegram:', telegram_bot_token)
+  //   if (this.telegram)
+  //     throw new Error(
+  //       'Telegram already running for this entity on this instance'
+  //     )
 
-    const spellHandler = await CreateSpellHandler({
-      spell: spell_handler,
-    })
+  //   const spellHandler = await CreateSpellHandler({
+  //     spell: spell_handler,
+  //   })
 
-    this.telegram = new telegram_client()
-    await this.telegram.createTelegramClient(spellHandler, {
-      telegram_bot_token,
-      telegram_bot_name,
-      entity,
-    })
-  }
-  stopTelegram() {
-    if (this.telegram) {
-      this.telegram.destroy()
-      this.telegram = null
-    }
-  }
+  //   this.telegram = new telegram_client()
+  //   await this.telegram.createTelegramClient(spellHandler, {
+  //     telegram_bot_token,
+  //     telegram_bot_name,
+  //     entity,
+  //   })
+  // }
+  // stopTelegram() {
+  //   if (this.telegram) {
+  //     this.telegram.destroy()
+  //     this.telegram = null
+  //   }
+  // }
 
-  startReddit(
-    reddit_app_id: string,
-    reddit_app_secret_id: string,
-    reddit_oauth_token: string,
-    reddit_bot_name: string,
-    reddit_bot_name_regex: string,
-    reddit_spell_handler_incoming: string,
-    entity: any
-  ) {
-    console.log('initializing reddit:', reddit_app_id)
-    if (this.reddit) {
-      throw new Error('Reddit already running for this entity on this instance')
-    }
+  // startReddit(
+  //   reddit_app_id: string,
+  //   reddit_app_secret_id: string,
+  //   reddit_oauth_token: string,
+  //   reddit_bot_name: string,
+  //   reddit_bot_name_regex: string,
+  //   reddit_spell_handler_incoming: string,
+  //   entity: any
+  // ) {
+  //   console.log('initializing reddit:', reddit_app_id)
+  //   if (this.reddit) {
+  //     throw new Error('Reddit already running for this entity on this instance')
+  //   }
 
-    const spellHandler = CreateSpellHandler({
-      spell: reddit_spell_handler_incoming,
-    })
+  //   const spellHandler = CreateSpellHandler({
+  //     spell: reddit_spell_handler_incoming,
+  //   })
 
-    this.reddit = new reddit_client()
-    this.reddit.createRedditClient(
-      spellHandler,
-      {
-        reddit_app_id,
-        reddit_app_secret_id,
-        reddit_oauth_token,
-        reddit_bot_name,
-        reddit_bot_name_regex,
-      },
-      entity
-    )
-  }
+  //   this.reddit = new reddit_client()
+  //   this.reddit.createRedditClient(
+  //     spellHandler,
+  //     {
+  //       reddit_app_id,
+  //       reddit_app_secret_id,
+  //       reddit_oauth_token,
+  //       reddit_bot_name,
+  //       reddit_bot_name_regex,
+  //     },
+  //     entity
+  //   )
+  // }
 
-  stopReddit() {
-    if (this.reddit) {
-      this.reddit.destroy()
-      this.reddit = null
-    }
-  }
+  // stopReddit() {
+  //   if (this.reddit) {
+  //     this.reddit.destroy()
+  //     this.reddit = null
+  //   }
+  // }
 
-  async startZoom(
-    zoom_invitation_link: string,
-    zoom_password: string,
-    zoom_bot_name: string,
-    zoom_spell_handler_incoming: string,
-    voice_provider: string,
-    voice_character: string,
-    voice_language_code: string,
-    tiktalknet_url: string,
-    entity: any
-  ) {
-    if (this.zoom) {
-      throw new Error('Zoom already running for this client on this instance')
-    }
+  // async startZoom(
+  //   zoom_invitation_link: string,
+  //   zoom_password: string,
+  //   zoom_bot_name: string,
+  //   zoom_spell_handler_incoming: string,
+  //   voice_provider: string,
+  //   voice_character: string,
+  //   voice_language_code: string,
+  //   tiktalknet_url: string,
+  //   entity: any
+  // ) {
+  //   if (this.zoom) {
+  //     throw new Error('Zoom already running for this client on this instance')
+  //   }
 
-    const spellHandler = await CreateSpellHandler({
-      spell: zoom_spell_handler_incoming,
-    })
+  //   const spellHandler = await CreateSpellHandler({
+  //     spell: zoom_spell_handler_incoming,
+  //   })
 
-    this.zoom = new zoom_client()
-    this.zoom.createZoomClient(
-      spellHandler,
-      {
-        zoom_invitation_link,
-        zoom_password,
-        zoom_bot_name,
-        zoom_spell_handler_incoming,
-        voice_provider,
-        voice_character,
-        voice_language_code,
-        tiktalknet_url,
-      },
-      entity
-    )
-  }
+  //   this.zoom = new zoom_client()
+  //   this.zoom.createZoomClient(
+  //     spellHandler,
+  //     {
+  //       zoom_invitation_link,
+  //       zoom_password,
+  //       zoom_bot_name,
+  //       zoom_spell_handler_incoming,
+  //       voice_provider,
+  //       voice_character,
+  //       voice_language_code,
+  //       tiktalknet_url,
+  //     },
+  //     entity
+  //   )
+  // }
 
-  stopZoom() {
-    if (this.zoom) {
-      this.zoom.destroy()
-      this.zoom = null
-    }
-  }
+  // stopZoom() {
+  //   if (this.zoom) {
+  //     this.zoom.destroy()
+  //     this.zoom = null
+  //   }
+  // }
 
   async startLoop(
     loop_interval: string,
@@ -312,151 +311,151 @@ export class Entity {
     }
   }
 
-  async startSlack(
-    slack_token: any,
-    slack_signing_secret: any,
-    slack_bot_token: any,
-    slack_bot_name: any,
-    slack_port: any,
-    slack_spell_handler_incoming: any,
-  ) {
-    if (this.slack) {
-      throw new Error('Slack already running for this client on this instance')
-    }
+  // async startSlack(
+  //   slack_token: any,
+  //   slack_signing_secret: any,
+  //   slack_bot_token: any,
+  //   slack_bot_name: any,
+  //   slack_port: any,
+  //   slack_spell_handler_incoming: any,
+  // ) {
+  //   if (this.slack) {
+  //     throw new Error('Slack already running for this client on this instance')
+  //   }
 
-    const spellHandler = await CreateSpellHandler({
-      spell: slack_spell_handler_incoming,
-    })
+  //   const spellHandler = await CreateSpellHandler({
+  //     spell: slack_spell_handler_incoming,
+  //   })
 
-    this.slack = new slack_client()
-    this.slack.createSlackClient(
-      spellHandler,
-      {
-        slack_token,
-        slack_signing_secret,
-        slack_bot_token,
-        slack_bot_name,
-        slack_port
-      },
-      this
-    )
-  }
-  async stopSlack() {}
+  //   this.slack = new slack_client()
+  //   this.slack.createSlackClient(
+  //     spellHandler,
+  //     {
+  //       slack_token,
+  //       slack_signing_secret,
+  //       slack_bot_token,
+  //       slack_bot_name,
+  //       slack_port
+  //     },
+  //     this
+  //   )
+  // }
+  // async stopSlack() {}
 
-  async startInstagram(
-    instagram_username: string,
-    instagram_password: string,
-    instagram_bot_name: string,
-    instagram_bot_name_regex: string,
-    instagram_spell_handler_incoming: string,
-    entity: any,
-    eth_private_key,
-    eth_public_address
-  ) {
-    if (this.instagram) {
-      throw new Error(
-        'Instagram already running for this client on this instance'
-      )
-    }
+  // async startInstagram(
+  //   instagram_username: string,
+  //   instagram_password: string,
+  //   instagram_bot_name: string,
+  //   instagram_bot_name_regex: string,
+  //   instagram_spell_handler_incoming: string,
+  //   entity: any,
+  //   eth_private_key,
+  //   eth_public_address
+  // ) {
+  //   if (this.instagram) {
+  //     throw new Error(
+  //       'Instagram already running for this client on this instance'
+  //     )
+  //   }
 
-    const spellHandler = await CreateSpellHandler({
-      spell: instagram_spell_handler_incoming,
-    })
+  //   const spellHandler = await CreateSpellHandler({
+  //     spell: instagram_spell_handler_incoming,
+  //   })
 
-    this.instagram = new instagram_client()
-    this.instagram.createInstagramClient(
-      spellHandler,
-      {
-        instagram_username,
-        instagram_password,
-        instagram_bot_name,
-        instagram_bot_name_regex,
-        instagram_spell_handler_incoming,
-        eth_private_key,
-        eth_public_address
-      },
-      entity
-    )
-  }
+  //   this.instagram = new instagram_client()
+  //   this.instagram.createInstagramClient(
+  //     spellHandler,
+  //     {
+  //       instagram_username,
+  //       instagram_password,
+  //       instagram_bot_name,
+  //       instagram_bot_name_regex,
+  //       instagram_spell_handler_incoming,
+  //       eth_private_key,
+  //       eth_public_address
+  //     },
+  //     entity
+  //   )
+  // }
 
-  stopInstagram() {
-    if (!this.instagram)
-      throw new Error("Instagram isn't running, can't stop it")
-    this.instagram = null
-  }
+  // stopInstagram() {
+  //   if (!this.instagram)
+  //     throw new Error("Instagram isn't running, can't stop it")
+  //   this.instagram = null
+  // }
 
-  async startMessenger(
-    messenger_page_access_token: string,
-    messenger_verify_token: string,
-    messenger_bot_name: string,
-    messenger_bot_name_regex: string,
-    messenger_spell_handler_incoming: string,
-    entity: any
-  ) {
-    if (this.messenger) {
-      throw new Error(
-        'Messenger already running for this client on this instance'
-      )
-    }
+  // async startMessenger(
+  //   messenger_page_access_token: string,
+  //   messenger_verify_token: string,
+  //   messenger_bot_name: string,
+  //   messenger_bot_name_regex: string,
+  //   messenger_spell_handler_incoming: string,
+  //   entity: any
+  // ) {
+  //   if (this.messenger) {
+  //     throw new Error(
+  //       'Messenger already running for this client on this instance'
+  //     )
+  //   }
 
-    const spellHandler = await CreateSpellHandler({
-      spell: messenger_spell_handler_incoming,
-    })
+  //   const spellHandler = await CreateSpellHandler({
+  //     spell: messenger_spell_handler_incoming,
+  //   })
 
-    this.messenger = new messenger_client()
-    this.messenger.createMessengerClient(
-      this.app,
-      this.router,
-      spellHandler,
-      {
-        messenger_page_access_token,
-        messenger_verify_token,
-        messenger_bot_name,
-        messenger_bot_name_regex,
-      },
-      entity
-    )
-  }
+  //   this.messenger = new messenger_client()
+  //   this.messenger.createMessengerClient(
+  //     this.app,
+  //     this.router,
+  //     spellHandler,
+  //     {
+  //       messenger_page_access_token,
+  //       messenger_verify_token,
+  //       messenger_bot_name,
+  //       messenger_bot_name_regex,
+  //     },
+  //     entity
+  //   )
+  // }
 
-  stopMessenger() {
-    if (!this.messenger)
-      throw new Error("Messenger isn't running, can't stop it")
-    this.messenger = null
-  }
+  // stopMessenger() {
+  //   if (!this.messenger)
+  //     throw new Error("Messenger isn't running, can't stop it")
+  //   this.messenger = null
+  // }
 
-  async startTwilio(
-    twilio_account_sid: any,
-    twilio_auth_token: any,
-    twilio_phone_number: any,
-    twilio_bot_name: any,
-    twilio_empty_responses: any,
-    twilio_spell_handler_incoming: any,
-  ) {
-    if (this.twilio) {
-      throw new Error('Twlio already running for this client on this instance')
-    }
+  // async startTwilio(
+  //   twilio_account_sid: any,
+  //   twilio_auth_token: any,
+  //   twilio_phone_number: any,
+  //   twilio_bot_name: any,
+  //   twilio_empty_responses: any,
+  //   twilio_spell_handler_incoming: any,
+  // ) {
+  //   if (this.twilio) {
+  //     throw new Error('Twilio already running for this client on this instance')
+  //   }
 
-    const spellHandler = await CreateSpellHandler({
-      spell: twilio_spell_handler_incoming,
-    })
+  //   const spellHandler = await CreateSpellHandler({
+  //     spell: twilio_spell_handler_incoming,
+  //   })
 
-    this.twilio = new twilio_client()
-    this.twilio.createTwilioClient(
-      this.app,
-      this.router,
-      {
-        twilio_account_sid,
-        twilio_auth_token,
-        twilio_phone_number,
-        twilio_bot_name,
-        twilio_empty_responses,
-        twilio_spell_handler_incoming,
-        entity: this,
-      },
-      spellHandler
-    )
-  }
-  async stopTwlio() {}
+  //   this.twilio = new twilio_client()
+  //   this.twilio.createTwilioClient(
+  //     this.app,
+  //     this.router,
+  //     {
+  //       twilio_account_sid,
+  //       twilio_auth_token,
+  //       twilio_phone_number,
+  //       twilio_bot_name,
+  //       twilio_empty_responses,
+  //       twilio_spell_handler_incoming,
+  //       entity: this,
+  //     },
+  //     spellHandler
+  //   )
+  // }
+  // async stopTwilio() {}
 
   async onDestroy() {
     console.log(
@@ -465,12 +464,12 @@ export class Entity {
     )
     if (this.discord) this.stopDiscord()
     if (this.twitter) this.stopTwitter()
-    if (this.telegram) this.stopTelegram()
-    if (this.reddit) this.stopReddit()
-    if (this.slack) this.stopSlack()
-    if (this.instagram) this.stopInstagram()
-    if (this.messenger) this.stopMessenger()
-    if (this.twilio) this.stopTwlio()
+    // if (this.telegram) this.stopTelegram()
+    // if (this.slack) this.stopSlack()
+    // if (this.twilio) this.stopTwilio()
+    // if (this.reddit) this.stopReddit()
+    // if (this.instagram) this.stopInstagram()
+    // if (this.messenger) this.stopMessenger()
   }
 
   async generateVoices(data: any) {
@@ -600,74 +599,74 @@ export class Entity {
       )
     }
 
-    if (data.telegram_enabled) {
-      this.startTelegram(
-        data.telegram_bot_token,
-        data.telegram_bot_name,
-        data,
-        data.telegram_spell_handler_incoming,
-      )
-    }
+    // if (data.telegram_enabled) {
+    //   this.startTelegram(
+    //     data.telegram_bot_token,
+    //     data.telegram_bot_name,
+    //     data,
+    //     data.telegram_spell_handler_incoming,
+    //   )
+    // }
 
-    if (data.zoom_enabled) {
-      this.startZoom(
-        data.zoom_invitation_link,
-        data.zoom_password,
-        data.zoom_bot_name,
-        data.zoom_spell_handler_incoming,
-        data.voice_provider,
-        data.voice_character,
-        data.voice_language_code,
-        data.tiktalknet_url,
-        data
-      )
-    }
+    // if (data.zoom_enabled) {
+    //   this.startZoom(
+    //     data.zoom_invitation_link,
+    //     data.zoom_password,
+    //     data.zoom_bot_name,
+    //     data.zoom_spell_handler_incoming,
+    //     data.voice_provider,
+    //     data.voice_character,
+    //     data.voice_language_code,
+    //     data.tiktalknet_url,
+    //     data
+    //   )
+    // }
 
-    if (data.slack_enabled) {
-      this.startSlack(
-        data.slack_token,
-        data.slack_signing_secret,
-        data.slack_bot_token,
-        data.slack_bot_name,
-        data.slack_port,
-        data.slack_spell_handler_incoming,
-      )
-    }
+    // if (data.slack_enabled) {
+    //   this.startSlack(
+    //     data.slack_token,
+    //     data.slack_signing_secret,
+    //     data.slack_bot_token,
+    //     data.slack_bot_name,
+    //     data.slack_port,
+    //     data.slack_spell_handler_incoming,
+    //   )
+    // }
 
-    if (data.instagram_enabled) {
-      this.startInstagram(
-        data.instagram_username,
-        data.instagram_password,
-        data.instagram_bot_name,
-        data.instagram_bot_name_regex,
-        data.instagram_spell_handler_incoming,
-        data,
-        data.eth_private_key,
-        data.eth_public_address
-      )
-    }
+    // if (data.instagram_enabled) {
+    //   this.startInstagram(
+    //     data.instagram_username,
+    //     data.instagram_password,
+    //     data.instagram_bot_name,
+    //     data.instagram_bot_name_regex,
+    //     data.instagram_spell_handler_incoming,
+    //     data,
+    //     data.eth_private_key,
+    //     data.eth_public_address
+    //   )
+    // }
 
-    if (data.messenger_enabled) {
-      this.startMessenger(
-        data.messenger_page_access_token,
-        data.messenger_verify_token,
-        data.messenger_bot_name,
-        data.messenger_bot_name_regex,
-        data.messenger_spell_handler_incoming,
-        data
-      )
-    }
+    // if (data.messenger_enabled) {
+    //   this.startMessenger(
+    //     data.messenger_page_access_token,
+    //     data.messenger_verify_token,
+    //     data.messenger_bot_name,
+    //     data.messenger_bot_name_regex,
+    //     data.messenger_spell_handler_incoming,
+    //     data
+    //   )
+    // }
 
-    if (data.twilio_enabled) {
-      this.startTwilio(
-        data.twilio_account_sid,
-        data.twilio_auth_token,
-        data.twilio_phone_number,
-        data.twilio_bot_name,
-        data.twilio_empty_responses,
-        data.twilio_spell_handler_incoming,
-      )
-    }
+    // if (data.twilio_enabled) {
+    //   this.startTwilio(
+    //     data.twilio_account_sid,
+    //     data.twilio_auth_token,
+    //     data.twilio_phone_number,
+    //     data.twilio_bot_name,
+    //     data.twilio_empty_responses,
+    //     data.twilio_spell_handler_incoming,
+    //   )
+    // }
   }
 }
 

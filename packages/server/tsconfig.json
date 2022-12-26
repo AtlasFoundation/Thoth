@@ -35,5 +35,5 @@
     "@types/**/*.d.ts",
     "__tests__/**/*.ts",
     "index.ts"
-  ]
+, "../plugins/social-connectors/twilio.ts"  ]
 }

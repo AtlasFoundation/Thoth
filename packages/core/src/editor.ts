@@ -1,15 +1,17 @@
+import { createRoot } from 'react-dom/client'
 import { NodeEditor } from 'rete'
 import ConnectionPlugin from 'rete-connection-plugin'
 // import ConnectionReroutePlugin from 'rete-connection-reroute-plugin'
 import ContextMenuPlugin from 'rete-context-menu-plugin'
+import ReactRenderPlugin from 'rete-react-render-plugin'
 import { Data } from 'rete/types/core/data'
-import { createRoot } from 'react-dom/client'
-import { EventsTypes, EditorContext } from '../types'
+
+import { EditorContext } from '../types'
 import { ThothNode } from './../types'
 import { getComponents } from './components/components'
 import { initSharedEngine, ThothEngine } from './engine'
-import CommentPlugin from './plugins/commentPlugin'
 import AreaPlugin from './plugins/areaPlugin'
+import CommentPlugin from './plugins/commentPlugin'
 import DebuggerPlugin from './plugins/debuggerPlugin'
 import DisplayPlugin from './plugins/displayPlugin'
 import errorPlugin from './plugins/errorPlugin'
@@ -19,9 +21,8 @@ import KeyCodePlugin from './plugins/keyCodePlugin'
 import LifecyclePlugin from './plugins/lifecyclePlugin'
 import ModulePlugin from './plugins/modulePlugin'
 import { ModuleManager } from './plugins/modulePlugin/module-manager'
-import ReactRenderPlugin from 'rete-react-render-plugin'
-import SocketGenerator from './plugins/socketGenerator'
 import MultiSocketGenerator from './plugins/multiSocketGenerator'
+import SocketGenerator from './plugins/socketGenerator'
 import SocketPlugin from './plugins/socketPlugin'
 import SocketOverridePlugin from './plugins/socketPlugin/socketOverridePlugin'
 import TaskPlugin, { Task } from './plugins/taskPlugin'
@@ -31,7 +32,7 @@ import { PubSubContext, ThothComponent } from './thoth-component'
 interface ThothEngineClient extends ThothEngine {
   thoth: EditorContext
 }
-export class ThothEditor extends NodeEditor<EventsTypes> {
+export class ThothEditor extends NodeEditor {
   tasks: Task[]
   pubSub: PubSubContext
   thoth: EditorContext
@@ -104,7 +105,7 @@ export const initEditor = function ({
   editor.use(ReactRenderPlugin, {
     // this component parameter is a custom default style for nodes
     component: node as any,
-    createRoot
+    createRoot,
   })
   // renders a context menu on right click that shows available nodes
   editor.use(LifecyclePlugin)
@@ -114,6 +115,7 @@ export const initEditor = function ({
     rename(component: { contextMenuName: any; name: any }) {
       return component.contextMenuName || component.name
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     nodeItems: (node: ThothNode) => {
       return {
         Deleted: true,
@@ -187,7 +189,6 @@ export const initEditor = function ({
     editor.selected.list = []
   })
 
-
   editor.bind('run')
   editor.bind('save')
 
@@ -208,12 +209,12 @@ export const initEditor = function ({
     if (callback) callback()
   }
 
-  editor.loadGraph = async (_graph: Data, reloading = false) => {
+  editor.loadGraph = async (_graph: Data) => {
     const graph = JSON.parse(JSON.stringify(_graph))
     await engine.abort()
     editor.fromJSON(graph)
     console.log('graph is loaded', graph)
-    editor.view.area.translate(0, 0);	
+    editor.view.area.translate(0, 0)
     editor.view.resize()
   }
 

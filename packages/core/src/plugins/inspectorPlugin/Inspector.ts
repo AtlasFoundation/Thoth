@@ -99,12 +99,12 @@ export class Inspector {
         existing => !sockets.some(incoming => incoming.socketKey === existing)
       )
       // filter out any sockets which we have set to be ignored
-      .filter(
-        existing => {
-          console.log("filtering out existing")
-          return ignored.length === 0 || !ignored.some(socket => socket === existing)
-        }
-      )
+      .filter(existing => {
+        console.log('filtering out existing')
+        return (
+          ignored.length === 0 || !ignored.some(socket => socket === existing)
+        )
+      })
       // iterate over each socket after this to remove is
       .forEach(key => {
         const socket = this.node[type].get(key)
@@ -258,10 +258,13 @@ export class Inspector {
 
     // update the node at the end ofthid
     this.node.update()
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.editor.trigger('save')
   }
 
-  get() { }
+  get() {}
 
   // returns all data prepared for the pubsub to send it.
   data(): InspectorData {
@@ -286,5 +289,5 @@ export class Inspector {
     }
   }
 
-  remove() { }
+  remove() {}
 }
