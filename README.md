@@ -9,13 +9,7 @@ For **Linux** and **MAC** users, **sleep** and **concurently** commands must be 
 
 Install xvfb, chromium and ffmpeg
 
-First, clone and set up Thoth
-
-```
-git clone https://github.com/TheNexusCity/thoth
-```
-
-Next, install dependencies
+First, install dependencies
 
 ```
 yarn install

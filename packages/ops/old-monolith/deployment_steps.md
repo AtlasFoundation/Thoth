@@ -1,5 +1,7 @@
 # Thoth Deployment steps
 
+If you want to deploy an instance of Thoth to run on a single server, follow this guide. You may need to move the appspec.yml file to the root, or add a small shell script that copies it for you in your CI/CD if you want to keep it main branch.
+
 1. Setup AWS CICD (https://docs.aws.amazon.com/codepipeline/latest/userguide/pipelines.html)
 
 2. Login aws EC2 server using ssh
