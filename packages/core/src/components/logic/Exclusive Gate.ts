@@ -57,24 +57,26 @@ export class ExclusiveGate extends ThothComponent<void> {
   ) {
     const trigger = context.socketInfo.target
     //remove ' trigger' from the end of the name
-    const triggerFilterName = trigger.split(' ').slice(0, -1).join(' ')
+    const triggerFilterName = trigger?.split(' ').slice(0, -1).join(' ')
 
-    const nodeInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
-      acc[key] = value[0]
-      return acc
-    }, {} as Record<string, unknown>)
+    if (triggerFilterName) {
+      const nodeInputs = Object.entries(inputs).reduce((acc, [key, value]) => {
+        acc[key] = value[0]
+        return acc
+      }, {} as Record<string, unknown>)
 
-    // get the first input from the nodeInputs object where the key includes triggerFilterName
-    const outputKey = Object.keys(nodeInputs).find(key =>
-      key.includes(triggerFilterName)
-    )
+      // get the first input from the nodeInputs object where the key includes triggerFilterName
+      const outputKey = Object.keys(nodeInputs).find(key =>
+        key.includes(triggerFilterName)
+      )
 
-    if (!outputKey) return { output: 'error' }
+      if (!outputKey) return { output: 'error' }
 
-    const output = nodeInputs[outputKey]
+      const output = nodeInputs[outputKey]
 
-    return {
-      output,
+      return {
+        output,
+      }
     }
   }
 }

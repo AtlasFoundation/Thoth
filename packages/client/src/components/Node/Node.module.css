@@ -16,7 +16,7 @@
   border-radius: var(--extraSmall);
   border: 1px solid transparent;
   box-shadow: 0 4px 5px rgba(0, 0, 0, 0.2);
-  background-color: rgba(70, 70, 70, 0.7);
+  background-color: rgba(70, 70, 70, 1.0);
   color: #aaa;
   resize: both;
   /* backdrop-filter: blur(3px); */
@@ -97,7 +97,7 @@ font-family: 'IBM Plex Sans', 'IBM Plex Mono', sans-serif;
 }
 .node.selected {
   color: var(--dark-5);
-  background-color: rgba(70, 70, 70, 0.95);
+  background-color: rgba(70, 70, 70, 1.0);
   border-color: var(--glow);
   /* backdrop-filter: blur(15px); */
 }

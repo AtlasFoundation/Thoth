@@ -6,7 +6,7 @@ import { CustomError } from '../../utils/CustomError'
 import {
   SpellRunner,
   extractModuleInputKeys,
-} from '@thothai/thoth-core/dist/server'
+} from '@thothai/thoth-core/server'
 import { buildThothInterface } from './buildThothInterface'
 
 import otJson0 from 'ot-json0'

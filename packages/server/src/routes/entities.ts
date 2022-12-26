@@ -418,7 +418,7 @@ const textCompletion = async (ctx: Koa.Context) => {
     .replace('{agent}', agent)
     .replace('{speaker}', sender)
   let stop = (ctx.request.body.stop ?? ['']) as string[]
-  const openaiApiKey = ctx.request.body.apiKey as string
+  const openaiApiKey = ctx.request.body.apiKey as string ?? process.env.OPENAI_API_KEY
 
   if (!stop || stop.length === undefined || stop.length <= 0) {
     stop = ['"""', `${sender}:`, '\n']
