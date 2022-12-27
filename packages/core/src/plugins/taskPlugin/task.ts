@@ -74,8 +74,13 @@ export class Task {
   getInputFromConnection(socketKey: string) {
     let input: null | any = null
     Object.entries(this.inputs).forEach(([key, value]) => {
+      console.log('evaluating', key, value)
       if (value.some((con: ThothReteInput) => con && con.key === socketKey)) {
-        input = key
+        const v = value[0] as any
+        if (v && v.task && v.task.closed.length > 0) {
+          input = key
+          return
+        }
       }
     })
 

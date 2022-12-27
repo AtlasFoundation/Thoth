@@ -58,7 +58,7 @@ export class ExclusiveGate extends ThothComponent<void> {
   ) {
     const trigger = context.socketInfo.target
 
-    console.log('context.socketInfo.target', context.socketInfo.target)
+    console.log('context', context)
 
     const silent = context.silent
     //remove ' trigger' from the end of the name

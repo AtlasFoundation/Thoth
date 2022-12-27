@@ -122,6 +122,8 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
   const { body } = ctx.request
   const { name, diff } = body
 
+  console.log('body is', body)
+
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
 
   const spell = await creatorToolsDatabase.spells.findOne({
@@ -132,16 +134,27 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
     throw new CustomError('input-failed', `No spell with ${name} name found.`)
   if (!diff)
     throw new CustomError('input-failed', 'No diff provided in request body')
-
+  console.log('spell is', spell)
   try {
+    if(Object.keys((spell?.graph as any)?.nodes ?? {}).length === 0){
+      console.warn('Skipping save of spell with no nodes.')
+      throw new CustomError('input-failed', 'No nodes provided in request body')
+    } else {
+      
+    
     const spellUpdate = otJson0.type.apply(spell.toJSON(), diff)
 
     const updatedSpell = await creatorToolsDatabase.spells.update(spellUpdate, {
       where: { name },
     })
 
+
+
+
     ctx.response.status = 200
     ctx.body = updatedSpell
+  }
+
   } catch (err) {
     throw new CustomError('server-error', 'Error processing diff.', err)
   }
