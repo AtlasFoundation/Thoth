@@ -59,8 +59,6 @@ async function init() {
   await creatorToolsDatabase.sequelize.sync({
     force: process.env.REFRESH_DB?.toLowerCase().trim() === 'true',
   })
-  await database.instance.firstInit()
-
   await initFileServer()
   await initTextToSpeech()
   new cacheManager()

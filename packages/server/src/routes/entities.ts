@@ -542,49 +542,6 @@ const handleCustomInput = async (ctx: Koa.Context) => {
   })
 }
 
-const login = async (ctx: Koa.Context) => {
-  const username = ctx.request.body.username
-  const password = ctx.request.body.password
-
-  const loginRes = await database.instance.login(username, password)
-  if (!loginRes || loginRes === undefined) {
-    ctx.status = 401
-    return (ctx.body = { error: 'invalid credentials' })
-  } else {
-    return (ctx.body = loginRes)
-  }
-}
-
-const register = async (ctx: Koa.Context) => {
-  const email = ctx.request.body.email
-  const username = ctx.request.body.username
-  const password = ctx.request.body.password
-  const user_id = ctx.request.body.user_id
-
-  console.log('register, body:', ctx.request.body)
-  if (await database.instance.usernameExists(username)) {
-    ctx.status = 400
-    return (ctx.body = { error: 'username already exists' })
-  } else if (await database.instance.emailExists(email)) {
-    ctx.status = 400
-    return (ctx.body = { error: 'email already exists' })
-  }
-
-  const registerRes = await database.instance.register(
-    email,
-    username,
-    password,
-    user_id
-  )
-  console.log('register res:', registerRes)
-  if (registerRes !== 'ok') {
-    ctx.status = 401
-    return (ctx.body = { error: 'invalid credentials' })
-  } else {
-    return (ctx.body = 'ok')
-  }
-}
-
 const queryGoogle = async (ctx: Koa.Context) => {
   console.log('QUERY', ctx.request?.body?.query)
   if (!ctx.request?.body?.query)
@@ -672,15 +629,7 @@ export const entities: Route[] = [
     post: handleCustomInput,
   },
   {
-    path: '/login',
-    post: login,
-  },
-  {
     path: '/query_google',
     post: queryGoogle,
-  },
-  {
-    path: '/register',
-    post: register,
-  },
+  }
 ]
