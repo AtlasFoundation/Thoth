@@ -79,15 +79,6 @@ const DataControls = ({
 
         if (control.component === 'info' && !control?.data?.info) return null
 
-        /* <SimpleAccordion
-            heading={control.name || key}
-            defaultExpanded={true}
-            expanded={control.expanded}
-            setExpanded={setExpanded}
-            key={key}
-            icon={control.icon}
-          > */
-
         return (
           <Box
             sx={{
