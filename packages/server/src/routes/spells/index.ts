@@ -3,10 +3,7 @@ import 'regenerator-runtime/runtime'
 import { creatorToolsDatabase } from '../../databases/creatorTools'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
-import {
-  SpellRunner,
-  extractModuleInputKeys,
-} from '@thothai/thoth-core/server'
+import { SpellRunner, extractModuleInputKeys } from '@thothai/thoth-core/server'
 import { buildThothInterface } from './buildThothInterface'
 
 import otJson0 from 'ot-json0'
@@ -26,10 +23,7 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   //todo validate spell has an input trigger?
 
   if (!rootSpell?.graph) {
-    throw new CustomError(
-      'not-found',
-      `Spell with name ${spell} not found`
-    )
+    throw new CustomError('not-found', `Spell with name ${spell} not found`)
   }
 
   // TODO use test spells if body option is given
@@ -107,14 +101,9 @@ const saveHandler = async (ctx: Koa.Context) => {
     })
     return (ctx.body = { id: newSpell.id })
   } else {
-    if(Object.keys(body?.graph?.nodes ?? {}).length === 0){
-      console.warn('Skipping save of spell with no nodes.')
-      throw new CustomError('input-failed', 'No nodes provided in request body')
-    } else { 
-      // TODO eventually we should actually validate the body before dumping it in.
-      await spell.update(body)
-      return (ctx.body = { id: spell.id })
-    }
+    // TODO eventually we should actually validate the body before dumping it in.
+    await spell.update(body)
+    return (ctx.body = { id: spell.id })
   }
 }
 
@@ -136,25 +125,13 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
     throw new CustomError('input-failed', 'No diff provided in request body')
   console.log('spell is', spell)
   try {
-    if(Object.keys((spell?.graph as any)?.nodes ?? {}).length === 0){
-      console.warn('Skipping save of spell with no nodes.')
-      throw new CustomError('input-failed', 'No nodes provided in request body')
-    } else {
-      
-    
     const spellUpdate = otJson0.type.apply(spell.toJSON(), diff)
-
     const updatedSpell = await creatorToolsDatabase.spells.update(spellUpdate, {
       where: { name },
     })
 
-
-
-
     ctx.response.status = 200
     ctx.body = updatedSpell
-  }
-
   } catch (err) {
     throw new CustomError('server-error', 'Error processing diff.', err)
   }
