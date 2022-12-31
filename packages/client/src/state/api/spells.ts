@@ -138,7 +138,6 @@ export const spellApi = rootApi.injectEndpoints({
       }),
     }),
     deploySpell: builder.mutation<DeployedSpellVersion, DeployArgs>({
-      invalidatesTags: ['Version'],
       query({ spellId, ...update }) {
         return {
           url: `spells/${spellId}/deploy`,
@@ -146,18 +145,6 @@ export const spellApi = rootApi.injectEndpoints({
           method: 'POST',
         }
       },
-    }),
-    getDeployments: builder.query<DeployedSpellVersion[], string>({
-      providesTags: ['Version'],
-      query: spellId => ({
-        url: `spells/${spellId}`,
-      }),
-    }),
-    getDeployment: builder.query<DeployedSpellVersion, GetDeployArgs>({
-      providesTags: ['Version'],
-      query: ({ spellId }) => ({
-        url: `spells/${spellId}`,
-      }),
     }),
   }),
 })
@@ -182,8 +169,6 @@ export const {
   useSaveDiffMutation,
   useDeploySpellMutation,
   usePatchSpellMutation,
-  useGetDeploymentsQuery,
-  useLazyGetDeploymentQuery,
 } = spellApi
 
 export const useGetSpellSubscription =

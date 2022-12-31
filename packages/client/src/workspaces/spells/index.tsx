@@ -66,7 +66,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
           //   })
           // }
           setDirtyGraph(true)
-          publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
+          // publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
         }
       }, 2000)
     )
