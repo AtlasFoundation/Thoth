@@ -41,7 +41,7 @@ const Tab = ({ tab, activeTab }) => {
           }
     )
     dispatch(changeActive(updatedTabs))
-    navigate('/thoth')
+    navigate(`/thoth/${tab.name}`)
   }
 
   // Handle selecting the next tab down is none are active.

@@ -26,13 +26,14 @@ import { RootState } from '@/state/store'
 import { useFeathers } from '@/contexts/FeathersProvider'
 import { feathers as feathersFlag } from '@/config'
 import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
+import React from 'react'
 
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
   const { events, publish } = usePubSub()
   const { getSpellDoc } = useSharedb()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
-  const { editor, serialize, setDirtyGraph } = useEditor()
+  const { editor, serialize, setDirtyGraph, dirtyGraph } = useEditor()
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
   const preferences = useSelector((state: RootState) => state.preferences)
@@ -45,31 +46,21 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     const unsubscribe = editor.on(
       // Comment events:  commentremoved commentcreated addcomment removecomment editcomment connectionpath
       // @ts-ignore
-      'save nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
+      'nodecreated noderemoved connectioncreated connectionremoved nodetranslated',
       debounce(async data => {
+        if (!dirtyGraph) return
         if (tab.type === 'spell' && spellRef.current) {
-          // old code, left just in case but to be removed when everything is working well
-          // const jsonDiff = diff(spellRef.current?.graph, editor.toJSON())
-          // if (!jsonDiff) return
-
-          // const response = await saveDiff({
-          //   name: spellRef.current.name,
-          //   diff: jsonDiff,
-          // })
-          // loadSpell({
-          //   spellId: tab.spellId,
-          // })
-
-          // if ('error' in response) {
-          //   enqueueSnackbar('Error saving spell', {
-          //     variant: 'error',
-          //   })
-          // }
           setDirtyGraph(true)
+          const graph = serialize()
+          // dont both to send the event if the update shows zero nodes.
+          // Thios may prevent someone from saving a graph with zero nodes however.
+          if (Object.keys(graph?.nodes || {}).length === 0) return
           publish(events.$SAVE_SPELL_DIFF(tab.id), { graph: serialize() })
         }
       }, 2000)
     )
+
+    return unsubscribe as () => void
   }, [editor, preferences.autoSave])
 
   useEffect(() => {
@@ -79,18 +70,15 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       // @ts-ignore
       'nodecreated noderemoved',
       (node: ThothComponent<unknown>) => {
-        if (!spellRef.current)
-          return
-        if (node.category !== 'I/O')
-          return
+        if (!spellRef.current) return
+        if (node.category !== 'I/O') return
         // TODO we can probably send this update to a spell namespace for this spell.
         // then spells can subscribe to only their dependency updates.
-        const event = events.$SUBSPELL_UPDATED(spellRef.current.name)
         const spell = {
           ...spellRef.current,
           graph: editor.toJSON(),
         }
-        publish(event, spell)
+        publish(events.$SUBSPELL_UPDATED(spellRef.current.name), spell)
       }
     ) as unknown as Function
   }, [editor])
@@ -116,7 +104,7 @@ const Workspace = ({ tab, tabs, pubSub }) => {
   }, [spellData, editor])
 
   useEffect(() => {
-    if (!tab || !tab.spellId) return
+    if (!tab || !tab.spellId || spellData?.name === tab.spellId) return
     loadSpell({
       spellId: tab.spellId,
     })
@@ -174,4 +162,6 @@ const Wrapped = props => {
   return <Workspace {...props} />
 }
 
-export default Wrapped
+export default React.memo(Wrapped, (prevProps, nextProps) => {
+  return prevProps.tab.id !== nextProps.tab.id
+})

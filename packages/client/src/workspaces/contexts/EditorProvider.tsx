@@ -98,8 +98,8 @@ const EditorProvider = ({ children }) => {
 
     // copy spell in case it is read onl
     const spell = JSON.parse(JSON.stringify(_spell))
-    console.log('spell', spell)
 
+    console.log('Loading graph in build editor')
     newEditor.loadGraph(spell.graph)
   }
 
@@ -183,7 +183,7 @@ const RawEditor = ({ tab, children }) => {
   const reteInterface = useThothInterface()
 
   useEffect(() => {
-    if (!tab) return
+    if (!tab || loaded) return
 
     if (tab?.spellId)
       getSpell({

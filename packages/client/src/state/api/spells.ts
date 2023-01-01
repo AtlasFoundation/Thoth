@@ -60,7 +60,7 @@ export const spellApi = rootApi.injectEndpoints({
       query: ({ spellId }) => {
         return {
           url: `spells/${spellId}`,
-          params: { },
+          params: {},
         }
       },
     }),
@@ -75,7 +75,6 @@ export const spellApi = rootApi.injectEndpoints({
       }),
     }),
     saveDiff: builder.mutation<void, Diff>({
-      invalidatesTags: ['Spell'],
       query: diffData => ({
         url: 'spells/saveDiff',
         method: 'POST',
@@ -92,7 +91,6 @@ export const spellApi = rootApi.injectEndpoints({
       }),
     }),
     saveSpell: builder.mutation<Partial<Spell>, Partial<Spell> | Spell>({
-      invalidatesTags: ['Spell'],
       // needed to use queryFn as query option didnt seem to allow async functions.
       async queryFn({ user, ...spell }, { dispatch }, extraOptions, baseQuery) {
         const baseQueryOptions = {
