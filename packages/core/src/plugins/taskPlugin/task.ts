@@ -157,7 +157,10 @@ export class Task {
       // socket info is used internally in the worker if we need to know about where signals come from.
       // this is mainly used currently by the module plugin to know where the run signal should go to.
       const socketInfo = {
-        target: fromSocket ? this.getInputFromConnection(fromSocket) : null,
+        targetSocket: fromSocket
+          ? this.getInputFromConnection(fromSocket)
+          : null,
+        targetNode: fromNode ? fromNode : null,
       }
 
       // the main output data of the task, which is gathered up when the next node gets this nodes value

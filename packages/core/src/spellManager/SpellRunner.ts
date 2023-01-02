@@ -9,7 +9,7 @@ import {
 import { getComponents } from '../components/components'
 import { extractNodes, initSharedEngine, ThothEngine } from '../engine'
 import { Module } from '../plugins/modulePlugin/module'
-import { extractModuleInputKeys } from '../utils/chainHelpers'
+import { extractModuleInputKeys } from './graphHelpers'
 
 type RunSpellConstructor = {
   thothInterface: EngineContext

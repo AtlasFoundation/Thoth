@@ -213,7 +213,6 @@ export const initEditor = function ({
     const graph = JSON.parse(JSON.stringify(_graph))
     await engine.abort()
     editor.fromJSON(graph)
-    console.log('graph is loaded', graph)
     editor.view.area.translate(0, 0)
     editor.view.resize()
   }

@@ -10,7 +10,6 @@ export { initSharedEngine }
 export { SpellRunner }
 
 export * from './src/spellManager'
-export * from './src/utils/chainHelpers'
 
 export default {
   components,
