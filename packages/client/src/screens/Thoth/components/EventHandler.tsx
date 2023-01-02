@@ -10,10 +10,7 @@ import { useLayout } from '../../../workspaces/contexts/LayoutProvider'
 import { useEditor } from '../../../workspaces/contexts/EditorProvider'
 import { diff } from '@/utils/json0'
 import { useSnackbar } from 'notistack'
-import { sharedb } from '@/config'
-import { useSharedb } from '@/contexts/SharedbProvider'
 import { useFeathers } from '@/contexts/FeathersProvider'
-import { feathers as feathersFlag } from '@/config'
 import { RootState } from '@/state/store'
 import { useSelector } from 'react-redux'
 
@@ -21,7 +18,6 @@ const EventHandler = ({ pubSub, tab }) => {
   // only using this to handle events, so not rendering anything with it.
   const { createOrFocus, windowTypes } = useLayout()
   const { enqueueSnackbar } = useSnackbar()
-  const { getSpellDoc } = useSharedb()
 
   const [saveSpellMutation] = useSaveSpellMutation()
   const [saveDiff] = useSaveDiffMutation()
@@ -90,25 +86,6 @@ const EventHandler = ({ pubSub, tab }) => {
         variant: 'success',
       })
     }
-  }
-
-  const sharedbDiff = async (event, update) => {
-    if (!spellRef.current) return
-    const doc = getSpellDoc(spellRef.current as Spell)
-    if (!doc) return
-
-    const updatedSpell = {
-      ...doc.data,
-      ...update,
-    }
-
-    const jsonDiff = diff(doc.data, updatedSpell)
-
-    if (jsonDiff.length === 0) return
-
-    console.log('JSON DIFF IN SHAREDB DIFF', jsonDiff)
-
-    doc.submitOp(jsonDiff)
   }
 
   const onSaveDiff = async (event, update) => {
@@ -277,7 +254,7 @@ const EventHandler = ({ pubSub, tab }) => {
     [$REDO(tab.id)]: onRedo,
     [$DELETE(tab.id)]: onDelete,
     [$PROCESS(tab.id)]: onProcess,
-    [$SAVE_SPELL_DIFF(tab.id)]: sharedb ? sharedbDiff : onSaveDiff,
+    [$SAVE_SPELL_DIFF(tab.id)]: onSaveDiff,
   }
 
   useEffect(() => {

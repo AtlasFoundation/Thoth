@@ -14,7 +14,6 @@ module.exports = {
       '@reduxjs/toolkit',
       'redux',
       '@feathersjs/client',
-      'sharedb',
       'react-dom',
       'flexlayout-react',
       'jodit-react',

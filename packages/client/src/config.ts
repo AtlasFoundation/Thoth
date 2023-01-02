@@ -8,8 +8,6 @@ export const oAuthClientId = process.env.REACT_APP_OAUTH_CLIENT_ID
 export const appRootUrl = process.env.REACT_APP_SITE_ROOT_URL
 
 // coercing this into a boolean
-export const sharedb = process.env.REACT_APP_SHAREDB === 'true'
-export const websockets = process.env.REACT_APP_WEBSOCKETS === 'true'
 export const feathers = process.env.REACT_APP_FEATHERS === 'true'
 export const feathersUrl = 'http://localhost:3030'
 export const websocketUrl = 'ws://localhost:8080'

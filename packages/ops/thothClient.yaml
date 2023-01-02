@@ -55,10 +55,6 @@ spec:
               value: "https://thoth-server.projectlazarus.ai"
             - name: API_URL
               value: "https://thoth-server.projectlazarus.ai"
-            - name: REACT_APP_SHAREDB
-              value: "false"
-            - name: REACT_APP_WEBSOCKETS
-              value: "false"
             - name: REACT_APP_FEATHERS
               value: "false"
             - name: NODE_TLS_REJECT_UNAUTHORIZED

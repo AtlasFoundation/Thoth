@@ -18,8 +18,6 @@ import DebugConsole from './windows/DebugConsole'
 
 import { Spell } from '@thothai/thoth-core/types'
 import { usePubSub } from '@/contexts/PubSubProvider'
-import { useSharedb } from '@/contexts/SharedbProvider'
-import { sharedb } from '@/config'
 import { ThothComponent } from '@thothai/thoth-core/types'
 import EventManagerWindow from './windows/EventManager'
 import { RootState } from '@/state/store'
@@ -30,14 +28,11 @@ import EntityManagerWindow from '../agents/windows/EntityManagerWindow'
 const Workspace = ({ tab, tabs, pubSub }) => {
   const spellRef = useRef<Spell>()
   const { events, publish } = usePubSub()
-  const { getSpellDoc } = useSharedb()
   const [loadSpell, { data: spellData }] = useLazyGetSpellQuery()
   const { editor, serialize, setDirtyGraph } = useEditor()
   const FeathersContext = useFeathers()
   const client = FeathersContext?.client
   const preferences = useSelector((state: RootState) => state.preferences)
-
-  const [docLoaded, setDocLoaded] = useState<boolean>(false)
 
   // Set up autosave for the workspaces
   useEffect(() => {
@@ -99,21 +94,6 @@ const Workspace = ({ tab, tabs, pubSub }) => {
     if (!spellData) return
     spellRef.current = spellData
   }, [spellData])
-
-  useEffect(() => {
-    if (!spellData || !sharedb || docLoaded || !editor) return
-
-    const doc = getSpellDoc(spellData as Spell)
-
-    if (!doc) return
-
-    doc.on('op batch', (op, origin) => {
-      if (origin) return
-      editor.loadGraph(doc.data.graph, true)
-    })
-
-    setDocLoaded(true)
-  }, [spellData, editor])
 
   useEffect(() => {
     if (!tab || !tab.spellId) return
