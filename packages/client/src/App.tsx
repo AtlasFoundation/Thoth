@@ -21,6 +21,7 @@ function App() {
           <Route path="/" element={<Thoth />} />
           <Route path="/thoth/*" element={<Thoth />} />
           <Route path="/thoth/:spellName" element={<Thoth />} />
+          <Route path="/*" element={<Thoth />} />
         </Route>
       </Route>
     </Routes>

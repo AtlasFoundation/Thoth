@@ -421,15 +421,7 @@ const textCompletion = async (ctx: Koa.Context) => {
   const openaiApiKey = ctx.request.body.apiKey as string ?? process.env.OPENAI_API_KEY
 
   if (!stop || stop.length === undefined || stop.length <= 0) {
-    stop = ['"""', `${sender}:`, '\n']
-  } else {
-    for (let i = 0; i < stop.length; i++) {
-      if (stop[i] === '#speaker:') {
-        stop[i] = `${sender}:`
-      } else if (stop[i] === '#agent:') {
-        stop[i] = `${agent}:`
-      }
-    }
+    stop = ['"""', '###']
   }
 
   const { success, choice } = await makeCompletion(modelName, {

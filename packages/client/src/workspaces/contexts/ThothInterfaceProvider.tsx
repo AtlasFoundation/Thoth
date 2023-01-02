@@ -174,7 +174,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
     const update = {
       gameState: newState,
     }
-    publish($SAVE_SPELL_DIFF(tab.id), update)
+    // publish($SAVE_SPELL_DIFF(tab.id), update)
   }
 
   const updateCurrentGameState = _update => {
@@ -198,7 +198,7 @@ const ThothInterfaceProvider = ({ children, tab }) => {
       ...spell,
       ...update,
     }
-    publish($SAVE_SPELL_DIFF(tab.id), update)
+    // publish($SAVE_SPELL_DIFF(tab.id), update)
   }
 
   const getEvent = async ({

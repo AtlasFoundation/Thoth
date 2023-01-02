@@ -82,6 +82,7 @@ export const searchWikipedia = async keyword => {
       result: keyword,
       filePath: '',
     }
+  }
 }
 
 export const makeWeaviateRequest = async keyword => {
