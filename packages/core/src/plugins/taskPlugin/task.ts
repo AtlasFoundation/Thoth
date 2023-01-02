@@ -74,19 +74,53 @@ export class Task {
   getInputFromConnection(socketKey: string) {
     let input: null | any = null
     Object.entries(this.inputs).forEach(([key, value]) => {
-      const val = value.find((con: any) => con && con.key === socketKey) as {
-        task: { closed: string[] }
-      }
-      if (val) {
-        if (val && val.task && val.task.closed.length > 0) {
-          input = key
-          return
-        }
+      if (value.some((con: ThothReteInput) => con && con.key === socketKey)) {
+        input = key
       }
     })
 
     return input
   }
+
+  getInputByNodeId(node, fromSocket) {
+    if (Object.keys(this.inputs).length > 5) debugger
+    let value: null | any = null
+    Object.entries(this.inputs).forEach(([key, input]) => {
+      const found = input.find(
+        (con: ThothReteInput) => con && con.task.node.id === node.id
+      ) as {
+        key: string
+        task: { closed: string[] }
+      }
+      if (found) {
+        if (
+          found?.task &&
+          found.task.closed.length > 0 &&
+          found.key == fromSocket
+        )
+          value = key
+      }
+    })
+
+    return value
+  }
+
+  // getInputFromConnection(socketKey: string) {
+  //   let input: null | any = null
+  //   Object.entries(this.inputs).forEach(([key, value]) => {
+  //     const val = value.find((con: any) => con && con.key === socketKey) as {
+  //       task: { closed: string[] }
+  //     }
+  //     if (val) {
+  //       if (val && val.task && val.task.closed.length > 0) {
+  //         input = key
+  //         return
+  //       }
+  //     }
+  //   })
+
+  //   return input
+  // }
 
   reset() {
     this.outputData = null
@@ -158,7 +192,7 @@ export class Task {
       // this is mainly used currently by the module plugin to know where the run signal should go to.
       const socketInfo = {
         targetSocket: fromSocket
-          ? this.getInputFromConnection(fromSocket)
+          ? this.getInputByNodeId(fromNode, fromSocket)
           : null,
         targetNode: fromNode ? fromNode : null,
       }
