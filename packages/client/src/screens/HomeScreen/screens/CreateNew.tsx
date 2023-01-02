@@ -42,10 +42,7 @@ const CreateNew = () => {
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const [newSpell] = useNewSpellMutation()
-  const {
-    register,
-    handleSubmit,
-  } = useForm()
+  const { register, handleSubmit } = useForm()
 
   const onCreate = handleSubmit(async data => {
     try {
@@ -71,7 +68,7 @@ const CreateNew = () => {
         }
       }
 
-      navigate(`/${name}`)
+      navigate(`/thoth/${name}`)
     } catch (err) {
       console.log('ERROR!!', err)
     }

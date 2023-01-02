@@ -8,7 +8,7 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rm -rf dist",
-    "dev": "concurrently \"nodemon src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\"",
+    "dev": "concurrently \"nodemon --config nodemon.json src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\"",
     "speech": "nodemon src/speech-server.ts",
     "search": "nodemon src/search-server.ts",
     "entity-server": "nodemon src/entity-server.ts",

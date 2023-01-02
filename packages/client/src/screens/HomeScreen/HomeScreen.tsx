@@ -66,7 +66,7 @@ const StartScreen = () => {
     try {
       await deleteSpell({ spellId })
       const [tab] = tabs.filter(tab => tab.spellId === spellId)
-      if(tab) {
+      if (tab) {
         dispatch(closeTab(tab.id))
       }
     } catch (err) {
@@ -76,7 +76,7 @@ const StartScreen = () => {
 
   const openSpell = async spell => {
     // dispatch(openTab({ name: spell.name, spellId: spell.name, type: 'spell' }))
-    navigate(`/${spell.name}`)
+    navigate(`/thoth/${spell.name}`)
   }
 
   const [selectedSpell, setSelectedSpell] = useState(null)

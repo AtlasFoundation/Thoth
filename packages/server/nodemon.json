@@ -4,7 +4,7 @@
     "nodemon.json",
     ".eslintrc.json",
     ".prettierrc",
-    "src/"
+    "../core/src"
   ],
   "execMap": {
     "ts": "node -r ts-node/register"

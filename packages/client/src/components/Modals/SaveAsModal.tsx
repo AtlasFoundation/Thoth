@@ -12,11 +12,14 @@ const EditSpellModal = ({ tab, closeModal }) => {
   const dispatch = useDispatch()
   const [error, setError] = useState('')
   const [saveSpell, { isLoading }] = useSaveSpellMutation()
-  const { data: spell } = useGetSpellQuery({ 
-    spellId: tab.spellId, 
-  }, {
-    skip: !tab.spellId,
-  })
+  const { data: spell } = useGetSpellQuery(
+    {
+      spellId: tab.spellId,
+    },
+    {
+      skip: !tab.spellId,
+    }
+  )
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
 
@@ -42,10 +45,10 @@ const EditSpellModal = ({ tab, closeModal }) => {
     }
 
     enqueueSnackbar('Spell saved', { variant: 'success' })
-    
+
     // close current tab and navigate to the new spell
     dispatch(closeTab(tab.id))
-    navigate(`/${data.name}`)
+    navigate(`/thoth/${data.name}`)
 
     closeModal()
   })
