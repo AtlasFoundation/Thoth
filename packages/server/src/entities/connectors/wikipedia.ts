@@ -83,6 +83,7 @@ export const searchWikipedia = async keyword => {
       filePath: '',
     }
 }
+}
 
 export const makeWeaviateRequest = async keyword => {
   const res = await client.graphql
