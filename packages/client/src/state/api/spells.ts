@@ -49,7 +49,7 @@ export interface UserSpellArgs {
 
 export const spellApi = rootApi.injectEndpoints({
   endpoints: builder => ({
-    getSpells: builder.query<Spell[], string>({
+    getSpells: builder.query<Spell[], void>({
       providesTags: ['Spells'],
       query: () => ({
         url: `spells`,
@@ -65,7 +65,6 @@ export const spellApi = rootApi.injectEndpoints({
       },
     }),
     runSpell: builder.mutation<Record<string, any>, RunSpell>({
-      
       query: ({ spellId, inputs, state = {} }) => ({
         url: `spells/${spellId}`,
         method: 'POST',
@@ -148,7 +147,7 @@ export const spellApi = rootApi.injectEndpoints({
   }),
 })
 
-const selectSpellResults = spellApi.endpoints.getSpells.select('')
+const selectSpellResults = spellApi.endpoints.getSpells.select()
 const emptySpells = []
 
 export const selectAllSpells = createSelector(
