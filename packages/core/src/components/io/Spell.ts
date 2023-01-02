@@ -12,12 +12,32 @@ import { SpellControl } from '../../dataControls/SpellControl'
 import { ThothEditor } from '../../editor'
 import { Task } from '../../plugins/taskPlugin/task'
 import { ThothComponent } from '../../thoth-component'
-import {
-  inputNameFromSocketKey,
-  socketKeyFromOutputName,
-} from '../../utils/nodeHelpers'
-
 const info = `The Module component allows you to add modules into your graph.  A module is a bundled self contained graph that defines inputs, outputs, and triggers using components.`
+
+type Socket = {
+  socketKey: string
+  name: string
+}
+
+export const createNameFromSocket = (type: 'inputs' | 'outputs') => {
+  return (node: NodeData, socketKey: string) => {
+    return (node.data[type] as Socket[]).find(
+      socket => socket.socketKey === socketKey
+    )?.name
+  }
+}
+
+export const createSocketFromName = (type: 'inputs' | 'outputs') => {
+  return (node: NodeData, name: string) => {
+    return (node.data[type] as Socket[]).find(socket => socket.name === name)
+      ?.socketKey
+  }
+}
+
+export const inputNameFromSocketKey = createNameFromSocket('inputs')
+export const outputNameFromSocketKey = createNameFromSocket('outputs')
+export const socketKeyFromInputName = createSocketFromName('inputs')
+export const socketKeyFromOutputName = createSocketFromName('outputs')
 
 export class SpellComponent extends ThothComponent<
   Promise<ModuleWorkerOutput>
@@ -155,6 +175,9 @@ export class SpellComponent extends ThothComponent<
     )
 
     if (!silent) node.display(`${JSON.stringify(outputs)}`)
+    else {
+      console.log('outputs', outputs)
+    }
 
     return this.formatOutputs(node, outputs)
   }

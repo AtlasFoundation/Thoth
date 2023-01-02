@@ -76,7 +76,10 @@ export const initSharedEngine = ({
 }
 
 // this parses through all the nodes in the data and finds the nodes associated with the given map
-export const extractNodes = (nodes: GraphData['nodes'], map: Set<unknown>) => {
+export const extractNodes = (
+  nodes: GraphData['nodes'],
+  map: Map<any, any> | Set<unknown>
+) => {
   const names = Array.from(map.keys())
 
   return Object.keys(nodes)
@@ -89,7 +92,7 @@ export const extractNodes = (nodes: GraphData['nodes'], map: Set<unknown>) => {
 export const getTriggeredNode = (
   data: GraphData,
   socketKey: string,
-  map: Set<unknown>
+  map: Map<any, any> | Set<unknown>
 ) => {
   return extractNodes(data.nodes, map).find(
     node => node.data.socketKey === socketKey

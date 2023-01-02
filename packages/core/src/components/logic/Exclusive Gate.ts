@@ -18,6 +18,7 @@ export class ExclusiveGate extends ThothComponent<void> {
     super('Exclusive Gate')
 
     this.task = {
+      runOneInput: true,
       outputs: {
         trigger: 'option',
         output: 'output',
@@ -83,14 +84,7 @@ export class ExclusiveGate extends ThothComponent<void> {
 
     const output = nodeInputs[outputKey]
 
-    console.log(
-      'nodeInputs',
-      nodeInputs,
-      'outputKey',
-      outputKey,
-      'output',
-      output
-    )
+    console.log('outputKey', outputKey, 'output', output)
 
     return {
       output,

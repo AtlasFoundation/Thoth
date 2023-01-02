@@ -1,5 +1,30 @@
 import { CreateEventArgs, GetEventArgs } from '@thothai/thoth-core/types'
 import pg from 'pg'
+import { Sequelize } from 'sequelize'
+import { initModels } from './models/init-models'
+
+const creatorToolsUrl = !!process.env.CREATOR_TOOLS_DB_URL && process.env.CREATOR_TOOLS_DB_URL != "" && process.env.CREATOR_TOOLS_DB_URL;
+const connectionString = creatorToolsUrl || "postgres://" + process.env.PGUSER + ":" + process.env.PGPASSWORD + "@" + process.env.PGHOST + ":" + process.env.PGPORT + "/" + process.env.PGDATABASE
+const sequelize = new Sequelize(creatorToolsUrl || connectionString, {
+  dialect: 'postgres',
+  dialectOptions: creatorToolsUrl ? { ssl: { rejectUnauthorized: false } } : {},
+  define: {
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_unicode_ci',
+    timestamps: true,
+    underscored: true,
+    paranoid: true,
+  },
+  logging:
+    process.env.LOG_SQL === 'true'
+      ? (sql, time) =>
+        // eslint-disable-next-line no-console
+        console.log({
+          msg: 'SQL execution info',
+          context: { time, sql },
+        })
+      : false,
+})
 
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -13,9 +38,12 @@ export class database {
 
   pool: any
   client: pg.Client
-
+  models
+  sequelize: Sequelize
   constructor() {
     database.instance = this
+    this.sequelize = sequelize
+    this.models = { ...initModels(sequelize) }
   }
 
   async connect() {
@@ -562,3 +590,4 @@ export class database {
     return rows && rows.rows && rows.rows.length > 0
   }
 }
+

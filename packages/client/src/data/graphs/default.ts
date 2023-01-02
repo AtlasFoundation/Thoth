@@ -19,7 +19,7 @@ const graph = {
         },
       },
       position: [-200, -100],
-      name: 'Module Trigger In',
+      name: 'Trigger In',
     },
     '232': {
       id: 232,

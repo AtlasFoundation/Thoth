@@ -1,5 +1,3 @@
-//@ts-nocheck
-
 import io from 'socket.io'
 
 import {
@@ -11,7 +9,7 @@ import {
 import { getComponents } from '../components/components'
 import { extractNodes, initSharedEngine, ThothEngine } from '../engine'
 import { Module } from '../plugins/modulePlugin/module'
-import { extractModuleInputKeys } from '../utils/chainHelpers'
+import { extractModuleInputKeys } from './graphHelpers'
 
 type RunSpellConstructor = {
   thothInterface: EngineContext
@@ -160,14 +158,14 @@ class SpellRunner {
   /**
    * Runs engine process to load the spell into the engine.
    */
-  private async _process() {
-    await this.engine.abort()
-    await this.engine.process(
-      this.currentSpell.graph as GraphData,
-      null,
-      this.context
-    )
-  }
+  // private async _process() {
+  //   await this.engine.abort()
+  //   await this.engine.process(
+  //     this.currentSpell.graph as GraphData,
+  //     null,
+  //     this.context
+  //   )
+  // }
 
   /**
    * Loads a spell into the spell runner.
@@ -220,7 +218,7 @@ class SpellRunner {
    * temporary function to be backwards compatible with current use of run spell
    */
   async defaultRun(inputs: Record<string, any>, runSubspell = false) {
-    return this.runComponent(inputs, 'Module Trigger In', runSubspell)
+    return await this.runComponent(inputs, 'Trigger In', runSubspell)
   }
 }
 

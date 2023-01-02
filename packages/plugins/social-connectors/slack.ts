@@ -1,6 +1,4 @@
 import { App } from '@slack/bolt'
-import { CreateSpellHandler } from '../CreateSpellHandler'
-import { database } from '../../database'
 
 export class slack_client {
   spellHandler: any
@@ -11,7 +9,6 @@ export class slack_client {
   greeting: any
 
   app: App
-  message_reactions: { [reaction: string]: any } = {}
 
   //to verify use: url/slack/events
   async createSlackClient(spellHandler: any, settings: any, entity: any) {
@@ -101,19 +98,6 @@ export class slack_client {
   async destroy() {}
 
   prevData: any[] = []
-  async setupMessageReactions(data: any) {
-    for (let i = 0; i < data.length; i++) {
-      if (
-        data[i].discord_enabled === 'true' &&
-        !this.messageReactionUpdate(data[i])
-      ) {
-        this.message_reactions[data[i].reaction] = await CreateSpellHandler({
-          spell: data[i].spell_handler
-        })
-      }
-      this.prevData = data
-    }
-  }
   messageReactionUpdate(datai: any) {
     for (let i = 0; i < this.prevData.length; i++) {
       if (

@@ -2,11 +2,50 @@ import { CustomError } from './../../utils/CustomError'
 import { EngineContext, ThothWorkerInputs } from '@thothai/thoth-core/types'
 import Koa from 'koa'
 import vm2 from 'vm2'
-import * as events from '../../services/events'
 import { GetEventArgs, CreateEventArgs } from '@thothai/thoth-core/types'
 
 import { searchWikipedia } from '../wikipedia/helpers'
 import queryGoogle from '../utils/queryGoogle'
+
+import { database } from './../../database'
+
+const getEvents = async ({
+  type,
+  agent,
+  speaker,
+  client,
+  channel,
+  maxCount,
+  max_time_diff,
+}: GetEventArgs) => {
+  const event = await database.instance.getEvents({
+    type,
+    agent,
+    speaker,
+    client,
+    channel,
+    maxCount,
+    max_time_diff
+})
+
+  if (!event) return null
+
+  return event
+}
+
+const createEvent = async (args: CreateEventArgs) => {
+  const { type, agent, speaker, client, channel, text, sender } = args
+  return await database.instance.createEvent({
+    type,
+    agent,
+    speaker,
+    sender,
+    client,
+    channel,
+    text,
+  })
+}
+
 
 export const buildThothInterface = (
   ctx: Koa.Context,
@@ -17,6 +56,7 @@ export const buildThothInterface = (
 
   return {
     runSpell: () => {
+      console.error("*************** RUNNING EMPTY NOTHING SPELL")
       return {}
     },
     queryGoogle: async query => {
@@ -75,12 +115,12 @@ export const buildThothInterface = (
 
       gameState = newState
     },
-    // IMPLEMENT THESE INTERFACES FOR THE SERVER
+    // IMPLEMENT THESE INTERFACES FOR THE SERVERbuildThothInterface
     getEvent: async (args: GetEventArgs) => {
-      return await events.getEvents(args)
+      return await getEvents(args)
     },
     storeEvent: async (args: CreateEventArgs) => {
-      return await events.createEvent(args)
+      return await createEvent(args)
     },
     getWikipediaSummary: async (keyword: string) => {
       let out = null

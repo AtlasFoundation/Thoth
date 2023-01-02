@@ -10,9 +10,9 @@ import {
   ThothWorkerInputs,
   ThothWorkerOutputs,
 } from '../../../types'
+import { extractNodes } from '../../engine'
 import { SocketNameType } from '../../sockets'
 import { Module } from './module'
-import { extractNodes } from './utils'
 interface ModuleComponent extends Component {
   run: Function
 }
@@ -131,7 +131,7 @@ export class ModuleManager {
     node: ThothNode,
     inputs: ThothWorkerInputs,
     outputs: ThothWorkerOutputs,
-    args: { socketInfo: { target: string } }
+    args: { socketInfo: { targetSocket: string } }
   ) {
     if (!node.data.module) return
     if (!this.modules[node.data.module as number]) return
@@ -158,12 +158,17 @@ export class ModuleManager {
       Object.assign({}, args, { module, silent: true })
     )
 
-    if (args?.socketInfo?.target) {
-      const triggeredNode = this.getTriggeredNode(data, args.socketInfo.target)
+    if ((args?.socketInfo as any)?.targetNode) {
+      console.log('targetNode', (args?.socketInfo as any).targetNode)
+    }
+
+    if (args?.socketInfo?.targetSocket) {
+      const triggeredNode = this.getTriggeredNode(
+        data,
+        args.socketInfo.targetSocket
+      )
       // todo need to remember to update this if/when componnet name changes
-      const component = engine?.components.get(
-        'Module Trigger In'
-      ) as ModuleComponent
+      const component = engine?.components.get('Trigger In') as ModuleComponent
       await component?.run(triggeredNode)
     }
     // gather the outputs

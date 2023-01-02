@@ -1,7 +1,6 @@
 import { randomInt } from './connectors/utils'
 import { database } from '../database'
 import Entity from './Entity'
-import { cacheManager } from '../cacheManager'
 
 const maxMSDiff = 5000
 let interval = 3000
@@ -99,20 +98,7 @@ export class World {
   }
 
   async onCreate() {
-    if (!cacheManager.instance) {
-      new cacheManager()
-    }
-
-    const cachedPorts = await cacheManager.instance.get('CACHED_FREE_PORTS')
-    if (cachedPorts && cachedPorts !== undefined && cachedPorts?.length > 0) {
-      const ports = cachedPorts.split(',')
-      for (let i = 0; i < ports.length; i++) {
-        this.availablePorts.push(parseInt(ports[i]))
-      }
-    } else {
-      const ports: string[] = process.env.ENTITY_WEBSERVER_PORT_RANGE?.split(
-        '-'
-      ) as any
+      const ports: string[] = (process.env.ENTITY_WEBSERVER_PORT_RANGE?.split('-') as any ?? ['10001', '10100']) as string[]
       let portStart: number = parseInt(ports[0])
       let portEnd: number = parseInt(ports[1])
       if (portStart > portEnd) {
@@ -123,7 +109,7 @@ export class World {
       for (let i = portStart; i <= portEnd; i++) {
         this.availablePorts.push(i)
       }
-    }
+    
 
     initEntityLoop(
       async (id: number) => {
@@ -202,10 +188,6 @@ export class World {
     if (port === undefined) {
       throw new Error('No available ports')
     }
-    cacheManager.instance.set(
-      'CACHED_FREE_PORTS',
-      this.availablePorts.join(',')
-    )
     return port
   }
 }

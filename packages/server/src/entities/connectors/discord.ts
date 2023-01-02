@@ -1292,22 +1292,18 @@ export class discord_client {
     discord_bot_name_regex: string,
     discord_bot_name: string | RegExp,
     discord_empty_responses: string,
-    spellHandler: (
-      message: string | undefined,
-      speaker: string,
-      agent: string,
-      client: string,
-      channelId: string,
-      entity: number,
-      eth_private_key: string,
-      eth_public_address: string,
-      roomInfo: {
-        user: string
-        inConversation: boolean
-        isBot: boolean
-        info3d: string
-      }[],
-      channel: string,
+    spellHandler: ({
+      message,
+      speaker,
+      agent,
+      client,
+      channelId,
+      entity,
+      eth_private_key,
+      eth_public_address,
+      roomInfo,
+      channel,
+    }
     ) => Promise<unknown>,
     use_voice,
     voice_provider,

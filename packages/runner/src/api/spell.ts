@@ -24,6 +24,7 @@ export const runSpell = async ({
   state = {},
 }: RunSpellArguments) => {
   try {
+    console.log('****** runSpell, inputs are', inputs)
     const data = {
       inputs,
       state,

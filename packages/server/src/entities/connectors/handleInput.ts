@@ -45,19 +45,3 @@ export async function handleInput(
     return undefined
   }
 }
-
-export async function handleCustomInput(
-  message: string,
-  sender: string,
-  isVoice: boolean,
-  agent: string = 'Thales'
-) {
-  const response = await axios.post(`https://0.0.0.0:8001/custom_message`, {
-    message: message,
-    sender: sender,
-    agent: agent,
-    isVoice: isVoice,
-  })
-
-  return response.data.response
-}

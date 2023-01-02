@@ -1,5 +1,0 @@
-dist/ 
-node_modules/
-test/
-.eslintrc.js
-__docs__/_build

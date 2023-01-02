@@ -11,14 +11,13 @@ import socketio from '@feathersjs/socketio'
 
 import { Application } from './declarations'
 import logger from './logger'
-import middleware from './middleware'
 import services from './services'
 import appHooks from './app.hooks'
 import channels from './channels'
 import { HookContext as FeathersHookContext } from '@feathersjs/feathers'
 import handleSockets from './sockets'
 // import authentication from './authentication'
-import { configureManager } from '@thothai/thoth-core/dist/server'
+import { configureManager } from '@thothai/thoth-core/src/spellManager'
 // Don't remove this comment. It's needed to format import lines nicely.
 
 const app: Application = express(feathers())
@@ -65,9 +64,6 @@ app.configure(
   // This is hacky.  But some socket options are required by typescript, but the library uses defaults.
   socketio(socketOptions as unknown as io.ServerOptions, handleSockets(app))
 )
-
-// Configure other middleware (see `middleware/index.ts`)
-app.configure(middleware)
 // app.configure(authentication)
 // Set up our services (see `services/index.ts`)
 app.configure(services)
