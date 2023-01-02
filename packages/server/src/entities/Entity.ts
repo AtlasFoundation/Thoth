@@ -1,12 +1,11 @@
 import discord_client from './connectors/discord'
 import { twitter_client } from './connectors/twitter'
-import { CreateSpellHandler } from './CreateSpellHandler'
-import { cacheManager } from '../cacheManager'
+// import { CreateSpellHandler } from './CreateSpellHandler'
 import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
 import { tts_tiktalknet } from '../systems/tiktalknet'
-import { creatorToolsDatabase } from '../databases/creatorTools'
+import { database } from '../database'
 
 // import { telegram_client } from './connectors/telegram'
 // import { twilio_client } from './connectors/twilio'
@@ -54,11 +53,11 @@ export class Entity {
     if (this.discord)
       throw new Error('Discord already running for this agent on this instance')
 
-    const spell = await creatorToolsDatabase.spells.findOne({
+    const spell = await database.instance.models.spells.findOne({
       where: { name: spell_handler },
     })
 
-    const spellHandler = await CreateSpellHandler({ spell })
+    const spellHandler =  null // await CreateSpellHandler({ spell })
 
     this.discord = new discord_client()
     console.log('createDiscordClient')
@@ -121,21 +120,23 @@ export class Entity {
       )
 
 
-    const incoming_spell = await creatorToolsDatabase.spells.findOne({
+    const incoming_spell = await database.instance.models.spells.findOne({
       where: { name: twitter_spell_handler_incoming },
     })
 
-    const spellHandler = await CreateSpellHandler({
-      spell: incoming_spell,
-    })
+    const spellHandler = null 
+    // await CreateSpellHandler({
+    //   spell: incoming_spell,
+    // })
 
-    const auto_spell = await creatorToolsDatabase.spells.findOne({
+    const auto_spell = await database.instance.models.spells.findOne({
       where: { name: twitter_spell_handler_incoming },
     })
 
-    const spellHandlerAuto = await CreateSpellHandler({
-      spell: auto_spell,
-    })
+    const spellHandlerAuto = null
+    // await CreateSpellHandler({
+    //   spell: auto_spell,
+    // })
 
     this.twitter = new twitter_client()
     console.log('createTwitterClient')
@@ -293,12 +294,13 @@ export class Entity {
 
     const loopInterval = parseInt(loop_interval)
     if (typeof loopInterval === 'number' && loopInterval > 0) {
-      const spell = await creatorToolsDatabase.spells.findOne({
+      const spell = await database.instance.models.spells.findOne({
         where: { name: loop_spell_handler },
       })
-      const spellHandler = await CreateSpellHandler({
-        spell,
-      })
+      const spellHandler = null
+      // await CreateSpellHandler({
+      //   spell,
+      // })
 
       this.loopHandler = setInterval(async () => {
         const resp = await spellHandler({
@@ -502,19 +504,6 @@ export class Entity {
         )
 
         for (let i = 0; i < filtered.length; i++) {
-          if (
-            await cacheManager.instance.has(
-              'voice_' +
-                data.voice_provider +
-                '_' +
-                data.voice_character +
-                '_' +
-                filtered[i]
-            )
-          ) {
-            continue
-          }
-
           let url: any = ''
           if (data.voice_provider === 'uberduck') {
             url = await getAudioUrl(
@@ -536,28 +525,12 @@ export class Entity {
               data.tiktalknet_url
             )
           }
-
-          if (url && url.length > 0 && stringIsAValidUrl(url)) {
-            await cacheManager.instance.set(
-              'voice_' +
-                data.voice_provider +
-                '_' +
-                data.voice_character +
-                '_' +
-                filtered[i],
-              url
-            )
-          }
         }
       }
     }
   }
 
   constructor(data: any) {
-    if (!cacheManager.instance) {
-      new cacheManager()
-    }
-
     this.onDestroy()
     this.id = data.id
     console.log('initing agent')

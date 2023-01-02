@@ -1,8 +1,5 @@
 import { ThothComponent } from '../../types'
 import { AgentTextCompletion } from './agents/AgentTextCompletion'
-import { CacheManagerDelete } from './agents/CacheManagerDelete'
-import { CacheManagerGet } from './agents/CacheManagerGet'
-import { CacheManagerSet } from './agents/CacheManagerSet'
 import { CustomTextCompletion } from './agents/CustomTextCompletion'
 import { EventRecall } from './agents/EventRecall'
 import { EventStore } from './agents/EventStore'
@@ -111,9 +108,6 @@ export const components = {
   rssGet: () => new RSSGet(),
   forEach: () => new ForEach(),
   whileLoop: () => new WhileLoop(),
-  cacheManagerGet: () => new CacheManagerGet(),
-  cacheManagerDelete: () => new CacheManagerDelete(),
-  cacheManagerSet: () => new CacheManagerSet(),
   stringEvaluator: () => new StringEvaluator(),
   stringCombiner: () => new StringCombiner(),
   randomStringFromList: () => new RandomStringFromList(),

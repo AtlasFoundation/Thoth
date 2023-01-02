@@ -1,6 +1,6 @@
 import Koa from 'koa'
 import 'regenerator-runtime/runtime'
-import { creatorToolsDatabase } from '../../databases/creatorTools'
+import { database } from '../../database'
 import { Route } from '../../types'
 import { CustomError } from '../../utils/CustomError'
 import { SpellRunner, extractModuleInputKeys } from '@thothai/thoth-core/server'
@@ -16,7 +16,7 @@ const runSpellHandler = async (ctx: Koa.Context) => {
   const { spell } = ctx.params
   const { userGameState = {} } = ctx.request.body
 
-  const rootSpell = await creatorToolsDatabase.spells.findOne({
+  const rootSpell = await database.instance.models.spells.findOne({
     where: { name: spell },
   })
 
@@ -88,12 +88,12 @@ const saveHandler = async (ctx: Koa.Context) => {
 
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
 
-  const spell = await creatorToolsDatabase.spells.findOne({
+  const spell = await database.instance.models.spells.findOne({
     where: { id: body.id },
   })
 
   if (!spell) {
-    const newSpell = await creatorToolsDatabase.spells.create({
+    const newSpell = await database.instance.models.spells.create({
       name: body.name,
       graph: body.graph,
       gameState: body.gameState || {},
@@ -115,7 +115,7 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
 
   if (!body) throw new CustomError('input-failed', 'No parameters provided')
 
-  const spell = await creatorToolsDatabase.spells.findOne({
+  const spell = await database.instance.models.spells.findOne({
     where: { name },
   })
 
@@ -126,7 +126,7 @@ const saveDiffHandler = async (ctx: Koa.Context) => {
   console.log('spell is', spell)
   try {
     const spellUpdate = otJson0.type.apply(spell.toJSON(), diff)
-    const updatedSpell = await creatorToolsDatabase.spells.update(spellUpdate, {
+    const updatedSpell = await database.instance.models.spells.update(spellUpdate, {
       where: { name },
     })
 
@@ -150,7 +150,7 @@ const newHandler = async (ctx: Koa.Context) => {
 
   // TODO fix these typescript errors
   //@ts-ignore
-  const spell = await creatorToolsDatabase.spells.findOne({
+  const spell = await database.instance.models.spells.findOne({
     //@ts-ignore
     where: {
       name: body.name,
@@ -161,7 +161,7 @@ const newHandler = async (ctx: Koa.Context) => {
 
   if (spell) await spell.destroy({ force: true })
 
-  const newSpell = await creatorToolsDatabase.spells.create({
+  const newSpell = await database.instance.models.spells.create({
     name: body.name,
     graph: body.graph,
     gameState: {},
@@ -173,7 +173,7 @@ const newHandler = async (ctx: Koa.Context) => {
 
 const patchHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
-  const spell = await creatorToolsDatabase.spells.findOne({
+  const spell = await database.instance.models.spells.findOne({
     where: {
       name,
     },
@@ -187,7 +187,7 @@ const patchHandler = async (ctx: Koa.Context) => {
 
 const getSpellsHandler = async (ctx: Koa.Context) => {
   let queryBody: any = {}
-  const spells = await creatorToolsDatabase.spells.findAll({
+  const spells = await database.instance.models.spells.findAll({
     ...queryBody,
     attributes: {
       exclude: ['graph', 'gameState', 'modules'],
@@ -200,12 +200,12 @@ const getSpellHandler = async (ctx: Koa.Context) => {
   console.log('GETTING SPELLLLLLLL')
   const name = ctx.params.name
   try {
-    const spell = await creatorToolsDatabase.spells.findOne({
+    const spell = await database.instance.models.spells.findOne({
       where: { name },
     })
 
     if (!spell) {
-      const newSpell = await creatorToolsDatabase.spells.create({
+      const newSpell = await database.instance.models.spells.create({
         name,
         graph: { id: 'demo@0.1.0', nodes: {} },
         gameState: {},
@@ -236,7 +236,7 @@ const postSpellExistsHandler = async (ctx: Koa.Context) => {
   const { name } = ctx.body as { name: string }
 
   try {
-    const spell = await creatorToolsDatabase.spells.findOne({
+    const spell = await database.instance.models.spells.findOne({
       where: { name },
     })
 
@@ -250,7 +250,7 @@ const postSpellExistsHandler = async (ctx: Koa.Context) => {
 
 const deleteHandler = async (ctx: Koa.Context) => {
   const name = ctx.params.name
-  const spell = await creatorToolsDatabase.spells.findOne({
+  const spell = await database.instance.models.spells.findOne({
     where: { name },
   })
   if (!spell) throw new CustomError('input-failed', 'spell not found')

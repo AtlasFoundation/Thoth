@@ -7,12 +7,12 @@
 // @ts-nocheck
 import { launch } from 'puppeteer-stream'
 import Xvfb from 'xvfb'
+
 import { detectOsOption } from '../../server/src/entities/connectors/utils'
-import { removeEmojisFromString } from '../../server/src/utils/utils'
-import { cacheManager } from '../../server/src/cacheManager'
-import { tts } from '../../server/src/systems/googleTextToSpeech'
 import { getAudioUrl } from '../../server/src/routes/getAudioUrl'
+import { tts } from '../../server/src/systems/googleTextToSpeech'
 import { tts_tiktalknet } from '../../server/src/systems/tiktalknet'
+import { removeEmojisFromString } from '../../server/src/utils/utils'
 
 export class zoom_client {
   ent = null
@@ -150,7 +150,7 @@ export class zoom {
     )
     if (participantsDiv.length > 0)
       await participantsDiv[0].evaluate(b => b.click())
-    let meetingHost = await this.page.evaluate(async () => {
+    const meetingHost = await this.page.evaluate(async () => {
       // Get the element containing the details of the host of the meeting
       const el = document.getElementById('participants-list-1')
       const displayName = el?.querySelector('.participants-item__display-name')
@@ -199,46 +199,35 @@ export class zoom {
           console.log('RESP:', response)
           response = removeEmojisFromString(response)
           const temp = response
-          if (!cacheManager.instance) {
-            new cacheManager()
-          }
-
-          const cache = await cacheManager.instance.get('voice_' + temp)
-          if (cache) {
-            response = cache
-            console.log('got from cache:', cache)
+          if (this.settings.voice_provider === 'google') {
+            const fileId = await tts(response as string)
+            const url =
+              (process.env.FILE_SERVER_URL?.endsWith('/')
+                ? process.env.FILE_SERVER_URL
+                : process.env.FILE_SERVER_URL + '/') + fileId
+            response = url
+          } else if (this.settings.voice_provider === 'uberduck') {
+            const url = await getAudioUrl(
+              process.env.UBER_DUCK_KEY as string,
+              process.env.UBER_DUCK_SECRET_KEY as string,
+              this.settings.voice_character,
+              response as string
+            )
+            response = url
           } else {
-            if (this.settings.voice_provider === 'google') {
-              const fileId = await tts(response as string)
-              const url =
-                (process.env.FILE_SERVER_URL?.endsWith('/')
-                  ? process.env.FILE_SERVER_URL
-                  : process.env.FILE_SERVER_URL + '/') + fileId
-              response = url
-            } else if (this.settings.voice_provider === 'uberduck') {
-              const url = await getAudioUrl(
-                process.env.UBER_DUCK_KEY as string,
-                process.env.UBER_DUCK_SECRET_KEY as string,
-                this.settings.voice_character,
-                response as string
-              )
-              response = url
-            } else {
-              const fileId = await tts_tiktalknet(
-                response,
-                this.settings.voice_character,
-                this.settings.tiktalknet_url
-              )
-              const url =
-                (process.env.FILE_SERVER_URL?.endsWith('/')
-                  ? process.env.FILE_SERVER_URL
-                  : process.env.FILE_SERVER_URL + '/') + fileId
-              response = url
-            }
+            const fileId = await tts_tiktalknet(
+              response,
+              this.settings.voice_character,
+              this.settings.tiktalknet_url
+            )
+            const url =
+              (process.env.FILE_SERVER_URL?.endsWith('/')
+                ? process.env.FILE_SERVER_URL
+                : process.env.FILE_SERVER_URL + '/') + fileId
+            response = url
           }
           try {
             await this.playAudio(response)
-            cacheManager.instance.set('voice_' + temp, response)
             this.lastResponse = tempResp.toLowerCase()
 
             await new Promise(resolve => setTimeout(resolve, 4000))

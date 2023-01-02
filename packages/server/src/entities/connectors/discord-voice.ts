@@ -10,7 +10,6 @@ import { tts } from '../../systems/googleTextToSpeech'
 import { getAudioUrl } from '../../routes/getAudioUrl'
 import { addSpeechEvent } from './voiceUtils/addSpeechEvent'
 import { removeEmojisFromString } from '../../utils/utils'
-import { cacheManager } from '../../cacheManager'
 import { tts_tiktalknet } from '../../systems/tiktalknet'
 
 //const transcriber = new Transcriber('288916776772018')
@@ -73,18 +72,6 @@ export function initSpeechClient(
       console.log('response is', response)
       if (response) {
         const audioPlayer = createAudioPlayer()
-
-        // TODO
-        // 1. get the voice provider
-        // if google, use that
-        // otherwise use uberduck
-        // 2. set the character name from the request
-        let url = await cacheManager.instance.get(
-          'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response
-        )
-        console.log('retrievied url from cache', url)
-
-        if (!url || url === undefined || url?.length <= 0) {
           if (voiceProvider === 'uberduck') {
             url = await getAudioUrl(
               process.env.UBER_DUCK_KEY as string,
@@ -99,13 +86,7 @@ export function initSpeechClient(
           } else {
             url = await tts_tiktalknet(response, voiceCharacter, tiktalknet_url)
           }
-
-          cacheManager.instance.set(
-            'voice_' + voiceProvider + '_' + voiceCharacter + '_' + response,
-            url
-          )
-        }
-
+        
         // const url = await tts(response)
         connection.subscribe(audioPlayer)
         console.log('speech url:', url)
