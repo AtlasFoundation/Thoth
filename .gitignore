@@ -19,7 +19,6 @@ packages/server/files/
 
 .env.local
 .env.*.local
-.env
 
 .dfx
 package-lock.json
