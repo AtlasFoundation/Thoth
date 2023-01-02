@@ -23,7 +23,7 @@ export class TriggerIn extends ThothComponent<void> {
   constructor() {
     // Name of the component
     // If name of component changes please update module-manager workerModule code
-    super('Module Trigger In')
+    super('Trigger In')
     this.displayName = 'Trigger In'
     this.contextMenuName = 'Trigger In'
 

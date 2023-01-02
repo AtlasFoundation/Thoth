@@ -155,6 +155,9 @@ export class SpellComponent extends ThothComponent<
     )
 
     if (!silent) node.display(`${JSON.stringify(outputs)}`)
+    else {
+      console.log('outputs', outputs)
+    }
 
     return this.formatOutputs(node, outputs)
   }

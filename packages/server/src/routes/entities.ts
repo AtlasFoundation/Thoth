@@ -14,8 +14,6 @@ import { MakeModelRequest } from '../utils/MakeModelRequest'
 import { tts } from '../systems/googleTextToSpeech'
 import { getAudioUrl } from './getAudioUrl'
 import { tts_tiktalknet } from '../systems/tiktalknet'
-import { stringIsAValidUrl } from '../utils/utils'
-import { CreateSpellHandler } from '../entities/CreateSpellHandler'
 import queryGoogleSearch from './utils/queryGoogle'
 import { CustomError } from '../utils/CustomError'
 
@@ -308,78 +306,6 @@ const getEntityImage = async (ctx: Koa.Context) => {
   return (ctx.body = '')
 }
 
-const customMessage = async (ctx: Koa.Context) => {
-  console.log('got custom message:', ctx.request.body)
-  throw new Error('not implemented well')
-  const sender = ctx.request.body?.sender as string
-  const agent = ctx.request.body?.agent as string
-  const message = (ctx.request.body?.message as string).trim().toLowerCase()
-  const spell_handler = ctx.request.body?.spell_handler as string
-  const channel = ctx.request.body?.channel as string
-  let isVoice = (ctx.request.body?.isVoice as string | undefined) === 'true'
-  const voice_provider = ctx.request.body?.voice_provider as string
-  const voice_character = ctx.request.body?.voice_character as string
-  const voice_language_code = ctx.request.body?.voice_language_code as string
-  const tiktalknet_url = ctx.request.body?.tiktalknet_url as string
-  let url: any = ''
-
-  const spellHandler = await CreateSpellHandler({
-    spell: spell_handler,
-  })
-
-  // warning coerced into string, but may not be
-  const response = (await spellHandler(
-    message,
-    sender,
-    agent,
-    'discord',
-    channel,
-    [],
-    [],
-    'room'
-  )) as string
-
-  if (isVoice) {
-    if (
-      await cacheManager.instance.has(
-        'voice_' + voice_provider + '_' + voice_character + '_' + response
-      )
-    ) {
-      url = await cacheManager.instance.get(
-        'voice_' + voice_provider + '_' + voice_character + '_' + response
-      )
-    } else {
-      if (voice_provider === 'uberduck') {
-        url = await getAudioUrl(
-          process.env.UBER_DUCK_KEY as string,
-          process.env.UBER_DUCK_SECRET_KEY as string,
-          voice_character,
-          response
-        )
-      } else if (voice_provider === 'google') {
-        url =
-          process.env.FILE_SERVER_URL +
-          '/' +
-          (await tts(response, voice_character, voice_language_code))
-      } else {
-        url =
-          process.env.FILE_SERVER_URL +
-          '/' +
-          (await tts_tiktalknet(response, voice_character, tiktalknet_url))
-      }
-
-      if (url && url.length > 0 && stringIsAValidUrl(url)) {
-        await cacheManager.instance.set(
-          'voice_' + voice_provider + '_' + voice_character + '_' + response,
-          url
-        )
-      }
-    }
-  }
-
-  return (ctx.body = { response: isVoice ? url : response, isVoice: isVoice })
-}
-
 const getFromCache = async (ctx: Koa.Context) => {
   const key = ctx.request.query.key as string
   const agent = ctx.request.query.agent as string
@@ -608,10 +534,6 @@ export const entities: Route[] = [
   //   path: '/weaviate',
   //   post: makeWeaviateRequest,
   // },
-  {
-    path: '/custom_message',
-    post: customMessage,
-  },
   {
     path: '/entities_info',
     get: getEntitiesInfo,

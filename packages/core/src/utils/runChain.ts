@@ -71,7 +71,7 @@ export const runGraph = async ({
 
   // Standard default component to start the serverside run sequence from, which has the run function on it.
   const component = engine?.components.get(
-    'Module Trigger In'
+    'Trigger In'
   ) as ModuleComponent
 
   // Defaulting to the first node trigger to start our "run"

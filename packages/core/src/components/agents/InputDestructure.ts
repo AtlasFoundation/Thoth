@@ -135,8 +135,9 @@ export class InputDestructureComponent extends ThothComponent<
 
     if (!silent) node.display(agent)
     // If there are outputs, we are running as a module input and we use that value
+
     return {
-      output: (agent as any).Input ?? agent,
+      output: typeof agent === 'string' ? agent : (agent as any).Input,
       speaker: (agent as any)['Speaker'] ?? 'Speaker',
       agent: (agent as any)['Agent'] ?? 'Agent',
       client: (agent as any)['Client'] ?? 'Playtest',

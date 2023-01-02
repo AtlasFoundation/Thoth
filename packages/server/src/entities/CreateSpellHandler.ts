@@ -11,8 +11,8 @@ import { Module } from '../routes/spells/module'
 import { ModuleType } from '@thothai/thoth-core/types'
 import { Task } from '@thothai/thoth-core/src/plugins/taskPlugin/task'
 
-export const CreateSpellHandler = async (props: {
-  spell: any
+export const CreateSpellHandler = async ({
+  spell
 }) => {
   // TODO: create a proper engine interface with the proper methods types on it.
   const engine = initSharedEngine({
@@ -22,31 +22,13 @@ export const CreateSpellHandler = async (props: {
     modules: {},
   }) as any
 
-  let rootSpell
-  if (!props.spell || props.spell === undefined) {
-    props.spell = 'default'
-  }
-  const { spell } = props
-
-  rootSpell = await creatorToolsDatabase.spells.findOne({
-    where: { name: spell },
-  })
-
-  //todo validate spell has an input trigger?
-  if (!rootSpell?.graph) {
-    throw new CustomError(
-      'not-found',
-      `Spell with name ${spell} not found`
-    )
-  }
-
   // TODO use test spells if body option is given
   // const rootSpell = getTestSpell(spell)
-  const graph = rootSpell.graph as Graph
-  const modules = rootSpell.modules as Module[]
+  const graph = spell.graph as Graph
+  const modules = spell.modules as Module[]
 
   const gameState = {
-    ...rootSpell?.gameState,
+    ...spell?.gameState,
   }
 
   const thoth = buildThothInterface(null as any, gameState)
@@ -84,7 +66,7 @@ export const CreateSpellHandler = async (props: {
 
   // Standard default component to start the serverside run sequence from, which has the run function on it.
   const component = engine.components.get(
-    'Module Trigger In'
+    'Trigger In'
   ) as ModuleComponent as any
 
   // Defaulting to the first node trigger to start our "run"
@@ -100,23 +82,18 @@ export const CreateSpellHandler = async (props: {
   const inputKeys = extractModuleInputKeys(graph) as string[]
 
   // Return this-- this is the callback for discord etc to handle chat
-  async function spellHandler(
-    message: string,
-    speaker: string,
-    agent: string,
-    client: string,
-    channelId: string,
-    entity: any,
-    eth_private_key: string,
-    eth_public_address: string,
-    roomInfo: {
-      user: string
-      inConversation: boolean
-      isBot: boolean
-      info3d: string
-    }[],
-    channel: string
-  ) {
+  async function spellHandler({
+    message,
+    speaker,
+    agent,
+    client,
+    channelId,
+    entity,
+    eth_private_key,
+    eth_public_address,
+    roomInfo = null,
+    channel
+  }) {
     const spellInputs = {
       Input: message,
       Speaker: speaker,
@@ -130,11 +107,6 @@ export const CreateSpellHandler = async (props: {
       eth_public_address
     } as any
 
-    // TODO: Remove this line
-    // TEST CASE: Chatting with agent on Discord doesn't get same response over and over
-    // This resets everything and makes it work, BUT it is very slow
-    // We need to reset the task outputs (and tasks in general) without
-    // calling this function here
     let error = null
     const inputs = inputKeys.reduce(
       (inputs, expectedInput: string, idx: number) => {
@@ -146,10 +118,6 @@ export const CreateSpellHandler = async (props: {
           return inputs
         } else {
           error = `Spell expects a value for ${expectedInput} to be provided `
-          // throw new CustomError(
-          //   'input-failed',
-          //   error
-          // )
         }
       },
       {} as Record<string, unknown>
@@ -169,6 +137,8 @@ export const CreateSpellHandler = async (props: {
 
     // Write all the raw data that was output by the module run to an object
     module.write(rawOutputs)
+
+    console.log('rawOutputs', rawOutputs)
 
     const outputs = Object.values(graph.nodes).filter((node: any) => {
       return node.name.includes('Output')

@@ -162,7 +162,7 @@ export class ModuleManager {
       const triggeredNode = this.getTriggeredNode(data, args.socketInfo.target)
       // todo need to remember to update this if/when componnet name changes
       const component = engine?.components.get(
-        'Module Trigger In'
+        'Trigger In'
       ) as ModuleComponent
       await component?.run(triggeredNode)
     }

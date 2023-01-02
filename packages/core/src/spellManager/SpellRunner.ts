@@ -220,7 +220,7 @@ class SpellRunner {
    * temporary function to be backwards compatible with current use of run spell
    */
   async defaultRun(inputs: Record<string, any>, runSubspell = false) {
-    return this.runComponent(inputs, 'Module Trigger In', runSubspell)
+    return this.runComponent(inputs, 'Trigger In', runSubspell)
   }
 }
 

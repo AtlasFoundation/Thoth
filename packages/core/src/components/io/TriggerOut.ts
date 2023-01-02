@@ -23,7 +23,7 @@ export class TriggerOut extends ThothComponent<WorkerReturn> {
 
   constructor() {
     // Name of the component
-    super('Module Trigger Out')
+    super('Trigger Out')
     this.contextMenuName = 'Trigger Out'
 
     this.task = {

@@ -6,6 +6,8 @@ import { getAudioUrl } from '../routes/getAudioUrl'
 import { tts } from '../systems/googleTextToSpeech'
 import { stringIsAValidUrl } from '../utils/utils'
 import { tts_tiktalknet } from '../systems/tiktalknet'
+import { creatorToolsDatabase } from '../databases/creatorTools'
+
 // import { telegram_client } from './connectors/telegram'
 // import { twilio_client } from './connectors/twilio'
 // import { slack_client } from './connectors/slack'
@@ -52,9 +54,11 @@ export class Entity {
     if (this.discord)
       throw new Error('Discord already running for this agent on this instance')
 
-    const spellHandler = await CreateSpellHandler({
-      spell: spell_handler,
+    const spell = await creatorToolsDatabase.spells.findOne({
+      where: { name: spell_handler },
     })
+
+    const spellHandler = await CreateSpellHandler({ spell })
 
     this.discord = new discord_client()
     console.log('createDiscordClient')
@@ -116,11 +120,21 @@ export class Entity {
         'Twitter already running for this entity on this instance'
       )
 
-    const spellHandler = await CreateSpellHandler({
-      spell: twitter_spell_handler_incoming,
+
+    const incoming_spell = await creatorToolsDatabase.spells.findOne({
+      where: { name: twitter_spell_handler_incoming },
     })
+
+    const spellHandler = await CreateSpellHandler({
+      spell: incoming_spell,
+    })
+
+    const auto_spell = await creatorToolsDatabase.spells.findOne({
+      where: { name: twitter_spell_handler_incoming },
+    })
+
     const spellHandlerAuto = await CreateSpellHandler({
-      spell: twitter_spell_handler_auto,
+      spell: auto_spell,
     })
 
     this.twitter = new twitter_client()
@@ -279,23 +293,26 @@ export class Entity {
 
     const loopInterval = parseInt(loop_interval)
     if (typeof loopInterval === 'number' && loopInterval > 0) {
+      const spell = await creatorToolsDatabase.spells.findOne({
+        where: { name: loop_spell_handler },
+      })
       const spellHandler = await CreateSpellHandler({
-        spell: loop_spell_handler,
+        spell,
       })
 
       this.loopHandler = setInterval(async () => {
-        const resp = await spellHandler(
-          'loop',
-          'loop',
-          agent_name,
-          'loop',
-          'loop',
-          this,
+        const resp = await spellHandler({
+          message: 'loop',
+          speaker: 'loop',
+          agent: agent_name,
+          client: 'loop',
+          channelId: 'loop',
+          entity: this,
           eth_private_key,
           eth_public_address,
-          [],
-          'auto'
-        )
+          roomInfo: [],
+          channel: 'auto'
+      })
         if (resp && (resp as string)?.length > 0) {
           console.log('Loop Response:', resp)
         }

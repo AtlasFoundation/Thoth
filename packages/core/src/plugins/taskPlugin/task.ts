@@ -74,10 +74,11 @@ export class Task {
   getInputFromConnection(socketKey: string) {
     let input: null | any = null
     Object.entries(this.inputs).forEach(([key, value]) => {
-      console.log('evaluating', key, value)
-      if (value.some((con: ThothReteInput) => con && con.key === socketKey)) {
-        const v = value[0] as any
-        if (v && v.task && v.task.closed.length > 0) {
+      const val = value.find((con: any) => con && con.key === socketKey) as {
+        task: { closed: string[] }
+      }
+      if (val) {
+        if (val && val.task && val.task.closed.length > 0) {
           input = key
           return
         }
@@ -98,7 +99,7 @@ export class Task {
       garbage = [] as Task[],
       propagate = true,
       fromSocket,
-      // fromNode,
+      fromNode,
       // fromTask,
     } = options
 
@@ -126,12 +127,15 @@ export class Task {
       await Promise.all(
         this.getInputs('output').map(async key => {
           const inputPromises = this.inputs[key]
-            // .filter((con: ThothReteInput) => {
-            //   // only filter inputs to remove ones that are not the origin if a task option is true
-            //   if (this.component.task.runOneInput) return false
-            //   // if (!this.component.task.runOneInput || !fromNode) return true
-            //   return true
-            // })
+            .filter((con: ThothReteInput) => {
+              // only filter inputs to remove ones that are not the origin if a task option is true
+              if (!this.component.task.runOneInput || !fromNode) return true
+
+              // return true if the input is from a triggerless component
+              if (!con.task.node.outputs.trigger) return true
+
+              return con.task.node.id === fromNode.id
+            })
             .map(async (con: ThothReteInput) => {
               await con.task.run(data, {
                 needReset: false,

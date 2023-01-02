@@ -65,6 +65,7 @@ export const spellApi = rootApi.injectEndpoints({
       },
     }),
     runSpell: builder.mutation<Record<string, any>, RunSpell>({
+      
       query: ({ spellId, inputs, state = {} }) => ({
         url: `spells/${spellId}`,
         method: 'POST',

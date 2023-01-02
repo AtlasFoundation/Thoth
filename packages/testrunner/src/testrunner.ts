@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime'
-import { CreateSpellHandler } from './CreateSpellHandler'
+import { CreateSpellHandler } from '../../server/src/entities/CreateSpellHandler'
 import fs from 'fs'
 
 async function init() {
@@ -17,15 +17,18 @@ async function init() {
     // convert the graph to JSON
     const graphJSON = JSON.parse(graphData)
 
-    const spellHandler = await CreateSpellHandler(graphJSON)
+    console.log('graphJSON is', graphJSON)
+
+    const spellHandler = await CreateSpellHandler({ spell: graphJSON })
 
     // read the manifest and convert to a JS object
     const manifest = JSON.parse(manifestData)
 
     // for each entry in the manifest, run the test
     for (const entry of manifest) {
+      console.log('entry is', entry)
         const resp = await spellHandler({
-          message: entry.input,
+          message: entry.message,
           speaker: entry.speaker,
           agent: entry.agent,
           client: entry.client,
@@ -35,7 +38,8 @@ async function init() {
           eth_public_address: entry.eth_public_address,
           channel: entry.channel,
         });
-        console.log('resp', resp)
+
+        console.log('resp', resp, "expected", entry.expect)
       }
     });
 }

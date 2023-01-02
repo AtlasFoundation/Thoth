@@ -17,6 +17,7 @@ export const buildThothInterface = (
 
   return {
     runSpell: () => {
+      console.error("*************** RUNNING EMPTY NOTHING SPELL")
       return {}
     },
     queryGoogle: async query => {

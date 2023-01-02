@@ -1,0 +1,36 @@
+[{
+    "message": "hello",
+    "speaker": "speaker",
+    "agent": "agent",
+    "client": "client",
+    "channelId": "channelId",
+    "entity": "entity",
+    "eth_private_key": "eth_private_key",
+    "eth_public_address": "eth_public_address",
+    "channel": "channel",
+    "expect": "greeting"
+  },
+  {
+    "message": "ok",
+    "speaker": "speaker",
+    "agent": "agent",
+    "client": "client",
+    "channelId": "channelId",
+    "entity": "entity",
+    "eth_private_key": "eth_private_key",
+    "eth_public_address": "eth_public_address",
+    "channel": "channel",
+    "expect": "acknowledgement"
+  },
+  {
+    "message": "goodbye",
+    "speaker": "speaker",
+    "agent": "agent",
+    "client": "client",
+    "channelId": "channelId",
+    "entity": "entity",
+    "eth_private_key": "eth_private_key",
+    "eth_public_address": "eth_public_address",
+    "channel": "channel",
+    "expect": "goodbye"
+  }]
