@@ -8,10 +8,10 @@
   "scripts": {
     "build": "yarn clean && tsc",
     "clean": "rm -rf dist",
-    "dev": "concurrently \"nodemon --config nodemon.json src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\"",
+    "dev": "concurrently \"nodemon --config nodemon.json --watch ../core/src src/server.ts\" \"yarn run speech\" \"sleep 1 && yarn run search\" \"sleep 2 && yarn run entity-server\"",
     "speech": "nodemon src/speech-server.ts",
     "search": "nodemon src/search-server.ts",
-    "entity-server": "nodemon src/entity-server.ts",
+    "entity-server": "nodemon --watch ../core/src src/entity-server.ts",
     "dev:debug": "nodemon --config nodemon.json --inspect=0.0.0.0:9229 src/server.ts",
     "dev2": "TS_NODE_TRANSPILE_ONLY=true nodemon --watch 'src/*.ts' --exec 'ts-node' src/server.ts",
     "schema:refresh": "rm -rf sequelize/generated/* && node sequelize/creatorTools.js",

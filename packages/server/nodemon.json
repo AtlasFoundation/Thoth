@@ -1,11 +1,5 @@
 {
-  "watch": [
-    "package.json",
-    "nodemon.json",
-    ".eslintrc.json",
-    ".prettierrc",
-    "../core/src"
-  ],
+  "watch": ["package.json", "nodemon.json", ".eslintrc.json", ".prettierrc"],
   "execMap": {
     "ts": "node -r ts-node/register"
   },
