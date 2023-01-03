@@ -83,7 +83,6 @@ export class Task {
   }
 
   getInputByNodeId(node, fromSocket) {
-    if (Object.keys(this.inputs).length > 5) debugger
     let value: null | any = null
     Object.entries(this.inputs).forEach(([key, input]) => {
       const found = input.find(
@@ -93,12 +92,7 @@ export class Task {
         task: { closed: string[] }
       }
       if (found) {
-        if (
-          found?.task &&
-          found.task.closed.length > 0 &&
-          found.key == fromSocket
-        )
-          value = key
+        if (found?.task && found.key == fromSocket) value = key
       }
     })
 
@@ -164,20 +158,34 @@ export class Task {
             .filter((con: ThothReteInput) => {
               // only filter inputs to remove ones that are not the origin if a task option is true
               if (!this.component.task.runOneInput || !fromNode) return true
+              if (con.task.outputData) return true
+              if (con.task.node.id === fromNode.id) return true
+              if (con.task.component.name === 'Spell') return false
 
               // return true if the input is from a triggerless component
               if (!con.task.node.outputs.trigger) return true
-
-              return con.task.node.id === fromNode.id
             })
             .map(async (con: ThothReteInput) => {
+              // if the task has come from a node with output data that is not the calling node, use that data
+              if (con.task.outputData && con.task.node.id !== fromNode?.id) {
+                const outputData = con.task.outputData as Record<
+                  string,
+                  unknown
+                >
+
+                return outputData[con.key]
+              }
+
               await con.task.run(data, {
                 needReset: false,
                 garbage,
                 propagate: false,
                 fromNode: this.node,
               })
-              const outputData = con.task.outputData as Record<string, unknown>
+              const outputData = con.task.outputData as unknown as Record<
+                string,
+                unknown
+              >
 
               return outputData[con.key]
             })
@@ -196,6 +204,8 @@ export class Task {
           : null,
         targetNode: fromNode ? fromNode : null,
       }
+
+      // if (!socketInfo.targetSocket) debugger
 
       // the main output data of the task, which is gathered up when the next node gets this nodes value
       this.outputData = await this.worker(this, inputs, data, socketInfo)

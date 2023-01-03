@@ -55,7 +55,9 @@ const Workspace = ({ tab, tabs, pubSub }) => {
       }, 2000)
     )
 
-    return unsubscribe as () => void
+    return () => {
+      unsubscribe()
+    }
   }, [editor, preferences.autoSave])
 
   useEffect(() => {
