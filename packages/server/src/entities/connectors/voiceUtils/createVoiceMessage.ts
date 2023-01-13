@@ -33,7 +33,7 @@ export default async ({
   }
 
   const channel = client.channels.cache.get(connection.joinConfig.channelId)
-  if (!channel || !channel.isVoice()) return undefined
+  if (!channel || !channel.isVoiceBased()) return undefined
 
   const voiceMessage = new VoiceMessage({
     client,
