@@ -2,6 +2,8 @@
 
 Thoth is a multishot system builder. It leverages a visual coding style interface to allows game designers and developers to rapidly create powerful natural language systems and prototype games.
 
+![image](https://user-images.githubusercontent.com/64185677/212520905-90bd6607-4ff9-4032-8d3d-1233e865b80c.png)
+
 ## Quickstart
 
 You will need **yarn or npm** and **Docker** installed, along with **Node.js 16 or higher**. We use Docker to run a local Postgres database. You can skip the docker and install postgres directly, but you are almost always better off just using Docker.
